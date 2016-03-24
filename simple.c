@@ -1,3 +1,5 @@
+// Authors: Matt & Jerry 03/24/16
+
 #include <stdio.h>
 #include <stdlib.h>
 
