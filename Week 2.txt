@@ -1,14 +1,14 @@
-Read Chapter 4 of the C programming langauge.
+Read Chapter 4 of the C programming language.
 Read the tutorial from the 
 
 
-Prcatice first three chapters in test.c.
+Practice first three chapters in test.c.
 
 
 Notes:
 Still can't compile and run "c" on my own machine.
 
-In C, a = a + 1 is wrtten as ++a; or a++; if no value is wanted
+In C, a = a + 1 is written as ++a; or a++; if no value is wanted
 if n is 5, then x = n++; x will be 5.
 if n is 5, then x = ++n; x will be 6.
 
