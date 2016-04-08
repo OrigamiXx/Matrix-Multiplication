@@ -1,0 +1,39 @@
+Read Chapter 4 of the C programming langauge.
+Read the tutorial from the 
+
+
+Prcatice first three chapters in test.c.
+
+
+Notes:
+Still can't compile and run "c" on my own machine.
+
+In C, a = a + 1 is wrtten as ++a; or a++; if no value is wanted
+if n is 5, then x = n++; x will be 5.
+if n is 5, then x = ++n; x will be 6.
+
+
+if-statement
+
+if ()
+  XXXXX;
+else
+  XXXXX;
+
+if () {
+	if ()
+		xxxx;
+}
+else 
+	xxxxx;
+
+<string.h>
+
+""
+
+Questions:
+How to create a c file directly from the terminal?
+How to open the file like simple.c after clone from the git?
+What's the difference between gcc and cc?
+What is ./a.out really mean and what else could I write instead of "a", maybe "b" or "c"?
+
