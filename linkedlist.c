@@ -4,22 +4,48 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+
+
 typedef struct Node {
   int data;
-  struct Node* next;
-}Node;
+  struct Node * next;
+} Node;
 
-struct Node* head; // global variable
+typedef struct LinkedList{
+  Node * head;
+  int len;
+} LinkedList;
 
+LinkedList * LL_create(){
+
+  LinkedList * tmp = (LinkedList *) malloc(sizeof(LinkedList));
+  tmp -> head = NULL;
+  tmp -> len = 0;
+
+  return tmp;
+
+}
+
+// TODO: void LL_free(LinkedList *) - Free all nodes in list and header struct.
+
+// TODO: Remove
+Node * head = NULL; // global variable
+
+// TODO: void insert_at_end(LinkedList *,int)
+
+// TODO: int search(LinkedList *,int) - Returns the index of data given, -1 if not found.
+
+// TODO: Modify to use LinkedList struct.
 void insert(int x){
-  struct  Node* temp = (Node*)malloc(sizeof(struct Node));
+  Node * temp = (Node *)malloc(sizeof(Node));
   temp->data = x;
-  temp->next = NULL;
+  temp->next = head;
   head = temp;
 };
 
+// TODO: Modify to use LinkedList struct.
 void print(){
-  struct Node* ntemp = head;
+  Node * ntemp = head;
   printf("List is: ");
   while(ntemp != NULL){
     printf(" %d",ntemp->data);
@@ -41,5 +67,16 @@ int main() {
     print();
   }
 
+  // Structure accessing
+  // 1. Deference first
+  //(*head).data = ..;
+  //(*head).next = ..;
+
+  // 2. Deference during
+  //head->data = ..;
+  //head->next = ..;
+
+  // "head->" is short hand for "(*head)."
+    
 }
 
