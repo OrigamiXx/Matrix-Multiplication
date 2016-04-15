@@ -1,0 +1,22 @@
+Read Chapter 5 and 6 roughly understand the array pointers and stucture 
+by comparing to Java, but still have questions and don't understand why there
+is this pointer thing must be implemented in the code in C.
+
+Watch and read a lot of tutorials on how to build a linked list by using C. I understand how to
+build a linked list.
+First, create a node structure with data and next node in it.
+Then declare a head node as a global variable. 
+
+Then all the method (java) for linked list would be start with void
+outside and before the main loop.
+
+Main method is actually now the test file of the linked list in OO Java.
+
+Due to limited time, I only had a simple linked list can only insert at head.
+But I read much more than I coded.
+
+Questions:
+About pointers and structures.
+The sign * & and ->.
+Need a lesson on transfering from Java to C.
+
