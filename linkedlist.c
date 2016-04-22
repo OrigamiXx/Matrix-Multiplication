@@ -3,18 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-
-
-
-typedef struct Node {
-  int data;
-  struct Node * next;
-} Node;
-
-typedef struct LinkedList{
-  Node * head;
-  int len;
-} LinkedList;
+#include "linkedlist.h"
 
 LinkedList * LL_create(){
   LinkedList * tmp = (LinkedList *) malloc(sizeof(LinkedList));
@@ -23,9 +12,9 @@ LinkedList * LL_create(){
   return tmp;
 }
 
-// TODO: void LL_free(LinkedList *) - Free all nodes in list and header struct.
-void LL_free(LinkedList * ll){
-  Node * current = ll->head;
+// Free all nodes in list and LL struct.
+void LL_free(LinkedList ** ll){
+  Node * current = (*ll)->head; // equivalently, (**ll).head      
   Node * next; 
   while (current != NULL){
     next = current->next;
@@ -33,11 +22,12 @@ void LL_free(LinkedList * ll){
     current = next;  
   }
   
-  ll->head = NULL;
-  ll->len = 0;
+  (*ll)->head = NULL;
+  (*ll)->len = 0;
+  free(*ll);
+  *ll = NULL;
 }
 
-// TODO: void insert_at_end(LinkedList *,int)
 void insert_at_end(LinkedList * ll, int data){
   Node * new_node;
   Node * temp;
@@ -56,7 +46,7 @@ void insert_at_end(LinkedList * ll, int data){
 
 }
 
-// TODO: int search(LinkedList *,int) - Returns the index of data given, -1 if not found.
+// Returns the index of data given, -1 if not found.
 int search(LinkedList * ll, int data){
   Node * current = ll->head;
   int index = 0;
@@ -72,7 +62,6 @@ int search(LinkedList * ll, int data){
 }
 
 
-// TODO: Modify to use LinkedList struct.
 void insert(int x, LinkedList * ll){
   Node * temp = (Node *)malloc(sizeof(Node));
   temp->data = x;
@@ -81,65 +70,28 @@ void insert(int x, LinkedList * ll){
   ll->len++;
 };
 
-// TODO: Modify to use LinkedList struct.
-void print(LinkedList * ll){
-  Node * ntemp = ll->head;
-  printf("List is: ");
-  if (ntemp == NULL)
-    printf("nothing is in the list");
-  while(ntemp != NULL){
-    printf(" %d",ntemp->data);
-    ntemp= ntemp->next;
-  }
-  printf("\n");
-}
+int print(LinkedList * ll){
 
-int main() {
-  //head = NULL;
-  //int length = 10;
-  LinkedList * list = LL_create();
-  printf("How many numbers?\n");
-  int n, i, x;
-  scanf("%d",&n);
-  for(i = 0; i<n; i++){
-    printf("Enter the number \n");
-    scanf("%d",&x);
-    insert(x, list);
-    print(list);
-  }
-  int k, j, l;
-  printf("How many numbers you want insert at end?\n");
-  scanf("%d",&k);
-  for(j = 0; j<k;j++){
-    printf("Enter the number \n");
-    scanf("%d",&l);
-    insert_at_end(list, l);
-    print(list);
-  }
-  printf("How many data you want to search?\n");
-  int a, b, c;
-  scanf("%d",&c);
-  for(i=0; i<c; i++){
-    printf("What data do you want to search?\n");
-    scanf("%d",&a);
-    b = search(list, a);
-    printf("The index is:");
-    printf("%d", b);
+  if (ll != NULL){
+
+    Node * ntemp = ll->head;
+    printf("List is: ");
+
+    if (ntemp == NULL)
+      printf("nothing is in the list");
+
+    while(ntemp != NULL){
+      printf(" %d",ntemp->data);
+      ntemp= ntemp->next;
+    }
+
     printf("\n");
+
+    return 0;
   }
-  printf("Now free the linked list.\n");
-  LL_free(list);
-  print(list);
-  // Structure accessing
-  // 1. Deference first
-  //(*head).data = ..;
-  //(*head).next = ..;
+  
+  return -1;
 
-  // 2. Deference during
-  //head->data = ..;
-  //head->next = ..;
-
-  // "head->" is short hand for "(*head)."
-    
 }
+
 
