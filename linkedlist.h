@@ -1,7 +1,6 @@
 //#ifdef __LINKED_LIST_H__
 //#define __LINKED_LIST_H__
 
-
 typedef struct Node {
   int data;
   struct Node * next;

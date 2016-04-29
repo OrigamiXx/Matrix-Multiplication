@@ -3,7 +3,7 @@
 
 typedef struct permutation {
   int size;
-  int arrow[];
+  int * arrow;
 } permutation;
 
 permutation * ID_permutation(int n);
