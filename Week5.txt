@@ -1,0 +1,7 @@
+Week 5
+Did permutation.h
+Kind of did permutation.c, I don't know what NextPerm is.
+
+Have no idea why tester will crash or not work.
+Have no idea why if the number is bigger than 6 when creates the permutation the program crash.
+
