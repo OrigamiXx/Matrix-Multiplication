@@ -10,7 +10,7 @@ permutation * ID_permutation(int n);
 
 int Apply_permutation(permutation * pi, int x);
 
-//next_perm()
+permutation * next_permutation(permutation * pi);
 
 permutation * compose(permutation * pi, permutation * delta);
 

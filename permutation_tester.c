@@ -21,7 +21,13 @@ int main(){
   printf("\n");
   printf("The compose of g o f is:\n");
   print(compose(f,g));
-
+  printf("\n");
+  printf("Next permutation of f:\n");
+  permutation * f1 = next_permutation(f);
+  print(f1);
+  printf("Next permutation of f1:\n");
+  permutation * f2 = next_permutation(f1);
+  print(f2);
   return 0;
 }
 
