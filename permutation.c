@@ -23,7 +23,17 @@ int Apply_permutation(permutation * pi, int x){
   result = pi->arrow[x];
   return result;
 }
-
+//last permutation
+permutation * last_permutation(permutation * pi){
+  permutation * tmp = (permutation *) malloc(sizeof(permutation));
+  tmp -> arrow = malloc(sizeof(int)*pi->size);
+  int i;
+  for (i = 0; i< pi->size; i++){
+    tmp->arrow[i] = pi->arrow[pi->size-1-i] ;
+  }
+  tmp -> size = pi->size;
+  return tmp;
+}
 
 //next_permutation
 // some problems, it won't loop back and the order is a little bit off
@@ -79,6 +89,8 @@ int print(permutation * pi){
   return 0;
 }
 
+
+
 int main(){
   printf("What's the size of the permutation?\n");
   int n;
@@ -90,6 +102,8 @@ int main(){
   print(f);
   printf("g is:\n");
   print(g);
+  permutation * h = last_permutation(f);
+  print(h);
   printf("What number(must be less than the size) do you want to apply in the permutation?\n");
   int x;
   scanf("%d", &x);

@@ -16,5 +16,7 @@ permutation * compose(permutation * pi, permutation * delta);
 
 int print(permutation * pi);
 
+permutation * last_permutation(permutation *pi);
+
 
 //#endif
