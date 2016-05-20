@@ -13,6 +13,8 @@ int main(){
   print(f);
   printf("g is:\n");
   print(g);
+  permutation * h = last_permutation(f);
+  print(h);
   printf("What number(must be less than the size) do you want to apply in the permutation?\n");
   int x;
   scanf("%d", &x);
@@ -28,6 +30,6 @@ int main(){
   printf("Next permutation of f1:\n");
   permutation * f2 = next_permutation(f1);
   print(f2);
+  
   return 0;
 }
-

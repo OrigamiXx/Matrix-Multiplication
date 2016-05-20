@@ -1,0 +1,9 @@
+To make the permutation tester use: 
+make perm-tester
+Then run:
+./perm-tester
+
+To make the linked list tester use:
+make ll-tester
+Then run:
+./ll-tester
