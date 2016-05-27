@@ -16,7 +16,13 @@ permutation * compose(permutation * pi, permutation * delta);
 
 int print(permutation * pi);
 
-permutation * last_permutation(permutation *pi);
+permutation * last_permutation(int n);
+
+void destroy_perm(permutation * pi);
+
+int equals(permutation * pi1, permutation * p2);
+
+int is_last(permutation * pi);
 
 
 //#endif

@@ -5,6 +5,9 @@
 #include <stdlib.h>
 #include "permutation.h"
 
+#define true 0
+#define false 1
+
 permutation  * ID_permutation(int n){
   permutation * tmp = (permutation *) malloc(sizeof(permutation));
   //tmp -> arrow[n];  // This accesses element n of tmp -> arrow.
@@ -23,20 +26,23 @@ int Apply_permutation(permutation * pi, int x){
   result = pi->arrow[x];
   return result;
 }
-//last permutation
-permutation * last_permutation(permutation * pi){
+//last permutation - Takes a permutation and returns a new permutation 
+//over the set of the same size which is the last permutation for that
+//set.
+permutation * last_permutation(int n){
   permutation * tmp = (permutation *) malloc(sizeof(permutation));
-  tmp -> arrow = malloc(sizeof(int)*pi->size);
+  tmp -> size = n;
+  tmp -> arrow = malloc(sizeof(int)*n);
   int i;
-  for (i = 0; i< pi->size; i++){
-    tmp->arrow[i] = pi->arrow[pi->size-1-i] ;
+  for (i = 0; i < tmp->size; i++){
+    tmp->arrow[i] = n - (i + 1);
   }
-  tmp -> size = pi->size;
   return tmp;
 }
 
 //next_permutation
 // some problems, it won't loop back and the order is a little bit off
+// Assumes that pi is not the last permutation.
 permutation * next_permutation(permutation * pi){
   int j, l, k, n;
   n = pi->size-1;
@@ -65,6 +71,46 @@ permutation * next_permutation(permutation * pi){
   return pi;
 }
 
+//Deallocates a permutation.
+void destroy_perm(permutation * pi){
+  free(pi -> arrow);
+  free(pi);
+}
+
+//Tests whether two permutations are equal.
+int equals(permutation * pi1, permutation * pi2){
+
+  if (pi1 == NULL && pi2 == NULL)
+    return true;
+  if (pi1 == NULL || pi2 == NULL)
+    return false;
+
+  if (pi1 -> size != pi2 -> size)
+    return false;
+  
+  int i;
+
+  for (i = 0; i < pi1 -> size; i++)
+    if (pi1 -> arrow[i] != pi2 -> arrow[i])
+      return false;
+
+  return true;
+}
+
+//Tests whether permutation is the last permutation.
+int is_last(permutation * pi){
+
+  permutation * last = last_permutation(pi -> size);
+
+  int ret = equals(pi,last);
+
+  destroy_perm(last);
+
+  return ret;
+}
+
+
+
 
 //compose just like fucntion f:A->B g:B->C
 // int this case it's delta(pi(x))
@@ -91,34 +137,4 @@ int print(permutation * pi){
 
 
 
-int main(){
-  printf("What's the size of the permutation?\n");
-  int n;
-  scanf("%d", &n);
-  permutation * f = ID_permutation(n);
-  permutation * g = ID_permutation(n);
-  printf("print out the identity permutation:\n");
-  printf("f is:\n");
-  print(f);
-  printf("g is:\n");
-  print(g);
-  permutation * h = last_permutation(f);
-  print(h);
-  printf("What number(must be less than the size) do you want to apply in the permutation?\n");
-  int x;
-  scanf("%d", &x);
-  printf("The output is:");
-  printf("%d",Apply_permutation(f,x));
-  printf("\n");
-  printf("The compose of g o f is:\n");
-  print(compose(f,g));
-  printf("\n");
-  printf("Next permutation of f:\n");
-  permutation * f1 = next_permutation(f);
-  print(f1);
-  printf("Next permutation of f1:\n");
-  permutation * f2 = next_permutation(f1);
-  print(f2);
-  
-  return 0;
-}
+
