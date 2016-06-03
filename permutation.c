@@ -5,8 +5,8 @@
 #include <stdlib.h>
 #include "permutation.h"
 
-#define true 0
-#define false 1
+#define true 1
+#define false 0
 
 permutation  * ID_permutation(int n){
   permutation * tmp = (permutation *) malloc(sizeof(permutation));

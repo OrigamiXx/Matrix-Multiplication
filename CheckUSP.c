@@ -55,7 +55,7 @@ puzzle * create_puzzle(int rows, int cols){
   usp -> puzzle[4][2] = 3;
   usp -> puzzle[5][0] = 3;
   usp -> puzzle[5][1] = 2;
-  usp -> puzzle[5][1] = 3;
+  usp -> puzzle[5][2] = 3;
   
   usp -> pi = ID_permutation(6);
 
@@ -68,15 +68,39 @@ int CheckUSP(puzzle * p){
   int u, i, result;
   result = -1;
 
+  printf("Starting Check USP\n");
+
+  /* print(ID_permutation(p->row)); */
+
+  /* printf("\n"); */
+
+  /* print(last_permutation(p->row)); */
+
+  /* printf("\n"); */
+
+  /* pi_1 = ID_permutation(p->row); */
+
+  /* printf("!equal = %d\n",!equals(pi_1,last_permutation(p->row))); */
+
+
   for (pi_1 = ID_permutation(p->row); !equals(pi_1,last_permutation(p->row)) ; pi_1 = next_permutation(pi_1)){
+    printf("pi_1 = \n");
+    print(pi_1);
     for (pi_2 = ID_permutation(p->row); !equals(pi_2,last_permutation(p->row)); pi_2 = next_permutation(pi_2)){
+      printf("pi_2 = \n");
+      print(pi_2);
+
       for (pi_3 = ID_permutation(p->row); !equals(pi_3,last_permutation(p->row)); pi_3 = next_permutation(pi_3)){
-	if (pi_1 == pi_2 && pi_2 == pi_3){
+	printf("pi_3 = \n");
+	print(pi_3);
+
+	if (equals(pi_1,pi_2) && equals(pi_2, pi_3)){
 	  continue;
 	}
 	else{
 	  result = -1;
 	}
+
 	for (u = 0;u< p->row;u++){
 	  for (i = 0;i< p->column;i++ ){
 	    if( (p->puzzle[Apply_permutation(pi_1, u)][i] == 1) &&
@@ -94,9 +118,10 @@ int CheckUSP(puzzle * p){
 	    }
 	  }
 	}
-      if (result == -1){
-	return -1;
-      }
+
+	if (result == -1){
+	  return -1;
+	}
 
       }
     }
@@ -106,6 +131,10 @@ int CheckUSP(puzzle * p){
 
 int main(int argc, char * argv[]){
   
+  puzzle * p = create_puzzle(6,3);
+
+  printf("result = %d\n",CheckUSP(p));
+
   return 0;
 
 }
