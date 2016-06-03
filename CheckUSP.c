@@ -41,6 +41,22 @@ puzzle * create_puzzle(int rows, int cols){
   usp -> puzzle[0][0] = 1;
   usp -> puzzle[0][1] = 2;
   usp -> puzzle[0][2] = 1;
+  usp -> puzzle[1][0] = 1;
+  usp -> puzzle[1][1] = 2;
+  usp -> puzzle[1][2] = 2;
+  usp -> puzzle[2][0] = 1;
+  usp -> puzzle[2][1] = 1;
+  usp -> puzzle[2][2] = 3;
+  usp -> puzzle[3][0] = 1;
+  usp -> puzzle[3][1] = 3;
+  usp -> puzzle[3][2] = 3;
+  usp -> puzzle[4][0] = 2;
+  usp -> puzzle[4][1] = 2;
+  usp -> puzzle[4][2] = 3;
+  usp -> puzzle[5][0] = 3;
+  usp -> puzzle[5][1] = 2;
+  usp -> puzzle[5][1] = 3;
+  
 
   //usp -> pi = ID_permutaion(6);
 
@@ -90,7 +106,7 @@ puzzle * create_puzzle(int rows, int cols){
 /* } */
 
 int main(int argc, char * argv[]){
-
+  
   return 0;
 
 }
