@@ -1,0 +1,4 @@
+Week 9
+Read chapter 1 of Intro to parallel programming
+
+Debug and re-implement of CheckUSP.c
