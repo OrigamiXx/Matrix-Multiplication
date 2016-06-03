@@ -1,0 +1,11 @@
+Week 10
+
+Read Chapter 2 & 3 for parallel programming
+
+Edit a little bit of CheckUSP.c
+
+Practicum goal that hasn't fullfilled:
+
+1. how to interact with Union's Jupiter cluster (only log in for secs once)
+2.  Write code to "construct" USP (only used example from the research paper)
+3.  Didn't fully debugg the Test(checkUSP) algorithm
