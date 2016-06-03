@@ -1,0 +1,3 @@
+Week 7
+
+Write out the last_permutation, and test the permutation class. Starting to do reacall the USP and re-read the paper about USP. Try to design the algorithm for Checking if the puzzle it's USP.
