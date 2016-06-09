@@ -4,13 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "permutation.h"
-
-typedef struct puzzle {
-  permutation * pi;
-  int ** puzzle;
-  int row;
-  int column;
-}puzzle;
+#include "CheckUSP.h"
 
 
 int puz[6][3] = {
@@ -58,7 +52,57 @@ puzzle * create_puzzle(int rows, int cols){
   usp -> puzzle[5][2] = 3;
   
   usp -> pi = ID_permutation(6);
-
+  
+  /*usp -> puzzle[0][0] = 3;
+    usp -> puzzle[0][1] = 3;
+    usp -> puzzle[0][2] = 3;
+    usp -> puzzle[0][3] = 3;
+    usp -> puzzle[0][4] = 3;
+    usp -> puzzle[0][5] = 3;
+    usp -> puzzle[1][0] = 1;
+    usp -> puzzle[1][1] = 3;
+    usp -> puzzle[1][2] = 3;
+    usp -> puzzle[1][3] = 2;
+    usp -> puzzle[1][4] = 3;
+    usp -> puzzle[1][5] = 3;
+    usp -> puzzle[2][0] = 3;
+    usp -> puzzle[2][1] = 1;
+    usp -> puzzle[2][2] = 3;
+    usp -> puzzle[2][3] = 3;
+    usp -> puzzle[2][4] = 2;
+    usp -> puzzle[2][5] = 3;
+    usp -> puzzle[3][0] = 1;
+    usp -> puzzle[3][1] = 1;
+    usp -> puzzle[3][2] = 3;
+    usp -> puzzle[3][3] = 2;
+    usp -> puzzle[3][4] = 2;
+    usp -> puzzle[3][5] = 3;
+    usp -> puzzle[4][0] = 3;
+    usp -> puzzle[4][1] = 3;
+    usp -> puzzle[4][2] = 1;
+    usp -> puzzle[4][3] = 3;
+    usp -> puzzle[4][4] = 3;
+    usp -> puzzle[4][5] = 2;
+    usp -> puzzle[5][0] = 1;
+    usp -> puzzle[5][1] = 3;
+    usp -> puzzle[5][2] = 1;
+    usp -> puzzle[5][3] = 2;
+    usp -> puzzle[5][4] = 3;
+    usp -> puzzle[5][5] = 2;
+    usp -> puzzle[6][0] = 3;
+    usp -> puzzle[6][1] = 1;
+    usp -> puzzle[6][2] = 1;
+    usp -> puzzle[6][3] = 3;
+    usp -> puzzle[6][4] = 2;
+    usp -> puzzle[6][5] = 2;
+    usp -> puzzle[7][0] = 1;
+    usp -> puzzle[7][1] = 1;
+    usp -> puzzle[7][2] = 1;
+    usp -> puzzle[7][3] = 2;
+    usp -> puzzle[7][4] = 2;
+    usp -> puzzle[7][5] = 2;
+    */
+   
   return usp;
 }
 
@@ -127,14 +171,4 @@ int CheckUSP(puzzle * p){
     }
   }
   return 1;
-}
-
-int main(int argc, char * argv[]){
-  
-  puzzle * p = create_puzzle(6,3);
-
-  printf("result = %d\n",CheckUSP(p));
-
-  return 0;
-
 }
