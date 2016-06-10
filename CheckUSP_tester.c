@@ -5,7 +5,7 @@
 
 int main(int argc, char * argv[]){
   
-  puzzle * p = create_puzzle(6,3); // correct one (8,6)
+  puzzle * p = create_puzzle(8,6); //6,3); // correct one (8,6)
 
   printf("result = %d\n",CheckUSP(p));
 

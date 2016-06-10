@@ -1,5 +1,5 @@
-//#ifdef __PERMUTATION_H__
-//#define __PERMUTATION_H__
+#ifndef __PERMUTATION_H__
+#define __PERMUTATION_H__
 
 typedef struct permutation {
   int size;
@@ -25,4 +25,4 @@ int equals(permutation * pi1, permutation * p2);
 int is_last(permutation * pi);
 
 
-//#endif
+#endif
