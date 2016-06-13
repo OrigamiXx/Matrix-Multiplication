@@ -16,6 +16,26 @@ int puz[6][3] = {
   {3,2,3}
 };
 
+// Todo read a puzzle from a file.
+puzzle * create_puzzle_from_file(char * filename){
+
+  puzzle * p = (puzzle *) (malloc(sizeof(puzzle)));
+
+  FILE * f = fopen(filename,"r");
+ 
+  char buff[256];
+ 
+  fscanf(f,"%s\n",buff);
+  // Todo loop until end of file using feof(f).  Build up puzzle DS.
+  printf("line |%s|\n",buff);
+
+
+  fscanf(f,"%s\n",buff);
+  printf("line |%s|\n",buff);
+
+  return p;
+}
+
 puzzle * create_puzzle(int rows, int cols){
 
   puzzle * usp = (puzzle *) (malloc(sizeof(puzzle)));
