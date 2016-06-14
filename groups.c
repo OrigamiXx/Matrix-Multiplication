@@ -1,3 +1,8 @@
+// The purpose of this file is to implement the groups based on USPs
+// from Section 3.2 of [CKSU'05].  They serve as the basic
+// datastructures necessary to implement the matrix multiplication
+// algorithm.
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <strings.h>
@@ -6,6 +11,7 @@
 #include "permutation.h"
 #include "groups.h"
 #include "constants.h"
+
 
 
 // ================================================================================
@@ -88,7 +94,7 @@ void destroy_elt_H(elt_H * h){
 
 }
 
-// Returns true if h is identity and false otherwise.
+// Returns true iff h = 1.
 int is_identity_elt_H(elt_H * h){
 
   int U = h -> U;
@@ -98,6 +104,33 @@ int is_identity_elt_H(elt_H * h){
   for (i = 0; i < U; i++){
     for (j = 0; j < k; j++){
       if (h -> f[i][j] != 0)
+	return false;
+    }
+  }
+
+  return true;
+
+}
+
+// Returns true iff h1 = h2.
+int equals_elt_H(elt_H * h1, elt_H * h2){
+
+  if (h1 -> U != h2 -> U)
+    return false;
+
+  if (h1 -> k != h2 -> k)
+    return false;
+
+  if (h1 -> m != h2 -> m)
+    return false;
+
+  int U = h1 -> U;
+  int k = h1 -> k;
+
+  int i,j;
+  for (i = 0; i < U; i++){
+    for (j = 0; j < k; j++){
+      if (h1 -> f[i][j] != h2 -> f[i][j])
 	return false;
     }
   }
@@ -277,6 +310,13 @@ int is_identity_elt_G(elt_G * g){
 
 }
 
+// Returns true iff g1 = g2.
+int equals_elt_G(elt_G * g1, elt_G * g2){
+
+  return equals_elt_H(g1 -> h, g2 -> h) && equals(g1 -> pi, g2 -> pi);
+
+}
+
 // Multiplies two elements of G and returns a new copy.
 elt_G * multiply_elt_G_new(elt_G * g1, elt_G *g2){
 
@@ -339,4 +379,17 @@ void print_elt_G(elt_G * g){
 // Returns an array containing all elements of G satisfying hp(u,j) =
 // 0 iff u_j = i for all u in U, j in [k].  Length is set to the
 // length of this array.
+// XXX - Todo.
 elt_G ** create_Sis(puzzle * p, int i, int * length);
+
+
+
+
+// ================================================================================
+//
+//  Implementation of Group Algebra R[G]
+//
+// ================================================================================
+
+
+// XXX - Todo.

@@ -34,6 +34,9 @@ void destroy_elt_H(elt_H * h);
 // Returns true if h is the identity in H.
 int is_identity_elt_H(elt_H * h);
 
+// Returns true iff h1 = h2.
+int equals_elt_H(elt_H * h1, elt_H * h2);
+
 // Addition operator.  Returns new copy.
 elt_H * add_elt_H_new(elt_H * h1, elt_H * h2);
 
@@ -85,6 +88,9 @@ void destroy_elt_G(elt_G * g);
 
 // Returns true if g is the identity in G.
 int is_identity_elt_G(elt_G * g);
+
+// Returns true iff g1 = g2.
+int equals_elt_G(elt_G * g1, elt_G * g2);
 
 // Multiplies two elements of G and returns a new copy.
 elt_G * multiply_elt_G_new(elt_G * g1, elt_G *g2);
