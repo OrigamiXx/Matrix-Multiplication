@@ -1,6 +1,7 @@
 #ifndef __GROUPS_H__
 #define __GROUPS_H__
 
+#include "permutation.h"
 
 // Elements of H = U x [k] -> C_m
 
@@ -11,7 +12,7 @@ typedef struct _elt_H{
 
   int U; // Size of puzzle
   int k; // Width of puzzle
-  int ** h; // Characteristic sequence. 
+  int ** f; // Characteristic sequence. 
   int m; // Size of Cyclic group.
 
 } elt_H;
@@ -20,6 +21,9 @@ typedef struct _elt_H{
 // Default constructor.  Allocates empty elt_H structure, function is identity.
 elt_H * create_elt_H_identity(int U, int k, int m);
 
+// Random constructor.  Allocates empty elt_H structure, function is random.
+elt_H * create_elt_H_random(int U, int k, int m);
+
 // Copy constructor.
 elt_H * copy_elt_H(elt_H * h);
 
@@ -27,10 +31,10 @@ elt_H * copy_elt_H(elt_H * h);
 void destroy_elt_H(elt_H * h);
 
 // Addition operator.  Returns new copy.
-elt_H * add_elt_H(elt_H * h1, elt_H * h2);
+elt_H * add_elt_H_new(elt_H * h1, elt_H * h2);
 
 // Addition operator.  Adds to first parameter.  No allocation.
-void add_elt_H_new(elt_H * h1, elt_H * h2);
+void add_elt_H(elt_H * h1, elt_H * h2);
 
 // Inverts an element of h.  No allocation.
 void inverse(elt_H * h); 

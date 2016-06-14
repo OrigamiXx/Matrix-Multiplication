@@ -1,3 +1,5 @@
+groups.o:
+	gcc -o groups.o -c groups.c
 
 permutation.o:
 	gcc -o permutation.o -c permutation.c
@@ -13,6 +15,9 @@ ll-tester: linklist.o
 
 perm-tester: permutation.o
 	gcc permutation.o permutation_tester.c -o perm-tester
+
+groups_tester: groups.o permutation.o
+	gcc permutation.o groups.o groups_tester.c -o groups_tester
 
 CU-tester: CheckUSP.o permutation.o
 	gcc permutation.o CheckUSP.o CheckUSP_tester.c -o CU-tester
