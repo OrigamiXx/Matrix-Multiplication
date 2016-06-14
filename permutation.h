@@ -8,6 +8,9 @@ typedef struct permutation {
 
 permutation * ID_permutation(int n);
 
+// Returns a newly allocated copy of pi.
+permutation * copy_permutation(permutation * pi);
+
 int Apply_permutation(permutation * pi, int x);
 
 permutation * next_permutation(permutation * pi);

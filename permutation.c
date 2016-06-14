@@ -10,6 +10,7 @@
 
 permutation  * ID_permutation(int n){
   permutation * tmp = (permutation *) malloc(sizeof(permutation));
+  assert(tmp != NULL);
   //tmp -> arrow[n];  // This accesses element n of tmp -> arrow.
   tmp -> arrow = malloc(sizeof(int)*n);
   int i;
@@ -18,6 +19,21 @@ permutation  * ID_permutation(int n){
   }
   tmp -> size = n; 
   return tmp;
+}
+
+// Returns a newly allocated copy of pi.
+permutation * copy_permutation(permutation * pi){
+  
+  int size = pi -> size;
+  permutation * pi2 = ID_permutation(size);
+
+  int i;
+  for (i = 0; i < size; i++){
+    pi2 -> arrow[i] = pi -> arrow[i];
+  }
+
+  return pi2;
+
 }
 
 // apply permutation, x must be inside the domain of the permutation

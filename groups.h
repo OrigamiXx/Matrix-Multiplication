@@ -2,6 +2,7 @@
 #define __GROUPS_H__
 
 #include "permutation.h"
+#include "CheckUSP.h"
 
 // Elements of H = U x [k] -> C_m
 
@@ -46,10 +47,10 @@ void inverse_elt_H(elt_H * h);
 elt_H * inverse_elt_H_new(elt_H * h);
 
 // Applies permutation action to element of H.  No allocation.
-void apply_elt_H(elt_H * h, permutation * p);
+void apply_elt_H(elt_H * h, permutation * pi);
 
 // Applies permutation action to element of H.  Returns new copy.
-elt_H * apply_elt_H_new(elt_H * h, permutation * p);
+elt_H * apply_elt_H_new(elt_H * h, permutation * pi);
 
 // Display an element of H.
 void print_elt_H(elt_H * h);
@@ -65,16 +66,16 @@ void next_elt(elt_H * h);
 typedef struct _elt_G{
 
   elt_H * h;
-  permutation * p;
+  permutation * pi;
 
 } elt_G;
 
 
 // Default constructor.  Allocates new elt_G structure, doesn't copy h or p.
-elt_G * create_elt_G(elt_H * h, permutation *p);
+elt_G * create_elt_G(elt_H * h, permutation *pi);
 
 // Default constructor.  Allocates new elt_G structure, copies h and p.
-elt_G * create_elt_G_new(elt_H * h, permutation *p);
+elt_G * create_elt_G_new(elt_H * h, permutation *pi);
 
 // Copy constructor.
 elt_G * copy_elt_G(elt_G * g);
@@ -93,6 +94,9 @@ void inverse_elt_G(elt_G * g);
 
 // Return inverse of parameter as new copy.  
 elt_G * inverse_elt_G_new(elt_G * g);
+
+// Displays given element of G.
+void print_elt_G(elt_G * g);
 
 // Returns an array containing all elements of G satisfying hp(u,j) =
 // 0 iff u_j = i for all u in U, j in [k].  Length is set to the

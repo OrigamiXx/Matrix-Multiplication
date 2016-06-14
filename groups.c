@@ -1,4 +1,3 @@
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <strings.h>
@@ -8,6 +7,12 @@
 #include "groups.h"
 #include "constants.h"
 
+
+// ================================================================================
+//
+//  Implementation of Group H
+//
+// ================================================================================
 
 // Default constructor.  Allocates empty elt_H structure, function is identity.
 elt_H * create_elt_H_identity(int U, int k, int m){
@@ -161,7 +166,7 @@ elt_H * inverse_elt_H_new(elt_H * h1){
 }
 
 // Applies permutation action to element of H.  No allocation.
-void apply_elt_H(elt_H * h, permutation * p){
+void apply_elt_H(elt_H * h, permutation * pi){
 
   int U = h -> U;
 
@@ -173,7 +178,7 @@ void apply_elt_H(elt_H * h, permutation * p){
   int i;
 
   for (i = 0; i < U; i++){
-    h -> f[i] = tmp[Apply_permutation(p,i)];
+    h -> f[i] = tmp[Apply_permutation(pi,i)];
   }
 
   //free(tmp);
@@ -181,11 +186,11 @@ void apply_elt_H(elt_H * h, permutation * p){
 }
 
 // Applies permutation action to element of H.  Returns new copy.
-elt_H * apply_elt_H_new(elt_H * h1, permutation * p){
+elt_H * apply_elt_H_new(elt_H * h1, permutation * pi){
 
   elt_H * h2 = copy_elt_H(h1);
 
-  apply_elt_H(h2,p);
+  apply_elt_H(h2,pi);
 
   return h2;
 
@@ -212,7 +217,117 @@ void print_elt_H(elt_H * h){
 }
 
 // In place iterator for elements of H.  No allocation.
+// XXX - todo.
 void next_elt(elt_H * h);
 
 // Iterator for elements of H. Returns new copy.
+// XXX - todo.
 void next_elt(elt_H * h);
+
+
+// ================================================================================
+//
+//  Implementation of Group G
+//
+// ================================================================================
+
+
+// Default constructor.  Allocates new elt_G structure, doesn't copy h or p.
+elt_G * create_elt_G(elt_H * h, permutation *pi){
+
+  elt_G * g = (elt_G *) malloc(sizeof(elt_G));
+
+  assert(g != NULL);
+
+  g -> h = h;
+  g -> pi = pi;
+
+  return g;
+}
+
+// Default constructor.  Allocates new elt_G structure, copies h and p.
+elt_G * create_elt_G_new(elt_H * h, permutation *pi){
+  
+  return create_elt_G(copy_elt_H(h),copy_permutation(pi));
+
+}
+
+// Copy constructor.
+elt_G * copy_elt_G(elt_G * g){
+
+  return create_elt_G_new(g -> h, g -> pi);
+
+}
+
+// Destructor.  Deallocates everything.  XXX - Perhaps implements a shallow destructor.
+void destroy_elt_G(elt_G * g) {
+
+  destroy_elt_H(g -> h);
+  destroy_perm(g -> pi);
+  free(g);
+
+}
+
+// Multiplies two elements of G and returns a new copy.
+elt_G * multiply_elt_G_new(elt_G * g1, elt_G *g2){
+
+  elt_G * g = copy_elt_G(g1);
+
+  multiply_elt_G(g,g2);
+
+  return g;
+
+}
+
+// Multiplies two elements of G, replacing the first parameter.
+void multiply_elt_G(elt_G * g1, elt_G *g2){
+
+  // Semi-direct product: (h1,pi1).(h2,pi2) = (h1^pi2 h2, pi1 pi2)
+
+  apply_elt_H(g1 -> h, g2 -> pi);
+  add_elt_H(g1 -> h, g2 -> h);
+
+  // Compose allocates a new permutation, so we need to free the original.
+  permutation * pi = g1 -> pi;
+  g1 -> pi = compose(g1 -> pi, g2 -> pi); 
+  destroy_perm(pi);
+ 
+}
+
+// Inverts an element of h.  No allocation.
+void inverse_elt_G(elt_G * g) {
+
+  // Inverse of (h,pi) is ((h^-1)^(pi^-1), pi^-1).
+  inverse_elt_H(g -> h);
+  g -> pi = invert_permutation(g -> pi);
+  apply_elt_H(g -> h,g -> pi);
+
+}
+  
+
+// Return inverse of parameter as new copy.  
+elt_G * inverse_elt_G_new(elt_G * g1){
+
+  elt_G * g2 = copy_elt_G(g1);
+
+  inverse_elt_G(g2);
+
+  return g2;
+
+}
+
+// Displays given element of G.
+void print_elt_G(elt_G * g){
+
+  printf("(h = \n");
+  print_elt_H(g -> h);
+  printf("---\n");
+  print(g -> pi);
+  printf(")\n");
+    
+}
+
+// Returns an array containing all elements of G satisfying hp(u,j) =
+// 0 iff u_j = i for all u in U, j in [k].  Length is set to the
+// length of this array.
+elt_G ** create_Sis(puzzle * p, int i, int * length);
