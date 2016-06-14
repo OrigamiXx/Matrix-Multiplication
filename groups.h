@@ -83,6 +83,9 @@ elt_G * copy_elt_G(elt_G * g);
 // Destructor.
 void destroy_elt_G(elt_G * g);
 
+// Returns true if g is the identity in G.
+int is_identity_elt_G(elt_G * g);
+
 // Multiplies two elements of G and returns a new copy.
 elt_G * multiply_elt_G_new(elt_G * g1, elt_G *g2);
 

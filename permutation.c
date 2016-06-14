@@ -88,7 +88,7 @@ permutation * next_permutation(permutation * pi){
 }
 
 // Replaces and returns the inverse of a permutation.
-permutation * invert_permutation(permutation * pi){
+permutation * inverse_permutation(permutation * pi){
 
   int s = pi -> size;
   
@@ -104,6 +104,21 @@ permutation * invert_permutation(permutation * pi){
   }
 
   return pi;
+}
+
+// Returns true iff pi is the identity permutation.
+int is_identity_permutation(permutation * pi){
+  
+  int s = pi -> size;
+  
+  int i;
+  for (i = 0; i < s; i++){
+    if (pi -> arrow[i] != i)
+      return false;
+  }
+
+  return true;
+
 }
 
 

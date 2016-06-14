@@ -43,7 +43,7 @@ void main(int argc, char * argv[]) {
 
   print_elt_H(h5);
 
-  p = invert_permutation(p);
+  p = inverse_permutation(p);
 
   elt_H * h6 = apply_elt_H_new(h5,p);
   print(p);
@@ -70,5 +70,43 @@ void main(int argc, char * argv[]) {
   destroy_elt_H(h5);
   destroy_elt_H(h6);
   destroy_perm(p);
+
+  printf("============= Finished Group H Tests ================\n");
+
+  h1 = create_elt_H_random(U,k,m);
+  p = ID_permutation(U);
+  p = next_permutation(p);
+
+  elt_G * g1 = create_elt_G(h1,p);
+  
+  print_elt_G(g1);
+
+  elt_G * g2 = copy_elt_G(g1);
+
+  destroy_elt_G(g1);
+
+  print_elt_G(g2);
+
+  elt_G * g3 = inverse_elt_G_new(g2);
+
+  print_elt_G(g3);
+
+  elt_G * g4 = multiply_elt_G_new(g2,g3);
+
+  print_elt_G(g4);
+
+  destroy_elt_G(g2);
+  destroy_elt_G(g3);
+
+  if (!is_identity_elt_G(g4)){
+    printf("Test failed.\n");
+  } else {
+    printf("Test successful.\n");
+  }
+
+  destroy_elt_G(g4);
+
+  printf("============= Finished Group G Tests ================\n");
+
 
 }

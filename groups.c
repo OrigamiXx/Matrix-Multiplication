@@ -235,6 +235,8 @@ void next_elt(elt_H * h);
 // Default constructor.  Allocates new elt_G structure, doesn't copy h or p.
 elt_G * create_elt_G(elt_H * h, permutation *pi){
 
+  assert(h -> U == pi -> size);
+
   elt_G * g = (elt_G *) malloc(sizeof(elt_G));
 
   assert(g != NULL);
@@ -265,6 +267,13 @@ void destroy_elt_G(elt_G * g) {
   destroy_elt_H(g -> h);
   destroy_perm(g -> pi);
   free(g);
+
+}
+
+// Returns true if g is the identity in G.
+int is_identity_elt_G(elt_G * g){
+  
+  return is_identity_elt_H(g -> h) && is_identity_permutation(g -> pi); 
 
 }
 
@@ -299,7 +308,7 @@ void inverse_elt_G(elt_G * g) {
 
   // Inverse of (h,pi) is ((h^-1)^(pi^-1), pi^-1).
   inverse_elt_H(g -> h);
-  g -> pi = invert_permutation(g -> pi);
+  g -> pi = inverse_permutation(g -> pi);
   apply_elt_H(g -> h,g -> pi);
 
 }

@@ -13,10 +13,13 @@ permutation * copy_permutation(permutation * pi);
 
 int Apply_permutation(permutation * pi, int x);
 
+// Returns true iff pi is the identity permutation.
+int is_identity_permutation(permutation * pi);
+
 permutation * next_permutation(permutation * pi);
 
 // Replaces and returns the inverse of a permutation.
-permutation * invert_permutation(permutation * pi);
+permutation * inverse_permutation(permutation * pi);
 
 permutation * compose(permutation * pi, permutation * delta);
 
