@@ -3,10 +3,10 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <assert.h>
 #include "permutation.h"
-
-#define true 1
-#define false 0
+#include "constants.h"
 
 permutation  * ID_permutation(int n){
   permutation * tmp = (permutation *) malloc(sizeof(permutation));
@@ -71,6 +71,27 @@ permutation * next_permutation(permutation * pi){
   return pi;
 }
 
+// Replaces and returns the inverse of a permutation.
+permutation * invert_permutation(permutation * pi){
+
+  int s = pi -> size;
+  
+  assert(s <= 30);
+
+  int tmp[30];
+  memcpy(tmp, pi -> arrow, sizeof(int) * s);
+  
+
+  int i;
+  for (i = 0; i < s; i++){
+    pi -> arrow[tmp[i]] = i;
+  }
+
+  return pi;
+}
+
+
+
 //Deallocates a permutation.
 void destroy_perm(permutation * pi){
   free(pi -> arrow);
@@ -134,7 +155,5 @@ int print(permutation * pi){
   }
   return 0;
 }
-
-
 
 

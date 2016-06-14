@@ -12,6 +12,9 @@ int Apply_permutation(permutation * pi, int x);
 
 permutation * next_permutation(permutation * pi);
 
+// Replaces and returns the inverse of a permutation.
+permutation * invert_permutation(permutation * pi);
+
 permutation * compose(permutation * pi, permutation * delta);
 
 int print(permutation * pi);

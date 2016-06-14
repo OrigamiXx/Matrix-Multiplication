@@ -6,6 +6,7 @@
 #include <assert.h>
 #include "permutation.h"
 #include "groups.h"
+#include "constants.h"
 
 
 // Default constructor.  Allocates empty elt_H structure, function is identity.
@@ -72,13 +73,30 @@ void destroy_elt_H(elt_H * h){
   int U = h -> U;
   int k = h -> k;
 
-  int i,j;
+  int i;
   for (i = 0; i < U; i++){
     free(h -> f[i]);
   }
   
   free(h -> f);
   free(h);
+
+}
+
+int is_identity_elt_H(elt_H * h){
+
+  int U = h -> U;
+  int k = h -> k;
+
+  int i,j;
+  for (i = 0; i < U; i++){
+    for (j = 0; j < k; j++){
+      if (h -> f[i][j] != 0)
+	return false;
+    }
+  }
+
+  return true;
 
 }
 
@@ -114,7 +132,7 @@ void add_elt_H(elt_H * h1, elt_H * h2){
 }
 
 // Inverts an element of h.  No allocation.
-void inverse(elt_H * h){
+void inverse_elt_H(elt_H * h){
 
   int U = h -> U;
   int k = h -> k;
@@ -131,11 +149,11 @@ void inverse(elt_H * h){
 }
  
 // Return inverse of parameter as new copy.  
-elt_H * inverse_new(elt_H * h1){
+elt_H * inverse_elt_H_new(elt_H * h1){
 
   elt_H * h2 = copy_elt_H(h1);
 
-  inverse(h2);
+  inverse_elt_H(h2);
 
   return h2;
 
@@ -146,7 +164,7 @@ void apply_elt_H(elt_H * h, permutation * p){
 
   int U = h -> U;
 
-  assert(U < 30);
+  assert(U <= 30);
 
   int * tmp[30]; // XXX could allocate dynamically, using = (int **) malloc(sizeof(int *) * 30);
   memcpy(tmp, h -> f, sizeof(int *) * U);
