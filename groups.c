@@ -83,6 +83,7 @@ void destroy_elt_H(elt_H * h){
 
 }
 
+// Returns true if h is identity and false otherwise.
 int is_identity_elt_H(elt_H * h){
 
   int U = h -> U;

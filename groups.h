@@ -61,12 +61,45 @@ void next_elt(elt_H * h);
 void next_elt(elt_H * h);
 
 
+
+typedef struct _elt_G{
+
+  elt_H * h;
+  permutation * p;
+
+} elt_G;
+
+
+// Default constructor.  Allocates new elt_G structure, doesn't copy h or p.
+elt_G * create_elt_G(elt_H * h, permutation *p);
+
+// Default constructor.  Allocates new elt_G structure, copies h and p.
+elt_G * create_elt_G_new(elt_H * h, permutation *p);
+
+// Copy constructor.
+elt_G * copy_elt_G(elt_G * g);
+
+// Destructor.
+void destroy_elt_G(elt_G * g);
+
+// Multiplies two elements of G and returns a new copy.
+elt_G * multiply_elt_G_new(elt_G * g1, elt_G *g2);
+
+// Multiplies two elements of G, replacing the first parameter.
+void multiply_elt_G(elt_G * g1, elt_G *g2);
+
+// Inverts an element of h.  No allocation.
+void inverse_elt_G(elt_G * g);
+
+// Return inverse of parameter as new copy.  
+elt_G * inverse_elt_G_new(elt_G * g);
+
+// Returns an array containing all elements of G satisfying hp(u,j) =
+// 0 iff u_j = i for all u in U, j in [k].  Length is set to the
+// length of this array.
+elt_G ** create_Sis(puzzle * p, int i, int * length);
+
 /*
-- Elements of G = H x< Sym_U
-    - Implement as a tuple of elements of H and permutations.  Their could be more compact representations.
-    - Op: Multiplication (should just be that of semi-direct products)
-    - Op: Create S_i's.  Generate array of elements satisfying properties.
-    - Op: Inverse (need to think about this)
 - Elements of F[G]
     - Implement as a dictionary (hash table underlying?)
     - Op: Multiply (implement naively)
