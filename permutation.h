@@ -1,39 +1,37 @@
 #ifndef __PERMUTATION_H__
 #define __PERMUTATION_H__
 
-typedef struct permutation {  // Rename: perm
+typedef struct perm {  // Rename: perm
   int size;
   int * arrow;
-} permutation;
+} perm;
 
-permutation * ID_permutation(int n);  // Rename: create_perm_identity
+perm * create_perm_identity(int n);  // Rename: create_perm_identity
 
 // Returns a newly allocated copy of pi.
-permutation * copy_permutation(permutation * pi); // Rename: copy_perm
+perm * copy_perm(perm * pi); // Rename: copy_perm
 
-int Apply_permutation(permutation * pi, int x); // Rename: apply_perm
+int apply_perm(perm * pi, int x); // Rename: apply_perm
 
-// Returns true iff pi is the identity permutation. // Rename: is_identity_perm
-int is_identity_permutation(permutation * pi);
+// Returns true iff pi is the identity perm. // Rename: is_identity_perm
+int is_identity_perm(perm * pi);
 
-permutation * next_permutation(permutation * pi);  // Rename: next_perm
+perm * next_perm(perm * pi);  // Rename: next_perm
 
+// Replaces and returns the inverse of a perm.
+perm * inverse_perm(perm * pi);  // Rename: inverse_perm
 
+perm * compose_perm(perm * pi, perm * delta); // Rename: compose_perm
 
-// Replaces and returns the inverse of a permutation.
-permutation * inverse_permutation(permutation * pi);  // Rename: inverse_perm
+int print_perm(perm * pi);  // Rename: print_perm
 
-permutation * compose(permutation * pi, permutation * delta); // Rename: compose_perm
+perm * create_last_perm(int n); // Rename: create_perm_last
 
-int print(permutation * pi);  // Rename: print_perm
+void destroy_perm(perm * pi);  // Ok
 
-permutation * last_permutation(int n); // Rename: create_perm_last
+int is_equals_perm(perm * pi1, perm * pi2); // Rename: is_equal_perm
 
-void destroy_perm(permutation * pi);  // Ok
-
-int equals(permutation * pi1, permutation * pi2); // Rename: is_equal_perm
-
-int is_last_perm(permutation * pi); 
+int is_last_perm(perm * pi); 
 
 
 #endif
