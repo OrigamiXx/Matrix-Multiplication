@@ -1,0 +1,6 @@
+start doing issue 1
+
+solved issue 1
+wrote create puzzle from file and tested it.
+
+will do issuse 2 and start 3 tomorrow
