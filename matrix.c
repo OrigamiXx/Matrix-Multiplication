@@ -104,6 +104,7 @@ mat * multiply_mat_naive(mat * A, mat * B) {
 // Converts a matrix into an element of K[G] using basis.
 elt_KG * mat_to_elt_KG(mat * m, elt_KG * s, elt_KG * t){
 
+  //printf("rows = %d, s->size = %d\n",m -> rows, s -> size);
   assert(m -> rows <= s -> size);
   assert(m -> cols <= t -> size);
 
@@ -186,6 +187,11 @@ mat * multiply_mat_puzzle(mat * A, mat * B, puzzle * p) {
   int m = 3; // XXX - Fix.
 
   create_Sis(p, m, &s1, &s2, &s3);
+
+  //print_compact_elt_KG(s1);
+  //print_compact_elt_KG(s2);
+  //print_compact_elt_KG(s3);
+
 
   elt_KG * a = mat_to_elt_KG(A,s1,s2);
   elt_KG * b = mat_to_elt_KG(B,s2,s3);

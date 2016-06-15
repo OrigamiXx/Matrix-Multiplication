@@ -423,14 +423,17 @@ int is_valid_elt_G(elt_G * g, puzzle * p, int i) {
 
   for (n = 0; n < U; n++){
     for (j = 0; j < k; j++){
+      //printf("i = %d, n = %d, j = %d, p[n][j] = %d, h[n][j] = %d\n", i, n, j, p -> puzzle[n][j],h -> f[n][j]);
       if (p -> puzzle[n][j] == i) {
-	if (h -> f[n][j] == 0)
+	if (h -> f[n][j] == 0) {
 	  destroy_elt_H(h);
 	  return false;
+	}
       } else {
-	if (h -> f[n][j] != 0)
+	if (h -> f[n][j] != 0) {
 	  destroy_elt_H(h);
 	  return false;
+	}
       }
 
     }
@@ -473,30 +476,66 @@ void create_Sis(puzzle * p, int m, elt_KG ** s1_ptr, elt_KG ** s2_ptr, elt_KG **
   long long max = (long long) pow(m, U * k);
 
   long long x;
-  for (x = 0; x <= max; x++){
+  for (x = 0; x < max; x++){
 
     elt_H * h = ll_to_elt_H(x,U,k,m);
     
     permutation * pi = ID_permutation(U);
 
-    while (!is_last_perm(pi)){
+    //print_compact_elt_H(h);
+    //printf("\n");
+
+    while (!is_last_perm(pi)){    
+
+      //print_compact_perm(pi);
+      //printf("\n");
 
       elt_G * g = create_elt_G_new(h,pi);
 
-      if (is_valid_elt_G(g,p,1))
+      if (is_valid_elt_G(g,p,1)) {
+	//printf("Added to S_1\n");
 	add_basis_elt_KG(*s1_ptr,g,1);
 
-      if (is_valid_elt_G(g,p,2))
-	add_basis_elt_KG(*s2_ptr,g,1);
+      }
 
-      if (is_valid_elt_G(g,p,3))
+      if (is_valid_elt_G(g,p,2)) {
+	//printf("Added to S_2\n");
+	add_basis_elt_KG(*s2_ptr,g,1);
+      }
+
+      if (is_valid_elt_G(g,p,3)) {
+	//printf("Added to S_3\n");
 	add_basis_elt_KG(*s3_ptr,g,1);
+      }
 
       destroy_elt_G(g);
 
       next_permutation(pi);
       
     }
+
+    //print_compact_perm(pi);
+    //printf("\n");
+
+    elt_G * g = create_elt_G_new(h,pi);
+    
+    if (is_valid_elt_G(g,p,1)) {
+      //printf("Added to S_1\n");
+      add_basis_elt_KG(*s1_ptr,g,1);
+      
+    }
+    
+    if (is_valid_elt_G(g,p,2)) {
+      //printf("Added to S_2\n");
+      add_basis_elt_KG(*s2_ptr,g,1);
+    }
+    
+    if (is_valid_elt_G(g,p,3)) {
+      //printf("Added to S_3\n");
+      add_basis_elt_KG(*s3_ptr,g,1);
+      }
+    
+    destroy_elt_G(g);
 
     destroy_perm(pi);
     destroy_elt_H(h);
