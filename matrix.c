@@ -69,8 +69,6 @@ void print_mat(mat * m) {
   int rows = m -> rows;
   int cols = m -> cols;
 
-  //printf("rows = %d, cols = %d\n", rows, cols);
-
   int i,j;
   for (i = 0; i < rows; i++){
     for (j = 0; j < cols; j++){
@@ -103,8 +101,104 @@ mat * multiply_mat_naive(mat * A, mat * B) {
 
 }
 
+// Converts a matrix into an element of K[G] using basis.
+elt_KG * mat_to_elt_KG(mat * m, elt_KG * s, elt_KG * t){
+
+  assert(m -> rows <= s -> size);
+  assert(m -> cols <= t -> size);
+
+  elt_KG * r = create_elt_KG_identity_zero(s -> U, s -> k, s -> m);
+  
+  int i, j;
+  int rows = m -> rows;
+  int cols = m -> cols;
+  
+  basis_elt_KG * s_curr = s -> head;
+
+  for (i = 0; i < rows; i++){
+
+    basis_elt_KG * t_curr = t -> head;
+
+    for (j = 0; j < cols; j++){
+
+      elt_G * g = inverse_elt_G_new(s_curr -> g);
+      multiply_elt_G(g, t_curr -> g);
+
+      add_basis_elt_KG(r,g,m -> cells[i][j]);
+
+      destroy_elt_G(g);
+      
+      t_curr = t_curr -> next;
+    }
+
+    s_curr = s_curr -> next;
+  }
+
+  return r;
+
+}
+
+// Converts an element of K[G] into a matrix using basis.
+mat * elt_KG_to_mat(elt_KG * r, elt_KG * s, elt_KG * t) {
+
+  int rows = s -> size;
+  int cols = t -> size;
+
+  mat * m = create_mat_zero(rows,cols);
+    
+  int i, j;
+  
+  basis_elt_KG * s_curr = s -> head;
+
+  for (i = 0; i < rows; i++){
+
+    basis_elt_KG * t_curr = t -> head;
+
+    for (j = 0; j < cols; j++){
+
+      elt_G * g = inverse_elt_G_new(s_curr -> g);
+      multiply_elt_G(g, t_curr -> g);
+
+      m -> cells[i][j] = get_coef_elt_KG(r,g);
+
+      destroy_elt_G(g);
+      
+      t_curr = t_curr -> next;
+    }
+
+    s_curr = s_curr -> next;
+  }
+
+  return m;
+
+}
+
+
+
+
 // Multiplies A, B using a USP.
-mat * multiply_mat_puzzle(mat * A, mat * B, puzzle * p);
+mat * multiply_mat_puzzle(mat * A, mat * B, puzzle * p) {
+
+  elt_KG * s1 = create_Sis(p,1);
+  elt_KG * s2 = create_Sis(p,2);
+  elt_KG * s3 = create_Sis(p,3);
+
+  elt_KG * a = mat_to_elt_KG(A,s1,s2);
+  elt_KG * b = mat_to_elt_KG(B,s2,s3);
+  
+  elt_KG * c = multiply_elt_KG_new(a,b);
+
+  mat * C = elt_KG_to_mat(c,s1,s3);
+
+  destroy_elt_KG(s1);
+  destroy_elt_KG(s2);
+  destroy_elt_KG(s3);
+  destroy_elt_KG(a);
+  destroy_elt_KG(b);
+  destroy_elt_KG(c);
+
+  return C;
+}
 
 
 

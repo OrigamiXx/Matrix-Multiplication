@@ -126,7 +126,7 @@ void print_compact_elt_G(elt_G * g);
 // Returns an array containing all elements of G satisfying hp(u,j) =
 // 0 iff u_j = i for all u in U, j in [k].  Length is set to the
 // length of this array.
-elt_G ** create_Sis(puzzle * p, int i, int * length);
+struct _elt_KG * create_Sis(puzzle * p, int i);
 
 
 // ================================================================================
