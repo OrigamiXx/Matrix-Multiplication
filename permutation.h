@@ -35,5 +35,6 @@ int equals(permutation * pi1, permutation * pi2); // Rename: is_equal_perm
 
 int is_last_perm(permutation * pi); 
 
+void print_compact_perm(permutation * pi);
 
 #endif

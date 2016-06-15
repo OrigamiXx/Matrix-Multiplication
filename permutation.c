@@ -187,4 +187,36 @@ int print(permutation * pi){
   return 0;
 }
 
+void print_compact_perm(permutation * pi){
+
+  int visited[30];
+
+  assert(pi -> size <= 30);
+
+  int i, j;
+
+  for (i = 0; i < pi -> size; i++){
+    visited[i] = false;
+  }
+
+  for (i = 0; i < pi -> size; i++){
+
+    if (!visited[i]){
+      j = i;
+      printf("(");
+      while (!visited[j]){
+	visited[j] = true;
+	printf("%d",j);
+	j = Apply_permutation(pi,j);
+	if (!visited[j])
+	  printf(" ");
+      }
+      printf(")");
+    }
+
+  }
+
+
+}
+
 

@@ -62,6 +62,9 @@ elt_H * apply_elt_H_new(elt_H * h, permutation * pi);
 // Display an element of H.
 void print_elt_H(elt_H * h);
 
+// Compact display an element of H.
+void print_compact_elt_H(elt_H * h);
+
 // In place iterator for elements of H.  No allocation.
 void next_elt(elt_H * h);
 
@@ -117,6 +120,9 @@ elt_G * inverse_elt_G_new(elt_G * g);
 // Displays given element of G.
 void print_elt_G(elt_G * g);
 
+// Compact display given element of G.
+void print_compact_elt_G(elt_G * g);
+
 // Returns an array containing all elements of G satisfying hp(u,j) =
 // 0 iff u_j = i for all u in U, j in [k].  Length is set to the
 // length of this array.
@@ -154,6 +160,9 @@ void destroy_basis_elt_KG(basis_elt_KG * r);
 
 // Displays basis element of K[G].
 void print_basis_elt_KG(basis_elt_KG * r);
+
+// Compact display of basis element of K[G].
+void print_compact_basis_elt_KG(basis_elt_KG * r);
 
 typedef struct _elt_KG {
 
@@ -207,5 +216,8 @@ double get_coef_elt_KG(elt_KG * r, elt_G * g);
 
 // Displays an element of K[G].
 void print_elt_KG(elt_KG * r);
+
+// Compact Display of an element of K[G].
+void print_compact_elt_KG(elt_KG * r);
 
 #endif

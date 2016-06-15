@@ -249,6 +249,29 @@ void print_elt_H(elt_H * h){
 
 }
 
+// Compact display of an element of H.
+void print_compact_elt_H(elt_H * h){
+
+  int U = h -> U;
+  int k = h -> k;
+  int m = h -> m;
+
+  printf("[U: %d, k: %d, m: %d, ",U,k,m);
+
+  int i,j;
+  for (i = 0; i < U; i++){
+    for (j = 0; j < k; j++){
+      printf("%d ",h -> f[i][j]);
+      
+    }
+    if (i != U - 1)
+      printf("| ");
+  }
+  printf("]");
+
+}
+
+
 // In place iterator for elements of H.  No allocation.
 // XXX - todo.
 void next_elt(elt_H * h);
@@ -376,6 +399,17 @@ void print_elt_G(elt_G * g){
     
 }
 
+// Displays given element of G.
+void print_compact_elt_G(elt_G * g){
+
+  printf("(h = ");
+  print_compact_elt_H(g -> h);
+  printf(", pi = ");
+  print_compact_perm(g -> pi);
+  printf(")");
+    
+}
+
 // Returns an array containing all elements of G satisfying hp(u,j) =
 // 0 iff u_j = i for all u in U, j in [k].  Length is set to the
 // length of this array.
@@ -438,6 +472,21 @@ void print_basis_elt_KG(basis_elt_KG * r) {
   printf("%f\n}\n", r -> c);
 
 }
+
+
+// Compact display of basis element of K[G].
+void print_compact_basis_elt_KG(basis_elt_KG * r) {
+
+  printf("{c = %f", r -> c);
+  printf(", g = ");
+  print_compact_elt_G(r -> g);
+  printf("}");
+
+
+}
+
+
+
 
 
 // Constructor.  Create additive identity in K[G].
@@ -515,9 +564,11 @@ basis_elt_KG * locate_basis_elt_KG(elt_KG * r, elt_G * g) {
 
   basis_elt_KG * curr = r -> head;
   int i;
-  for (i = 0; i < r -> size; i++) 
+  for (i = 0; i < r -> size; i++) {
     if (equals_elt_G(curr -> g, g))
       return curr;
+    curr = curr -> next;
+  }
 
   return NULL;
 
@@ -643,5 +694,23 @@ void print_elt_KG(elt_KG * r) {
   }
 
   printf("|>\n");
+
+}
+
+// Compact display of an element of K[G].
+void print_compact_elt_KG(elt_KG * r) {
+
+  printf("<| size = %d,\n", r->size);
+
+  basis_elt_KG * curr = r -> head;
+  int i;
+  for (i = 0; i < r -> size; i++) {
+    print_compact_basis_elt_KG(curr);
+    curr = curr -> next;
+    if (i != r -> size - 1)
+      printf("\n");
+  }
+
+  printf("\n|>\n");
 
 }
