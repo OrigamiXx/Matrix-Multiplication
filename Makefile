@@ -22,6 +22,9 @@ perm-tester: permutation.o
 groups_tester: groups.o permutation.o
 	gcc permutation.o groups.o groups_tester.c -o groups_tester
 
+matrix_tester: groups.o permutation.o matrix.o
+	gcc permutation.o groups.o matrix.o matrix_tester.c -o matrix_tester
+
 CU-tester: CheckUSP.o permutation.o
 	gcc permutation.o CheckUSP.o CheckUSP_tester.c -o CU-tester
 
