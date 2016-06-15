@@ -387,7 +387,7 @@ elt_G ** create_Sis(puzzle * p, int i, int * length);
 
 // ================================================================================
 //
-//  Implementation of Group Algebra R[G]
+//  Implementation of Group Algebra K[G]
 //
 // ================================================================================
 

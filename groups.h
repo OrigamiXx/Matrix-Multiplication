@@ -4,7 +4,11 @@
 #include "permutation.h"
 #include "CheckUSP.h"
 
-// Elements of H = U x [k] -> C_m
+// ================================================================================
+//
+//  Functions for group H = U x [k] -> C_m
+//
+// ================================================================================
 
 // Implement as 2D arrays of ints giving the characteristic of the
 // function, i.e, (C_m)^{U x [k]}.  Could use puzzle as a base.
@@ -65,6 +69,12 @@ void next_elt(elt_H * h);
 void next_elt(elt_H * h);
 
 
+// ================================================================================
+//
+//  Functions for group G = H x< Sym_U
+//
+// ================================================================================
+
 
 typedef struct _elt_G{
 
@@ -112,12 +122,65 @@ void print_elt_G(elt_G * g);
 // length of this array.
 elt_G ** create_Sis(puzzle * p, int i, int * length);
 
-/*
-- Elements of F[G]
-    - Implement as a dictionary (hash table underlying?)
-    - Op: Multiply (implement naively)
-    - Op: Set element
-    - Op: Get element
-*/
+
+// ================================================================================
+//
+//  Functions for Group Algebra K[G]  K = R
+//
+// ================================================================================
+
+// Shoddy implementation as a linked list.  Would perform better as a hash table.
+// Will implement interface to make that transformation as simple as possible.
+
+typedef struct _basis_elt_KG{
+
+  elt_G * g;
+  double c;
+  struct _basis_elt_KG * next;
+
+} basis_elt_KG;
+
+typedef struct _elt_KG {
+
+  basis_elt_KG * head;
+  int size;
+
+} elt_KG;
+
+// Constructor.  Create additive identity in K[G].
+elt_KG * create_elt_KG_identity_zero(void);
+
+// Constructor. Create multiplicative idenity in K[G].
+elt_KG * create_elt_KG_identity_one(void);
+
+// Copy constructor. Create a copy of an element of K[G].
+elt_KG * copy_elt_KG(elt_KG * r);
+
+// Destructor.
+void destroy_elt_KG(elt_KG * r);
+
+// Adds c to the coefficient of g in r.  
+void add_basis_elt_KG(elt_KG * r, elt_G * g, double c);
+
+// Adds r1 to r2, replaces r1.
+void add_elt_KG(elt_KG * r1, elt_KG * r2);
+
+// Adds r2 to r1, returns new copy of result.
+elt_KG * add_elt_KG_new(elt_KG * r1, elt_KG * r2);
+
+// Multiples r1 and r2, replaces r1.
+void multiply_elt_KG(elt_KG * r1, elt_KG * r2);
+
+// Multiples r1 and r2, returns new copy of result.
+elt_KG * multiply_elt_KG_new(elt_KG * r1, elt_KG * r2);
+
+// Multiples r by c, replaces r.
+void scalar_multiply_elt_KG(elt_KG * r, double c);
+
+// Multiples r by c, returns new copy of result.
+elt_KG * scalar_multiply_elt_KG_new(elt_KG * r, double c);
+
+// Returns the coef in K of g in r.
+double get_coef_elt_KG(elt_KG * r, elt_G * g);
 
 #endif
