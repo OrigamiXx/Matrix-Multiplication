@@ -179,9 +179,13 @@ mat * elt_KG_to_mat(elt_KG * r, elt_KG * s, elt_KG * t) {
 // Multiplies A, B using a USP.
 mat * multiply_mat_puzzle(mat * A, mat * B, puzzle * p) {
 
-  elt_KG * s1 = create_Sis(p,1);
-  elt_KG * s2 = create_Sis(p,2);
-  elt_KG * s3 = create_Sis(p,3);
+  elt_KG * s1;
+  elt_KG * s2;
+  elt_KG * s3;
+
+  int m = 3; // XXX - Fix.
+
+  create_Sis(p, m, &s1, &s2, &s3);
 
   elt_KG * a = mat_to_elt_KG(A,s1,s2);
   elt_KG * b = mat_to_elt_KG(B,s2,s3);

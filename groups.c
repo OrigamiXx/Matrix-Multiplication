@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <strings.h>
 #include <string.h>
+#include <math.h>
 #include <assert.h>
 #include "permutation.h"
 #include "groups.h"
@@ -410,10 +411,101 @@ void print_compact_elt_G(elt_G * g){
     
 }
 
+// Checks whether g in S_i.
+int is_valid_elt_G(elt_G * g, puzzle * p, int i) {
+
+  int U = p -> row;
+  int k = p -> column;
+
+  int n,j;
+
+  elt_H * h = apply_elt_H_new(g -> h, g -> pi); // XXX - should this be inverse of pi?
+
+  for (n = 0; n < U; n++){
+    for (j = 0; j < k; j++){
+      if (p -> puzzle[n][j] == i) {
+	if (h -> f[n][j] == 0)
+	  destroy_elt_H(h);
+	  return false;
+      } else {
+	if (h -> f[n][j] != 0)
+	  destroy_elt_H(h);
+	  return false;
+      }
+
+    }
+  }
+
+  destroy_elt_H(h);
+  return true;
+
+}
+
+// Converts an long long into an element of H.
+elt_H * ll_to_elt_H(long long x, int U, int k, int m) {
+
+  elt_H * h = create_elt_H_identity(U,k,m);
+
+  int i,j;
+  for (i = 0; i < U; i++){
+    for (j = 0; j < k; j++){
+      h -> f[i][j] = x % m;
+      x = x / m;
+    }
+  }
+
+  return h;
+
+}
+
 // Returns an array containing all elements of G satisfying hp(u,j) =
 // 0 iff u_j = i for all u in U, j in [k].   Returned as an element of K[G].
 // XXX - Todo.
-elt_KG * create_Sis(puzzle * p, int i);
+void create_Sis(puzzle * p, int m, elt_KG ** s1_ptr, elt_KG ** s2_ptr, elt_KG ** s3_ptr) {
+
+  int U = p -> row;
+  int k = p -> column;
+
+  *s1_ptr = create_elt_KG_identity_zero(U,k,m);
+  *s2_ptr = create_elt_KG_identity_zero(U,k,m);
+  *s3_ptr = create_elt_KG_identity_zero(U,k,m);
+
+  long long max = (long long) pow(m, U * k);
+
+  long long x;
+  for (x = 0; x <= max; x++){
+
+    elt_H * h = ll_to_elt_H(x,U,k,m);
+    
+    permutation * pi = ID_permutation(U);
+
+    while (!is_last_perm(pi)){
+
+      elt_G * g = create_elt_G_new(h,pi);
+
+      if (is_valid_elt_G(g,p,1))
+	add_basis_elt_KG(*s1_ptr,g,1);
+
+      if (is_valid_elt_G(g,p,2))
+	add_basis_elt_KG(*s2_ptr,g,1);
+
+      if (is_valid_elt_G(g,p,3))
+	add_basis_elt_KG(*s3_ptr,g,1);
+
+      destroy_elt_G(g);
+
+      next_permutation(pi);
+      
+    }
+
+    destroy_perm(pi);
+    destroy_elt_H(h);
+
+  }
+
+
+
+}
 
 // ================================================================================
 //

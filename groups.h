@@ -123,10 +123,7 @@ void print_elt_G(elt_G * g);
 // Compact display given element of G.
 void print_compact_elt_G(elt_G * g);
 
-// Returns an array containing all elements of G satisfying hp(u,j) =
-// 0 iff u_j = i for all u in U, j in [k].  Length is set to the
-// length of this array.
-struct _elt_KG * create_Sis(puzzle * p, int i);
+
 
 
 // ================================================================================
@@ -219,5 +216,16 @@ void print_elt_KG(elt_KG * r);
 
 // Compact Display of an element of K[G].
 void print_compact_elt_KG(elt_KG * r);
+
+// Checks whether g in S_i.
+int is_valid_elt_G(elt_G * g, puzzle * p, int i);
+
+// Converts an long long into an element of H.
+elt_H * ll_to_elt_H(long long x, int U, int k, int m);
+
+// Returns an array containing all elements of G satisfying hp(u,j) =
+// 0 iff u_j = i for all u in U, j in [k].  Length is set to the
+// length of this array.
+void create_Sis(puzzle * p, int m, elt_KG ** s1_ptr, elt_KG ** s2_ptr, elt_KG ** s3_ptr);
 
 #endif
