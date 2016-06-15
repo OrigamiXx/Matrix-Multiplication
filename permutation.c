@@ -8,8 +8,8 @@
 #include "permutation.h"
 #include "constants.h"
 
-permutation  * ID_permutation(int n){
-  permutation * tmp = (permutation *) malloc(sizeof(permutation));
+perm  * create_perm_identity(int n){
+  perm * tmp = (perm *) malloc(sizeof(perm));
   assert(tmp != NULL);
   //tmp -> arrow[n];  // This accesses element n of tmp -> arrow.
   tmp -> arrow = malloc(sizeof(int)*n);
@@ -22,10 +22,10 @@ permutation  * ID_permutation(int n){
 }
 
 // Returns a newly allocated copy of pi.
-permutation * copy_permutation(permutation * pi){
+perm * copy_perm(perm * pi){
   
   int size = pi -> size;
-  permutation * pi2 = ID_permutation(size);
+  perm * pi2 = create_perm_identity(size);
 
   int i;
   for (i = 0; i < size; i++){
@@ -36,18 +36,18 @@ permutation * copy_permutation(permutation * pi){
 
 }
 
-// apply permutation, x must be inside the domain of the permutation
-int Apply_permutation(permutation * pi, int x){
+// apply perm, x must be inside the domain of the perm
+int apply_perm(perm * pi, int x){
   int result;
   result = pi->arrow[x];
   return result;
 }
 
-//last permutation - Takes a permutation and returns a new permutation 
-//over the set of the same size which is the last permutation for that
+//last perm - Takes a perm and returns a new perm 
+//over the set of the same size which is the last perm for that
 //set.
-permutation * last_permutation(int n){
-  permutation * tmp = (permutation *) malloc(sizeof(permutation));
+perm * create_last_perm(int n){
+  perm * tmp = (perm *) malloc(sizeof(perm));
   tmp -> size = n;
   tmp -> arrow = malloc(sizeof(int)*n);
   int i;
@@ -57,10 +57,10 @@ permutation * last_permutation(int n){
   return tmp;
 }
 
-//next_permutation
+//next_perm
 // some problems, it won't loop back and the order is a little bit off
-// Assumes that pi is not the last permutation.
-permutation * next_permutation(permutation * pi){
+// Assumes that pi is not the last perm.
+perm * next_perm(perm * pi){
   int j, l, k, n;
   n = pi->size-1;
   j = n -1;
@@ -88,8 +88,8 @@ permutation * next_permutation(permutation * pi){
   return pi;
 }
 
-// Replaces and returns the inverse of a permutation.
-permutation * inverse_permutation(permutation * pi){
+// Replaces and returns the inverse of a perm.
+perm * inverse_perm(perm * pi){
 
   int s = pi -> size;
   
@@ -107,8 +107,8 @@ permutation * inverse_permutation(permutation * pi){
   return pi;
 }
 
-// Returns true iff pi is the identity permutation.
-int is_identity_permutation(permutation * pi){
+// Returns true iff pi is the identity perm.
+int is_identity_perm(perm * pi){
   
   int s = pi -> size;
   
@@ -123,14 +123,14 @@ int is_identity_permutation(permutation * pi){
 }
 
 
-//Deallocates a permutation.
-void destroy_perm(permutation * pi){
+//Deallocates a perm.
+void destroy_perm(perm * pi){
   free(pi -> arrow);
   free(pi);
 }
 
-//Tests whether two permutations are equal.
-int equals(permutation * pi1, permutation * pi2){
+//Tests whether two perms are equal.
+int is_equals_perm(perm * pi1, perm * pi2){
 
   if (pi1 == NULL && pi2 == NULL)
     return true;
@@ -149,12 +149,12 @@ int equals(permutation * pi1, permutation * pi2){
   return true;
 }
 
-//Tests whether permutation is the last permutation.
-int is_last_perm(permutation * pi){
+//Tests whether perm is the last perm.
+int is_last_perm(perm * pi){
 
-  permutation * last = last_permutation(pi -> size);
+  perm * last = create_last_perm(pi -> size);
 
-  int ret = equals(pi,last);
+  int ret = is_equals_perm(pi,last);
 
   destroy_perm(last);
 
@@ -166,8 +166,8 @@ int is_last_perm(permutation * pi){
 
 //compose just like fucntion f:A->B g:B->C
 // int this case it's delta(pi(x))
-permutation * compose(permutation * pi, permutation * delta){
-  permutation * result = ID_permutation(pi -> size);
+perm * compose_perm(perm * pi, perm * delta){
+  perm * result = create_perm_identity(pi -> size);
   int i;
   for (i=0; i<result->size; i++){
     result->arrow[i] = delta->arrow[pi->arrow[i]];
@@ -177,7 +177,7 @@ permutation * compose(permutation * pi, permutation * delta){
 } 
 
 
-int print(permutation * pi){
+int print_perm(perm * pi){
   int i,n;
   n = pi->size;
   for (i= 0; i<n; i++){

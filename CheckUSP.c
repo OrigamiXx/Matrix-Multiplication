@@ -47,7 +47,7 @@ puzzle * create_puzzle_from_file(char * filename){
 
   //turn the file into a puzzle
   p->row = rows;
-  p->pi = ID_permutation(p->row);
+  p->pi = create_perm_identity(p->row);
   p-> puzzle = (int **) malloc(sizeof(int *)*p->row);
   for (r = 0; r < p->row; r++){
     p->puzzle[r] = (int *) malloc(sizeof(int *)*p->column);
@@ -104,7 +104,7 @@ puzzle * create_puzzle(int rows, int cols){
   }
 
   // Initialize contents of puzzle....
-  usp -> pi = ID_permutation(8);
+  usp -> pi = create_perm_identity(8);
   
   //*
   usp -> puzzle[0][0] = 3;
@@ -162,42 +162,42 @@ puzzle * create_puzzle(int rows, int cols){
 
 
 int CheckUSP(puzzle * p){
-  permutation * pi_1, * pi_2, * pi_3;
+  perm * pi_1, * pi_2, * pi_3;
   int u, i, result;
   result = -1;
 
   printf("Starting Check USP\n");
 
-  /* print(ID_permutation(p->row)); */
+  /* print(create_perm_identity(p->row)); */
 
   /* printf("\n"); */
 
-  /* print(last_permutation(p->row)); */
+  /* print(last_perm(p->row)); */
 
   /* printf("\n"); */
 
-  /* pi_1 = ID_permutation(p->row); */
+  /* pi_1 = create_perm_identity(p->row); */
 
-  /* printf("!equal = %d\n",!equals(pi_1,last_permutation(p->row))); */
+  /* printf("!equal = %d\n",!is_equals_perm(pi_1,last_perm(p->row))); */
 
   int count = 0;
 
-  // XXX - last_permutation are memory leaking.
+  // XXX - last_perm are memory leaking.
 
-  for (pi_1 = ID_permutation(p->row); !equals(pi_1,last_permutation(p->row)) ; pi_1 = next_permutation(pi_1)){
+  for (pi_1 = create_perm_identity(p->row); !is_last_perm(pi_1) ; pi_1 = next_perm(pi_1)){
     printf("count = %d\n",count);
     count++;
     //printf("pi_1 = \n");
-    //print(pi_1);
-    for (pi_2 = ID_permutation(p->row); !equals(pi_2,last_permutation(p->row)); pi_2 = next_permutation(pi_2)){
+    //print_perm(pi_1);
+    for (pi_2 = create_perm_identity(p->row); !is_last_perm(pi_2); pi_2 = next_perm(pi_2)){
       //printf("pi_2 = \n");
-      //print(pi_2);
+      //print_perm(pi_2);
 
-      for (pi_3 = ID_permutation(p->row); !equals(pi_3,last_permutation(p->row)); pi_3 = next_permutation(pi_3)){
-	//printf("pi_3 = \n");
-	//print(pi_3);
+      for (pi_3 = create_perm_identity(p->row); !is_last_perm(pi_3); pi_3 = next_perm(pi_3)){
+	printf("pi_3 = \n");
+	print_perm(pi_3);
 
-	if (equals(pi_1,pi_2) && equals(pi_2, pi_3)){
+	if (is_equals_perm(pi_1,pi_2) && is_equals_perm(pi_2, pi_3)){
 	  continue;
 	}
 	else{
@@ -206,17 +206,17 @@ int CheckUSP(puzzle * p){
 
 	for (u = 0;u< p->row;u++){
 	  for (i = 0;i< p->column;i++ ){
-	    if( (p->puzzle[Apply_permutation(pi_1, u)][i] == 1) &&
-		(p->puzzle[Apply_permutation(pi_2, u)][i] == 2) &&
-		(p->puzzle[Apply_permutation(pi_3, u)][i] != 3) ){
+	    if( (p->puzzle[apply_perm(pi_1, u)][i] == 1) &&
+		(p->puzzle[apply_perm(pi_2, u)][i] == 2) &&
+		(p->puzzle[apply_perm(pi_3, u)][i] != 3) ){
 	      result = 1;
-	    }else if((p->puzzle[Apply_permutation(pi_1, u)][i] != 1) &&
-		     (p->puzzle[Apply_permutation(pi_2, u)][i] == 2) &&
-		     (p->puzzle[Apply_permutation(pi_3, u)][i] == 3) ){
+	    }else if((p->puzzle[apply_perm(pi_1, u)][i] != 1) &&
+		     (p->puzzle[apply_perm(pi_2, u)][i] == 2) &&
+		     (p->puzzle[apply_perm(pi_3, u)][i] == 3) ){
 	      result = 1;
-	    }else if ((p->puzzle[Apply_permutation(pi_1, u)][i] == 1) &&
-		      (p->puzzle[Apply_permutation(pi_2, u)][i] != 2) &&
-		      (p->puzzle[Apply_permutation(pi_3, u)][i] == 3) ){
+	    }else if ((p->puzzle[apply_perm(pi_1, u)][i] == 1) &&
+		      (p->puzzle[apply_perm(pi_2, u)][i] != 2) &&
+		      (p->puzzle[apply_perm(pi_3, u)][i] == 3) ){
 	      result = 1;
 	    }
 	  }

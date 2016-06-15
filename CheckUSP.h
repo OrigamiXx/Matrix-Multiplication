@@ -5,7 +5,7 @@
 #include "permutation.h"
 
 typedef struct puzzle {
-  permutation * pi;
+  perm * pi;
   int ** puzzle;
   int row;
   int column;
