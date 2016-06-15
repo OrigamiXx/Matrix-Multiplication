@@ -182,6 +182,8 @@ int CheckUSP(puzzle * p){
 
   int count = 0;
 
+  // XXX - last_permutation are memory leaking.
+
   for (pi_1 = ID_permutation(p->row); !equals(pi_1,last_permutation(p->row)) ; pi_1 = next_permutation(pi_1)){
     printf("count = %d\n",count);
     count++;
@@ -225,7 +227,14 @@ int CheckUSP(puzzle * p){
 	}
 
       }
+
+      destroy_perm(pi_3);
     }
+
+    destroy_perm(pi_2);
   }
+
+  destroy_perm(pi_1);
+
   return 1;
 }

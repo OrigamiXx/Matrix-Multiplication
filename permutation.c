@@ -42,6 +42,7 @@ int Apply_permutation(permutation * pi, int x){
   result = pi->arrow[x];
   return result;
 }
+
 //last permutation - Takes a permutation and returns a new permutation 
 //over the set of the same size which is the last permutation for that
 //set.
@@ -122,7 +123,6 @@ int is_identity_permutation(permutation * pi){
 }
 
 
-
 //Deallocates a permutation.
 void destroy_perm(permutation * pi){
   free(pi -> arrow);
@@ -150,7 +150,7 @@ int equals(permutation * pi1, permutation * pi2){
 }
 
 //Tests whether permutation is the last permutation.
-int is_last(permutation * pi){
+int is_last_perm(permutation * pi){
 
   permutation * last = last_permutation(pi -> size);
 
