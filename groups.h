@@ -39,7 +39,7 @@ void destroy_elt_H(elt_H * h);
 int is_identity_elt_H(elt_H * h);
 
 // Returns true iff h1 = h2.
-int equals_elt_H(elt_H * h1, elt_H * h2);
+int is_equals_elt_H(elt_H * h1, elt_H * h2);
 
 // Addition operator.  Returns new copy.
 elt_H * add_elt_H_new(elt_H * h1, elt_H * h2);
@@ -54,10 +54,10 @@ void inverse_elt_H(elt_H * h);
 elt_H * inverse_elt_H_new(elt_H * h);
 
 // Applies permutation action to element of H.  No allocation.
-void apply_elt_H(elt_H * h, permutation * pi);
+void apply_elt_H(elt_H * h, perm * pi);
 
 // Applies permutation action to element of H.  Returns new copy.
-elt_H * apply_elt_H_new(elt_H * h, permutation * pi);
+elt_H * apply_elt_H_new(elt_H * h, perm * pi);
 
 // Display an element of H.
 void print_elt_H(elt_H * h);
@@ -82,16 +82,16 @@ void next_elt(elt_H * h);
 typedef struct _elt_G{
 
   elt_H * h;
-  permutation * pi;
+  perm * pi;
 
 } elt_G;
 
 
 // Default constructor.  Allocates new elt_G structure, doesn't copy h or p.
-elt_G * create_elt_G(elt_H * h, permutation *pi);
+elt_G * create_elt_G(elt_H * h, perm *pi);
 
 // Default constructor.  Allocates new elt_G structure, copies h and p.
-elt_G * create_elt_G_new(elt_H * h, permutation *pi);
+elt_G * create_elt_G_new(elt_H * h, perm *pi);
 
 // Copy constructor.
 elt_G * copy_elt_G(elt_G * g);
@@ -103,7 +103,7 @@ void destroy_elt_G(elt_G * g);
 int is_identity_elt_G(elt_G * g);
 
 // Returns true iff g1 = g2.
-int equals_elt_G(elt_G * g1, elt_G * g2);
+int is_equals_elt_G(elt_G * g1, elt_G * g2);
 
 // Multiplies two elements of G and returns a new copy.
 elt_G * multiply_elt_G_new(elt_G * g1, elt_G *g2);

@@ -33,6 +33,6 @@ int is_equals_perm(perm * pi1, perm * pi2); // Rename: is_equal_perm
 
 int is_last_perm(perm * pi); 
 
-void print_compact_perm(permutation * pi);
+void print_compact_perm(perm * pi);
 
 #endif

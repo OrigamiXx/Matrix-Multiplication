@@ -187,7 +187,7 @@ int print_perm(perm * pi){
   return 0;
 }
 
-void print_compact_perm(permutation * pi){
+void print_compact_perm(perm * pi){
 
   int visited[30];
 
@@ -207,7 +207,7 @@ void print_compact_perm(permutation * pi){
       while (!visited[j]){
 	visited[j] = true;
 	printf("%d",j);
-	j = Apply_permutation(pi,j);
+	j = apply_perm(pi,j);
 	if (!visited[j])
 	  printf(" ");
       }

@@ -114,7 +114,7 @@ int is_identity_elt_H(elt_H * h){
 }
 
 // Returns true iff h1 = h2.
-int equals_elt_H(elt_H * h1, elt_H * h2){
+int is_equals_elt_H(elt_H * h1, elt_H * h2){
 
   if (h1 -> U != h2 -> U)
     return false;
@@ -200,7 +200,7 @@ elt_H * inverse_elt_H_new(elt_H * h1){
 }
 
 // Applies permutation action to element of H.  No allocation.
-void apply_elt_H(elt_H * h, permutation * pi){
+void apply_elt_H(elt_H * h, perm * pi){
 
   int U = h -> U;
 
@@ -212,15 +212,15 @@ void apply_elt_H(elt_H * h, permutation * pi){
   int i;
 
   for (i = 0; i < U; i++){
-    h -> f[i] = tmp[Apply_permutation(pi,i)];
+    h -> f[i] = tmp[apply_perm(pi,i)];
   }
 
   //free(tmp);
 
 }
 
-// Applies permutation action to element of H.  Returns new copy.
-elt_H * apply_elt_H_new(elt_H * h1, permutation * pi){
+// Applies perm action to element of H.  Returns new copy.
+elt_H * apply_elt_H_new(elt_H * h1, perm * pi){
 
   elt_H * h2 = copy_elt_H(h1);
 
@@ -291,7 +291,7 @@ void next_elt(elt_H * h);
 
 
 // Default constructor.  Allocates new elt_G structure, doesn't copy h or p.
-elt_G * create_elt_G(elt_H * h, permutation *pi){
+elt_G * create_elt_G(elt_H * h, perm *pi){
 
   assert(h -> U == pi -> size);
 
@@ -306,9 +306,9 @@ elt_G * create_elt_G(elt_H * h, permutation *pi){
 }
 
 // Default constructor.  Allocates new elt_G structure, copies h and p.
-elt_G * create_elt_G_new(elt_H * h, permutation *pi){
+elt_G * create_elt_G_new(elt_H * h, perm *pi){
   
-  return create_elt_G(copy_elt_H(h),copy_permutation(pi));
+  return create_elt_G(copy_elt_H(h),copy_perm(pi));
 
 }
 
@@ -331,14 +331,14 @@ void destroy_elt_G(elt_G * g) {
 // Returns true if g is the identity in G.
 int is_identity_elt_G(elt_G * g){
   
-  return is_identity_elt_H(g -> h) && is_identity_permutation(g -> pi); 
+  return is_identity_elt_H(g -> h) && is_identity_perm(g -> pi); 
 
 }
 
 // Returns true iff g1 = g2.
-int equals_elt_G(elt_G * g1, elt_G * g2){
+int is_equals_elt_G(elt_G * g1, elt_G * g2){
 
-  return equals_elt_H(g1 -> h, g2 -> h) && equals(g1 -> pi, g2 -> pi);
+  return is_equals_elt_H(g1 -> h, g2 -> h) && is_equals_perm(g1 -> pi, g2 -> pi);
 
 }
 
@@ -361,9 +361,9 @@ void multiply_elt_G(elt_G * g1, elt_G *g2){
   apply_elt_H(g1 -> h, g2 -> pi);
   add_elt_H(g1 -> h, g2 -> h);
 
-  // Compose allocates a new permutation, so we need to free the original.
-  permutation * pi = g1 -> pi;
-  g1 -> pi = compose(g1 -> pi, g2 -> pi); 
+  // Compose allocates a new perm, so we need to free the original.
+  perm * pi = g1 -> pi;
+  g1 -> pi = compose_perm(g1 -> pi, g2 -> pi); 
   destroy_perm(pi);
  
 }
@@ -373,7 +373,7 @@ void inverse_elt_G(elt_G * g) {
 
   // Inverse of (h,pi) is ((h^-1)^(pi^-1), pi^-1).
   inverse_elt_H(g -> h);
-  g -> pi = inverse_permutation(g -> pi);
+  g -> pi = inverse_perm(g -> pi);
   apply_elt_H(g -> h,g -> pi);
 
 }
@@ -396,7 +396,7 @@ void print_elt_G(elt_G * g){
   printf("(h = \n");
   print_elt_H(g -> h);
   printf("---\n");
-  print(g -> pi);
+  print_perm(g -> pi);
   printf(")\n");
     
 }
@@ -421,7 +421,7 @@ int is_valid_elt_G(elt_G * g, puzzle * p, int i) {
   int n,j;
 
 
-  //inverse_permutation(g -> pi);
+  //inverse_perm(g -> pi);
 
   elt_H * h = apply_elt_H_new(g -> h, g -> pi); // XXX - should this be inverse of pi?
 
@@ -430,13 +430,13 @@ int is_valid_elt_G(elt_G * g, puzzle * p, int i) {
       //printf("i = %d, n = %d, j = %d, p[n][j] = %d, h[n][j] = %d\n", i, n, j, p -> puzzle[n][j],h -> f[n][j]);
       if (p -> puzzle[n][j] == i) {
 	if (h -> f[n][j] == 0) {
-	  //inverse_permutation(g -> pi);
+	  //inverse_perm(g -> pi);
 	  destroy_elt_H(h);
 	  return false;
 	}
       } else {
 	if (h -> f[n][j] != 0) {
-	  //inverse_permutation(g -> pi);
+	  //inverse_perm(g -> pi);
 	  destroy_elt_H(h);
 	  return false;
 	}
@@ -445,7 +445,7 @@ int is_valid_elt_G(elt_G * g, puzzle * p, int i) {
     }
   }
 
-  //inverse_permutation(g -> pi);
+  //inverse_perm(g -> pi);
   destroy_elt_H(h);
   return true;
 
@@ -496,7 +496,7 @@ void create_Sis(puzzle * p, int m, elt_KG ** s1_ptr, elt_KG ** s2_ptr, elt_KG **
 
     elt_H * h = ll_to_elt_H(x,U,k,m);
     
-    permutation * pi = ID_permutation(U);
+    perm * pi = create_perm_identity(U);
     if (x % 1000 == 0) {
       print_compact_elt_H(h);
       printf("<%d,%d,%d>\n",(*s1_ptr) -> size, (*s2_ptr) -> size, (*s3_ptr) -> size);
@@ -527,7 +527,7 @@ void create_Sis(puzzle * p, int m, elt_KG ** s1_ptr, elt_KG ** s2_ptr, elt_KG **
 
       destroy_elt_G(g);
 
-      next_permutation(pi);
+      next_perm(pi);
       
     }
 
@@ -656,7 +656,7 @@ elt_KG * create_elt_KG_identity_one(int U, int k, int m){
   r -> U = U;
   r -> k = k;
   r -> m = m;
-  r -> head = create_basis_elt_KG(create_elt_G(create_elt_H_identity(U,k,m),ID_permutation(U)),1);
+  r -> head = create_basis_elt_KG(create_elt_G(create_elt_H_identity(U,k,m),create_perm_identity(U)),1);
   r -> size = 1;
 
   return r;
@@ -707,7 +707,7 @@ basis_elt_KG * locate_basis_elt_KG(elt_KG * r, elt_G * g) {
   basis_elt_KG * curr = r -> head;
   int i;
   for (i = 0; i < r -> size; i++) {
-    if (equals_elt_G(curr -> g, g))
+    if (is_equals_elt_G(curr -> g, g))
       return curr;
     curr = curr -> next;
   }
