@@ -129,7 +129,7 @@ elt_G ** create_Sis(puzzle * p, int i, int * length);
 //
 // ================================================================================
 
-// Shoddy implementation as a linked list.  Would perform better as a hash table.
+// Shoddy implementation as a linked list.  Would perform better as a hash table. 
 // Will implement interface to make that transformation as simple as possible.
 
 typedef struct _basis_elt_KG{
@@ -140,7 +140,26 @@ typedef struct _basis_elt_KG{
 
 } basis_elt_KG;
 
+// Constructor.  Does not copy g.
+basis_elt_KG * create_basis_elt_KG(elt_G * g, double c);
+
+// Constructor.  Copies the element of g.
+basis_elt_KG * create_basis_elt_KG_new(elt_G * g, double c);
+
+// Deep Copy constructor. 
+basis_elt_KG * copy_basis_elt_KG(basis_elt_KG * r);
+
+// Destructor.
+void destroy_basis_elt_KG(basis_elt_KG * r);
+
+// Displays basis element of K[G].
+void print_basis_elt_KG(basis_elt_KG * r);
+
 typedef struct _elt_KG {
+
+  int U; 
+  int k;
+  int m;
 
   basis_elt_KG * head;
   int size;
@@ -148,16 +167,19 @@ typedef struct _elt_KG {
 } elt_KG;
 
 // Constructor.  Create additive identity in K[G].
-elt_KG * create_elt_KG_identity_zero(void);
+elt_KG * create_elt_KG_identity_zero(int U, int k, int m);
 
 // Constructor. Create multiplicative idenity in K[G].
-elt_KG * create_elt_KG_identity_one(void);
+elt_KG * create_elt_KG_identity_one(int U, int k, int m);
 
 // Copy constructor. Create a copy of an element of K[G].
 elt_KG * copy_elt_KG(elt_KG * r);
 
 // Destructor.
 void destroy_elt_KG(elt_KG * r);
+
+// Returns a pointer to the basis element matching g, NULL if not found.
+basis_elt_KG * locate_basis_elt_KG(elt_KG * r, elt_G * g);
 
 // Adds c to the coefficient of g in r.  
 void add_basis_elt_KG(elt_KG * r, elt_G * g, double c);
@@ -168,8 +190,8 @@ void add_elt_KG(elt_KG * r1, elt_KG * r2);
 // Adds r2 to r1, returns new copy of result.
 elt_KG * add_elt_KG_new(elt_KG * r1, elt_KG * r2);
 
-// Multiples r1 and r2, replaces r1.
-void multiply_elt_KG(elt_KG * r1, elt_KG * r2);
+// Multiples r1 and r2, replaces r1.  XXX - Hard to implement in place.
+//void multiply_elt_KG(elt_KG * r1, elt_KG * r2);
 
 // Multiples r1 and r2, returns new copy of result.
 elt_KG * multiply_elt_KG_new(elt_KG * r1, elt_KG * r2);
@@ -182,5 +204,8 @@ elt_KG * scalar_multiply_elt_KG_new(elt_KG * r, double c);
 
 // Returns the coef in K of g in r.
 double get_coef_elt_KG(elt_KG * r, elt_G * g);
+
+// Displays an element of K[G].
+void print_elt_KG(elt_KG * r);
 
 #endif

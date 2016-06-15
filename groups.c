@@ -382,9 +382,6 @@ void print_elt_G(elt_G * g){
 // XXX - Todo.
 elt_G ** create_Sis(puzzle * p, int i, int * length);
 
-
-
-
 // ================================================================================
 //
 //  Implementation of Group Algebra K[G]
@@ -392,4 +389,259 @@ elt_G ** create_Sis(puzzle * p, int i, int * length);
 // ================================================================================
 
 
-// XXX - Todo.
+// Constructor.  Does not copy g.
+basis_elt_KG * create_basis_elt_KG(elt_G * g, double c){
+
+  basis_elt_KG * r = (basis_elt_KG *) malloc(sizeof(basis_elt_KG));
+  assert(r != NULL);
+
+  r -> g = g;
+  r -> c = c;
+  r -> next = NULL;
+
+  return r;
+
+}
+
+// Constructor.  Copies the element of g.
+basis_elt_KG * create_basis_elt_KG_new(elt_G * g, double c){
+
+  basis_elt_KG * r = create_basis_elt_KG(g,c);
+
+  r -> g = copy_elt_G(g);
+
+  return r;
+
+}
+
+// Deep Copy constructor. 
+basis_elt_KG * copy_basis_elt_KG(basis_elt_KG * r){
+
+  return create_basis_elt_KG_new(r -> g, r -> c);
+
+}
+
+// Destructor.
+void destroy_basis_elt_KG(basis_elt_KG * r){
+
+  destroy_elt_G(r -> g);
+  free(r);
+
+}
+
+// Displays basis element of K[G].
+void print_basis_elt_KG(basis_elt_KG * r) {
+
+  printf("{\n");
+  print_elt_G(r -> g);
+  printf("===\n");
+  printf("%f\n}\n", r -> c);
+
+}
+
+
+// Constructor.  Create additive identity in K[G].
+elt_KG * create_elt_KG_identity_zero(int U, int k, int m) {
+  
+  elt_KG * r = (elt_KG *) malloc(sizeof(elt_KG));
+  assert(r != NULL);
+
+  r -> U = U;
+  r -> k = k;
+  r -> m = m;
+  r -> head = NULL;
+  r -> size = 0;
+
+  return r;
+
+}
+
+// Constructor. Create multiplicative idenity in K[G].
+elt_KG * create_elt_KG_identity_one(int U, int k, int m){
+  
+  elt_KG * r = (elt_KG *) malloc(sizeof(elt_KG));
+  assert(r != NULL);
+
+  r -> U = U;
+  r -> k = k;
+  r -> m = m;
+  r -> head = create_basis_elt_KG(create_elt_G(create_elt_H_identity(U,k,m),ID_permutation(U)),1);
+  r -> size = 1;
+
+  return r;
+
+}
+
+// Copy constructor. Create a copy of an element of K[G].
+elt_KG * copy_elt_KG(elt_KG * r1) {
+
+  elt_KG * r2 = create_elt_KG_identity_zero(r1 -> U, r1 -> k, r1 -> m);
+  
+  r2 -> size = r1 -> size;
+  int i = 0;
+  basis_elt_KG ** prev_ptr = &r2 -> head;
+  basis_elt_KG * curr = r1 -> head;
+  for (i = 0; i < r1 -> size; i++) {
+
+    *prev_ptr = copy_basis_elt_KG(curr);
+    prev_ptr = &((*prev_ptr) -> next);
+    curr = curr -> next;
+
+  }
+
+  return r2;
+
+}
+
+// Destructor.
+void destroy_elt_KG(elt_KG * r) {
+
+  basis_elt_KG * curr = r -> head;
+
+  while (curr != NULL){
+
+    basis_elt_KG * tmp = curr;
+    curr = curr -> next;
+    destroy_basis_elt_KG(tmp);
+    
+  }
+
+  free(r);
+
+}
+
+// Returns a pointer to the basis element matching g, NULL if not found.
+basis_elt_KG * locate_basis_elt_KG(elt_KG * r, elt_G * g) {
+
+  basis_elt_KG * curr = r -> head;
+  int i;
+  for (i = 0; i < r -> size; i++) 
+    if (equals_elt_G(curr -> g, g))
+      return curr;
+
+  return NULL;
+
+}
+
+// Adds c to the coefficient of g in r.  
+void add_basis_elt_KG(elt_KG * r, elt_G * g, double c) {
+
+  basis_elt_KG * e = locate_basis_elt_KG(r,g);
+
+  if (e == NULL) {
+    e = create_basis_elt_KG_new(g, c);
+    e -> next = r -> head;
+    r -> head = e;
+    r -> size++;
+  } else {
+    e -> c += c;
+  }
+
+}
+
+// Adds r1 to r2, replaces r1.
+void add_elt_KG(elt_KG * r1, elt_KG * r2) {
+
+  basis_elt_KG * curr = r2 -> head;
+  int i;
+  for (i = 0; i < r2 -> size; i++) {
+    add_basis_elt_KG(r1, curr -> g, curr -> c);
+    curr = curr -> next;
+  }
+
+}
+
+// Adds r2 to r1, returns new copy of result.
+elt_KG * add_elt_KG_new(elt_KG * r1, elt_KG * r2) {
+
+  elt_KG * r = copy_elt_KG(r1);
+
+  add_elt_KG(r,r2);
+
+  return r;
+
+}
+
+
+// Multiples r1 and r2, returns new copy of result.
+elt_KG * multiply_elt_KG_new(elt_KG * r1, elt_KG * r2) {
+
+  elt_KG * r = create_elt_KG_identity_zero(r1 -> U, r1 -> k, r1 -> m);
+
+  basis_elt_KG * curr1 = r1 -> head;
+  int i,j;
+
+  for (i = 0; i < r1 -> size; i++){
+
+    basis_elt_KG * curr2 = r2 -> head;
+
+    for (j = 0; j < r2 -> size; j++){
+
+      elt_G * g = multiply_elt_G_new(curr1 -> g, curr2 -> g);
+      double c = curr1 -> c * curr2 -> c;
+
+      add_basis_elt_KG(r,g,c);
+
+      destroy_elt_G(g);
+      
+      curr2 = curr2 -> next;
+    }
+
+    curr1 = curr1 -> next;
+  }
+
+  return r;
+
+}
+
+
+// Multiples r by c, replaces r.
+void scalar_multiply_elt_KG(elt_KG * r, double c) {
+
+  basis_elt_KG * curr = r -> head;
+  int i;
+  for (i = 0; i < r -> size; i++) {
+    curr -> c *= c;
+    curr = curr -> next;
+  }
+
+}
+
+// Multiples r by c, returns new copy of result.
+elt_KG * scalar_multiply_elt_KG_new(elt_KG * r1, double c) {
+
+  elt_KG * r2 = copy_elt_KG(r1);
+
+  scalar_multiply_elt_KG(r2,c);
+
+  return r2;
+
+}
+
+// Returns the coef in K of g in r.
+double get_coef_elt_KG(elt_KG * r, elt_G * g) {
+
+  basis_elt_KG * e = locate_basis_elt_KG(r,g);
+
+  if (e == NULL) 
+    return 0.0;
+  else
+    return e -> c;
+
+}
+
+// Displays an element of K[G].
+void print_elt_KG(elt_KG * r) {
+
+  printf("<|\n");
+
+  basis_elt_KG * curr = r -> head;
+  int i;
+  for (i = 0; i < r -> size; i++) {
+    print_basis_elt_KG(curr);
+    curr = curr -> next;
+  }
+
+  printf("|>\n");
+
+}
