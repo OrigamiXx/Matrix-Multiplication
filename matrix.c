@@ -3,6 +3,7 @@
 #include <strings.h>
 #include <string.h>
 #include <assert.h>
+#include <math.h>
 #include "matrix.h"
 #include "permutation.h"
 #include "CheckUSP.h"
@@ -44,6 +45,25 @@ mat * create_mat_random(int rows, int cols, int max){
   }  
 
   return m;
+
+}
+
+// Copy constructor.
+mat * copy_mat(mat * m1){
+
+  int rows = m1 -> rows;
+  int cols = m1 -> cols;
+
+  mat * m2 = create_mat_zero(rows, cols);
+
+  int i,j;
+  for (i = 0; i < rows; i++){
+    for (j = 0; j < cols; j++){
+      m2 -> cells[i][j] = m1 -> cells[i][j];
+    }
+  }  
+
+  return m2;
 
 }
 
@@ -140,10 +160,10 @@ elt_KG * mat_to_elt_KG(mat * m, elt_KG * s, elt_KG * t){
 }
 
 // Converts an element of K[G] into a matrix using basis.
-mat * elt_KG_to_mat(elt_KG * r, elt_KG * s, elt_KG * t) {
+mat * elt_KG_to_mat(elt_KG * r, elt_KG * s, elt_KG * t, int rows, int cols) {
 
-  int rows = s -> size;
-  int cols = t -> size;
+  //int rows = s -> size;
+  //int cols = t -> size;
 
   mat * m = create_mat_zero(rows,cols);
     
@@ -192,13 +212,22 @@ mat * multiply_mat_puzzle(mat * A, mat * B, puzzle * p) {
   //print_compact_elt_KG(s2);
   //print_compact_elt_KG(s3);
 
+  printf("Realizing <%d,%d,%d>\n",s1 -> size, s2 -> size, s3 -> size);
 
   elt_KG * a = mat_to_elt_KG(A,s1,s2);
   elt_KG * b = mat_to_elt_KG(B,s2,s3);
   
+  printf("a = \n");
+  print_compact_elt_KG(a);
+  printf("b = \n");
+  print_compact_elt_KG(b);
+
   elt_KG * c = multiply_elt_KG_new(a,b);
 
-  mat * C = elt_KG_to_mat(c,s1,s3);
+  printf("c = \n");
+  print_compact_elt_KG(c);
+
+  mat * C = elt_KG_to_mat(c,s1,s3,A -> rows, B -> cols);
 
   destroy_elt_KG(s1);
   destroy_elt_KG(s2);
@@ -210,5 +239,71 @@ mat * multiply_mat_puzzle(mat * A, mat * B, puzzle * p) {
   return C;
 }
 
+// A += B
+void add_mat(mat * A, mat * B) {
+
+  assert(A -> rows = B -> rows);
+  assert(A -> cols = B -> cols);
+
+  int rows = A -> rows;
+  int cols = A -> cols;
+
+  int i,j;
+  for (i = 0; i < rows; i++){
+    for (j = 0; j < cols; j++){
+      A -> cells[i][j] += B -> cells[i][j];
+    }
+  }
+}
+
+// C = A + B
+mat * add_mat_new(mat * A, mat * B) {
+
+  mat * C = copy_mat(A);
+
+  add_mat(C,B);
+
+  return C;
+
+}
+
+// A *= c
+void scalar_multiply_mat(mat * A, double c){
+
+  int rows = A -> rows;
+  int cols = A -> cols;
+
+  int i,j;
+  for (i = 0; i < rows; i++)
+    for (j = 0; j < cols; j++)
+      A -> cells[i][j] *= c;
+
+}
 
 
+// B = A * c
+mat * scalar_multiply_mat_new(mat * A, double c) {
+
+  mat * B = copy_mat(A);
+
+  scalar_multiply_mat(B,c);
+
+  return B;
+
+}
+
+double one_norm_mat(mat * A){
+
+  int rows = A -> rows;
+  int cols = A -> cols;
+
+  double norm = 0.0;
+
+  int i,j;
+  for (i = 0; i < rows; i++)
+    for (j = 0; j < cols; j++)
+      norm += fabs(A -> cells[i][j]);
+  
+  return norm;
+
+}

@@ -257,7 +257,8 @@ void print_compact_elt_H(elt_H * h){
   int k = h -> k;
   int m = h -> m;
 
-  printf("[U: %d, k: %d, m: %d, ",U,k,m);
+  //printf("[U: %d, k: %d, m: %d, ",U,k,m);
+  printf("[ ");
 
   int i,j;
   for (i = 0; i < U; i++){
@@ -419,6 +420,9 @@ int is_valid_elt_G(elt_G * g, puzzle * p, int i) {
 
   int n,j;
 
+
+  //inverse_permutation(g -> pi);
+
   elt_H * h = apply_elt_H_new(g -> h, g -> pi); // XXX - should this be inverse of pi?
 
   for (n = 0; n < U; n++){
@@ -426,11 +430,13 @@ int is_valid_elt_G(elt_G * g, puzzle * p, int i) {
       //printf("i = %d, n = %d, j = %d, p[n][j] = %d, h[n][j] = %d\n", i, n, j, p -> puzzle[n][j],h -> f[n][j]);
       if (p -> puzzle[n][j] == i) {
 	if (h -> f[n][j] == 0) {
+	  //inverse_permutation(g -> pi);
 	  destroy_elt_H(h);
 	  return false;
 	}
       } else {
 	if (h -> f[n][j] != 0) {
+	  //inverse_permutation(g -> pi);
 	  destroy_elt_H(h);
 	  return false;
 	}
@@ -439,6 +445,7 @@ int is_valid_elt_G(elt_G * g, puzzle * p, int i) {
     }
   }
 
+  //inverse_permutation(g -> pi);
   destroy_elt_H(h);
   return true;
 
@@ -478,12 +485,22 @@ void create_Sis(puzzle * p, int m, elt_KG ** s1_ptr, elt_KG ** s2_ptr, elt_KG **
   long long x;
   for (x = 0; x < max; x++){
 
+    int stop = 30;
+
+    int size1 = (*s1_ptr) -> size;
+    int size2 = (*s2_ptr) -> size;
+    int size3 = (*s3_ptr) -> size;
+
+    if (size1 > stop && size2 > stop && size3 > stop)
+      break;
+
     elt_H * h = ll_to_elt_H(x,U,k,m);
     
     permutation * pi = ID_permutation(U);
-
-    //print_compact_elt_H(h);
-    //printf("\n");
+    if (x % 1000 == 0) {
+      print_compact_elt_H(h);
+      printf("<%d,%d,%d>\n",(*s1_ptr) -> size, (*s2_ptr) -> size, (*s3_ptr) -> size);
+    }
 
     while (!is_last_perm(pi)){    
 
