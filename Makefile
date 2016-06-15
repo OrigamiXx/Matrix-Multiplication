@@ -1,3 +1,6 @@
+matrix.o:
+	gcc -o matrix.o -c matrix.c
+
 groups.o:
 	gcc -o groups.o -c groups.c
 

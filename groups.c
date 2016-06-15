@@ -482,12 +482,7 @@ void print_compact_basis_elt_KG(basis_elt_KG * r) {
   print_compact_elt_G(r -> g);
   printf("}");
 
-
 }
-
-
-
-
 
 // Constructor.  Create additive identity in K[G].
 elt_KG * create_elt_KG_identity_zero(int U, int k, int m) {
