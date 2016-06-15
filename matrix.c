@@ -180,7 +180,15 @@ mat * elt_KG_to_mat(elt_KG * r, elt_KG * s, elt_KG * t, int rows, int cols) {
       elt_G * g = inverse_elt_G_new(s_curr -> g);
       multiply_elt_G(g, t_curr -> g);
 
+      //print_compact_elt_G(g);
+      //printf("\n");
+
       m -> cells[i][j] = get_coef_elt_KG(r,g);
+
+      /* inverse_elt_G(g); */
+      /* print_compact_elt_G(g); */
+      /* printf("\n"); */
+      
 
       destroy_elt_G(g);
       
@@ -198,13 +206,11 @@ mat * elt_KG_to_mat(elt_KG * r, elt_KG * s, elt_KG * t, int rows, int cols) {
 
 
 // Multiplies A, B using a USP.
-mat * multiply_mat_puzzle(mat * A, mat * B, puzzle * p) {
+mat * multiply_mat_puzzle(mat * A, mat * B, puzzle * p, int m) {
 
   elt_KG * s1;
   elt_KG * s2;
   elt_KG * s3;
-
-  int m = 3; // XXX - Fix.
 
   create_Sis(p, m, &s1, &s2, &s3);
 
@@ -212,15 +218,19 @@ mat * multiply_mat_puzzle(mat * A, mat * B, puzzle * p) {
   //print_compact_elt_KG(s2);
   //print_compact_elt_KG(s3);
 
-  printf("Realizing <%d,%d,%d>\n",s1 -> size, s2 -> size, s3 -> size);
+  printf("\nRealizing <%d,%d,%d>\n",s1 -> size, s2 -> size, s3 -> size);
 
   elt_KG * a = mat_to_elt_KG(A,s1,s2);
   elt_KG * b = mat_to_elt_KG(B,s2,s3);
   
+  //*
   printf("a = \n");
   print_compact_elt_KG(a);
   printf("b = \n");
   print_compact_elt_KG(b);
+  //*/
+
+  printf("Starting to multiply.\n");
 
   elt_KG * c = multiply_elt_KG_new(a,b);
 
@@ -242,8 +252,8 @@ mat * multiply_mat_puzzle(mat * A, mat * B, puzzle * p) {
 // A += B
 void add_mat(mat * A, mat * B) {
 
-  assert(A -> rows = B -> rows);
-  assert(A -> cols = B -> cols);
+  assert(A -> rows == B -> rows);
+  assert(A -> cols == B -> cols);
 
   int rows = A -> rows;
   int cols = A -> cols;

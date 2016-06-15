@@ -212,7 +212,8 @@ void apply_elt_H(elt_H * h, perm * pi){
   int i;
 
   for (i = 0; i < U; i++){
-    h -> f[i] = tmp[apply_perm(pi,i)];
+    //h -> f[i] = tmp[apply_perm(pi,i)];
+    h -> f[apply_perm(pi,i)] = tmp[i]; // XXX - not sure which of these is correct.
   }
 
   //free(tmp);
@@ -343,7 +344,7 @@ int is_equals_elt_G(elt_G * g1, elt_G * g2){
 }
 
 // Multiplies two elements of G and returns a new copy.
-elt_G * multiply_elt_G_new(elt_G * g1, elt_G *g2){
+elt_G * multiply_elt_G_new(elt_G * g1, elt_G * g2){
 
   elt_G * g = copy_elt_G(g1);
 
@@ -354,7 +355,7 @@ elt_G * multiply_elt_G_new(elt_G * g1, elt_G *g2){
 }
 
 // Multiplies two elements of G, replacing the first parameter.
-void multiply_elt_G(elt_G * g1, elt_G *g2){
+void multiply_elt_G(elt_G * g1, elt_G * g2){
 
   // Semi-direct product: (h1,pi1).(h2,pi2) = (h1^pi2 h2, pi1 pi2)
 
@@ -421,8 +422,8 @@ int is_valid_elt_G(elt_G * g, puzzle * p, int i) {
   int n,j;
 
 
-  //inverse_perm(g -> pi);
-
+  inverse_perm(g -> pi);
+  //elt_H * h = g -> h; 
   elt_H * h = apply_elt_H_new(g -> h, g -> pi); // XXX - should this be inverse of pi?
 
   for (n = 0; n < U; n++){
@@ -430,13 +431,13 @@ int is_valid_elt_G(elt_G * g, puzzle * p, int i) {
       //printf("i = %d, n = %d, j = %d, p[n][j] = %d, h[n][j] = %d\n", i, n, j, p -> puzzle[n][j],h -> f[n][j]);
       if (p -> puzzle[n][j] == i) {
 	if (h -> f[n][j] == 0) {
-	  //inverse_perm(g -> pi);
+	  inverse_perm(g -> pi);
 	  destroy_elt_H(h);
 	  return false;
 	}
       } else {
 	if (h -> f[n][j] != 0) {
-	  //inverse_perm(g -> pi);
+	  inverse_perm(g -> pi);
 	  destroy_elt_H(h);
 	  return false;
 	}
@@ -445,7 +446,7 @@ int is_valid_elt_G(elt_G * g, puzzle * p, int i) {
     }
   }
 
-  //inverse_perm(g -> pi);
+  inverse_perm(g -> pi);
   destroy_elt_H(h);
   return true;
 
@@ -485,7 +486,7 @@ void create_Sis(puzzle * p, int m, elt_KG ** s1_ptr, elt_KG ** s2_ptr, elt_KG **
   long long x;
   for (x = 0; x < max; x++){
 
-    int stop = 30;
+    int stop = 20;
 
     int size1 = (*s1_ptr) -> size;
     int size2 = (*s2_ptr) -> size;
@@ -559,7 +560,46 @@ void create_Sis(puzzle * p, int m, elt_KG ** s1_ptr, elt_KG ** s2_ptr, elt_KG **
 
   }
 
+  /*
+  elt_G * s = (*s1_ptr)->head->g;
+  elt_G * t = (*s2_ptr)->head->g;
+  elt_G * u = (*s3_ptr)->head->g;
+  elt_G * s_inv = inverse_elt_G_new(s);
+  elt_G * t_inv = inverse_elt_G_new(t);
+  elt_G * u_inv = inverse_elt_G_new(u);
+  */
 
+  /*
+  multiply_elt_G(s,s_inv);
+  multiply_elt_G(s,t);
+  multiply_elt_G(s,t_inv);
+  multiply_elt_G(s,u);
+  multiply_elt_G(s,u_inv);
+  print_compact_elt_G(s);
+  */
+  
+  /*
+  elt_G * rhs = multiply_elt_G_new(s_inv,u);
+  elt_G * lhs1 = multiply_elt_G_new(s_inv,t);
+  elt_G * lhs2 = multiply_elt_G_new(t_inv,u);
+  elt_G * lhs = multiply_elt_G_new(lhs1,lhs2);
+
+  elt_G * full = multiply_elt_G_new(s_inv,t);
+  multiply_elt_G(full,t_inv);
+  multiply_elt_G(full,u);
+
+  printf("lhs1 = \n");
+  print_compact_elt_G(lhs1);
+  printf("\nlhs2 = \n");
+  print_compact_elt_G(lhs2);
+  printf("\nCombined\n");
+  
+  print_compact_elt_G(lhs);
+  printf("\n?=\n");
+  print_compact_elt_G(rhs);
+  printf("\n?=\n");
+  print_compact_elt_G(full);
+  */
 
 }
 

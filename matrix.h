@@ -38,7 +38,7 @@ mat * elt_KG_to_mat(elt_KG * r, elt_KG * s, elt_KG * t, int rows, int cols);
 mat * multiply_mat_naive(mat * A, mat * B);
 
 // Multiplies A, B using a USP.
-mat * multiply_mat_puzzle(mat * A, mat * B, puzzle * p);
+mat * multiply_mat_puzzle(mat * A, mat * B, puzzle * p, int m);
 
 // A += B
 void add_mat(mat * A, mat * B);
