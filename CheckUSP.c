@@ -5,16 +5,8 @@
 #include <stdlib.h>
 #include "permutation.h"
 #include "CheckUSP.h"
+#include <string.h>
 
-
-int puz[6][3] = {
-  {1,2,1},
-  {1,2,2},
-  {1,1,3},
-  {1,3,3},
-  {2,2,3},
-  {3,2,3}
-};
 
 // Todo read a puzzle from a file.
 puzzle * create_puzzle_from_file(char * filename){
@@ -24,16 +16,76 @@ puzzle * create_puzzle_from_file(char * filename){
   FILE * f = fopen(filename,"r");
  
   char buff[256];
- 
+
+  int i, r, element;
+  //first check whether this file is able to turn into a puzzle
   fscanf(f,"%s\n",buff);
+  int width = strlen(buff);
+  printf("width %d\n", width);
+  p->column = width;
+  int rows = 1;
   // Todo loop until end of file using feof(f).  Build up puzzle DS.
   printf("line |%s|\n",buff);
+  while(!feof(f)){
+    fscanf(f,"%s\n",buff);
+    printf("line |%s|\n",buff);
+    if (width != strlen(buff)){
+      printf("this is not a puzzle since the width is not all the same\n");
+      return NULL;
+    } 
+    for(i = 0; i <width; i++){
+      element = buff[i] -'0';
+      if(element != 1 &&  element != 2 && element != 3){
+	//printf("%d", buff[i]);
+	printf("this is not a puzzle since the element are not all 1 or 2 or 3\n");
+	return NULL;
+      }      
+    }
+    rows++;
+  }
 
 
-  fscanf(f,"%s\n",buff);
-  printf("line |%s|\n",buff);
-
+  //turn the file into a puzzle
+  p->row = rows;
+  p->pi = ID_permutation(p->row);
+  p-> puzzle = (int **) malloc(sizeof(int *)*p->row);
+  for (r = 0; r < p->row; r++){
+    p->puzzle[r] = (int *) malloc(sizeof(int *)*p->column);
+  }
+  f = fopen(filename,"r");
+  rows = 0;
+  while(!feof(f)){
+    fscanf(f,"%s\n", buff);
+    //printf("line %s\n",buff);
+    for(i = 0; i<p->column; i++){
+      element = buff[i] - '0';
+      // printf("%d",element);
+      p->puzzle[rows][i] = element;
+      //printf("hi\n");
+    }
+    rows++;
+  }
   return p;
+}
+
+
+// print a puzzle
+int print_puzzle(puzzle * p){
+  if (p != NULL){
+    
+  
+    int r,c;
+    for(r = 0; r<p->row; r++){
+      for(c = 0; c<p->column; c++){
+	printf("%d", p->puzzle[r][c]);
+      }
+      printf("\n");
+    }
+  }
+  else{
+    printf("puzzle is a Null.\n");
+  }
+  return 0;
 }
 
 puzzle * create_puzzle(int rows, int cols){
@@ -52,26 +104,6 @@ puzzle * create_puzzle(int rows, int cols){
   }
 
   // Initialize contents of puzzle....
-  /*
-  usp -> puzzle[0][0] = 1;
-  usp -> puzzle[0][1] = 2;
-  usp -> puzzle[0][2] = 1;
-  usp -> puzzle[1][0] = 1;
-  usp -> puzzle[1][1] = 2;
-  usp -> puzzle[1][2] = 2;
-  usp -> puzzle[2][0] = 1;
-  usp -> puzzle[2][1] = 1;
-  usp -> puzzle[2][2] = 3;
-  usp -> puzzle[3][0] = 1;
-  usp -> puzzle[3][1] = 3;
-  usp -> puzzle[3][2] = 3;
-  usp -> puzzle[4][0] = 2;
-  usp -> puzzle[4][1] = 2;
-  usp -> puzzle[4][2] = 3;
-  usp -> puzzle[5][0] = 3;
-  usp -> puzzle[5][1] = 2;
-  usp -> puzzle[5][2] = 3;
-  */
   usp -> pi = ID_permutation(8);
   
   //*

@@ -13,6 +13,8 @@ typedef struct puzzle {
 
 puzzle * create_puzzle(int rows, int cols);
 
+puzzle * create_puzzle_from_file(char * filename);
+
 #endif
 
 
