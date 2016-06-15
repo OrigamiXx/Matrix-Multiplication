@@ -208,22 +208,28 @@ mat * elt_KG_to_mat(elt_KG * r, elt_KG * s, elt_KG * t, int rows, int cols) {
 // Multiplies A, B using a USP.
 mat * multiply_mat_puzzle(mat * A, mat * B, puzzle * p, int m) {
 
+  assert(A -> cols == B -> rows);
+
   elt_KG * s1;
   elt_KG * s2;
   elt_KG * s3;
 
-  create_Sis(p, m, &s1, &s2, &s3);
+  int n1 = A -> rows;
+  int n2 = A -> cols;
+  int n3 = B -> cols;
+
+  create_Sis(p, m, &s1, &s2, &s3,n1,n2,n3);
 
   //print_compact_elt_KG(s1);
   //print_compact_elt_KG(s2);
   //print_compact_elt_KG(s3);
 
-  printf("\nRealizing <%d,%d,%d>\n",s1 -> size, s2 -> size, s3 -> size);
+  printf("\rRealizing <%d,%d,%d>\n",s1 -> size, s2 -> size, s3 -> size);
 
   elt_KG * a = mat_to_elt_KG(A,s1,s2);
   elt_KG * b = mat_to_elt_KG(B,s2,s3);
   
-  //*
+  /*
   printf("a = \n");
   print_compact_elt_KG(a);
   printf("b = \n");
@@ -234,10 +240,12 @@ mat * multiply_mat_puzzle(mat * A, mat * B, puzzle * p, int m) {
 
   elt_KG * c = multiply_elt_KG_new(a,b);
 
+  /*
   printf("c = \n");
   print_compact_elt_KG(c);
+  //*/
 
-  mat * C = elt_KG_to_mat(c,s1,s3,A -> rows, B -> cols);
+  mat * C = elt_KG_to_mat(c,s1,s3,n1,n3);
 
   destroy_elt_KG(s1);
   destroy_elt_KG(s2);

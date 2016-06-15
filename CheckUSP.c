@@ -6,6 +6,7 @@
 #include "permutation.h"
 #include "CheckUSP.h"
 #include <string.h>
+#include "constants.h"
 
 
 // Todo read a puzzle from a file.
@@ -185,7 +186,7 @@ int CheckUSP(puzzle * p){
   // XXX - last_perm are memory leaking.
 
   for (pi_1 = create_perm_identity(p->row); !is_last_perm(pi_1) ; pi_1 = next_perm(pi_1)){
-    printf("count = %d\n",count);
+    //printf("count = %d\n",count);
     count++;
     //printf("pi_1 = \n");
     //print_perm(pi_1);
@@ -194,8 +195,8 @@ int CheckUSP(puzzle * p){
       //print_perm(pi_2);
 
       for (pi_3 = create_perm_identity(p->row); !is_last_perm(pi_3); pi_3 = next_perm(pi_3)){
-	printf("pi_3 = \n");
-	print_perm(pi_3);
+	//printf("pi_3 = \n");
+	//print_perm(pi_3);
 
 	if (is_equals_perm(pi_1,pi_2) && is_equals_perm(pi_2, pi_3)){
 	  continue;
@@ -223,7 +224,7 @@ int CheckUSP(puzzle * p){
 	}
 
 	if (result == -1){
-	  return -1;
+	  return false;
 	}
 
       }
@@ -236,5 +237,5 @@ int CheckUSP(puzzle * p){
 
   destroy_perm(pi_1);
 
-  return 1;
+  return true;
 }

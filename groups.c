@@ -472,7 +472,7 @@ elt_H * ll_to_elt_H(long long x, int U, int k, int m) {
 // Returns an array containing all elements of G satisfying hp(u,j) =
 // 0 iff u_j = i for all u in U, j in [k].   Returned as an element of K[G].
 // XXX - Todo.
-void create_Sis(puzzle * p, int m, elt_KG ** s1_ptr, elt_KG ** s2_ptr, elt_KG ** s3_ptr) {
+void create_Sis(puzzle * p, int m, elt_KG ** s1_ptr, elt_KG ** s2_ptr, elt_KG ** s3_ptr, int n1, int n2, int n3) {
 
   int U = p -> row;
   int k = p -> column;
@@ -486,21 +486,20 @@ void create_Sis(puzzle * p, int m, elt_KG ** s1_ptr, elt_KG ** s2_ptr, elt_KG **
   long long x;
   for (x = 0; x < max; x++){
 
-    int stop = 20;
-
     int size1 = (*s1_ptr) -> size;
     int size2 = (*s2_ptr) -> size;
     int size3 = (*s3_ptr) -> size;
 
-    if (size1 > stop && size2 > stop && size3 > stop)
-      break;
+    //if (size1 >= n1 && size2 >= n2 && size3 >= n3)
+    //  break;
 
     elt_H * h = ll_to_elt_H(x,U,k,m);
     
     perm * pi = create_perm_identity(U);
     if (x % 1000 == 0) {
-      print_compact_elt_H(h);
-      printf("<%d,%d,%d>\n",(*s1_ptr) -> size, (*s2_ptr) -> size, (*s3_ptr) -> size);
+      //print_compact_elt_H(h);
+      printf("\rRealizing <%d,%d,%d>",(*s1_ptr) -> size, (*s2_ptr) -> size, (*s3_ptr) -> size);
+      fflush(stdout);
     }
 
     while (!is_last_perm(pi)){    

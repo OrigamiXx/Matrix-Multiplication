@@ -226,6 +226,6 @@ elt_H * ll_to_elt_H(long long x, int U, int k, int m);
 // Returns an array containing all elements of G satisfying hp(u,j) =
 // 0 iff u_j = i for all u in U, j in [k].  Length is set to the
 // length of this array.
-void create_Sis(puzzle * p, int m, elt_KG ** s1_ptr, elt_KG ** s2_ptr, elt_KG ** s3_ptr);
+void create_Sis(puzzle * p, int m, elt_KG ** s1_ptr, elt_KG ** s2_ptr, elt_KG ** s3_ptr, int n1, int n2, int n3);
 
 #endif
