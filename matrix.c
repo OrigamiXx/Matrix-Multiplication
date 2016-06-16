@@ -134,25 +134,35 @@ elt_KG * mat_to_elt_KG(mat * m, elt_KG * s, elt_KG * t){
   int rows = m -> rows;
   int cols = m -> cols;
   
-  basis_elt_KG * s_curr = s -> head;
+  int ix = 0;
+  int jx = 0;
 
   for (i = 0; i < rows; i++){
 
-    basis_elt_KG * t_curr = t -> head;
+    while (s -> elements -> entries[ix].flag != HASH_OCCUPIED){
+      ix++;
+    }
+
+    elt_G * g1 = (elt_G *)(s -> elements -> entries[ix].key);
+
+    jx = 0;
 
     for (j = 0; j < cols; j++){
 
-      elt_G * g = inverse_elt_G_new(s_curr -> g);
-      multiply_elt_G(g, t_curr -> g);
+      while (t -> elements -> entries[jx].flag != HASH_OCCUPIED){
+	jx++;
+      }
+
+      elt_G * g2 = (elt_G *)(t -> elements -> entries[jx].key);
+
+      elt_G * g = inverse_elt_G_new(g1);
+      multiply_elt_G(g, g2);
 
       add_basis_elt_KG(r,g,m -> cells[i][j]);
 
       destroy_elt_G(g);
-      
-      t_curr = t_curr -> next;
     }
 
-    s_curr = s_curr -> next;
   }
 
   return r;
@@ -168,34 +178,37 @@ mat * elt_KG_to_mat(elt_KG * r, elt_KG * s, elt_KG * t, int rows, int cols) {
   mat * m = create_mat_zero(rows,cols);
     
   int i, j;
-  
-  basis_elt_KG * s_curr = s -> head;
+
+  int ix = 0;
+  int jx = 0;
 
   for (i = 0; i < rows; i++){
 
-    basis_elt_KG * t_curr = t -> head;
+    while (s -> elements -> entries[ix].flag != HASH_OCCUPIED){
+      ix++;
+    }
+
+    elt_G * g1 = (elt_G *)(s -> elements -> entries[ix].key);
+
+    jx = 0;
 
     for (j = 0; j < cols; j++){
 
-      elt_G * g = inverse_elt_G_new(s_curr -> g);
-      multiply_elt_G(g, t_curr -> g);
+      while (t -> elements -> entries[jx].flag != HASH_OCCUPIED){
+	jx++;
+      }
 
-      //print_compact_elt_G(g);
-      //printf("\n");
+      elt_G * g2 = (elt_G *)(t -> elements -> entries[jx].key);
+
+      elt_G * g = inverse_elt_G_new(g1);
+      multiply_elt_G(g, g2);
 
       m -> cells[i][j] = get_coef_elt_KG(r,g);
 
-      /* inverse_elt_G(g); */
-      /* print_compact_elt_G(g); */
-      /* printf("\n"); */
-      
-
       destroy_elt_G(g);
-      
-      t_curr = t_curr -> next;
+
     }
 
-    s_curr = s_curr -> next;
   }
 
   return m;

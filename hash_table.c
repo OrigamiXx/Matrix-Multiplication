@@ -5,9 +5,6 @@
 #include "hash_table.h"
 #include "constants.h"
 
-#define HASH_FREE 0
-#define HASH_DELETED 1
-#define HASH_OCCUPIED 2
 
 
 // Returns entry of key in t, on ith probe.  Uses double hashing.

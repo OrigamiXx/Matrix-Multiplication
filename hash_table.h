@@ -1,7 +1,9 @@
 #ifndef __HASH_TABLE_H__
 #define __HASH_TABLE_H__
 
-
+#define HASH_FREE 0
+#define HASH_DELETED 1
+#define HASH_OCCUPIED 2
 
 typedef int (*hash_func)(void * k);
 typedef void (*destroy_func)(void * p);
@@ -57,5 +59,7 @@ int delete_in_hash_table(hash_table * t, void * key, void ** value_ptr);
 void print_compact_hash_table(hash_table * t, print_func print_key, print_func print_value);
 
 void print_hash_table(hash_table * t, print_func print_key, print_func print_value);
+
+// XXX - should write an apply function.
 
 #endif

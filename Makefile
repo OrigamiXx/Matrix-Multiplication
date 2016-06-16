@@ -28,8 +28,8 @@ groups_tester: groups.o permutation.o
 hash_table_tester: hash_table.o
 	gcc hash_table.o hash_table_tester.c -o hash_table_tester -pg
 
-matrix_tester: groups.o permutation.o matrix.o CheckUSP.o
-	gcc permutation.o groups.o matrix.o CheckUSP.o matrix_tester.c -o matrix_tester -lm -pg
+matrix_tester: groups.o permutation.o matrix.o CheckUSP.o hash_table.o
+	gcc permutation.o groups.o matrix.o CheckUSP.o hash_table.o matrix_tester.c -o matrix_tester -lm -pg
 
 CU-tester: CheckUSP.o permutation.o
 	gcc permutation.o CheckUSP.o CheckUSP_tester.c -o CU-tester -pg

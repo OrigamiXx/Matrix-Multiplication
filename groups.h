@@ -3,6 +3,7 @@
 
 #include "permutation.h"
 #include "CheckUSP.h"
+#include "hash_table.h"
 
 // ================================================================================
 //
@@ -135,40 +136,40 @@ void print_compact_elt_G(elt_G * g);
 // Shoddy implementation as a linked list.  Would perform better as a hash table. 
 // Will implement interface to make that transformation as simple as possible.
 
-typedef struct _basis_elt_KG{
+/* typedef struct _basis_elt_KG{ */
 
-  elt_G * g;
-  double c;
-  struct _basis_elt_KG * next;
+/*   elt_G * g; */
+/*   double c; */
+/*   struct _basis_elt_KG * next; */
 
-} basis_elt_KG;
+/* } basis_elt_KG; */
 
-// Constructor.  Does not copy g.
-basis_elt_KG * create_basis_elt_KG(elt_G * g, double c);
+/* // Constructor.  Does not copy g. */
+/* basis_elt_KG * create_basis_elt_KG(elt_G * g, double c); */
 
-// Constructor.  Copies the element of g.
-basis_elt_KG * create_basis_elt_KG_new(elt_G * g, double c);
+/* // Constructor.  Copies the element of g. */
+/* basis_elt_KG * create_basis_elt_KG_new(elt_G * g, double c); */
 
-// Deep Copy constructor. 
-basis_elt_KG * copy_basis_elt_KG(basis_elt_KG * r);
+/* // Deep Copy constructor.  */
+/* basis_elt_KG * copy_basis_elt_KG(basis_elt_KG * r); */
 
-// Destructor.
-void destroy_basis_elt_KG(basis_elt_KG * r);
+/* // Destructor. */
+/* void destroy_basis_elt_KG(basis_elt_KG * r); */
 
-// Displays basis element of K[G].
-void print_basis_elt_KG(basis_elt_KG * r);
+/* // Displays basis element of K[G]. */
+/* void print_basis_elt_KG(basis_elt_KG * r); */
 
-// Compact display of basis element of K[G].
-void print_compact_basis_elt_KG(basis_elt_KG * r);
+/* // Compact display of basis element of K[G]. */
+/* void print_compact_basis_elt_KG(basis_elt_KG * r); */
 
 typedef struct _elt_KG {
 
   int U; 
   int k;
   int m;
-
-  basis_elt_KG * head;
   int size;
+
+  hash_table * elements;
 
 } elt_KG;
 
@@ -185,7 +186,7 @@ elt_KG * copy_elt_KG(elt_KG * r);
 void destroy_elt_KG(elt_KG * r);
 
 // Returns a pointer to the basis element matching g, NULL if not found.
-basis_elt_KG * locate_basis_elt_KG(elt_KG * r, elt_G * g);
+double * locate_basis_elt_KG(elt_KG * r, elt_G * g);
 
 // Adds c to the coefficient of g in r.  
 void add_basis_elt_KG(elt_KG * r, elt_G * g, double c);
