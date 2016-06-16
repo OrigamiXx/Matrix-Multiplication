@@ -8,7 +8,7 @@
 
 
 // Returns entry of key in t, on ith probe.  Uses double hashing.
-int hash(hash_table * t, void * key, int i) {
+unsigned int hash(hash_table * t, void * key, int i) {
 
   return (t -> h1(key) + i * t -> h2(key)) % t -> capacity;
 
@@ -115,7 +115,7 @@ void destroy_hash_table_deep(hash_table *t, destroy_func destroy_key, destroy_fu
 void insert_in_hash_table(hash_table * t, void * key, void * value) {
 
   int i = 0;
-  int index;
+  unsigned int index;
 
   do {
     index = hash(t,key,i);
@@ -143,7 +143,7 @@ void insert_in_hash_table(hash_table * t, void * key, void * value) {
 int search_in_hash_table(hash_table * t, void * key, void ** value_ptr) {
 
   int i = 0;
-  int index;
+  unsigned int index;
 
   do {
     index = hash(t,key,i);
@@ -162,7 +162,7 @@ int search_in_hash_table(hash_table * t, void * key, void ** value_ptr) {
 int delete_in_hash_table(hash_table * t, void * key, void ** value_ptr) {
 
   int i = 0;
-  int index;
+  unsigned int index;
 
   do {
     index = hash(t,key,i);

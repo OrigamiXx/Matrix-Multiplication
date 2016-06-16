@@ -5,7 +5,7 @@
 #define HASH_DELETED 1
 #define HASH_OCCUPIED 2
 
-typedef int (*hash_func)(void * k);
+typedef unsigned int (*hash_func)(void * k);
 typedef void (*destroy_func)(void * p);
 typedef void * (*copy_func)(void * p);
 typedef int (*equals_func)(void * k1, void * k2);

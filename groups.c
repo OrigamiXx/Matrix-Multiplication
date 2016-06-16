@@ -674,10 +674,34 @@ void create_Sis(puzzle * p, int m, elt_KG ** s1_ptr, elt_KG ** s2_ptr, elt_KG **
 
 /* } */
 
-int hash_elt_G(void * k){
+unsigned int hash_elt_G(void * k){
 
-  // XXX - fix.
-  return (int) k;
+  elt_G * g = (elt_G *) k;
+
+  elt_H * h = g -> h;
+  perm * pi = g -> pi;
+
+  long long p_hash = 0;
+  int i,j;
+  for (i = 0; i < pi -> size; i++){
+    p_hash *= 3.0;
+    p_hash += pi -> arrow[i];
+  }
+
+  long long h_hash = 0;
+  
+  for (i = 0; i < h -> U; i++){
+    for (j = 0; j < h -> k; j++){
+      h_hash *= 2.0;
+      h_hash += h -> f[i][j];
+    }
+  }
+  
+  unsigned int A = 2654435769;
+
+  long long hash = (p_hash % A) * (h_hash % A);
+
+  return (unsigned int)(hash % A);
 
 }
 
