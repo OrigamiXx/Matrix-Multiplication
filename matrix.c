@@ -257,6 +257,25 @@ mat * multiply_mat_puzzle(mat * A, mat * B, puzzle * p, int m) {
   return C;
 }
 
+// Multiplies A, B using sets derived from a USP.
+mat * multiply_mat_sets(mat * A, mat * B, elt_KG * s1, elt_KG * s2, elt_KG * s3){
+
+  elt_KG * a = mat_to_elt_KG(A,s1,s2);
+  elt_KG * b = mat_to_elt_KG(B,s2,s3);
+  
+  elt_KG * c = multiply_elt_KG_new(a,b);
+
+  mat * C = elt_KG_to_mat(c,s1,s3,A -> rows,B -> cols);
+
+  destroy_elt_KG(a);
+  destroy_elt_KG(b);
+  destroy_elt_KG(c);
+
+  return C;
+
+}
+
+
 // A += B
 void add_mat(mat * A, mat * B) {
 
@@ -323,5 +342,51 @@ double one_norm_mat(mat * A){
       norm += fabs(A -> cells[i][j]);
   
   return norm;
+
+}
+
+
+
+// Returns true iff p is a strong USP.  Warning: Has a small chance of
+// saying true when p is not a strong USP.
+int is_usp(puzzle * p){ 
+
+  time_t t;
+  srand((unsigned) time(&t));
+
+  elt_KG * s1;
+  elt_KG * s2;
+  elt_KG * s3;
+
+  int m = 2; // XXX - may not be sufficient.
+
+  create_Sis(p, m, &s1, &s2, &s3,-1,-1,-1);
+
+  int n1 = s1 -> size;
+  int n2 = s2 -> size;
+  int n3 = s3 -> size;
+
+  int max = 1000;
+    
+  mat * m1 = create_mat_random(n1, n2, max);
+  mat * m2 = create_mat_random(n2, n3, max);
+
+  mat * m3 = multiply_mat_naive(m1,m2);
+  mat * m4 = multiply_mat_sets(m1,m2,s1,s2,s3);
+
+  scalar_multiply_mat(m4,-1.0);
+  add_mat(m4,m3);
+
+  double dist = one_norm_mat(m4);
+
+  destroy_mat(m1);
+  destroy_mat(m2);
+  destroy_mat(m3);
+  destroy_mat(m4);
+
+  if (dist < 1.0)
+    return true;
+  else
+    return false;
 
 }

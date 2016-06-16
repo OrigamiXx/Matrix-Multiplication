@@ -490,8 +490,10 @@ void create_Sis(puzzle * p, int m, elt_KG ** s1_ptr, elt_KG ** s2_ptr, elt_KG **
     int size2 = (*s2_ptr) -> size;
     int size3 = (*s3_ptr) -> size;
 
-    if (size1 >= n1 && size2 >= n2 && size3 >= n3)
+    if (n1 > 0 && n2 > 0 && n3 > 0 && size1 >= n1 && size2 >= n2 && size3 >= n3) {
       break;
+    }
+
 
     elt_H * h = ll_to_elt_H(x,U,k,m);
     
@@ -599,6 +601,8 @@ void create_Sis(puzzle * p, int m, elt_KG ** s1_ptr, elt_KG ** s2_ptr, elt_KG **
   printf("\n?=\n");
   print_compact_elt_G(full);
   */
+  printf("\rRealizing <%d,%d,%d>\n",(*s1_ptr) -> size, (*s2_ptr) -> size, (*s3_ptr) -> size);
+
 
 }
 

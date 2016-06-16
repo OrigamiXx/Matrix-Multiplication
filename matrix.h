@@ -40,6 +40,9 @@ mat * multiply_mat_naive(mat * A, mat * B);
 // Multiplies A, B using a USP.
 mat * multiply_mat_puzzle(mat * A, mat * B, puzzle * p, int m);
 
+// Multiplies A, B using sets derived from a USP.
+mat * multiply_mat_sets(mat * A, mat * B, elt_KG * s1, elt_KG * s2, elt_KG *s3);	
+
 // A += B
 void add_mat(mat * A, mat * B);
 
@@ -54,5 +57,9 @@ mat * scalar_multiply_mat_new(mat * A, double c);
 
 // Return the 1-norm of A.
 double one_norm_mat(mat * A);
+
+// Returns true iff p is a strong USP.  Warning: Has a small chance of
+// saying true when p is not a strong USP.
+int is_usp(puzzle * p);
 
 #endif
