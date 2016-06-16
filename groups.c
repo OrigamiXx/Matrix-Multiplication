@@ -490,8 +490,8 @@ void create_Sis(puzzle * p, int m, elt_KG ** s1_ptr, elt_KG ** s2_ptr, elt_KG **
     int size2 = (*s2_ptr) -> size;
     int size3 = (*s3_ptr) -> size;
 
-    //if (size1 >= n1 && size2 >= n2 && size3 >= n3)
-    //  break;
+    if (size1 >= n1 && size2 >= n2 && size3 >= n3)
+      break;
 
     elt_H * h = ll_to_elt_H(x,U,k,m);
     

@@ -9,7 +9,7 @@ int main(int argc, char * argv[]){
 
   
 
-  puzzle * p = create_puzzle_from_file("test1.puz");
+  puzzle * p = create_puzzle_from_file("puzzles/usp_8_6.puz");
   print_puzzle(p);
   printf("result = %d\n",CheckUSP(p));
 
