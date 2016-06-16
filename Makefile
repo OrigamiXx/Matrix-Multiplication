@@ -1,3 +1,6 @@
+hash_table.o:
+	gcc -o hash_table.o -c hash_table.c -pg
+
 matrix.o:
 	gcc -o matrix.o -c matrix.c -pg
 
@@ -21,6 +24,9 @@ perm-tester: permutation.o
 
 groups_tester: groups.o permutation.o
 	gcc permutation.o groups.o groups_tester.c -o groups_tester -pg
+
+hash_table_tester: hash_table.o
+	gcc hash_table.o hash_table_tester.c -o hash_table_tester -pg
 
 matrix_tester: groups.o permutation.o matrix.o CheckUSP.o
 	gcc permutation.o groups.o matrix.o CheckUSP.o matrix_tester.c -o matrix_tester -lm -pg
