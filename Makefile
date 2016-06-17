@@ -22,8 +22,8 @@ ll-tester: linklist.o
 perm-tester: permutation.o
 	gcc permutation.o permutation_tester.c -o perm-tester -pg
 
-groups_tester: groups.o permutation.o
-	gcc permutation.o groups.o groups_tester.c -o groups_tester -pg
+groups_tester: groups.o permutation.o hash_table.o
+	gcc permutation.o groups.o hash_table.o groups_tester.c -o groups_tester -pg -lm
 
 hash_table_tester: hash_table.o
 	gcc hash_table.o hash_table_tester.c -o hash_table_tester -pg

@@ -161,8 +161,11 @@ elt_KG * mat_to_elt_KG(mat * m, elt_KG * s, elt_KG * t){
       add_basis_elt_KG(r,g,m -> cells[i][j]);
 
       destroy_elt_G(g);
+
+      jx++;
     }
 
+    ix++;
   }
 
   return r;
@@ -207,8 +210,9 @@ mat * elt_KG_to_mat(elt_KG * r, elt_KG * s, elt_KG * t, int rows, int cols) {
 
       destroy_elt_G(g);
 
+      jx++;
     }
-
+    ix++;
   }
 
   return m;
@@ -275,8 +279,20 @@ mat * multiply_mat_sets(mat * A, mat * B, elt_KG * s1, elt_KG * s2, elt_KG * s3)
 
   elt_KG * a = mat_to_elt_KG(A,s1,s2);
   elt_KG * b = mat_to_elt_KG(B,s2,s3);
-  
+
+  /*
+  printf("a = \n");
+  print_compact_elt_KG(a);
+  printf("b = \n");
+  print_compact_elt_KG(b);
+  */
+
   elt_KG * c = multiply_elt_KG_new(a,b);
+
+  /*
+  printf("c = \n");
+  print_compact_elt_KG(c);
+  */
 
   mat * C = elt_KG_to_mat(c,s1,s3,A -> rows,B -> cols);
 
@@ -379,13 +395,34 @@ int is_usp(puzzle * p){
   int n2 = s2 -> size;
   int n3 = s3 -> size;
 
-  int max = 1000;
+  /*
+  printf("s1 = \n");
+  print_elt_KG(s1);
+  printf("s2 = \n");
+  print_elt_KG(s2);
+  printf("s3 = \n");
+  print_elt_KG(s3);
+  */
+
+  int max = 10;
     
   mat * m1 = create_mat_random(n1, n2, max);
   mat * m2 = create_mat_random(n2, n3, max);
 
   mat * m3 = multiply_mat_naive(m1,m2);
   mat * m4 = multiply_mat_sets(m1,m2,s1,s2,s3);
+
+  /* printf("m1 = \n"); */
+  /* print_mat(m1); */
+
+  /* printf("m2 = \n"); */
+  /* print_mat(m2); */
+
+  /* printf("m1 * m2 = \n"); */
+  /* print_mat(m3); */
+
+  /* printf("m4 = \n"); */
+  /* print_mat(m4); */
 
   scalar_multiply_mat(m4,-1.0);
   add_mat(m4,m3);

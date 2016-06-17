@@ -770,6 +770,8 @@ elt_KG * copy_elt_KG(elt_KG * r1) {
   destroy_hash_table(r2 -> elements);
 
   r2 -> elements = copy_hash_table_deep(r1 -> elements, 1.0, copy_G, identity);
+  
+  //printf("GROUP: end copy KG\n");
 
   return r2;
 
@@ -778,6 +780,8 @@ elt_KG * copy_elt_KG(elt_KG * r1) {
 // Destructor.
 void destroy_elt_KG(elt_KG * r) {
 
+
+  //printf("GROUP: begin destroy KG\n");
   destroy_hash_table_deep(r -> elements,destroy_G,noop);
   free(r);
 
@@ -788,11 +792,12 @@ double * locate_basis_elt_KG(elt_KG * r, elt_G * g) {
 
   double * val_ptr;
 
-  int found = search_in_hash_table(r -> elements,(void *)g,(void **)&val_ptr);
+  int found = search_in_hash_table(r -> elements,(void *)g,(void **)(&val_ptr));
 
-  if (found)
+  if (found) {
+    //printf("GROUP: found %f\n",*val_ptr);
     return val_ptr;
-  else
+  } else
     return NULL;
 
 }
@@ -800,14 +805,20 @@ double * locate_basis_elt_KG(elt_KG * r, elt_G * g) {
 // Adds c to the coefficient of g in r.  
 void add_basis_elt_KG(elt_KG * r, elt_G * g, double c) {
 
+  
   double * c_ptr = locate_basis_elt_KG(r,g);
 
-  if (c_ptr == NULL) {
-    insert_in_hash_table(r -> elements,(void *)g,*(void **)(&c));
-    r -> size++;
-  } else 
-    *c_ptr += c;
 
+  if (c_ptr == NULL) {
+    //printf("GROUP: c_ptr = NULL\n");
+    
+    insert_in_hash_table(r -> elements,(void *)copy_elt_G(g),*((void **)(&c)));
+    r -> size++;
+  } else {
+    //printf("GROUP: c_ptr != NULL\n");
+    //printf("GROUP: in add_basis %f\n",*c_ptr);
+    *c_ptr += c;
+  }
 }
 
 // Adds r1 to r2, replaces r1.
@@ -817,7 +828,10 @@ void add_elt_KG(elt_KG * r1, elt_KG * r2) {
   for (i = 0; i < r2 -> elements -> capacity; i++) {
     hash_table_entry * e = &(r2 -> elements -> entries[i]);
     if (e -> flag == HASH_OCCUPIED) {
-      add_basis_elt_KG(r1, (elt_G *)(e -> key),  *(double *)(&(e -> value)));
+
+      double c = *(double *)(&(e -> value));
+      //printf("Adding %f\n",c);
+      add_basis_elt_KG(r1, (elt_G *)(e -> key),  c);
     }
   }
 
@@ -826,6 +840,8 @@ void add_elt_KG(elt_KG * r1, elt_KG * r2) {
 // Adds r2 to r1, returns new copy of result.
 elt_KG * add_elt_KG_new(elt_KG * r1, elt_KG * r2) {
 
+  //printf("GROUP: Starting add_KG\n");
+  
   elt_KG * r = copy_elt_KG(r1);
 
   add_elt_KG(r,r2);
@@ -837,37 +853,39 @@ elt_KG * add_elt_KG_new(elt_KG * r1, elt_KG * r2) {
 
 // Multiples r1 and r2, returns new copy of result.
 elt_KG * multiply_elt_KG_new(elt_KG * r1, elt_KG * r2) {
-
+  
   elt_KG * r = create_elt_KG_identity_zero(r1 -> U, r1 -> k, r1 -> m);
-
+  
   int i, j;
   for (i = 0; i < r1 -> elements -> capacity; i++) {
     hash_table_entry * e1 = &(r1 -> elements -> entries[i]);
-
+    
     if (e1 -> flag == HASH_OCCUPIED) {
-
+      
       elt_G * g1 = (elt_G *)(e1 -> key);
       double c1 = *(double*)(&(e1 -> value)); // XXX - not portable, should use float instead?
       
       for (j = 0; j < r2 -> elements -> capacity; j++) {
 	hash_table_entry * e2 = &(r2 -> elements -> entries[j]);
+	//printf("Looping\n");
+	
 	if (e2 -> flag == HASH_OCCUPIED) {
 	  
 	  elt_G * g2 = (elt_G *)(e2 -> key);
 	  double c2 = *(double*)(&(e2 -> value));
-
+	  
 	  elt_G * g = multiply_elt_G_new(g1, g2);
 	  double c = c1 * c2;
 	  
-	  add_basis_elt_KG(r,g,c);
-
+	  add_basis_elt_KG(r,g,c); 
+	  
 	  destroy_elt_G(g);
-
+	  
 	}
       }
     }
   }
-
+  
   return r;
 }
 

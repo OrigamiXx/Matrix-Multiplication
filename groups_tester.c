@@ -29,13 +29,13 @@ void main(int argc, char * argv[]) {
 
   print_compact_elt_H(h3);
 
-  permutation * p = ID_permutation(U);
+  perm * p = create_perm_identity(U);
 
   elt_H * h4 = apply_elt_H_new(h1,p);
 
   print_compact_elt_H(h4);
 
-  p = next_permutation(p);
+  p = next_perm(p);
 
 
   elt_H * h5 = apply_elt_H_new(h1,p);
@@ -43,7 +43,7 @@ void main(int argc, char * argv[]) {
 
   print_compact_elt_H(h5);
 
-  p = inverse_permutation(p);
+  p = inverse_perm(p);
 
   elt_H * h6 = apply_elt_H_new(h5,p);
   print_compact_perm(p);
@@ -74,8 +74,8 @@ void main(int argc, char * argv[]) {
   printf("============= Finished Group H Tests ================\n");
 
   h1 = create_elt_H_random(U,k,m);
-  p = ID_permutation(U);
-  p = next_permutation(p);
+  p = create_perm_identity(U);
+  p = next_perm(p);
 
   elt_G * g1 = create_elt_G(h1,p);
   
@@ -121,6 +121,7 @@ void main(int argc, char * argv[]) {
   destroy_elt_KG(r1);
   destroy_elt_KG(r2);
 
+  
   print_compact_elt_KG(r3);
 
   elt_KG * r4 = add_elt_KG_new(r3,r3);
@@ -138,10 +139,13 @@ void main(int argc, char * argv[]) {
   destroy_elt_KG(r4);
   
   print_compact_elt_KG(r5);
+ 
 
-  elt_G * g = create_elt_G(create_elt_H_random(U,k,m),last_permutation(U));
+  elt_G * g = create_elt_G(create_elt_H_random(U,k,m),create_last_perm(U));
 
   add_basis_elt_KG(r5,g,10);
+
+  
 
   print_compact_elt_KG(r5);
 
@@ -179,7 +183,7 @@ void main(int argc, char * argv[]) {
   destroy_elt_KG(r9);
   destroy_elt_KG(r10);
   destroy_elt_KG(r11);
-
+  
   printf("============= Finished Algebra K[G] Tests ================\n");
 
 

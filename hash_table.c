@@ -10,7 +10,7 @@
 // Returns entry of key in t, on ith probe.  Uses double hashing.
 unsigned int hash(hash_table * t, void * key, int i) {
 
-  return (t -> h1(key) + i * t -> h2(key)) % t -> capacity;
+  return (t -> h1(key) + i) % t -> capacity;
 
 }
 
@@ -52,6 +52,8 @@ hash_table * copy_hash_table(hash_table * t, double cap_factor) {
 hash_table * copy_hash_table_deep(hash_table * t1, double cap_factor, copy_func copy_key, copy_func copy_value) {
 
   int new_capacity = (int)((t1 -> capacity) * cap_factor);
+  if (new_capacity < 2)
+    new_capacity = 2;
   hash_table * t2 = create_hash_table(new_capacity,t1 -> h1, t1 -> h2, t1 -> eq);
 
   int i;
@@ -64,22 +66,35 @@ hash_table * copy_hash_table_deep(hash_table * t1, double cap_factor, copy_func 
     
   }
 
+  //printf("HASH: finished copy\n");
+
   return t2;
 
 }
 
+void print(void * x){
+
+  printf("XXX");
+}
 
 
 void rehash(hash_table * t1, double cap_factor) {
+
+  //printf("HASH: In rehash.\n");
+  //printf("Before:\n");
+  //print_hash_table(t1,print,print);
+
 
   hash_table * t2 = copy_hash_table(t1,cap_factor);
 
   hash_table_entry * old_entries = t1 -> entries;
 
   *t1 = *t2;
+  //t1 -> entries = t2 -> entries;
   t2 -> entries = old_entries;
   destroy_hash_table(t2);
-  
+  //printf("After:\n");
+  //print_hash_table(t1,print,print);
 }
 
 
@@ -93,6 +108,8 @@ void destroy_hash_table(hash_table * t) {
 
 // Destructor.  Destroys everything.
 void destroy_hash_table_deep(hash_table *t, destroy_func destroy_key, destroy_func destroy_value) {
+
+  //printf("HASH: begin deep destroy\n");
 
   int i;
   for (i = 0; i < t -> capacity; i++){
@@ -109,6 +126,8 @@ void destroy_hash_table_deep(hash_table *t, destroy_func destroy_key, destroy_fu
   free(t -> entries);
   free(t);
 
+  //printf("HASH: finished deep destroy\n");
+
 }
 
 // Inserts (key, value) in hash_table.
@@ -116,8 +135,9 @@ void insert_in_hash_table(hash_table * t, void * key, void * value) {
 
   int i = 0;
   unsigned int index;
-
+  
   do {
+    //printf("Trying to insert i = %d, size = %d, capacity = %d\n",i,t -> size, t -> capacity);
     index = hash(t,key,i);
     if (t -> entries[index].flag != HASH_OCCUPIED) {
       t -> entries[index].key = key;
@@ -126,7 +146,9 @@ void insert_in_hash_table(hash_table * t, void * key, void * value) {
       t -> size++;
 
       if (t -> size > (t -> capacity / 2.0)) {
+	//printf("HASH: GROWING table\n");
 	rehash(t,2.0);
+
       }
      
       return;
@@ -141,6 +163,8 @@ void insert_in_hash_table(hash_table * t, void * key, void * value) {
 // Search for key in hash_table, returns true if found, false otherwise.
 // Associated value is returned to value_ptr.
 int search_in_hash_table(hash_table * t, void * key, void ** value_ptr) {
+  
+  //printf("HASH: Begin search\n");
 
   int i = 0;
   unsigned int index;
@@ -148,7 +172,8 @@ int search_in_hash_table(hash_table * t, void * key, void ** value_ptr) {
   do {
     index = hash(t,key,i);
     if (t -> entries[index].flag == HASH_OCCUPIED && t -> eq(t -> entries[index].key,key)) {
-      (*value_ptr) = t -> entries[index].value;
+      //printf("Found %f\n",*(double *)(&(t -> entries[index].value)));
+      *value_ptr = &(t -> entries[index].value);
       return true;
     }
     i++;
