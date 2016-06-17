@@ -302,6 +302,7 @@ elt_G * create_elt_G(elt_H * h, perm *pi){
 
   g -> h = h;
   g -> pi = pi;
+  g -> hash = 0;
 
   return g;
 }
@@ -678,6 +679,9 @@ unsigned int hash_elt_G(void * k){
 
   elt_G * g = (elt_G *) k;
 
+  if (g -> hash != 0) 
+    return g -> hash;
+
   elt_H * h = g -> h;
   perm * pi = g -> pi;
 
@@ -701,7 +705,9 @@ unsigned int hash_elt_G(void * k){
 
   long long hash = (p_hash % A) * (h_hash % A);
 
-  return (unsigned int)(hash % A);
+  g -> hash = (unsigned int)(hash % A);
+
+  return g -> hash;
 
 }
 

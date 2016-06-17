@@ -84,6 +84,7 @@ typedef struct _elt_G{
 
   elt_H * h;
   perm * pi;
+  unsigned int hash;
 
 } elt_G;
 

@@ -92,16 +92,25 @@ perm * next_perm(perm * pi){
 perm * inverse_perm(perm * pi){
 
   int s = pi -> size;
-  
-  assert(s <= 30);
-
-  int tmp[30];
-  memcpy(tmp, pi -> arrow, sizeof(int) * s);
-  
 
   int i;
   for (i = 0; i < s; i++){
-    pi -> arrow[tmp[i]] = i;
+
+    if (pi -> arrow[i] < 0)
+      pi -> arrow[i] = - pi -> arrow[i] - 1;
+    else {
+      int start = i;
+      int prev = i;
+      int curr = pi -> arrow[i];
+      while (curr != start){
+	int next = pi -> arrow[curr]; 
+	pi -> arrow[curr] = -prev - 1;
+	prev = curr;
+	curr = next;
+      }
+      pi -> arrow[start] = prev;
+    }
+
   }
 
   return pi;
