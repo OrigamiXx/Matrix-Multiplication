@@ -3,7 +3,7 @@
 
 
 #include "permutation.h"
-
+#include <math.h>
 typedef struct puzzle {
   perm * pi;
   int ** puzzle;

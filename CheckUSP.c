@@ -7,9 +7,123 @@
 #include "CheckUSP.h"
 #include <string.h>
 #include "constants.h"
+#include <math.h>
+char* itoa(int i, char b[]){
+  char const digit[] = "0123456789";
+  char*p = b;
+  if(i<0){
+    *p++ = '-';
+    i *= -1;
+  }
+  int shifter = i;
+  do{
+    ++p;
+    shifter =shifter/10;
+  }while(shifter);
+  *p = '\0';
+  do{
+    *--p = digit[i%10];
+    i = i/10;
+  }while(i);
+    return b;
+}
+//Deallocattes a puzzle
+void destroy_puzzle(puzzle * p){
+  free(p->pi);
+  free(p->puzzle);
+  free(p);
+}
 
 
-// Todo read a puzzle from a file.
+//give width(column) and height(row) and the index of all the possible puzzle in this size
+//return a puzzle
+//index must be 0-(2^(k*s)-1)
+puzzle * create_puzzle_from_index(int row, int column, int index){
+  puzzle * p = (puzzle *) (malloc(sizeof(puzzle)));
+  int r;
+  p->row = row;
+  p->column = column;
+  p->pi = create_perm_identity(p->row);
+  p->puzzle = (int **) malloc(sizeof(int *)*p->row);
+  for (r = 0; r < p->row; r++){
+    p->puzzle[r] = (int *) malloc(sizeof(int *)*p->column);
+  }
+  int num_elements_in_row = 3;
+  //int num_type_rows = (int)pow(3, column); power fuction not working!
+  int num_type_rows = 1;
+  int a;
+  for (a = 0; a<column; a++){
+    num_type_rows = num_type_rows * 3;
+  }
+  int i, j;
+  int x, y;
+  for(x = 0; x < row; x++){
+    i = index % num_type_rows;
+    //printf("%d", i);
+    for(y = 0; y < column; y++){
+      j = i % num_elements_in_row;
+      p->puzzle[x][y] = j+1;
+      i = i/num_elements_in_row;
+    }
+    index = index/num_type_rows;
+  }
+  return p;
+}
+
+//write the puzzle to a new text file
+void write_puzzle(puzzle * p, int index){
+  char a[256];
+  itoa(index, a);
+  char * extension = ".puzz";
+  char name[strlen(a)+strlen(extension)+1];
+  FILE * f;
+  snprintf(name, sizeof(name), "%s%s", a, extension);
+  f = fopen(name, "w");
+  int i, j;
+  for(i=0; i<p->row;i++){
+    for(j=0;i<p->column;i++){
+      fprintf(f, "%d", p->puzzle[i][j]);  
+    }
+    fprintf(f, "\n");
+  }
+  fclose(f);
+}
+
+//give a size of the puzzle check all the puzzles from 1X1 to this size
+// whether they are USPs and
+// will write out in new text file the ones that are USPs.
+int check_all_usp(int row, int column){
+  int i, j, k;
+  int max_index;
+  int a;
+    //printf("%d\n", max_index);
+  for(i=1; i<=row; i++){
+    for(j=1; j<=column; j++){
+      //printf("%d\n", j);
+      max_index =1;
+      for(a=0;a<i*j;a++){
+	max_index = max_index*3;
+      }
+      for(k=0; k<max_index; k++){
+	puzzle * p = create_puzzle_from_index(i, j, k);
+	if(CheckUSP(p) == true){
+          print_puzzle(p);
+	  printf("----------\n");
+	  write_puzzle(p, k);  
+	}
+	destroy_puzzle(p);
+      }  
+    }
+  }
+
+
+
+  return 0;
+}
+
+
+
+//read a puzzle from a file.
 puzzle * create_puzzle_from_file(char * filename){
 
   puzzle * p = (puzzle *) (malloc(sizeof(puzzle)));
@@ -25,7 +139,7 @@ puzzle * create_puzzle_from_file(char * filename){
   printf("width %d\n", width);
   p->column = width;
   int rows = 1;
-  // Todo loop until end of file using feof(f).  Build up puzzle DS.
+  //loop until end of file using feof(f).  Build up puzzle DS.
   printf("line |%s|\n",buff);
   while(!feof(f)){
     fscanf(f,"%s\n",buff);
@@ -44,7 +158,6 @@ puzzle * create_puzzle_from_file(char * filename){
     }
     rows++;
   }
-
 
   //turn the file into a puzzle
   p->row = rows;
@@ -167,7 +280,7 @@ int CheckUSP(puzzle * p){
   int u, i, result;
   result = -1;
 
-  printf("Starting Check USP\n");
+  //printf("Starting Check USP\n");
 
   /* print(create_perm_identity(p->row)); */
 
@@ -182,8 +295,6 @@ int CheckUSP(puzzle * p){
   /* printf("!equal = %d\n",!is_equals_perm(pi_1,last_perm(p->row))); */
 
   int count = 0;
-
-  // XXX - last_perm are memory leaking.
 
   for (pi_1 = create_perm_identity(p->row); !is_last_perm(pi_1) ; pi_1 = next_perm(pi_1)){
     //printf("count = %d\n",count);

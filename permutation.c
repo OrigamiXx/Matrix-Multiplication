@@ -7,6 +7,7 @@
 #include <assert.h>
 #include "permutation.h"
 #include "constants.h"
+#include <math.h>
 
 perm  * create_perm_identity(int n){
   perm * tmp = (perm *) malloc(sizeof(perm));
