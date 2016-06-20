@@ -16,7 +16,7 @@ EXES=$(EXE-SOURCES:.c= )
 $(OBJDIR)/%.o : %.c
 	$(CC) -c $< -o $@
 
-% : %.c
+% : %.c $(OBJECTS)
 	$(CC) $(OBJECTS) $(LDFLAGS) $@.c -o $@ 
 
 all: $(OBJECTS) $(EXES)
