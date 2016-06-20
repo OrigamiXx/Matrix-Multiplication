@@ -106,7 +106,9 @@ int check_all_usp(int row, int column){
 	max_index = max_index*3;
       }
       for(k=0; k<max_index; k++){
+	
 	puzzle * p = create_puzzle_from_index(i, j, k);
+	printf("%d\n",CheckUSP(p));
 	if(CheckUSP(p)){// && is_usp(p)){
           print_puzzle(p);
 	  printf("----------\n");
@@ -281,7 +283,7 @@ int CheckUSP(puzzle * p){
   int u, i, result;
   result = -1;
 
-  //printf("Starting Check USP\n");
+  printf("Starting Check USP\n");
 
   /* print(create_perm_identity(p->row)); */
 
@@ -296,27 +298,28 @@ int CheckUSP(puzzle * p){
   /* printf("!equal = %d\n",!is_equals_perm(pi_1,last_perm(p->row))); */
 
   int count = 0;
-
   for (pi_1 = create_perm_identity(p->row); !is_last_perm(pi_1) ; pi_1 = next_perm(pi_1)){
     //printf("count = %d\n",count);
     count++;
-    //printf("pi_1 = \n");
-    //print_perm(pi_1);
+    printf("%d\n", is_last_perm(pi_1));
+    printf("pi_1 = \n");
+    print_compact_perm(pi_1);
+    printf("\n");
     for (pi_2 = create_perm_identity(p->row); !is_last_perm(pi_2); pi_2 = next_perm(pi_2)){
-      //printf("pi_2 = \n");
-      //print_perm(pi_2);
-
-      for (pi_3 = create_perm_identity(p->row); !is_last_perm(pi_3); pi_3 = next_perm(pi_3)){
-	//printf("pi_3 = \n");
-	//print_perm(pi_3);
-
+      printf("pi_2 = \n");
+      print_compact_perm(pi_2);
+      printf("\n");
+      for (pi_3 = create_perm_identity(p->row); ; pi_3 = next_perm(pi_3)){
+	printf("pi_3 = \n");
+	print_compact_perm(pi_3);
+	printf("\n");
 	if (is_equals_perm(pi_1,pi_2) && is_equals_perm(pi_2, pi_3)){
 	  continue;
 	}
 	else{
 	  result = -1;
 	}
-
+	
 	for (u = 0;u< p->row;u++){
 	  for (i = 0;i< p->column;i++ ){
 	    if( (p->puzzle[apply_perm(pi_1, u)][i] == 1) &&
@@ -334,17 +337,23 @@ int CheckUSP(puzzle * p){
 	    }
 	  }
 	}
-
+	
 	if (result == -1){
 	  return false;
 	}
-
+	if(is_last_perm(pi_3)){
+	  break;
+	}
       }
-
       destroy_perm(pi_3);
+      if(is_last_perm(pi_2)){
+	break;
+      }
     }
-
     destroy_perm(pi_2);
+    if(is_last_perm(pi_3)){
+      break;
+    }
   }
 
   destroy_perm(pi_1);
