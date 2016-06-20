@@ -744,13 +744,6 @@ elt_KG * create_elt_KG_identity_one(int U, int k, int m){
 
 }
 
-
-void * identity(void * x){
-
-  return x;
-
-}
-
 void * copy_G(void * x){
 
   return (void *) copy_elt_G((elt_G *) x);
@@ -763,10 +756,6 @@ void destroy_G(void * x){
 
 }
 
-void noop(void * x){
-
-}
-
 // Copy constructor. Create a copy of an element of K[G].
 elt_KG * copy_elt_KG(elt_KG * r1) {
 
@@ -775,7 +764,7 @@ elt_KG * copy_elt_KG(elt_KG * r1) {
 
   destroy_hash_table(r2 -> elements);
 
-  r2 -> elements = copy_hash_table_deep(r1 -> elements, 1.0, copy_G, identity);
+  r2 -> elements = copy_hash_table_deep(r1 -> elements, 1.0, copy_G, identity_helper);
   
   //printf("GROUP: end copy KG\n");
 
@@ -788,7 +777,7 @@ void destroy_elt_KG(elt_KG * r) {
 
 
   //printf("GROUP: begin destroy KG\n");
-  destroy_hash_table_deep(r -> elements,destroy_G,noop);
+  destroy_hash_table_deep(r -> elements,destroy_G,noop_helper);
   free(r);
 
 }

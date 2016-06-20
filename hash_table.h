@@ -62,4 +62,12 @@ void print_hash_table(hash_table * t, print_func print_key, print_func print_val
 
 // XXX - should write an apply function.
 
+void noop_helper(void * x);
+
+void print_helper(void * x);
+
+int equals_helper(void * x, void * y);
+
+unsigned int identity_helper(void * x);
+
 #endif

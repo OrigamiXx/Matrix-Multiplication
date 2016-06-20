@@ -72,10 +72,6 @@ hash_table * copy_hash_table_deep(hash_table * t1, double cap_factor, copy_func 
 
 }
 
-void print(void * x){
-
-  printf("XXX");
-}
 
 
 void rehash(hash_table * t1, double cap_factor) {
@@ -257,5 +253,28 @@ void print_hash_table(hash_table * t, print_func print_key, print_func print_val
     }
 
   }
+
+}
+
+void noop_helper(void * x){
+  return;
+}
+
+void print_helper(void * x){
+
+  printf("%d",(int)x);
+
+}
+
+
+int equals_helper(void * x, void * y){
+
+  return x == y;
+
+}
+
+unsigned int identity_helper(void * x){
+
+  return (unsigned int) x;
 
 }

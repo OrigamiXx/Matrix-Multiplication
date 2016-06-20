@@ -1,38 +1,32 @@
-hash_table.o:
-	gcc -o hash_table.o -c hash_table.c -pg
+CC=gcc
+CFLAGS=-c -Wall
+LDFLAGS=-lm -pg
+RMFLAGS=-f
+OBJ-SOURCES=CheckUSP.c hash_table.c permutation.c groups.c matrix.c	
+EXE-SOURCES=groups_tester.c matrix_tester.c CheckUSP_tester.c  \
+	permutation_tester.c hash_table_tester.c 
+OBJDIR=objs
+OBJECTS=$(addprefix $(OBJDIR)/,$(OBJ-SOURCES:.c=.o))
+EXES=$(EXE-SOURCES:.c= )
 
-matrix.o:
-	gcc -o matrix.o -c matrix.c -pg
+#EXECUTABLE=hello
 
-groups.o:
-	gcc -o groups.o -c groups.c -pg
+#all: $(OBJS) $(EXECUTABLES)
 
-permutation.o:
-	gcc -o permutation.o -c permutation.c -pg
+$(OBJDIR)/%.o : %.c
+	$(CC) -c $< -o $@
 
-linklist.o:
-	gcc -o linkedlist.o -c linkedlist.c -pg
+% : %.c
+	$(CC) $(OBJECTS) $(LDFLAGS) $@.c -o $@ 
 
-CheckUSP.o: 
-	gcc -o CheckUSP.o -c CheckUSP.c -pg
+all: $(OBJECTS) $(EXES)
 
-ll-tester: linklist.o
-	gcc linkedlist.o linkedlist_tester.c -o ll-tester -pg
+#$(EXECUTABLE): $(OBJECTS) 
+#    $(CC) $(LDFLAGS) $(OBJECTS) -o $@
 
-perm_tester: permutation.o
-	gcc permutation.o permutation_tester.c -o perm_tester -pg
+#.cpp.o:
+#    $(CC) $(CFLAGS) $< -o $@
 
-groups_tester: groups.o permutation.o hash_table.o
-	gcc permutation.o groups.o hash_table.o groups_tester.c -o groups_tester -pg -lm
-
-hash_table_tester: hash_table.o
-	gcc hash_table.o hash_table_tester.c -o hash_table_tester -pg
-
-matrix_tester: groups.o permutation.o matrix.o CheckUSP.o hash_table.o
-	gcc permutation.o groups.o matrix.o CheckUSP.o hash_table.o matrix_tester.c -o matrix_tester -lm -pg
-
-CheckUSP_tester: CheckUSP.o permutation.o matrix.o hash_table.o groups.o
-	gcc permutation.o CheckUSP.o matrix.o hash_table.o groups.o CheckUSP_tester.c -o CheckUSP_tester -pg -lm
-
+.PHONY: clean
 clean:
-	rm -f *.o *tester *~
+	rm $(RMFLAGS) $(OBJDIR)/*.o $(EXES) *~ *.out
