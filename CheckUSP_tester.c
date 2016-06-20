@@ -24,8 +24,8 @@ int main(int argc, char * argv[]){
   //printf("%d\n",sizeof(long));
   //printf("%d\n",sizeof(long long));
   
-  int row = 2;
-  int column = 1;
+  int row = 4;
+  int column = 3;
   //int index = 1;
   //puzzle * p = create_puzzle_from_index(row,column,index);
   //print_puzzle(p);

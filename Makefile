@@ -3,7 +3,7 @@
 # Debug level 3 use CFLAGS=-DDEBUG3
 
 CC=gcc
-CCFLAGS= -c -Wall
+CCFLAGS=-c -Wall -O3 -pg
 LDFLAGS=-lm -pg
 RMFLAGS=-f
 OBJ-SOURCES=CheckUSP.c hash_table.c permutation.c groups.c matrix.c	
