@@ -7,6 +7,7 @@
 #include "CheckUSP.h"
 #include <string.h>
 #include "constants.h"
+#include "assert.h"
 #include <math.h>
 #include "matrix.h"
 char* itoa(int i, char b[]){
@@ -78,8 +79,9 @@ void write_puzzle(puzzle * p, int index){
   char * extension = ".puzz";
   char name[20+strlen(extension)+1];
   FILE * f;
-  snprintf(name, sizeof(name), "%d_%d_%04d%s", p -> row, p -> column, index, extension);
+  snprintf(name, sizeof(name), "puzzles/%d_%d_%04d%s", p -> row, p -> column, index, extension);
   f = fopen(name, "w");
+  assert(f != NULL);
   int i, j;
   for(i=0; i<p->row;i++){
     for(j=0;j<p->column;j++){
@@ -109,28 +111,32 @@ int check_all_usp(int row, int column){
 	
 	puzzle * p = create_puzzle_from_index(i, j, k);
 	//printf("%d\n",CheckUSP(p));
-	if(CheckUSP(p) && is_usp(p)){
+	int res_check = CheckUSP(p);
+	int res_mult = res_check; //  is_usp(p);
+
+	if(res_check && res_mult){
           //print_puzzle(p);
 	  //printf("----------\n");
 	 tt++;
-	  //write_puzzle(p, k);  
+	  write_puzzle(p, k);  
 	}
-	if(!CheckUSP(p) && !is_usp(p)){
+	if(!res_check && !res_mult){
 	  ff++;
 	  //print_puzzle(p);
 	}
-	if(!CheckUSP(p) && is_usp(p)){
+	if(!res_check && res_mult){
 	  ft++;
 	  //print_puzzle(p);
 	}
-	if(CheckUSP(p)&& !is_usp(p)){
+	if(res_check && !res_mult){
 	  tf++;
-	  print_puzzle(p);
+	  //print_puzzle(p);
 	}
 	
 	destroy_puzzle(p);
       }
-      printf("tt = %d ff = %d tf = %d ft = %d\n", tt, ff, tf, ft);
+      printf("rows = %d cols = %d tt = %d ff = %d tf = %d ft = %d\n",i,j, tt, ff, tf, ft);
+      assert(tf == 0 && ft == 0);
     }
   }
 
@@ -325,42 +331,44 @@ int CheckUSP(puzzle * p){
       //print_compact_perm(pi_2);
       //printf("\n");
       for (pi_3 = create_perm_identity(p->row); ; pi_3 = next_perm(pi_3)){
-	//printf("pi_3 = \n");
-	print_compact_perm(pi_3);
-	printf("\n");
-	if (is_equals_perm(pi_1,pi_2) && is_equals_perm(pi_2, pi_3)){
-	  continue;
-	}
-	else{
+	//	printf("pi_3 = \n");
+	//print_compact_perm(pi_3);
+	//printf("\n");
+	if (!(is_equals_perm(pi_1,pi_2) && is_equals_perm(pi_2, pi_3))){
+
 	  result = false;
-	}
-	
-	for (u = 0;u< p->row;u++){
-	  printf("u = %d\n",u);
-	  for (i = 0;i< p->column;i++ ){
-	    printf("pi1(u) = %d\n", apply_perm(pi_1, u));
-	    printf("pi2(u) = %d\n", apply_perm(pi_2, u));
-	    printf("pi3(u) = %d\n", apply_perm(pi_3, u));
-	    if( (p->puzzle[apply_perm(pi_1, u)][i] == 1) &&
-		(p->puzzle[apply_perm(pi_2, u)][i] == 2) &&
-		(p->puzzle[apply_perm(pi_3, u)][i] != 3) ){
-	      result = true;
-	    }else if((p->puzzle[apply_perm(pi_1, u)][i] != 1) &&
-		     (p->puzzle[apply_perm(pi_2, u)][i] == 2) &&
-		     (p->puzzle[apply_perm(pi_3, u)][i] == 3) ){
-	      result = true;
-	    }else if ((p->puzzle[apply_perm(pi_1, u)][i] == 1) &&
-		      (p->puzzle[apply_perm(pi_2, u)][i] != 2) &&
-		      (p->puzzle[apply_perm(pi_3, u)][i] == 3) ){
-	      result = true;
+
+	  for (u = 0;u< p->row;u++){
+	    //printf("u = %d\n",u);
+	    for (i = 0;i< p->column;i++ ){
+	      //printf("pi1(u) = %d\n", apply_perm(pi_1, u));
+	      //printf("pi2(u) = %d\n", apply_perm(pi_2, u));
+	      //printf("pi3(u) = %d\n", apply_perm(pi_3, u));
+	      if( (p->puzzle[apply_perm(pi_1, u)][i] == 1) &&
+		  (p->puzzle[apply_perm(pi_2, u)][i] == 2) &&
+		  (p->puzzle[apply_perm(pi_3, u)][i] != 3) ){
+		result = true;
+	      }else if((p->puzzle[apply_perm(pi_1, u)][i] != 1) &&
+		       (p->puzzle[apply_perm(pi_2, u)][i] == 2) &&
+		       (p->puzzle[apply_perm(pi_3, u)][i] == 3) ){
+		result = true;
+	      }else if ((p->puzzle[apply_perm(pi_1, u)][i] == 1) &&
+			(p->puzzle[apply_perm(pi_2, u)][i] != 2) &&
+			(p->puzzle[apply_perm(pi_3, u)][i] == 3) ){
+		result = true;
+	      }
+	      //printf("result = %d\n",result);
 	    }
-	    printf("result = %d\n",result);
 	  }
+	  
+	  if (!result){
+	    return false;
+	  }
+
 	}
-	
-	if (!result){
-	  return false;
-	}
+
+	//printf("break?\n");
+
 	if(is_last_perm(pi_3)){
 	  break;
 	}
@@ -371,7 +379,7 @@ int CheckUSP(puzzle * p){
       }
     }
     destroy_perm(pi_2);
-    if(is_last_perm(pi_3)){
+    if(is_last_perm(pi_1)){
       break;
     }
   }
