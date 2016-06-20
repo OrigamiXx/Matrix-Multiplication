@@ -296,7 +296,7 @@ puzzle * create_puzzle(int rows, int cols){
 int CheckUSP(puzzle * p){
   perm * pi_1, * pi_2, * pi_3;
   int u, i, result;
-  result = -1;
+  result = false;
 
   //printf("Starting Check USP\n");
 
@@ -313,14 +313,14 @@ int CheckUSP(puzzle * p){
   /* printf("!equal = %d\n",!is_equals_perm(pi_1,last_perm(p->row))); */
 
   int count = 0;
-  for (pi_1 = create_perm_identity(p->row); !is_last_perm(pi_1) ; pi_1 = next_perm(pi_1)){
+  for (pi_1 = create_perm_identity(p->row); ; pi_1 = next_perm(pi_1)){
     //printf("count = %d\n",count);
     count++;
     //printf("%d\n", is_last_perm(pi_1));
     //printf("pi_1 = \n");
     //print_compact_perm(pi_1);
     //printf("\n");
-    for (pi_2 = create_perm_identity(p->row); !is_last_perm(pi_2); pi_2 = next_perm(pi_2)){
+    for (pi_2 = create_perm_identity(p->row); ; pi_2 = next_perm(pi_2)){
       //printf("pi_2 = \n");
       //print_compact_perm(pi_2);
       //printf("\n");
@@ -332,10 +332,11 @@ int CheckUSP(puzzle * p){
 	  continue;
 	}
 	else{
-	  result = -1;
+	  result = false;
 	}
 	
 	for (u = 0;u< p->row;u++){
+	  printf("u = %d\n",u);
 	  for (i = 0;i< p->column;i++ ){
 	    printf("pi1(u) = %d\n", apply_perm(pi_1, u));
 	    printf("pi2(u) = %d\n", apply_perm(pi_2, u));
@@ -343,20 +344,21 @@ int CheckUSP(puzzle * p){
 	    if( (p->puzzle[apply_perm(pi_1, u)][i] == 1) &&
 		(p->puzzle[apply_perm(pi_2, u)][i] == 2) &&
 		(p->puzzle[apply_perm(pi_3, u)][i] != 3) ){
-	      result = 1;
+	      result = true;
 	    }else if((p->puzzle[apply_perm(pi_1, u)][i] != 1) &&
 		     (p->puzzle[apply_perm(pi_2, u)][i] == 2) &&
 		     (p->puzzle[apply_perm(pi_3, u)][i] == 3) ){
-	      result = 1;
+	      result = true;
 	    }else if ((p->puzzle[apply_perm(pi_1, u)][i] == 1) &&
 		      (p->puzzle[apply_perm(pi_2, u)][i] != 2) &&
 		      (p->puzzle[apply_perm(pi_3, u)][i] == 3) ){
-	      result = 1;
+	      result = true;
 	    }
+	    printf("result = %d\n",result);
 	  }
 	}
 	
-	if (result == -1){
+	if (!result){
 	  return false;
 	}
 	if(is_last_perm(pi_3)){
