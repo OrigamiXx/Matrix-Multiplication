@@ -15,6 +15,8 @@ puzzle * create_puzzle(int rows, int cols);
 
 puzzle * create_puzzle_from_file(char * filename);
 
+puzzle * create_puzzle_from_index(int row, int column, int index);
+
 #endif
 
 

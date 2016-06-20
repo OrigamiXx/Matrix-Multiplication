@@ -8,6 +8,7 @@
 #include <string.h>
 #include "constants.h"
 #include <math.h>
+#include "matrix.h"
 char* itoa(int i, char b[]){
   char const digit[] = "0123456789";
   char*p = b;
@@ -72,12 +73,12 @@ puzzle * create_puzzle_from_index(int row, int column, int index){
 
 //write the puzzle to a new text file
 void write_puzzle(puzzle * p, int index){
-  char a[256];
-  itoa(index, a);
+  //char a[256];
+  //itoa(index, a);
   char * extension = ".puzz";
-  char name[strlen(a)+strlen(extension)+1];
+  char name[20+strlen(extension)+1];
   FILE * f;
-  snprintf(name, sizeof(name), "%s%s", a, extension);
+  snprintf(name, sizeof(name), "%d_%d_%04d%s", p -> row, p -> column, index, extension);
   f = fopen(name, "w");
   int i, j;
   for(i=0; i<p->row;i++){
@@ -106,7 +107,7 @@ int check_all_usp(int row, int column){
       }
       for(k=0; k<max_index; k++){
 	puzzle * p = create_puzzle_from_index(i, j, k);
-	if(CheckUSP(p) == true){
+	if(CheckUSP(p)){// && is_usp(p)){
           print_puzzle(p);
 	  printf("----------\n");
 	  write_puzzle(p, k);  

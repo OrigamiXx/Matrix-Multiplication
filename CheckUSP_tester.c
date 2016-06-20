@@ -9,15 +9,20 @@ int main(int argc, char * argv[]){
 
   
 
-  puzzle * p = create_puzzle_from_file("puzzles/usp_8_6.puz");
-  print_puzzle(p);
-  //printf("result = %d\n",CheckUSP(p));
-  // int row = 2;
-  //int column = 3;
-  //int index = 2;
-  // puzzle * p = create_puzzle_from_index(row,column,index);
+  //puzzle * p = create_puzzle_from_file("puzzles/usp_8_6.puz");
   //print_puzzle(p);
-  //check_all_usp(row, column);
+
+  //printf("result = %d\n",CheckUSP(p));
+  printf("%d\n",sizeof(int));
+  printf("%d\n",sizeof(long));
+  printf("%d\n",sizeof(long long));
+  
+  int row = 2;
+  int column = 2;
+  int index = 1;
+  //puzzle * p = create_puzzle_from_index(row,column,index);
+  //print_puzzle(p);
+  check_all_usp(row, column);
   return 0;
 
 }

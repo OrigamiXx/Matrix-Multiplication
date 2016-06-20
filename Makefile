@@ -19,8 +19,8 @@ CheckUSP.o:
 ll-tester: linklist.o
 	gcc linkedlist.o linkedlist_tester.c -o ll-tester -pg
 
-perm-tester: permutation.o
-	gcc permutation.o permutation_tester.c -o perm-tester -pg
+perm_tester: permutation.o
+	gcc permutation.o permutation_tester.c -o perm_tester -pg
 
 groups_tester: groups.o permutation.o hash_table.o
 	gcc permutation.o groups.o hash_table.o groups_tester.c -o groups_tester -pg -lm
@@ -31,8 +31,8 @@ hash_table_tester: hash_table.o
 matrix_tester: groups.o permutation.o matrix.o CheckUSP.o hash_table.o
 	gcc permutation.o groups.o matrix.o CheckUSP.o hash_table.o matrix_tester.c -o matrix_tester -lm -pg
 
-CU-tester: CheckUSP.o permutation.o
-	gcc permutation.o CheckUSP.o CheckUSP_tester.c -o CU-tester -pg
+CheckUSP_tester: CheckUSP.o permutation.o matrix.o hash_table.o groups.o
+	gcc permutation.o CheckUSP.o matrix.o hash_table.o groups.o CheckUSP_tester.c -o CheckUSP_tester -pg -lm
 
 clean:
 	rm -f *.o *tester *~
