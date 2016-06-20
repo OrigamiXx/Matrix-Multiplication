@@ -96,7 +96,7 @@ void write_puzzle(puzzle * p, int index){
 int check_all_usp(int row, int column){
   int i, j, k;
   int max_index;
-  int a;
+  int a, tt=0, tf=0, ft = 0, ff = 0;
     //printf("%d\n", max_index);
   for(i=1; i<=row; i++){
     for(j=1; j<=column; j++){
@@ -108,14 +108,29 @@ int check_all_usp(int row, int column){
       for(k=0; k<max_index; k++){
 	
 	puzzle * p = create_puzzle_from_index(i, j, k);
-	printf("%d\n",CheckUSP(p));
-	if(CheckUSP(p)){// && is_usp(p)){
-          print_puzzle(p);
-	  printf("----------\n");
-	  write_puzzle(p, k);  
+	//printf("%d\n",CheckUSP(p));
+	if(CheckUSP(p) && is_usp(p)){
+          //print_puzzle(p);
+	  //printf("----------\n");
+	 tt++;
+	  //write_puzzle(p, k);  
 	}
+	if(!CheckUSP(p) && !is_usp(p)){
+	  ff++;
+	  //print_puzzle(p);
+	}
+	if(!CheckUSP(p) && is_usp(p)){
+	  ft++;
+	  //print_puzzle(p);
+	}
+	if(CheckUSP(p)&& !is_usp(p)){
+	  tf++;
+	  print_puzzle(p);
+	}
+	
 	destroy_puzzle(p);
-      }  
+      }
+      printf("tt = %d ff = %d tf = %d ft = %d\n", tt, ff, tf, ft);
     }
   }
 
@@ -283,7 +298,7 @@ int CheckUSP(puzzle * p){
   int u, i, result;
   result = -1;
 
-  printf("Starting Check USP\n");
+  //printf("Starting Check USP\n");
 
   /* print(create_perm_identity(p->row)); */
 
@@ -301,16 +316,16 @@ int CheckUSP(puzzle * p){
   for (pi_1 = create_perm_identity(p->row); !is_last_perm(pi_1) ; pi_1 = next_perm(pi_1)){
     //printf("count = %d\n",count);
     count++;
-    printf("%d\n", is_last_perm(pi_1));
-    printf("pi_1 = \n");
-    print_compact_perm(pi_1);
-    printf("\n");
+    //printf("%d\n", is_last_perm(pi_1));
+    //printf("pi_1 = \n");
+    //print_compact_perm(pi_1);
+    //printf("\n");
     for (pi_2 = create_perm_identity(p->row); !is_last_perm(pi_2); pi_2 = next_perm(pi_2)){
-      printf("pi_2 = \n");
-      print_compact_perm(pi_2);
-      printf("\n");
+      //printf("pi_2 = \n");
+      //print_compact_perm(pi_2);
+      //printf("\n");
       for (pi_3 = create_perm_identity(p->row); ; pi_3 = next_perm(pi_3)){
-	printf("pi_3 = \n");
+	//printf("pi_3 = \n");
 	print_compact_perm(pi_3);
 	printf("\n");
 	if (is_equals_perm(pi_1,pi_2) && is_equals_perm(pi_2, pi_3)){
@@ -322,6 +337,9 @@ int CheckUSP(puzzle * p){
 	
 	for (u = 0;u< p->row;u++){
 	  for (i = 0;i< p->column;i++ ){
+	    printf("pi1(u) = %d\n", apply_perm(pi_1, u));
+	    printf("pi2(u) = %d\n", apply_perm(pi_2, u));
+	    printf("pi3(u) = %d\n", apply_perm(pi_3, u));
 	    if( (p->puzzle[apply_perm(pi_1, u)][i] == 1) &&
 		(p->puzzle[apply_perm(pi_2, u)][i] == 2) &&
 		(p->puzzle[apply_perm(pi_3, u)][i] != 3) ){
