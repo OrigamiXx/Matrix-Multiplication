@@ -42,6 +42,9 @@ int main(){
     printf("Perm #%d\n",i);
     print_perm(pi);
   }
+
+  printf("--------\n");
+  print_perm(next_perm(pi));
   
 
   return 0;
