@@ -1,5 +1,9 @@
+# Debug level 1 use CFLAGS=-DDEBUG1
+# Debug level 2 use CFLAGS=-DDEBUG2
+# Debug level 3 use CFLAGS=-DDEBUG3
+
 CC=gcc
-CFLAGS=-c -Wall
+CCFLAGS= -c -Wall
 LDFLAGS=-lm -pg
 RMFLAGS=-f
 OBJ-SOURCES=CheckUSP.c hash_table.c permutation.c groups.c matrix.c	
@@ -14,7 +18,8 @@ EXES=$(EXE-SOURCES:.c= )
 #all: $(OBJS) $(EXECUTABLES)
 
 $(OBJDIR)/%.o : %.c
-	$(CC) -c $< -o $@
+	echo $(CFLAGS)
+	$(CC) $(CFLAGS) $(CCFLAGS) $< -o $@
 
 % : %.c $(OBJECTS)
 	$(CC) $(OBJECTS) $(LDFLAGS) $@.c -o $@ 

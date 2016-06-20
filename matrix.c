@@ -241,7 +241,7 @@ mat * multiply_mat_puzzle(mat * A, mat * B, puzzle * p, int m) {
   //print_compact_elt_KG(s2);
   //print_compact_elt_KG(s3);
 
-  printf("\rRealizing <%d,%d,%d>\n",s1 -> size, s2 -> size, s3 -> size);
+  DEBUG3_PRINTF("\rRealizing <%d,%d,%d>\n",s1 -> size, s2 -> size, s3 -> size);
 
   elt_KG * a = mat_to_elt_KG(A,s1,s2);
   elt_KG * b = mat_to_elt_KG(B,s2,s3);

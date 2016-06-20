@@ -501,7 +501,7 @@ void create_Sis(puzzle * p, int m, elt_KG ** s1_ptr, elt_KG ** s2_ptr, elt_KG **
     perm * pi = create_perm_identity(U);
     if (x % 1000 == 0) {
       //print_compact_elt_H(h);
-      printf("\rRealizing <%d,%d,%d>",(*s1_ptr) -> size, (*s2_ptr) -> size, (*s3_ptr) -> size);
+      DEBUG3_PRINTF("\rRealizing <%d,%d,%d>",(*s1_ptr) -> size, (*s2_ptr) -> size, (*s3_ptr) -> size);
       fflush(stdout);
     }
 
@@ -602,7 +602,7 @@ void create_Sis(puzzle * p, int m, elt_KG ** s1_ptr, elt_KG ** s2_ptr, elt_KG **
   printf("\n?=\n");
   print_compact_elt_G(full);
   */
-  printf("\rRealizing <%d,%d,%d>\n",(*s1_ptr) -> size, (*s2_ptr) -> size, (*s3_ptr) -> size);
+  DEBUG3_PRINTF("\rRealizing <%d,%d,%d>\n",(*s1_ptr) -> size, (*s2_ptr) -> size, (*s3_ptr) -> size);
 
 
 }
