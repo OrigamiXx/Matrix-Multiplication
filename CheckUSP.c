@@ -82,7 +82,7 @@ void write_puzzle(puzzle * p, int index){
   f = fopen(name, "w");
   int i, j;
   for(i=0; i<p->row;i++){
-    for(j=0;i<p->column;i++){
+    for(j=0;j<p->column;j++){
       fprintf(f, "%d", p->puzzle[i][j]);  
     }
     fprintf(f, "\n");
