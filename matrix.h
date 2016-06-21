@@ -1,7 +1,7 @@
 #ifndef __MATRIX_H__
 #define __MATRIX_H__
 
-#include "CheckUSP.h"
+#include "usp.h"
 #include "groups.h"
 #include "puzzle.h"
 
@@ -61,6 +61,6 @@ double one_norm_mat(mat * A);
 
 // Returns true iff p is a strong USP.  Warning: Has a small chance of
 // saying true when p is not a strong USP.
-int is_usp(puzzle * p);
+int check_usp_mult(puzzle * p);
 
 #endif

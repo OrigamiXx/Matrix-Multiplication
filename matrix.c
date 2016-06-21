@@ -7,7 +7,7 @@
 #include <time.h>
 #include "matrix.h"
 #include "permutation.h"
-#include "CheckUSP.h"
+#include "usp.h"
 #include "groups.h"
 #include "constants.h"
 #include "puzzle.h"
@@ -381,7 +381,7 @@ double one_norm_mat(mat * A){
 
 // Returns true iff p is a strong USP.  Warning: Has a small chance of
 // saying true when p is not a strong USP.
-int is_usp(puzzle * p){ 
+int check_usp_mult(puzzle * p){ 
 
   time_t t;
   srand((unsigned) time(&t));

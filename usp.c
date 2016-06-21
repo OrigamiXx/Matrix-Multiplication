@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "permutation.h"
-#include "CheckUSP.h"
+#include "usp.h"
 #include <string.h>
 #include "constants.h"
 #include "assert.h"
@@ -31,9 +31,9 @@ int check_all_usp(int row, int column){
       for(k=0; k<max_index; k++){
 	
 	puzzle * p = create_puzzle_from_index(i, j, k);
-	//printf("%d\n",CheckUSP(p));
-	int res_check = CheckUSP(p);
-	int res_mult = res_check; //  is_usp(p);
+	//printf("%d\n",check_usp(p));
+	int res_check = check_usp(p);
+	int res_mult = res_check; //  check_usp_mult(p);
 
 	if(res_check && res_mult){
           //print_puzzle(p);
@@ -69,12 +69,12 @@ int check_all_usp(int row, int column){
 
 
 
-int CheckUSP(puzzle * p){
+int check_usp(puzzle * p){
   perm * pi_1, * pi_2, * pi_3;
   int u, i, result;
   result = false;
 
-  //printf("Starting Check USP\n");
+  //printf("Starting check_usp\n");
 
   /* print(create_perm_identity(p->row)); */
 

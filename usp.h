@@ -4,7 +4,7 @@
 
 #include "puzzle.h"
 
-int CheckUSP(puzzle * p);
+int check_usp(puzzle * p);
 
 int check_all_usp(int row, int column);
 

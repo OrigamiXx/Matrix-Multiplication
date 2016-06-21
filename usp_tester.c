@@ -1,7 +1,7 @@
 #include "permutation.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "CheckUSP.h"
+#include "usp.h"
 #include <math.h>
 #include "constants.h"
 int main(int argc, char * argv[]){
@@ -12,14 +12,14 @@ int main(int argc, char * argv[]){
 
   //puzzle * p = create_puzzle_from_file("puzzles/test.puz");
   //print_puzzle(p);
-  //if(CheckUSP(p)){
-  //int i = CheckUSP(p);
+  //if(check_usp(p)){
+  //int i = check_usp(p);
   //printf("%d\n", i);
 
     //}
 
   
-  //printf("result = %d\n",CheckUSP(p));
+  //printf("result = %d\n",check_usp(p));
   //printf("%d\n",sizeof(int));
   //printf("%d\n",sizeof(long));
   //printf("%d\n",sizeof(long long));
