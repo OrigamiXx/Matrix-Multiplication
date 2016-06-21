@@ -21,7 +21,9 @@ puzzle * create_puzzle_from_file(char * filename){
 
   int i, r, element;
   //first check whether this file is able to turn into a puzzle
-  fscanf(f,"%s\n",buff);
+  int bytes_read = fscanf(f,"%s\n",buff);
+  assert(bytes_read > 0);
+
   int width = strlen(buff);
   printf("width %d\n", width);
   p->column = width;
@@ -29,7 +31,8 @@ puzzle * create_puzzle_from_file(char * filename){
   //loop until end of file using feof(f).  Build up puzzle DS.
   printf("line |%s|\n",buff);
   while(!feof(f)){
-    fscanf(f,"%s\n",buff);
+    bytes_read = fscanf(f,"%s\n",buff);
+    assert(bytes_read > 0);
     printf("line |%s|\n",buff);
     if (width != strlen(buff)){
       printf("this is not a puzzle since the width is not all the same\n");
@@ -56,7 +59,8 @@ puzzle * create_puzzle_from_file(char * filename){
   f = fopen(filename,"r");
   rows = 0;
   while(!feof(f)){
-    fscanf(f,"%s\n", buff);
+    bytes_read = fscanf(f,"%s\n", buff);
+    assert(bytes_read > 0);
     //printf("line %s\n",buff);
     for(i = 0; i<p->column; i++){
       element = buff[i] - '0';

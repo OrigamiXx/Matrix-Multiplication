@@ -74,7 +74,7 @@ mat * copy_mat(mat * m1){
 void destroy_mat(mat * m) {
 
   int rows = m -> rows;
-  int cols = m -> cols;
+  //int cols = m -> cols;
 
   int i;
   for (i = 0; i < rows; i++){

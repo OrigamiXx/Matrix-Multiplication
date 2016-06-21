@@ -262,7 +262,7 @@ void noop_helper(void * x){
 
 void print_helper(void * x){
 
-  printf("%d",(int)x);
+  printf("%d",(int)(long)x);
 
 }
 
@@ -275,6 +275,6 @@ int equals_helper(void * x, void * y){
 
 unsigned int identity_helper(void * x){
 
-  return (unsigned int) x;
+  return (unsigned int)(long) x;
 
 }

@@ -71,7 +71,7 @@ elt_H * copy_elt_H(elt_H * h1){
 
   elt_H * h2 = create_elt_H_identity(U,k,m);
 
-  int i,j;
+  int i;
   for (i = 0; i < U; i++){
     memcpy(h2 -> f[i],h1->f[i],sizeof(int)*k);
   }
@@ -83,7 +83,7 @@ elt_H * copy_elt_H(elt_H * h1){
 void destroy_elt_H(elt_H * h){
 
   int U = h -> U;
-  int k = h -> k;
+  //int k = h -> k;
 
   int i;
   for (i = 0; i < U; i++){
@@ -256,7 +256,7 @@ void print_compact_elt_H(elt_H * h){
 
   int U = h -> U;
   int k = h -> k;
-  int m = h -> m;
+  //int m = h -> m;
 
   //printf("[U: %d, k: %d, m: %d, ",U,k,m);
   printf("[ ");
@@ -756,6 +756,12 @@ void destroy_G(void * x){
 
 }
 
+void * identity_helper_groups(void * x){
+
+  return x;
+
+}
+
 // Copy constructor. Create a copy of an element of K[G].
 elt_KG * copy_elt_KG(elt_KG * r1) {
 
@@ -764,7 +770,7 @@ elt_KG * copy_elt_KG(elt_KG * r1) {
 
   destroy_hash_table(r2 -> elements);
 
-  r2 -> elements = copy_hash_table_deep(r1 -> elements, 1.0, copy_G, identity_helper);
+  r2 -> elements = copy_hash_table_deep(r1 -> elements, 1.0, copy_G, identity_helper_groups);
   
   //printf("GROUP: end copy KG\n");
 
@@ -825,6 +831,7 @@ void add_elt_KG(elt_KG * r1, elt_KG * r2) {
     if (e -> flag == HASH_OCCUPIED) {
 
       double c = *(double *)(&(e -> value));
+      
       //printf("Adding %f\n",c);
       add_basis_elt_KG(r1, (elt_G *)(e -> key),  c);
     }
