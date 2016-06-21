@@ -146,7 +146,7 @@ elt_KG * mat_to_elt_KG(mat * m, elt_KG * s, elt_KG * t){
       ix++;
     }
 
-    elt_G * g1 = (elt_G *)(s -> elements -> entries[ix].key);
+    elt_G * g1 = (elt_G *)(s -> elements -> entries[ix].key.void_ptr_val);
 
     jx = 0;
 
@@ -156,7 +156,7 @@ elt_KG * mat_to_elt_KG(mat * m, elt_KG * s, elt_KG * t){
 	jx++;
       }
 
-      elt_G * g2 = (elt_G *)(t -> elements -> entries[jx].key);
+      elt_G * g2 = (elt_G *)(t -> elements -> entries[jx].key.void_ptr_val);
 
       elt_G * g = inverse_elt_G_new(g1);
       multiply_elt_G(g, g2);
@@ -194,7 +194,7 @@ mat * elt_KG_to_mat(elt_KG * r, elt_KG * s, elt_KG * t, int rows, int cols) {
       ix++;
     }
 
-    elt_G * g1 = (elt_G *)(s -> elements -> entries[ix].key);
+    elt_G * g1 = (elt_G *)(s -> elements -> entries[ix].key.void_ptr_val);
 
     jx = 0;
 
@@ -204,7 +204,7 @@ mat * elt_KG_to_mat(elt_KG * r, elt_KG * s, elt_KG * t, int rows, int cols) {
 	jx++;
       }
 
-      elt_G * g2 = (elt_G *)(t -> elements -> entries[jx].key);
+      elt_G * g2 = (elt_G *)(t -> elements -> entries[jx].key.void_ptr_val);
 
       elt_G * g = inverse_elt_G_new(g1);
       multiply_elt_G(g, g2);
