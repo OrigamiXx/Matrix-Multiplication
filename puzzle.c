@@ -52,7 +52,7 @@ puzzle * create_puzzle_from_file(char * filename){
   //turn the file into a puzzle
   p->row = rows;
   p->pi = create_perm_identity(p->row);
-  p-> puzzle = (int **) malloc(sizeof(int *)*p->row);
+  p->puzzle = (int **) malloc(sizeof(int *)*p->row);
   for (r = 0; r < p->row; r++){
     p->puzzle[r] = (int *) malloc(sizeof(int *)*p->column);
   }
@@ -229,7 +229,42 @@ void write_puzzle(puzzle * p, int index){
 
 // Deallocates a puzzle
 void destroy_puzzle(puzzle * p){
-  free(p->pi);
-  free(p->puzzle);
+  destroy_perm(p->pi);
+  int i;
+  for (i = 0; i < p -> row; i++){
+    free(p -> puzzle[i]);
+  }
+  free(p -> puzzle);
   free(p);
+}
+
+
+int count_witnesses(puzzle * p){
+
+  int i,j,k,l;
+  int count = 0;
+
+  for (i = 0; i < p -> row; i++){
+    for (j = 0; j < p -> row; j++){
+      
+      for (k = 0; k < p -> row; k++){
+
+	for (l = 0; l < p -> column; l++){
+
+	  int num_sat = (p -> puzzle[i][l] == 1 ? 1 : 0) 
+	    + (p -> puzzle[j][l] == 1 ? 1 : 0) 
+	    + (p -> puzzle[k][l] == 1 ? 1 : 0);
+	  
+	  if (num_sat == 2) {
+	    count++;
+	    break;
+	  }
+	  
+	}
+      }
+    }
+  }
+
+  return count;
+
 }
