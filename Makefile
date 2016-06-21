@@ -6,9 +6,9 @@ CC=gcc
 CCFLAGS=-c -Wall -O3 -pg
 LDFLAGS=-lm -pg
 RMFLAGS=-f
-OBJ-SOURCES=CheckUSP.c hash_table.c permutation.c groups.c matrix.c	
+OBJ-SOURCES=CheckUSP.c hash_table.c permutation.c groups.c matrix.c puzzle.c
 EXE-SOURCES=groups_tester.c matrix_tester.c CheckUSP_tester.c  \
-	permutation_tester.c hash_table_tester.c 
+	permutation_tester.c hash_table_tester.c puzzle_tester.c
 OBJDIR=objs
 OBJECTS=$(addprefix $(OBJDIR)/,$(OBJ-SOURCES:.c=.o))
 EXES=$(EXE-SOURCES:.c= )

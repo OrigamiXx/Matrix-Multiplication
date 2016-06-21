@@ -3,6 +3,7 @@
 
 #include "CheckUSP.h"
 #include "groups.h"
+#include "puzzle.h"
 
 typedef struct _mat {
 

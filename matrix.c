@@ -4,11 +4,14 @@
 #include <string.h>
 #include <assert.h>
 #include <math.h>
+#include <time.h>
 #include "matrix.h"
 #include "permutation.h"
 #include "CheckUSP.h"
 #include "groups.h"
 #include "constants.h"
+#include "puzzle.h"
+
 
 // Constructor. Create a zero matrix.
 mat * create_mat_zero(int rows, int cols){

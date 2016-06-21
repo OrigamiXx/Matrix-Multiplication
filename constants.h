@@ -16,19 +16,19 @@
 #ifdef DEBUG1
 #define DEBUG1_PRINTF(...) fprintf(stderr, __VA_ARGS__)
 #else
-#define DEBUG1_PRINTF(...) 1
+#define DEBUG1_PRINTF(...) (void)0
 #endif
 
 #ifdef DEBUG2
 #define DEBUG2_PRINTF(...) fprintf(stderr, __VA_ARGS__)
 #else
-#define DEBUG2_PRINTF(...) 2
+#define DEBUG2_PRINTF(...) (void)0
 #endif
 
 #ifdef DEBUG3
 #define DEBUG3_PRINTF(...) fprintf(stderr, __VA_ARGS__)
 #else
-#define DEBUG3_PRINTF(...) 3
+#define DEBUG3_PRINTF(...) (void)0
 #endif
 
 #endif
