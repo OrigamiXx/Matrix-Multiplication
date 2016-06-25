@@ -11,6 +11,7 @@
 #include <math.h>
 #include "matrix.h"
 #include "puzzle.h"
+#include "set.h"
 
 
 //give a size of the puzzle check all the puzzles from 1X1 to this size
@@ -31,7 +32,7 @@ int check_all_usp(int row, int column){
       for(k=0; k<max_index; k++){
 	
 	puzzle * p = create_puzzle_from_index(i, j, k);
-	int res_check = check_usp(p);
+	int res_check = check_usp_recursive(p);//check_usp(p);
 	int res_mult = res_check; //  check_usp_mult(p);
 
 	if(res_check && res_mult){
@@ -93,8 +94,7 @@ int check_usp(puzzle * p){
       for(k = 0; k < p->row; k++){
 	row_result[i][j][k] = check_usp_rows(i, j, k, p);	
       }
-    }
-    
+    }  
   }
   //printf("Starting check_usp\n");
   //for (pi_1 = create_perm_identity(p->row); ; pi_1 = next_perm(pi_1)){
@@ -146,4 +146,92 @@ int check_usp(puzzle * p){
   destroy_perm(pi_1);
   
   return true;
+}
+
+
+//Return false if P is not a strong USP
+int check_usp_recursive(puzzle * p){
+  int row_result[20][20][20];
+  int i, j, k;
+  for(i = 0; i < p->row; i++){
+    for(j = 0; j < p->row; j++){
+      for(k = 0; k < p->row; k++){
+	row_result[i][j][k] = check_usp_rows(i, j, k, p);	
+      }
+    }  
+  }
+  set s2 = create_empty_set();
+  set s3 = create_empty_set();
+  int max_row = 20, max_set = 32,value_not_tf = -1;
+  //memo_table memo;
+  int M[max_row][max_set][max_set];
+  for(i = 0; i<max_row;i++){
+    for(j=0; j<max_set;j++){
+      for(k=0; k<max_set;k++){
+  	M[i][j][k] = value_not_tf;
+      }
+    }
+  }
+  //memo->M = M;
+  //memo->same_perm = true;
+  return !find_witness(p,0, s2, s3, row_result, true, M);
+}
+
+
+//Returns true iff there is witness for non uspness that avoids s1, s2
+int find_witness(puzzle * p, int i1, set s2, set s3, int RR[20][20][20], int same_perm, int M[20][32][32]){
+  //if solved return the contain in the table
+  // if (M[i1][s2][s3]!=-1){ //&& memo_table->same_perm == same_perm){
+    //printf("s i1 = %d, s2 = %d, s3 = %d, M[i1][s2][s3] = %d\n",i1,s2,s3,M[i1][s2][s3]);
+    //return M[i1][s2][s3];
+  //}
+  //Base step
+  if (i1 == p->row && same_perm){
+    M[i1][s2][s3] = false;
+    //printf("a i1 = %d, s2 = %d, s3 = %d, M[i1][s2][s3] = %d\n",i1,s2,s3,M[i1][s2][s3]);
+    return false;
+  }
+  if (i1 == p->row){
+    M[i1][s2][s3] = true;
+    //printf("b i1 = %d, s2 = %d, s3 = %d, M[i1][s2][s3] = %d\n",i1,s2,s3,M[i1][s2][s3]);
+    return true;
+  }
+  //recursive case
+  int i2, i3, same_perm_new;
+  set s2_new, s3_new;
+  //int M_new;
+  for(i2 = 0; i2 < p->row; i2++){
+    if(is_membership(i2,s2)){
+      continue;
+    }
+    for(i3 = 0; i3 < p->row; i3++){
+      if(is_membership(i3,s3)){
+	continue;
+      }
+      if (RR[i1][i2][i3]){
+	continue;
+      }
+      
+      if (!(i1 == i2 && i2 == i3)){
+	same_perm_new = false;
+      }else{
+	same_perm_new = same_perm;
+      }
+      s2_new = set_union(s2,create_one_element_set(i2));
+      s3_new = set_union(s3,create_one_element_set(i3));
+      //M_new = M;
+      if(find_witness(p,i1+1,s2_new,s3_new,RR, same_perm_new, M)){
+	M[i1][s2][s3] = true;
+	//printf("c i1 = %d, s2 = %d, s3 = %d, M[i1][s2][s3] = %d\n",i1,s2,s3,M[i1][s2][s3]);
+	return true;
+      }
+    }
+  }
+  M[i1][s2][s3] = false;
+  //printf("d i1 = %d, s2 = %d, s3 = %d, M[i1][s2][s3] = %d\n",i1,s2,s3,M[i1][s2][s3]);
+  return false;
+
+
+
+
 }
