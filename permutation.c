@@ -13,7 +13,7 @@ perm  * create_perm_identity(int n){
   perm * tmp = (perm *) malloc(sizeof(perm));
   assert(tmp != NULL);
   //tmp -> arrow[n];  // This accesses element n of tmp -> arrow.
-  tmp -> arrow = malloc(sizeof(int)*n);
+  tmp -> arrow = (int*)malloc(sizeof(int)*n);
   int i;
   for (i = 0; i<n; i++){
     tmp->arrow[i] = i;
@@ -50,7 +50,7 @@ int apply_perm(perm * pi, int x){
 perm * create_last_perm(int n){
   perm * tmp = (perm *) malloc(sizeof(perm));
   tmp -> size = n;
-  tmp -> arrow = malloc(sizeof(int)*n);
+  tmp -> arrow = (int*)malloc(sizeof(int)*n);
   int i;
   for (i = 0; i < tmp->size; i++){
     tmp->arrow[i] = n - (i + 1);

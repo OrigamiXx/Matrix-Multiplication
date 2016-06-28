@@ -2,7 +2,7 @@
 # Debug level 2 use CFLAGS=-DDEBUG2
 # Debug level 3 use CFLAGS=-DDEBUG3
 
-CC=gcc
+CC=g++
 CCFLAGS=-c -Wall -Wno-strict-aliasing -O3 -pg
 LDFLAGS=-lm -pg
 RMFLAGS=-f

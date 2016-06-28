@@ -10,12 +10,12 @@ int main(int argc, char * argv[]){
 
   
 
-  puzzle * p = create_puzzle_from_file("puzzles/test.puz");
-  print_puzzle(p);
-  if(check_usp_recursive(p)){
-  int i = check_usp(p);
-  printf("hello%d\n", i);
-  }
+  //puzzle * p = create_puzzle_from_file("puzzles/test.puz");
+  //print_puzzle(p);
+  //if(check_usp_recursive(p)){
+  //int i = check_usp(p);
+  //printf("hello%d\n", i);
+  //}
 
   
   //printf("result = %d\n",check_usp(p));
@@ -23,12 +23,12 @@ int main(int argc, char * argv[]){
   //printf("%d\n",sizeof(long));
   //printf("%d\n",sizeof(long long));
   
-  //int row = 4;
-  //int column = 3;
+  int row = 4;
+  int column = 3;
   //int index = 1;
   //puzzle * p = create_puzzle_from_index(row,column,index);
   //print_puzzle(p);
-  //check_all_usp(row, column);
+  check_all_usp(row, column);
   return 0;
 
 }

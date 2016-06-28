@@ -33,11 +33,11 @@ int check_all_usp(int row, int column){
 	
 	puzzle * p = create_puzzle_from_index(i, j, k);
 	int res_check = check_usp_recursive(p);//check_usp(p);
-	int res_mult = res_check; //  check_usp_mult(p);
+	int res_mult = check_usp(p); //  check_usp_mult(p);
 
 	if(res_check && res_mult){
 	 tt++;
-	  write_puzzle(p, k);  
+	 //write_puzzle(p, k);  
 	}
 	if(!res_check && !res_mult){
 	  ff++;
@@ -162,13 +162,15 @@ int check_usp_recursive(puzzle * p){
   }
   set s2 = create_empty_set();
   set s3 = create_empty_set();
-  int max_row = 20, max_set = 32,value_not_tf = -1;
+  int value_not_tf = -1;
   //memo_table memo;
-  int M[max_row][max_set][max_set];
-  for(i = 0; i<max_row;i++){
-    for(j=0; j<max_set;j++){
-      for(k=0; k<max_set;k++){
-  	M[i][j][k] = value_not_tf;
+  int M[MAX_ROW][MAX_SET][MAX_SET][2];
+  for(i = 0; i<MAX_ROW;i++){
+    for(j=0; j<MAX_SET;j++){
+      for(k=0; k<MAX_SET;k++){
+	
+	M[i][j][k][true] = value_not_tf;
+	M[i][j][k][false] = value_not_tf;
       }
     }
   }
@@ -179,20 +181,20 @@ int check_usp_recursive(puzzle * p){
 
 
 //Returns true iff there is witness for non uspness that avoids s1, s2
-int find_witness(puzzle * p, int i1, set s2, set s3, int RR[20][20][20], int same_perm, int M[20][32][32]){
+int find_witness(puzzle * p, int i1, set s2, set s3, int RR[20][20] [20], int same_perm, int M[MAX_ROW][MAX_SET][MAX_SET][2]){
   //if solved return the contain in the table
-  // if (M[i1][s2][s3]!=-1){ //&& memo_table->same_perm == same_perm){
+  if (M[i1][s2][s3][same_perm]!=-1){ //&& memo_table->same_perm == same_perm){
     //printf("s i1 = %d, s2 = %d, s3 = %d, M[i1][s2][s3] = %d\n",i1,s2,s3,M[i1][s2][s3]);
-    //return M[i1][s2][s3];
-  //}
+    return M[i1][s2][s3][same_perm];
+  }
   //Base step
   if (i1 == p->row && same_perm){
-    M[i1][s2][s3] = false;
+    M[i1][s2][s3][same_perm] = false;
     //printf("a i1 = %d, s2 = %d, s3 = %d, M[i1][s2][s3] = %d\n",i1,s2,s3,M[i1][s2][s3]);
     return false;
   }
   if (i1 == p->row){
-    M[i1][s2][s3] = true;
+    M[i1][s2][s3][same_perm] = true;
     //printf("b i1 = %d, s2 = %d, s3 = %d, M[i1][s2][s3] = %d\n",i1,s2,s3,M[i1][s2][s3]);
     return true;
   }
@@ -221,13 +223,13 @@ int find_witness(puzzle * p, int i1, set s2, set s3, int RR[20][20][20], int sam
       s3_new = set_union(s3,create_one_element_set(i3));
       //M_new = M;
       if(find_witness(p,i1+1,s2_new,s3_new,RR, same_perm_new, M)){
-	M[i1][s2][s3] = true;
+	M[i1][s2][s3][same_perm_new] = true;
 	//printf("c i1 = %d, s2 = %d, s3 = %d, M[i1][s2][s3] = %d\n",i1,s2,s3,M[i1][s2][s3]);
 	return true;
       }
     }
   }
-  M[i1][s2][s3] = false;
+  M[i1][s2][s3][same_perm] = false;
   //printf("d i1 = %d, s2 = %d, s3 = %d, M[i1][s2][s3] = %d\n",i1,s2,s3,M[i1][s2][s3]);
   return false;
 
