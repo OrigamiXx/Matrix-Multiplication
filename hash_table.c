@@ -210,7 +210,7 @@ int delete_in_hash_table(hash_table * t, hash_val key, hash_val ** value_ptr) {
 
 void print_compact_hash_table(hash_table * t, print_func print_key, print_func print_value){
 
-  printf("capacity = %d, size = %d, num_deleted = %d\n",t -> capacity, t -> size, t -> num_deleted);
+  //printf("capacity = %d, size = %d, num_deleted = %d\n",t -> capacity, t -> size, t -> num_deleted);
 
   int i;
   for (i = 0; i < t -> capacity; i++){
@@ -218,7 +218,7 @@ void print_compact_hash_table(hash_table * t, print_func print_key, print_func p
     hash_table_entry * e = &(t -> entries[i]);
 
     if (e -> flag == HASH_OCCUPIED) {
-      printf("%8d: ",i);
+      //printf("%8d: ",i);
       print_key(e -> key);
       printf(", ");
       print_value(e -> value);

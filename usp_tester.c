@@ -12,11 +12,10 @@ int main(int argc, char * argv[]){
 
   //puzzle * p = create_puzzle_from_file("puzzles/test.puz");
   //print_puzzle(p);
-  //if(check_usp(p)){
+  //if(check_usp_recursive(p)){
   //int i = check_usp(p);
-  //printf("%d\n", i);
-
-    //}
+  //printf("hello%d\n", i);
+  //}
 
   
   //printf("result = %d\n",check_usp(p));

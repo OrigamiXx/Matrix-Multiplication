@@ -22,5 +22,6 @@ void write_puzzle(puzzle * p, int index);
 
 void destroy_puzzle(puzzle * p);
 
+int count_witnesses(puzzle * p);
 
 #endif

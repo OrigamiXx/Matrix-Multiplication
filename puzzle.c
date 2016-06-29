@@ -227,6 +227,9 @@ void write_puzzle(puzzle * p, int index){
 }
 
 
+
+
+
 // Deallocates a puzzle
 void destroy_puzzle(puzzle * p){
   destroy_perm(p->pi);
