@@ -5,10 +5,8 @@
 #include "hash_table.h"
 #include "constants.h"
 
-
-
 // Returns entry of key in t, on ith probe.  Uses double hashing.
-unsigned int hash(hash_table * t, void * key, int i) {
+unsigned int hash(hash_table * t, hash_val key, int i) {
 
   return (t -> h1(key) + i) % t -> capacity;
 
@@ -36,7 +34,7 @@ hash_table * create_hash_table(int capacity, hash_func h1, hash_func h2, equals_
   return t;
 }
 
-void * no_copy(void * x){
+hash_val no_copy(hash_val x){
   return x;
 }
 
@@ -127,7 +125,7 @@ void destroy_hash_table_deep(hash_table *t, destroy_func destroy_key, destroy_fu
 }
 
 // Inserts (key, value) in hash_table.
-void insert_in_hash_table(hash_table * t, void * key, void * value) {
+void insert_in_hash_table(hash_table * t, hash_val key, hash_val value) {
 
   int i = 0;
   unsigned int index;
@@ -158,7 +156,7 @@ void insert_in_hash_table(hash_table * t, void * key, void * value) {
 
 // Search for key in hash_table, returns true if found, false otherwise.
 // Associated value is returned to value_ptr.
-int search_in_hash_table(hash_table * t, void * key, void ** value_ptr) {
+int search_in_hash_table(hash_table * t, hash_val key, hash_val ** value_ptr) {
   
   //printf("HASH: Begin search\n");
 
@@ -180,7 +178,7 @@ int search_in_hash_table(hash_table * t, void * key, void ** value_ptr) {
 }
 
 // Same as search, but also removes entry from hash table.
-int delete_in_hash_table(hash_table * t, void * key, void ** value_ptr) {
+int delete_in_hash_table(hash_table * t, hash_val key, hash_val ** value_ptr) {
 
   int i = 0;
   unsigned int index;
@@ -188,7 +186,7 @@ int delete_in_hash_table(hash_table * t, void * key, void ** value_ptr) {
   do {
     index = hash(t,key,i);
     if (t -> entries[index].flag == HASH_OCCUPIED && t -> eq(t -> entries[index].key,key)) {
-      (*value_ptr) = t -> entries[index].value;
+      (*value_ptr) = &(t -> entries[index].value);
       t -> entries[index].flag = HASH_DELETED;
       t -> num_deleted++;
       t -> size--;
@@ -212,7 +210,7 @@ int delete_in_hash_table(hash_table * t, void * key, void ** value_ptr) {
 
 void print_compact_hash_table(hash_table * t, print_func print_key, print_func print_value){
 
-  printf("capacity = %d, size = %d, num_deleted = %d\n",t -> capacity, t -> size, t -> num_deleted);
+  //printf("capacity = %d, size = %d, num_deleted = %d\n",t -> capacity, t -> size, t -> num_deleted);
 
   int i;
   for (i = 0; i < t -> capacity; i++){
@@ -220,7 +218,7 @@ void print_compact_hash_table(hash_table * t, print_func print_key, print_func p
     hash_table_entry * e = &(t -> entries[i]);
 
     if (e -> flag == HASH_OCCUPIED) {
-      printf("%8d: ",i);
+      //printf("%8d: ",i);
       print_key(e -> key);
       printf(", ");
       print_value(e -> value);
@@ -256,25 +254,25 @@ void print_hash_table(hash_table * t, print_func print_key, print_func print_val
 
 }
 
-void noop_helper(void * x){
+void noop_helper(hash_val x){
   return;
 }
 
-void print_helper(void * x){
+void print_helper(hash_val x){
 
-  printf("%d",(int)(long)x);
-
-}
-
-
-int equals_helper(void * x, void * y){
-
-  return x == y;
+  printf("%d",x.i_val);
 
 }
 
-unsigned int identity_helper(void * x){
 
-  return (unsigned int)(long) x;
+int equals_helper(hash_val x, hash_val y){
+
+  return x.void_ptr_val == y.void_ptr_val;
+
+}
+
+unsigned int identity_helper(hash_val x){
+
+  return x.i_val;
 
 }

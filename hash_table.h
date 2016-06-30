@@ -5,16 +5,24 @@
 #define HASH_DELETED 1
 #define HASH_OCCUPIED 2
 
-typedef unsigned int (*hash_func)(void * k);
-typedef void (*destroy_func)(void * p);
-typedef void * (*copy_func)(void * p);
-typedef int (*equals_func)(void * k1, void * k2);
-typedef void (*print_func)(void * x);
+typedef union {
+
+  void * void_ptr_val;
+  double d_val;
+  int i_val;
+
+} hash_val;
+
+typedef unsigned int (*hash_func)(hash_val k);
+typedef void (*destroy_func)(hash_val p);
+typedef hash_val (*copy_func)(hash_val p);
+typedef int (*equals_func)(hash_val k1, hash_val k2);
+typedef void (*print_func)(hash_val x);
 
 typedef struct _hash_table_entry{
 
-  void * key;
-  void * value;
+  hash_val key;
+  hash_val value;
   int flag;
 
 } hash_table_entry;
@@ -47,14 +55,14 @@ void destroy_hash_table(hash_table * t);
 void destroy_hash_table_deep(hash_table *t, destroy_func destroy_key, destroy_func destroy_value);
 
 // Inserts (key, value) in hash_table.
-void insert_in_hash_table(hash_table * t, void * key, void * value);
+void insert_in_hash_table(hash_table * t, hash_val key, hash_val value);
 
 // Search for key in hash_table, returns true if found, false otherwise.
 // Associated value is returned to value_ptr.
-int search_in_hash_table(hash_table * t, void * key, void ** value_ptr);
+int search_in_hash_table(hash_table * t, hash_val key, hash_val ** value_ptr);
 
 // Same as search, but also removes entry from hash table.
-int delete_in_hash_table(hash_table * t, void * key, void ** value_ptr);
+int delete_in_hash_table(hash_table * t, hash_val key, hash_val ** value_ptr);
 
 void print_compact_hash_table(hash_table * t, print_func print_key, print_func print_value);
 
@@ -62,12 +70,12 @@ void print_hash_table(hash_table * t, print_func print_key, print_func print_val
 
 // XXX - should write an apply function.
 
-void noop_helper(void * x);
+void noop_helper(hash_val x);
 
-void print_helper(void * x);
+void print_helper(hash_val x);
 
-int equals_helper(void * x, void * y);
+int equals_helper(hash_val x, hash_val y);
 
-unsigned int identity_helper(void * x);
+unsigned int identity_helper(hash_val x);
 
 #endif

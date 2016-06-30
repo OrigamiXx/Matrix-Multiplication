@@ -2,8 +2,13 @@
 # Debug level 2 use CFLAGS=-DDEBUG2
 # Debug level 3 use CFLAGS=-DDEBUG3
 
+<<<<<<< HEAD
 CC=g++ -std=c++0x
 CCFLAGS=-c -Wall -Wno-strict-aliasing -O3 -pg
+=======
+CC=g++
+CCFLAGS=-c -Wall -O3 -pg
+>>>>>>> 0be477133cedb68ecf415b38cc5c2c369ab71a8f
 LDFLAGS=-lm -pg
 RMFLAGS=-f
 OBJ-SOURCES=usp.c hash_table.c permutation.c groups.c matrix.c puzzle.c set.c

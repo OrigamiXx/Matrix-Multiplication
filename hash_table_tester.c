@@ -17,37 +17,37 @@ int main(int argc, char * argv[]) {
 
   print_hash_table(t,print_helper,print_helper);
 
-  insert_in_hash_table(t,(void *)2,(void *)3);
+  insert_in_hash_table(t,(hash_val)2,(hash_val)3);
 
   print_hash_table(t,print_helper,print_helper);
 
-  insert_in_hash_table(t,(void *)12,(void *)5);
+  insert_in_hash_table(t,(hash_val)12,(hash_val)5);
 
   print_hash_table(t,print_helper,print_helper);
 
-  insert_in_hash_table(t,(void *)22,(void *)7);
+  insert_in_hash_table(t,(hash_val)22,(hash_val)7);
 
   print_hash_table(t,print_helper,print_helper);
 
-  void * v;
+  hash_val * v;
 
-  delete_in_hash_table(t,(void *)12,&v);
-  print_helper(v);
+  delete_in_hash_table(t,(hash_val)12,&v);
+  print_helper(*v);
   printf("\n");
 
   print_hash_table(t,print_helper,print_helper);
 
-  delete_in_hash_table(t,(void *)12,&v);
+  delete_in_hash_table(t,(hash_val)12,&v);
 
-  if (search_in_hash_table(t,(void *)12,&v)) {
-    print_helper(v);
+  if (search_in_hash_table(t,(hash_val)12,&v)) {
+    print_helper(*v);
     printf("\n");
   } else {
     printf("Not found.\n");
   }
 
-  if (search_in_hash_table(t,(void *)22,&v)) {
-    print_helper(v);
+  if (search_in_hash_table(t,(hash_val)22,&v)) {
+    print_helper(*v);
     printf("\n");
   } else {
     printf("Not found.\n");

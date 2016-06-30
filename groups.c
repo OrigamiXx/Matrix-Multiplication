@@ -675,9 +675,9 @@ void create_Sis(puzzle * p, int m, elt_KG ** s1_ptr, elt_KG ** s2_ptr, elt_KG **
 
 /* } */
 
-unsigned int hash_elt_G(void * k){
+unsigned int hash_elt_G(hash_val k){
 
-  elt_G * g = (elt_G *) k;
+  elt_G * g = (elt_G *) k.void_ptr_val;
 
   if (g -> hash != 0) 
     return g -> hash;
@@ -711,9 +711,9 @@ unsigned int hash_elt_G(void * k){
 
 }
 
-int eq_elt_G(void * k1, void * k2){
+int eq_elt_G(hash_val k1, hash_val k2){
 
-  return is_equals_elt_G((elt_G *)k1,(elt_G *)k2);
+  return is_equals_elt_G((elt_G *)k1.void_ptr_val,(elt_G *)k2.void_ptr_val);
 
 }
 
@@ -744,19 +744,19 @@ elt_KG * create_elt_KG_identity_one(int U, int k, int m){
 
 }
 
-void * copy_G(void * x){
+hash_val copy_G(hash_val x){
 
-  return (void *) copy_elt_G((elt_G *) x);
-
-}
-
-void destroy_G(void * x){
-
-  destroy_elt_G((elt_G *) x);
+  return (hash_val)(void *) copy_elt_G((elt_G *) x.void_ptr_val);
 
 }
 
-void * identity_helper_groups(void * x){
+void destroy_G(hash_val x){
+
+  destroy_elt_G((elt_G *) x.void_ptr_val);
+
+}
+
+hash_val identity_helper_groups(hash_val x){
 
   return x;
 
@@ -791,13 +791,13 @@ void destroy_elt_KG(elt_KG * r) {
 // Returns a pointer to the coef matching g, NULL if not found.
 double * locate_basis_elt_KG(elt_KG * r, elt_G * g) {
 
-  double * val_ptr;
+  hash_val * val_ptr;
 
-  int found = search_in_hash_table(r -> elements,(void *)g,(void **)(&val_ptr));
+  int found = search_in_hash_table(r -> elements,(hash_val)(void *)g,&val_ptr);
 
   if (found) {
     //printf("GROUP: found %f\n",*val_ptr);
-    return val_ptr;
+    return &(val_ptr -> d_val);
   } else
     return NULL;
 
@@ -813,7 +813,7 @@ void add_basis_elt_KG(elt_KG * r, elt_G * g, double c) {
   if (c_ptr == NULL) {
     //printf("GROUP: c_ptr = NULL\n");
     
-    insert_in_hash_table(r -> elements,(void *)copy_elt_G(g),*((void **)(&c)));
+    insert_in_hash_table(r -> elements,(hash_val)(void *)copy_elt_G(g),(hash_val)c);
     r -> size++;
   } else {
     //printf("GROUP: c_ptr != NULL\n");
@@ -830,10 +830,10 @@ void add_elt_KG(elt_KG * r1, elt_KG * r2) {
     hash_table_entry * e = &(r2 -> elements -> entries[i]);
     if (e -> flag == HASH_OCCUPIED) {
 
-      double c = *(double *)(&(e -> value));
+      double c = e -> value.d_val;
       
       //printf("Adding %f\n",c);
-      add_basis_elt_KG(r1, (elt_G *)(e -> key),  c);
+      add_basis_elt_KG(r1, (elt_G *)(e -> key.void_ptr_val),  c);
     }
   }
 
@@ -864,8 +864,8 @@ elt_KG * multiply_elt_KG_new(elt_KG * r1, elt_KG * r2) {
     
     if (e1 -> flag == HASH_OCCUPIED) {
       
-      elt_G * g1 = (elt_G *)(e1 -> key);
-      double c1 = *(double*)(&(e1 -> value)); // XXX - not portable, should use float instead?
+      elt_G * g1 = (elt_G *)(e1 -> key.void_ptr_val);
+      double c1 = e1 -> value.d_val; 
       
       for (j = 0; j < r2 -> elements -> capacity; j++) {
 	hash_table_entry * e2 = &(r2 -> elements -> entries[j]);
@@ -873,8 +873,8 @@ elt_KG * multiply_elt_KG_new(elt_KG * r1, elt_KG * r2) {
 	
 	if (e2 -> flag == HASH_OCCUPIED) {
 	  
-	  elt_G * g2 = (elt_G *)(e2 -> key);
-	  double c2 = *(double*)(&(e2 -> value));
+	  elt_G * g2 = (elt_G *)(e2 -> key.void_ptr_val);
+	  double c2 = e2 -> value.d_val;
 	  
 	  elt_G * g = multiply_elt_G_new(g1, g2);
 	  double c = c1 * c2;
@@ -899,8 +899,7 @@ void scalar_multiply_elt_KG(elt_KG * r, double c) {
   for (i = 0; i < r -> elements -> capacity; i++) {
     hash_table_entry * e = &(r -> elements -> entries[i]);
     if (e -> flag == HASH_OCCUPIED) {
-      double d = c * (*(double *)(&(e -> value)));
-      e -> value = *(void **)(&d);
+      e -> value.d_val *= c;
     }
   }
 
@@ -929,15 +928,15 @@ double get_coef_elt_KG(elt_KG * r, elt_G * g) {
 
 }
 
-void print_G(void * x){
+void print_G(hash_val x){
 
-  print_elt_G((elt_G *)x);
+  print_elt_G((elt_G *)x.void_ptr_val);
 
 }
 
-void print_coef(void *x){
+void print_coef(hash_val x){
 
-  printf("%f",*(double*)(&x));
+  printf("%f",x.d_val);
 
 }
 
