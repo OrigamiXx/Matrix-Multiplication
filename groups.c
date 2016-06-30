@@ -746,7 +746,7 @@ elt_KG * create_elt_KG_identity_one(int U, int k, int m){
 
 hash_val copy_G(hash_val x){
 
-  return (hash_val)(void *) copy_elt_G((elt_G *) x.void_ptr_val);
+  return (hash_val)((void *) copy_elt_G((elt_G *) (x.void_ptr_val)));
 
 }
 
@@ -793,7 +793,7 @@ double * locate_basis_elt_KG(elt_KG * r, elt_G * g) {
 
   hash_val * val_ptr;
 
-  int found = search_in_hash_table(r -> elements,(hash_val)(void *)g,&val_ptr);
+  int found = search_in_hash_table(r -> elements,(void *)g,&val_ptr);
 
   if (found) {
     //printf("GROUP: found %f\n",*val_ptr);

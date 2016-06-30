@@ -19,12 +19,12 @@ puzzle * create_puzzle_from_file(char * filename){
  
   char buff[256];
 
-  int i, r, element;
+  int r, element;
   //first check whether this file is able to turn into a puzzle
   int bytes_read = fscanf(f,"%s\n",buff);
   assert(bytes_read > 0);
 
-  int width = strlen(buff);
+  unsigned int width = strlen(buff);
   printf("width %d\n", width);
   p->column = width;
   int rows = 1;
@@ -38,7 +38,7 @@ puzzle * create_puzzle_from_file(char * filename){
       printf("this is not a puzzle since the width is not all the same\n");
       return NULL;
     } 
-    for(i = 0; i <width; i++){
+    for(unsigned int i = 0; i <width; i++){
       element = buff[i] -'0';
       if(element != 1 &&  element != 2 && element != 3){
 	//printf("%d", buff[i]);
@@ -62,7 +62,7 @@ puzzle * create_puzzle_from_file(char * filename){
     bytes_read = fscanf(f,"%s\n", buff);
     assert(bytes_read > 0);
     //printf("line %s\n",buff);
-    for(i = 0; i<p->column; i++){
+    for(int i = 0; i<p->column; i++){
       element = buff[i] - '0';
       // printf("%d",element);
       p->puzzle[rows][i] = element;

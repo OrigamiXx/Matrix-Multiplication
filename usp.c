@@ -179,7 +179,7 @@ std::map<string, bool>m;
 //turn the s2, s3, and same_perm into a string
 string param_to_string(set s2, set s3, bool same_perm){
    string result = to_string(s2) + "|" + to_string(s3) + "|" + to_string(same_perm); 
-						       return result;
+   return result;
 
 }
 
