@@ -10,7 +10,7 @@
 #include <time.h>
 
 
-void main(int argc, char * argv[]) {
+int main(int argc, char * argv[]) {
 
   puzzle * p = create_puzzle_from_file("puzzles/usp_4_4.puz");
 

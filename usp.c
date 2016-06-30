@@ -5,15 +5,16 @@
 #include <stdlib.h>
 #include "permutation.h"
 #include "usp.h"
-#include <string.h>
+#include <string>
 #include "constants.h"
 #include "assert.h"
 #include <math.h>
 #include "matrix.h"
 #include "puzzle.h"
 #include "set.h"
+#include <map>
 
-
+using namespace std;
 //give a size of the puzzle check all the puzzles from 1X1 to this size
 // whether they are USPs and
 // will write out in new text file the ones that are USPs.
@@ -55,11 +56,9 @@ int check_all_usp(int row, int column){
       assert(tf == 0 && ft == 0);
     }
   }
-
-
-
   return 0;
 }
+//get_column_from_row (row index, column index)
 
 //check one case of pi1 pi2 pi3 holds the strong usp property
 int check_usp_rows(int row1, int row2, int row3, puzzle * p){
@@ -125,7 +124,6 @@ int check_usp(puzzle * p){
 	if (!result){
 	  return false;
 	}
-	
       }
       
       if(is_last_perm(pi_3)){
@@ -142,9 +140,7 @@ int check_usp(puzzle * p){
   //break;
     // }
     //}
-  
   destroy_perm(pi_1);
-  
   return true;
 }
 
@@ -162,9 +158,9 @@ int check_usp_recursive(puzzle * p){
   }
   set s2 = create_empty_set();
   set s3 = create_empty_set();
-  int value_not_tf = -1;
+//int value_not_tf = -1;
   //memo_table memo;
-  int M[MAX_ROW][MAX_SET][MAX_SET][2];
+  /* int M[MAX_ROW][MAX_SET][MAX_SET][2];
   for(i = 0; i<MAX_ROW;i++){
     for(j=0; j<MAX_SET;j++){
       for(k=0; k<MAX_SET;k++){
@@ -173,29 +169,34 @@ int check_usp_recursive(puzzle * p){
 	M[i][j][k][false] = value_not_tf;
       }
     }
-  }
+    }*/
   //memo->M = M;
   //memo->same_perm = true;
-  return !find_witness(p,0, s2, s3, row_result, true, M);
+std::map<string, bool>m;
+  
+  return !find_witness(p,0, s2, s3, row_result, true, m);
+}
+//turn the s2, s3, and same_perm into a string
+string param_to_string(set s2, set s3, bool same_perm){
+   string result = to_string(s2) + "|" + to_string(s3) + "|" + to_string(same_perm); 
+						       return result;
+
 }
 
-
 //Returns true iff there is witness for non uspness that avoids s1, s2
-int find_witness(puzzle * p, int i1, set s2, set s3, int RR[20][20] [20], int same_perm, int M[MAX_ROW][MAX_SET][MAX_SET][2]){
+bool find_witness(puzzle * p, int i1, set s2, set s3, int RR[20][20] [20], bool same_perm, std::map<string, bool>&m){
   //if solved return the contain in the table
-  if (M[i1][s2][s3][same_perm]!=-1){ //&& memo_table->same_perm == same_perm){
-    //printf("s i1 = %d, s2 = %d, s3 = %d, M[i1][s2][s3] = %d\n",i1,s2,s3,M[i1][s2][s3]);
-    return M[i1][s2][s3][same_perm];
+if (m.find(param_to_string(s2,s3,same_perm))!=m.end()){ //&& memo_table->same_perm == same_perm){
+return m.find(param_to_string(s2,s3,same_perm))->second;
   }
   //Base step
   if (i1 == p->row && same_perm){
-    M[i1][s2][s3][same_perm] = false;
-    //printf("a i1 = %d, s2 = %d, s3 = %d, M[i1][s2][s3] = %d\n",i1,s2,s3,M[i1][s2][s3]);
+m.insert(pair<string, bool>(param_to_string(s2,s3,same_perm), false));
     return false;
   }
   if (i1 == p->row){
-    M[i1][s2][s3][same_perm] = true;
-    //printf("b i1 = %d, s2 = %d, s3 = %d, M[i1][s2][s3] = %d\n",i1,s2,s3,M[i1][s2][s3]);
+//M[i1][s2][s3][same_perm] = true;
+m.insert(pair<string, bool>(param_to_string(s2,s3,same_perm), true));
     return true;
   }
   //recursive case
@@ -221,19 +222,14 @@ int find_witness(puzzle * p, int i1, set s2, set s3, int RR[20][20] [20], int sa
       }
       s2_new = set_union(s2,create_one_element_set(i2));
       s3_new = set_union(s3,create_one_element_set(i3));
-      //M_new = M;
-      if(find_witness(p,i1+1,s2_new,s3_new,RR, same_perm_new, M)){
-	M[i1][s2][s3][same_perm_new] = true;
-	//printf("c i1 = %d, s2 = %d, s3 = %d, M[i1][s2][s3] = %d\n",i1,s2,s3,M[i1][s2][s3]);
+      if(find_witness(p,i1+1,s2_new,s3_new,RR, same_perm_new, m)){
+//M[i1][s2][s3][same_perm_new] = true;
+m.insert(pair<string, bool>(param_to_string(s2,s3,same_perm), true));
 	return true;
       }
     }
   }
-  M[i1][s2][s3][same_perm] = false;
-  //printf("d i1 = %d, s2 = %d, s3 = %d, M[i1][s2][s3] = %d\n",i1,s2,s3,M[i1][s2][s3]);
+//M[i1][s2][s3][same_perm] = false;
+  m.insert(pair<string, bool>(param_to_string(s2,s3,same_perm), false));
   return false;
-
-
-
-
 }

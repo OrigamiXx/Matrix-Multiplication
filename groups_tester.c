@@ -8,7 +8,7 @@
 #include <time.h>
 
 
-void main(int argc, char * argv[]) {
+int main(int argc, char * argv[]) {
 
   time_t t;
   srand((unsigned) time(&t));
@@ -186,5 +186,5 @@ void main(int argc, char * argv[]) {
   
   printf("============= Finished Algebra K[G] Tests ================\n");
 
-
+  return 0;
 }

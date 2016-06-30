@@ -11,7 +11,7 @@
 #include <time.h>
 
 
-void main(int argc, char * argv[]) {
+int main(int argc, char * argv[]) {
 
   hash_table * t = create_hash_table(10,identity_helper,identity_helper,equals_helper);
 

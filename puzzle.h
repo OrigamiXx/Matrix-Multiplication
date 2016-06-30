@@ -2,6 +2,7 @@
 #define __PUZZLE_H__
 
 #include "permutation.h"
+#include <string.h>
 
 typedef struct puzzle {
   perm * pi;
