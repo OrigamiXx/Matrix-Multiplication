@@ -6,7 +6,7 @@
 
 typedef struct puzzle {
   perm * pi;
-  int ** puzzle;
+  int * puzzle;
   int row;
   int column;
 }puzzle;
@@ -16,6 +16,8 @@ puzzle * create_puzzle(int rows, int cols);
 puzzle * create_puzzle_from_file(char * filename);
 
 puzzle * create_puzzle_from_index(int row, int column, int index);
+
+int get_column_from_row(int row_index, int col_index);
 
 int print_puzzle(puzzle * p);
 

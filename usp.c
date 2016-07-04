@@ -65,17 +65,17 @@ int check_usp_rows(int row1, int row2, int row3, puzzle * p){
   int i;
   for (i = 0;i< p->column;i++ ){
        
-     if( (p->puzzle[row1][i] == 1) &&
-	 (p->puzzle[row2][i] == 2) &&
-	 (p->puzzle[row3][i] != 3) ){
+    if( (get_column_from_row(p->puzzle[row1], i) == 1) &&
+	(get_column_from_row(p->puzzle[row2], i) == 2) &&
+	(get_column_from_row(p->puzzle[row3], i) != 3) ){
        return true;
-     }else if((p->puzzle[row1][i] != 1) &&
-	      (p->puzzle[row2][i] == 2) &&
-	      (p->puzzle[row3][i] == 3) ){
+    }else if((get_column_from_row(p->puzzle[row1], i) != 1) &&
+	     (get_column_from_row(p->puzzle[row2], i) == 2) &&
+	     (get_column_from_row(p->puzzle[row3], i) == 3) ){
        return true;
-     }else if ((p->puzzle[row1][i] == 1) &&
-	       (p->puzzle[row2][i] != 2) &&
-	       (p->puzzle[row3][i] == 3) ){
+    }else if ((get_column_from_row(p->puzzle[row1], i) == 1) &&
+	      (get_column_from_row(p->puzzle[row2], i) != 2) &&
+	      (get_column_from_row(p->puzzle[row3], i) == 3) ){
        return true;
      }
    }

@@ -19,7 +19,7 @@ puzzle * create_puzzle_from_file(char * filename){
  
   char buff[256];
 
-  int r, element;
+  int element;//,r;
   //first check whether this file is able to turn into a puzzle
   int bytes_read = fscanf(f,"%s\n",buff);
   assert(bytes_read > 0);
@@ -52,22 +52,35 @@ puzzle * create_puzzle_from_file(char * filename){
   //turn the file into a puzzle
   p->row = rows;
   p->pi = create_perm_identity(p->row);
-  p->puzzle = (int **) malloc(sizeof(int *)*p->row);
-  for (r = 0; r < p->row; r++){
-    p->puzzle[r] = (int *) malloc(sizeof(int *)*p->column);
-  }
+  p->puzzle = (int *) malloc(sizeof(int *)*p->row);
+  //for (r = 0; r < p->row; r++){
+  //  p->puzzle[r] = (int *) malloc(sizeof(int *)*p->column);
+  //}
   f = fopen(filename,"r");
   rows = 0;
+  int row_index = 0, next_element;
   while(!feof(f)){
     bytes_read = fscanf(f,"%s\n", buff);
     assert(bytes_read > 0);
     //printf("line %s\n",buff);
-    for(int i = 0; i<p->column; i++){
-      element = buff[i] - '0';
-      // printf("%d",element);
-      p->puzzle[rows][i] = element;
-      //printf("hi\n");
+    if (p->column >= 2){
+      element = buff[p->column-1] - '0';
+      element = element -1;
+      next_element = buff[p->column-2] - '0';
+      next_element = next_element-1;
+      row_index = element*3 + next_element;
+	for(int i = p->column-2; i>0; i--){
+	  next_element = buff[i-1] - '0';
+	  next_element = next_element - 1;
+	  // printf("%d",element);
+	  row_index = row_index*3 + next_element;
+	  //p->puzzle[rows][i] = element;
+	}
+    }else if(p->column == 1){
+      row_index = buff[p->column-1] - '0';
+      row_index = row_index - 1;
     }
+    p->puzzle[rows] = row_index;
     rows++;
   }
   return p;
@@ -82,67 +95,6 @@ puzzle * create_puzzle(int rows, int cols){
   // Initialize dimensions of puzzle.
   usp -> row = rows;
   usp -> column = cols;
-  
-  // Creates a rows by cols int** array.
-  usp -> puzzle = (int **) malloc(sizeof(int *)*rows);
-  int r = 0;
-  for (r = 0; r < rows; r++){
-    usp -> puzzle[r] = (int *) malloc(sizeof(int)*cols);
-  }
-
-  // Initialize contents of puzzle....
-  usp -> pi = create_perm_identity(8);
-  
-  //*
-  usp -> puzzle[0][0] = 3;
-  usp -> puzzle[0][1] = 3;
-  usp -> puzzle[0][2] = 3;
-  usp -> puzzle[0][3] = 3;
-  usp -> puzzle[0][4] = 3;
-  usp -> puzzle[0][5] = 3;
-  usp -> puzzle[1][0] = 1;
-  usp -> puzzle[1][1] = 3;
-  usp -> puzzle[1][2] = 3;
-  usp -> puzzle[1][3] = 2;
-  usp -> puzzle[1][4] = 3;
-  usp -> puzzle[1][5] = 3;
-  usp -> puzzle[2][0] = 3;
-  usp -> puzzle[2][1] = 1;
-  usp -> puzzle[2][2] = 3;
-  usp -> puzzle[2][3] = 3;
-  usp -> puzzle[2][4] = 2;
-  usp -> puzzle[2][5] = 3;
-  usp -> puzzle[3][0] = 1;
-  usp -> puzzle[3][1] = 1;
-  usp -> puzzle[3][2] = 3;
-  usp -> puzzle[3][3] = 2;
-  usp -> puzzle[3][4] = 2;
-  usp -> puzzle[3][5] = 3;
-  usp -> puzzle[4][0] = 3;
-  usp -> puzzle[4][1] = 3;
-  usp -> puzzle[4][2] = 1;
-  usp -> puzzle[4][3] = 3;
-  usp -> puzzle[4][4] = 3;
-  usp -> puzzle[4][5] = 2;
-  usp -> puzzle[5][0] = 1;
-  usp -> puzzle[5][1] = 3;
-  usp -> puzzle[5][2] = 1;
-  usp -> puzzle[5][3] = 2;
-  usp -> puzzle[5][4] = 3;
-  usp -> puzzle[5][5] = 2;
-  usp -> puzzle[6][0] = 3;
-  usp -> puzzle[6][1] = 1;
-  usp -> puzzle[6][2] = 1;
-  usp -> puzzle[6][3] = 3;
-  usp -> puzzle[6][4] = 2;
-  usp -> puzzle[6][5] = 2;
-  usp -> puzzle[7][0] = 1;
-  usp -> puzzle[7][1] = 1;
-  usp -> puzzle[7][2] = 1;
-  usp -> puzzle[7][3] = 2;
-  usp -> puzzle[7][4] = 2;
-  usp -> puzzle[7][5] = 2;
-  //*/
    
   return usp;
 }
@@ -155,46 +107,56 @@ puzzle * create_puzzle(int rows, int cols){
 //index must be 0-(2^(k*s)-1)
 puzzle * create_puzzle_from_index(int row, int column, int index){
   puzzle * p = (puzzle *) (malloc(sizeof(puzzle)));
-  int r;
+  //int r;
   p->row = row;
   p->column = column;
   p->pi = create_perm_identity(p->row);
-  p->puzzle = (int **) malloc(sizeof(int *)*p->row);
-  for (r = 0; r < p->row; r++){
-    p->puzzle[r] = (int *) malloc(sizeof(int *)*p->column);
-  }
-  int num_elements_in_row = 3;
+  p->puzzle = (int *) malloc(sizeof(int *)*p->row);
+  //for (r = 0; r < p->row; r++){
+  //  p->puzzle[r] = (int *) malloc(sizeof(int *)*p->column);
+  //}  
   //int num_type_rows = (int)pow(3, column); power fuction not working!
   int num_type_rows = 1;
   int a;
   for (a = 0; a<column; a++){
     num_type_rows = num_type_rows * 3;
   }
-  int i, j;
-  int x, y;
+  int i;//, j;
+  int x;//, y;
   for(x = 0; x < row; x++){
     i = index % num_type_rows;
     //printf("%d", i);
-    for(y = 0; y < column; y++){
-      j = i % num_elements_in_row;
-      p->puzzle[x][y] = j+1;
-      i = i/num_elements_in_row;
-    }
+    //for(y = 0; y < column; y++){
+    //  j = i % num_elements_in_row;
+    //  p->puzzle[x][y] = j+1;
+    //  i = i/num_elements_in_row;
+    //}
+    p->puzzle[x] = i;
     index = index/num_type_rows;
   }
   return p;
 }
 
+//return the data (1or2or3) of the row - col index
+//row_index must from the puzzle
+//col index must less than the column number of the puzzle(0- col-1)
+int get_column_from_row(int row_index, int col_index){
+  int i,result = 1;
+  int num_elements_in_row = 3;
+  for(i=0; i<col_index+1; i++){
+    result = row_index % num_elements_in_row;
+    row_index = row_index/num_elements_in_row;
+  }
+  return result+1;
+}
 
 // print a puzzle
 int print_puzzle(puzzle * p){
   if (p != NULL){
-    
-  
     int r,c;
     for(r = 0; r<p->row; r++){
       for(c = 0; c<p->column; c++){
-	printf("%d", p->puzzle[r][c]);
+	printf("%d", get_column_from_row(p->puzzle[r], c));
       }
       printf("\n");
     }
@@ -219,7 +181,7 @@ void write_puzzle(puzzle * p, int index){
   int i, j;
   for(i=0; i<p->row;i++){
     for(j=0;j<p->column;j++){
-      fprintf(f, "%d", p->puzzle[i][j]);  
+      fprintf(f, "%d", get_column_from_row(p->puzzle[i], j));  
     }
     fprintf(f, "\n");
   }
@@ -233,10 +195,10 @@ void write_puzzle(puzzle * p, int index){
 // Deallocates a puzzle
 void destroy_puzzle(puzzle * p){
   destroy_perm(p->pi);
-  int i;
-  for (i = 0; i < p -> row; i++){
-    free(p -> puzzle[i]);
-  }
+  //int i;
+  // for (i = 0; i < p -> row; i++){
+  //   free(p -> puzzle[i]);
+  //}
   free(p -> puzzle);
   free(p);
 }
@@ -254,9 +216,9 @@ int count_witnesses(puzzle * p){
 
 	for (l = 0; l < p -> column; l++){
 
-	  int num_sat = (p -> puzzle[i][l] == 1 ? 1 : 0) 
-	    + (p -> puzzle[j][l] == 1 ? 1 : 0) 
-	    + (p -> puzzle[k][l] == 1 ? 1 : 0);
+	  int num_sat = (get_column_from_row(p -> puzzle[i], l) == 1 ? 1 : 0) 
+	    + (get_column_from_row(p -> puzzle[i], l) == 1 ? 1 : 0) 
+	    + (get_column_from_row(p -> puzzle[i], l) == 1 ? 1 : 0);
 	  
 	  if (num_sat == 2) {
 	    count++;

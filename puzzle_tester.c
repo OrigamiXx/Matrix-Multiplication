@@ -8,8 +8,9 @@
 
 int main(int argc, char * argv[]){
   
-  puzzle * p = create_puzzle_from_file("puzzles/usp_8_6.puz");
+  puzzle * p = create_puzzle_from_file("puzzles/test.puz");
   print_puzzle(p);
+  write_puzzle(p, 0);
 
   return 0;
 
