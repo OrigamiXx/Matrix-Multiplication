@@ -9,8 +9,10 @@
 int main(int argc, char * argv[]){
   
   puzzle * p = create_puzzle_from_file("puzzles/test.puz");
-  print_puzzle(p);
+  //print_puzzle(p);
   write_puzzle(p, 0);
+  puzzle * p1 = create_puzzle_from_puzzle(p, 1);
+  print_puzzle(p1);
 
   return 0;
 

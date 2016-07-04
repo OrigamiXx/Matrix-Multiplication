@@ -9,6 +9,22 @@
 #include "matrix.h"
 #include "puzzle.h"
 
+//create a puzzle that has one more row and same width as the input puzzle
+// according to the given row_index
+puzzle * create_puzzle_from_puzzle(puzzle * p, int row_index){
+  puzzle * result = (puzzle *) (malloc(sizeof(puzzle)));
+  //int r;
+  result->row = p->row+1;
+  result->column = p->column;
+  result->pi = create_perm_identity(result->row);
+  result->puzzle = (int *) malloc(sizeof(int *)*result->row);
+  int i;
+  for(i = 0; i<p->row; i++){
+    result->puzzle[i] = p->puzzle[i];
+  }
+  result->puzzle[result->row-1] = row_index;
+  return result;
+}
 
 //read a puzzle from a file.
 puzzle * create_puzzle_from_file(char * filename){

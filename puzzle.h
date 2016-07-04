@@ -11,6 +11,8 @@ typedef struct puzzle {
   int column;
 }puzzle;
 
+puzzle * create_puzzle_from_puzzle(puzzle * p, int row_index);
+
 puzzle * create_puzzle(int rows, int cols);
 
 puzzle * create_puzzle_from_file(char * filename);
