@@ -9,6 +9,9 @@
 #define MAX_ROW 8 
 #define MAX_SET 1<<MAX_ROW
 using namespace std;
+
+int check_usp_same_col(int max_row, int column);
+
 int check_usp(puzzle * p);
 
 int check_all_usp(int row, int column);

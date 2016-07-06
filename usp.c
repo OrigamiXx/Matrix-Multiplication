@@ -13,8 +13,59 @@
 #include "puzzle.h"
 #include "set.h"
 #include <map>
-
+#include <iostream>
 using namespace std;
+//check the number of the usp of puzzles with same width and different height 
+int check_usp_same_col(int max_row, int column){
+  std::map<string, puzzle*>M;
+  int i, max_poss_row=1, row = 1;
+  for(i = 0; i<column; i++){
+    max_poss_row = max_poss_row*3;
+  }
+  int tt = 0;
+  puzzle * p;
+  for(i = 0; i<max_poss_row; i++){
+    p = create_puzzle_from_index(row, column, i);
+    M.insert(pair<string,  puzzle*>(to_string(i), p));
+    
+    tt++;
+  }
+  // for(map<string, puzzle*>::iterator it = M.begin(); it!=M.end(); ++it){
+    
+  //}
+  printf("row %d column %d has %d usps.\n",row,column,tt);
+  for(row = 2; row <= max_row; row++){
+    map<string, puzzle*>tmpM;
+    tt = 0;
+    int total = 0;
+    for(map<string, puzzle*>::iterator it = M.begin(); it!=M.end(); ++it){
+      int t = 0;
+      for(i = it->second->puzzle[it->second->row-1]; i<max_poss_row; i++){
+	p = create_puzzle_from_puzzle(it->second, i);
+	total++;
+	if(check_usp_recursive(p)){
+	  tmpM.insert(pair<string, puzzle*>(it->first+"_"+ to_string(i), p));
+	  t++;
+	  tt++;
+	}
+	
+      }
+      destroy_puzzle(it->second);
+      if(total%500 == 0){ 
+	cout << "\r"<<it->first;
+	printf(" has %d usps on the when adds one more row to it.", t);
+      }
+    }
+    M.clear();
+    M = tmpM;
+    printf("column %d, row %d has %d usps.\n", column, row, tt);
+  }
+  return 0;
+}
+
+
+
+
 //give a size of the puzzle check all the puzzles from 1X1 to this size
 // whether they are USPs and
 // will write out in new text file the ones that are USPs.
