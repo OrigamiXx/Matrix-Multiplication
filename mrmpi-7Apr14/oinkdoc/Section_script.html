@@ -1,0 +1,186 @@
+<HTML>
+<CENTER><A HREF = "http://mapreduce.sandia.gov">MR-MPI WWW Site</A> -<A HREF = "../doc/Manual.html">MR-MPI Documentation</A> - <A HREF = "Manual.html">OINK
+Documentation</A> - <A HREF = "Section_script.html#comm">OINK Commands</A> 
+</CENTER>
+
+
+
+
+
+
+
+
+<HR>
+
+<H3>2. OINK Commands 
+</H3>
+<P>This section describes OINK input scripts and what commands are used
+to define an OINK calculation.
+</P>
+2.1 <A HREF = "#2_1">Input script operation</A><BR>
+2.2 <A HREF = "#2_2">Parsing rules</A><BR>
+2.3 <A HREF = "#2_3">Input script commands</A> <BR>
+
+<HR>
+
+<A NAME = "3_1"></A><H4>2.1 Input script operation 
+</H4>
+<P>OINK executes by reading commands from a input script (text file), one
+line at a time.  When the input script ends, OINK exits.  Each command
+causes OINK to take some action.  It may set an internal variable,
+read in a file, or perform a MapReduce operation.  Most commands have
+default settings, which means you only need to use the command if you
+wish to change the default.
+</P>
+<P>Note that OINK does not read your entire input script and then perform
+a calculation with all the settings.  Rather, the input script is read
+one line at a time and each command takes effect when it is read.
+Thus this sequence of commands:
+</P>
+<PRE>set verbosity 1 
+mr foo 
+</PRE>
+<P>does something different than this sequence:
+</P>
+<PRE>mr foo
+set verbosity 1 
+</PRE>
+<P>In the first case, the MR object created will have its verbosity set
+to 1.  In the latter case it will have the default verbosity of 0,
+since the set command was not used until after the MR object was
+created.
+</P>
+<P>Many input script errors are detected by OINK and an ERROR or WARNING
+message is printed.  <A HREF = "Section_errors.html">This section</A> gives more
+information on what errors mean.  The documentation for each command
+gives additional information.
+</P>
+<HR>
+
+<A NAME = "3_2"></A><H4>2.2 Parsing rules 
+</H4>
+<P>Each non-blank line in the input script is treated as a command.  OINK
+commands are case sensitive.  Pre-defined command names are
+lower-case, as are specified command arguments.  Upper case letters
+may be used in file names or user-chosen ID strings.
+</P>
+<P>Here is how each line in the input script is parsed by OINK:
+</P>
+<P>(1) If the last printable character on the line is a "&" character
+(with no surrounding quotes), the command is assumed to continue on
+the next line.  The next line is concatenated to the previous line by
+removing the "&" character and newline.  This allows long commands to
+be continued across two or more lines.
+</P>
+<P>(2) All characters from the first "#" character onward are treated as
+comment and discarded.  See an exception in (6).  Note that a
+comment after a trailing "&" character will prevent the command from
+continuing on the next line.  Also note that for multi-line commands a
+single leading "#" will comment out the entire command.
+</P>
+<P>(3) The line is searched repeatedly for $ characters, which indicate
+variables that are replaced with a text string.  See an exception in
+(6).  If the $ is followed by curly brackets, then the variable name
+is the text inside the curly brackets.  If no curly brackets follow
+the $, then the variable name is the single character immediately
+following the $.  Thus ${myTemp} and $x refer to variable names
+"myTemp" and "x".  See the <A HREF = "variable.html">variable</A> command for
+details of how strings are assigned to variables and how they are
+substituted for in input script commands.
+</P>
+<P>(4) The line is broken into "words" separated by whitespace (tabs,
+spaces).  Note that words can thus contain letters, digits,
+underscores, or punctuation characters.
+</P>
+<P>(5) The first word is the command name.  All successive words in the
+line are arguments.
+</P>
+<P>(6) If you want text with spaces to be treated as a single argument,
+it can be enclosed in either double or single quotes.  E.g.
+</P>
+<PRE>print "Value = $t"
+print 'Value = $t' 
+</PRE>
+<P>The quotes are removed when the single argument is stored internally.
+See the <A HREF = "if.html">if</A> commands for examples.  A "#" or "$" character
+that is between quotes will not be treated as a comment indicator in
+(2) or substituted for as a variable in (3).
+</P>
+<P>IMPORTANT NOTE: If the argument is itself a command that requires a
+quoted argument (e.g. using a <A HREF = "print.html">print</A> command as part of an
+<A HREF = "if.html">if</A> command), then the double and single quotes can be nested
+in the usual manner.  See the doc pages for those commands for
+examples.  Only one of level of nesting is allowed, but that should be
+sufficient for most use cases.
+</P>
+<HR>
+
+<H4><A NAME = "2_3"></A>2.3 Input script commands 
+</H4>
+<P>There are 4 kinds of OINK commands:
+</P>
+<P>(1) Set command to alter parameters:
+</P>
+<UL><LI><A HREF = "set.html">set</A> 
+</UL>
+<P>(2) MR-MPI library commands:
+</P>
+<UL><LI><A HREF = "mr.html">mr foo</A>
+<LI><A HREF = "mrmpi.html">foo map ..., foo reduce ..., etc</A> 
+</UL>
+<P>(3) Named commands:
+</P>
+<UL><LI><A HREF = "input.html">input</A>
+<LI><A HREF = "output.html">output</A>
+<LI><A HREF = "command.html">myfoo params ... -i ... -o ...</A> 
+</UL>
+<P>(4) Miscellaneous commands that are part of the scripting language:
+</P>
+<UL><LI><A HREF = "clear.html">clear</A>
+<LI><A HREF = "echo.html">echo</A>
+<LI><A HREF = "if.html">if</A>
+<LI><A HREF = "include.html">include</A>
+<LI><A HREF = "jump.html">jump</A>
+<LI><A HREF = "label.html">label</A>
+<LI><A HREF = "log.html">log</A>
+<LI><A HREF = "next.html">next</A>
+<LI><A HREF = "print.html">print</A>
+<LI><A HREF = "shell.html">shell</A>
+<LI><A HREF = "variable.html">variable</A> 
+</UL>
+<HR>
+
+<A NAME = "comm"></A>
+
+<P>Here is a list of all OINK input script commands alphabetically:
+</P>
+<DIV ALIGN=center><TABLE  BORDER=1 >
+<TR ALIGN="center"><TD ><A HREF = "clear.html">clear</A></TD><TD ><A HREF = "echo.html">echo</A></TD><TD ><A HREF = "if.html">if</A></TD><TD ><A HREF = "include.html">include</A></TD><TD ><A HREF = "input.html">input</A></TD><TD ><A HREF = "jump.html">jump</A></TD></TR>
+<TR ALIGN="center"><TD ><A HREF = "label.html">label</A></TD><TD ><A HREF = "log.html">log</A></TD><TD ><A HREF = "mr.html">mr</A></TD><TD ><A HREF = "mrmpi.html">library commands</A></TD><TD ><A HREF = "command.html">named commands</A></TD><TD ><A HREF = "next.html">next</A></TD></TR>
+<TR ALIGN="center"><TD ><A HREF = "output.html">output</A></TD><TD ><A HREF = "print.html">print</A></TD><TD ><A HREF = "set.html">set</A></TD><TD ><A HREF = "shell.html">shell</A></TD><TD ><A HREF = "variable.html">variable</A> 
+</TD></TR></TABLE></DIV>
+
+<P>These are the named commands currently included in OINK.  We will add
+to this list from time to time.  If you write a useful new command,
+send it to us and we can include it in the distribution.
+</P>
+<DIV ALIGN=center><TABLE  BORDER=1 >
+<TR ALIGN="center"><TD ><A HREF = "cc_find.html">cc_find</A></TD><TD ><A HREF = "cc_stats.html">cc_stats</A></TD></TR>
+<TR ALIGN="center"><TD ><A HREF = "degree.html">degree</A></TD><TD ><A HREF = "degree_stats.html">degree_stats</A></TD></TR>
+<TR ALIGN="center"><TD ><A HREF = "degree_weight.html">degree_weight</A></TD><TD ><A HREF = "edge_upper.html">edge_upper</A></TD></TR>
+<TR ALIGN="center"><TD ><A HREF = "histo.html">histo</A></TD><TD ><A HREF = "luby_find.html">luby_find</A></TD></TR>
+<TR ALIGN="center"><TD ><A HREF = "neigh_tri.html">neigh_tri</A></TD><TD ><A HREF = "neighbor.html">neighbor</A></TD></TR>
+<TR ALIGN="center"><TD ><A HREF = "rmat.html">rmat</A></TD><TD ><A HREF = "rmat.html">rmat2</A></TD></TR>
+<TR ALIGN="center"><TD ><A HREF = "sssp.html">sssp</A></TD><TD ><A HREF = "sssp.html">sssp2</A></TD></TR>
+<TR ALIGN="center"><TD ><A HREF = "tri_find.html">tri_find</A></TD><TD ><A HREF = "vertex_extract.html">vertex_extract</A></TD></TR>
+<TR ALIGN="center"><TD ><A HREF = "wordfreq.html">wordfreq</A> 
+</TD></TR></TABLE></DIV>
+
+<P>Here is a link to the MR-MPI library commands that can be invoked
+directly from an OINK input script:
+</P>
+<DIV ALIGN=center><TABLE  BORDER=1 >
+<TR ALIGN="center"><TD ><A HREF = "mrmpi.html">MR-MPI library commands</A> 
+</TD></TR></TABLE></DIV>
+
+</HTML>

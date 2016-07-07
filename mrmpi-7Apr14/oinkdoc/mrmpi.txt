@@ -1,0 +1,183 @@
+
+"MR-MPI WWW Site"_mws -"MR-MPI Documentation"_md - "OINK
+Documentation"_od - "OINK Commands"_oc :c
+
+:link(mws,http://mapreduce.sandia.gov)
+:link(md,../doc/Manual.html)
+:link(od,Manual.html)
+:link(oc,Section_script.html#comm)
+
+:line
+
+library commands :h3
+
+[Syntax:]
+
+MR-ID keyword args ... :pre
+
+MR-ID = ID of previously created MR object
+keyword = MR-MPI library function to invoke
+args = arguments to library function :ul
+
+[Examples:]
+
+"mr"_mr.html edge
+edge map/task 100 mymap
+edge map/task 100 mymap 1
+edge collate NULL
+edge reduce myreduce
+edge kv_stats 1
+edge set timer 1 :pre
+
+[Description:]
+
+Invoke a MR-MPI library function directly on a previously created
+MR-MPI objects.  In OINK, an MR-MPI object is a thin wrapper on a
+MapReduce object created via the "MR-MPI library"_md.  They can be
+created by the "mr"_mr.html command or can be output by a "named
+command"_command.html.  Such an MR-MPI object has an ID which is the
+command name used in the input script to trigger the library calls,
+e.g. "edge" in the examples above.
+
+The keyword is the library function to invoke on the underlying
+MapReduce object wrapped by the MR-MPI object.  These have a
+one-to-one correspondence with the methods available in the "MR-MPI
+library"_md.  Here is the list of keywords and their arguments.  The
+arguments used in the OINK input script correspond to the arguments
+used by each library method.  Arguments in parentheses are optional.
+More details are discussed below.
+
+Keywords, Arguments,
+delete, none,
+copy, MR2-ID,
+add, MR2-ID,
+aggregate, NULL or hash-function,
+broadcast, root,
+clone, none,
+close, none,
+collapse, type key,
+collate, NULL of hash-function,
+compress, reduce-function,
+convert, none,
+gather, nprocs,
+map/task, nmap map-function (addflag),
+map/char, nmap strings recurse readfile sepchar delta map-function (addflag),
+map/string, nmap strings recurse readfile sepstr delta map-function (addflag),
+map/mr, MR2-ID map-function (addflag),
+open, none,
+print, (file) (fflag) proc nstride kflag vflag,
+reduce, reduce-function,
+scan/kv, scan-function,
+scan/kmv, scan-function,
+scrunch, nprocs type key,
+sort_keys, flag or compare-function,
+sort_values, flag or compare-function,
+sort_multivalues, flag or compare-function,
+kv_stats, level,
+kmv_stats, level,
+cummulative_stats, level reset,
+set, name value :tb(c=2)
+
+The MR2-ID used as an argument to the "copy", "add", and "map/mr"
+keywords should be the ID of another previously defined MR-MPI object.
+
+IMPORTANT NOTE: The syntax for the copy keyword in an OINK script is
+as follows: MR-ID copy MR2-ID.  This creates a new MR-MPI object
+MR2-ID, which is a copy of the existing MR-MPI object MR-ID.  The
+MR2-ID object cannot already exist.  This corresponds to the following
+C++ calling syntax for the "copy() method of the MR-MPI
+library"_../doc/copy.html, but note that the OINK syntax is somewhat
+reversed:
+
+MapReduce *mr2 = mr->copy(); :pre
+
+The map-function, reduce-function, hash-function, compare-function,
+scan-function arguments to various keywords are the names of functions
+that will be called back to by the MR-MPI library.  Within OINK, these
+must be names of functions defined in map_*.cpp, reduce_*.cpp,
+hash_*.cpp, compare_*,cpp, or scan_*.cpp files with the appropriate
+function prototype.  When you build OINK, these files are scanned, the
+function prototypes extracted, and the style_map.h, style_reduce.h,
+style_hash.h, style_compare.h, style_scan.h files are created whcih
+enables a function name you list in your input script to be recognized
+by OINK.  Note that as new map(), reduce(), etc functions are added to
+the OINK src directory, they automatically become avaiable to your
+script to use in MR-MPI library commands.  Thus you can use to OINK to
+accumulate a collection of useful map(), reduce(), etc functions.
+These functions can also be used with "named commands"_command.html as
+discussed "here"_Section_command.html.
+
+Note that map() functions come in 4 different flavors, with different
+prototypes, as "detailed here"_../doc/map.html.  Which you should use
+depends on which map variant you invoke, i.e. map/task, map/char,
+map/string, or map/mr.  Likewise, scan() functions come in 2 different
+flavors, as "detailed here"_../doc/scan.html, one for use with scan/kv
+and the other with scan/kmv.
+
+The "strings" argument to the {map/char} and {map/string} keywords can
+take one of two forms.  It can be a single filename or directory.  If
+the latter, then the "map() method in the MR-MPI
+library"_../doc/map.html reads the files in the directory.  Or it can
+be a variable defined elsewhere in the OINK input script that contains
+one or more strings which are passed to the map() method as a
+collection of strings.  In this case the "strings" argument should be
+specified as v_name, where name is the name of the variable.  All the
+different styles of variables (except equal-style) store strings; see
+the "variable"_variable.html command for details.  Also note that
+there is a "command-line option"_Section_build.txt#1_4 -var or -v
+which can be specified when OINK is executed to store a list of
+filenames in an index-style variable.
+
+The sepchar and sepstr arguments to the {map/char} and {map/string}
+keywords should be a single character or a string of characters.
+
+The addflag argument to the various {map} keywords is optional.  It
+should be 1 if you wish to add key/value pairs to those already
+contained in a MapReduce object.
+
+The type argument to the {collapse} and {scrunch} keywords should be
+one of the following: "int", "uint46", "double", or "str".  The key
+that follows will be converted into that data type to use as the key
+argument to the MR-MPI library function.
+
+The {print} keyword takes either 4 or 6 arguments.  If 6 are used, the
+first two are a file name and file flag, the same as is available with
+the "print() method in the MR-MPI library"_../doc/print.html.
+
+The flag argument to the various {sort} keywords is an integer (e.g. 1
+or -1) that can be used in place of a compare-function.  This is the
+same integer that the "sort methods in the MR-MPI
+library"_../doc/sort.html takes as a valid argument.
+
+The {set} keyword takes a "name" and "value" argument.  These can be
+any of the options that are valid to set for a MapReduce object in the
+MR-MPI library, as "discussed here"_../doc/settings.html.  E.g.  the
+command "edge verbosity 1" will set the verbosity level to 1 in the
+MapReduce object wrapped by the MR-MPI object named "edge".
+
+IMPORTANT NOTE: There is currently no way in OINK to pass a data
+pointer to the various MR-MPI library functions that accept it,
+e.g. to map() or reduce().  When using the library from a programming
+language, such as C++ or C, this is powerful option for passing extra
+information to the user callback map() or reduce() function.  We are
+still thinking about the best way to do this, at least in some limited
+fashion, from an OINK input script.
+
+:line
+
+When any MR-MPI library command is executed, its elapsed execution
+time is stored internally by OINK.  This value can be accessed by the
+keyword "time" in an "equal-style variable"_variable.html and printed
+out in the following manner:
+
+variable t equal time
+edge map/task 100 mymap
+print "Time for map/task = $t" :pre
+
+:line
+
+[Related commands:]
+
+"named commands"_command.html, "mr"_mr.html, "MR-MPI library
+documentation"_md, "map(), reduce(), etc
+functions"_Section_functions.txt

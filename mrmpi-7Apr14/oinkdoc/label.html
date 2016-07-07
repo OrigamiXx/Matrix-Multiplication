@@ -1,0 +1,40 @@
+<HTML>
+<CENTER><A HREF = "http://mapreduce.sandia.gov">MR-MPI WWW Site</A> -<A HREF = "../doc/Manual.html">MR-MPI Documentation</A> - <A HREF = "Manual.html">OINK
+Documentation</A> - <A HREF = "Section_script.html#comm">OINK Commands</A> 
+</CENTER>
+
+
+
+
+
+
+
+
+<HR>
+
+<H3>label command 
+</H3>
+<P><B>Syntax:</B>
+</P>
+<PRE>label ID 
+</PRE>
+<UL><LI>ID = string used as label name 
+</UL>
+<P><B>Examples:</B>
+</P>
+<PRE>label xyz
+label loop 
+</PRE>
+<P><B>Description:</B>
+</P>
+<P>Label this line of the input script with the chosen ID.  Unless a jump
+command was used previously, this does nothing.  But if a
+<A HREF = "jump.html">jump</A> command was used with a label argument to begin
+invoking this script file, then all command lines in the script prior
+to this line will be ignored.  I.e. execution of the script will begin
+at this line.  This is useful for looping over a section of the input
+script as discussed in the <A HREF = "jump.html">jump</A> command.
+</P>
+<P><B>Related commands:</B> none
+</P>
+</HTML>

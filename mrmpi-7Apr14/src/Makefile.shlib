@@ -1,0 +1,35 @@
+# MR-MPI shared library multiple-machine Makefile
+
+SHELL = /bin/sh
+
+# Definitions
+
+ROOT =	mrmpi
+EXE =	lib$(ROOT)_$@.so
+SRC =	$(wildcard *.cpp)
+INC =	$(wildcard *.h)
+OBJ = 	$(SRC:.cpp=.o)
+
+# Targets
+
+help:
+	@echo 'Type "make target" where target is one of:'
+	@echo ''
+	@files="`ls MAKE/Makefile.*`"; \
+	for file in $$files; do head -1 $$file; done
+
+clean:
+	rm -rf Obj_shlib_*
+
+.DEFAULT:
+	@test -f MAKE/Makefile.$@
+	@if [ ! -d Obj_shlib_$@ ]; then mkdir Obj_shlib_$@; fi
+	@cp -p $(SRC) $(INC) Obj_shlib_$@
+	@cp MAKE/Makefile.$@ Obj_shlib_$@/Makefile
+	@cd Obj_shlib_$@; \
+	$(MAKE) $(MFLAGS) "OBJ = $(OBJ)" \
+          "INC = $(INC)" "EXE = ../$(EXE)" shlib
+	@rm -f libmrmpi.so
+	@ln -s $(EXE) libmrmpi.so
+	@if [ -d Obj_shlib_$@ ]; then cd Obj_shlib_$@; \
+          rm -f $(SRC) $(INC) Makefile*; fi

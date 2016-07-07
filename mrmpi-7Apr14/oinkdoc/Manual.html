@@ -1,0 +1,214 @@
+<HTML>
+<HEAD>
+<TITLE>OINK Users Manual</TITLE>
+<META NAME="docnumber" CONTENT="OINK and MapReduce-MPI Library">
+<META NAME="author" CONTENT="http://mapreduce.sandia.gov - Sandia National Laboratories">
+<META NAME="copyright" CONTENT="Copyright (2009) Sandia Corporation.
+This software and manual is distributed under the BSD License.">
+</HEAD>
+
+<BODY>
+
+<CENTER><A HREF = "http://mapreduce.sandia.gov">MR-MPI WWW Site</A> -<A HREF = "../doc/Manual.html">MR-MPI Documentation</A> - <A HREF = "Manual.html">OINK
+Documentation</A> - <A HREF = "Section_script.html#comm">OINK Commands</A> 
+</CENTER>
+
+
+
+
+
+
+
+
+<HR>
+
+<H1></H1>
+
+<CENTER><H3>OINK Documentation 
+</H3></CENTER>
+<H4>Version info: 
+</H4>
+<P>The OINK "version" is the date when it was released, such as 1 Feb
+2011.  OINK and MR-MPI library are updated continuously.  Whenever we
+fix a bug or add a feature, we release it immediately, and post a
+notice on <A HREF = "http://mapreduce.sandia.gov/bug.html">this page of the WWW site</A>.  Each dated copy of OINK
+contains all the features and bug-fixes up to and including that
+version date. The version date is printed to the screen and log file
+every time you run OINK. It is also in the file oink/version.h and in
+the MR-MPI directory name created when you unpack a tarball.
+</P>
+<UL><LI>If you browse the HTML or PDF doc pages for OINK on the MR-MPI WWW
+site, they always describe the most current version of OINK. 
+
+<LI>If you browse the HTML or PDF doc pages for OINK included in your
+tarball, they describe the version you have. 
+</UL>
+<P>OINK is a simple scripting wrapper around the "MapReduce-MPI<A HREF = "http://mapreduce.sandia.gov">
+library</A>, and also provides a easy-to-use development framework
+for writing new MapReduce algorithms and codes.  Like the MR-MPI
+library, OINK will run on any platform (serial or parallel) that
+supports <A HREF = "mpi">MPI</A>.  Note the MR-MPI library has its own <A HREF = "../doc/Manual.html">manual and
+doc pages</A>.
+</P>
+<P>The name OINK is meant to evoke the aroma of the <A HREF = "http://pig.apache.org">Apache Pig</A>
+platform which wraps the <A HREF = "http://hadoop.apache.org">Hadoop</A> MapReduce capabilities with
+its high-level Pig Latin language.  Since OINK has only a small
+fraction of Pig's capability, it is more the sound of a pig, than the
+pig itself.
+</P>
+<P>Source code for OINK and the MR-MPI library were developed at Sandia
+National Laboratories, a US Department of Energy facility.  They are
+freely available for download from the <A HREF = "http://mapreduce.sandia.gov">MR-MPI web site</A> and are
+distributed under the terms of the modified <A HREF = "http://en.wikipedia.org/wiki/BSD_license">Berkeley Software
+Distribution (BSD) License</A>.  This basically means they can be
+used by anyone for any purpose.  See the LICENSE file provided with
+the distribution for more details.
+</P>
+<P>The authors of OINK and the MR-MPI library are <A HREF = "http://www.sandia.gov/~sjplimp">Steve Plimpton</A> at
+and <A HREF = "http://www.cs.sandia.gov/~kddevin">Karen Devine</A> who can be contacted via email: sjplimp,kddevin
+at sandia.gov.
+</P>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<HR>
+
+<H4>Goals of OINK 
+</H4>
+<UL><LI>(1) To allow MapReduce algorithms which call the MR-MPI library to be
+written with a minimum of extraneous code, to work with input/output
+in various forms, and to be chained together and driven via a simple,
+yet versatile scripting language. 
+
+<LI>(2) To create an archive of map() and reduce() functions for re-use by
+different algorithms. 
+
+<LI>(3) To provide a scripted interface to the lo-level MR-MPI library
+calls that can speed development/debugging of new algortihms before
+coding them up in C++ or another language. 
+</UL>
+<P>We think the first two goals are largely met.  See the section on
+<A HREF = "Section_commands.html">Adding Commands to OINK</A> and the <A HREF = "command.html">named
+command</A>, <A HREF = "input.html">input</A>, and <A HREF = "output.html">output</A>
+doc pages for details of the first goal.  See the section on <A HREF = "Section_functions.txt">Adding
+Functions to OINK</A> for details of the second
+goal.
+</P>
+<P>The third goal, however, is only partially met.  See the <A HREF = "mrmpi.html">MR-MPI
+library commands</A> doc page for its current status.  The
+sticking point here is that in a real programming language you can
+pass a pointer to an arbitrary data structure to your map() or
+reduce() functions, but it is hard to do that from a scripting
+language using text input without re-inventing something like
+<A HREF = "http://www.python.org">Python</A>.
+</P>
+
+
+<HR>
+
+<CENTER><H4>Contents of OINK Manual 
+</H4></CENTER>
+<P>OINK aims to be a simple scripting interface and development
+environment and the lightweight documentation reflects that.
+</P>
+<P>Once you are familiar with OINK, you may want to bookmark <A HREF = "Section_script.html#comm">this
+page</A> at Section_script.html#comm since it
+gives quick access to documentation for all OINK commands.
+</P>
+<P><A HREF = "Manual.pdf">PDF file</A> of the entire manual, generated by
+<A HREF = "http://www.easysw.com/htmldoc">htmldoc</A>
+</P>
+<LI><A HREF = "Section_build.html">Building OINK</A> 
+
+<UL>  1.1 <A HREF = "Section_build.html#1_1">Making OINK</A> 
+<BR>
+  1.2 <A HREF = "Section_build.html#1_2">Building OINK as a library</A> 
+<BR>
+  1.3 <A HREF = "Section_build.html#1_3">Running OINK</A> 
+<BR>
+  1.4 <A HREF = "Section_build.html#1_4">Command-line options</A> 
+<BR></UL>
+<LI><A HREF = "Section_script.html">OINK Scripts</A> 
+
+<UL>  2.1 <A HREF = "Section_script.html#2_1">Input script operation</A> 
+<BR>
+  2.2 <A HREF = "Section_script.html#2_2">Parsing rules</A> 
+<BR>
+  2.3 <A HREF = "Section_script.html#2_3">Input script commands</A> 
+<BR></UL>
+<LI><A HREF = "Section_functions.html">Adding Functions to OINK</A> 
+
+<UL>  3.1 <A HREF = "Section_functions.html#3_1">Map() functions</A> 
+<BR>
+  3.2 <A HREF = "Section_functions.html#3_2">Reduce() functions</A> 
+<BR>
+  3.3 <A HREF = "Section_functions.html#3_3">Compare() functions</A> 
+<BR>
+  3.4 <A HREF = "Section_functions.html#3_4">Hash() functions</A> 
+<BR>
+  3.5 <A HREF = "Section_functions.html#3_5">Scan() functions</A> 
+<BR></UL>
+<LI><A HREF = "Section_commands.html">Adding Commands to OINK</A> 
+
+<UL>  4.1 <A HREF = "Section_commands.html#4_1">Source files for the new class</A> 
+<BR>
+  4.2 <A HREF = "Section_commands.html#4_2">Methods in the new class</A> 
+<BR>
+  4.3 <A HREF = "Section_commands.html#4_3">Calls to the OINK object manager</A> 
+<BR>
+  4.4 <A HREF = "Section_commands.html#4_4">Calling back to map() and reduce() functions</A> 
+<BR></UL>
+<LI><A HREF = "Section_errors.html">Errors</A> 
+
+<UL>  5.1 <A HREF = "Section_errors.html#5_1">Error & warning messages</A> 
+</UL><BR>
+
+</OL>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</BODY>
+
+</HTML>

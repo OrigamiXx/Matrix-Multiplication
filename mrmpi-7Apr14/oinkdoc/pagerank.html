@@ -1,0 +1,75 @@
+<HTML>
+<CENTER><A HREF = "http://mapreduce.sandia.gov">MR-MPI WWW Site</A> -<A HREF = "../doc/Manual.html">MR-MPI Documentation</A> - <A HREF = "Manual.html">OINK
+Documentation</A> - <A HREF = "Section_script.html#comm">OINK Commands</A> 
+</CENTER>
+
+
+
+
+
+
+
+
+<HR>
+
+<H3>pagerank command 
+</H3>
+<P><B>Syntax:</B>
+</P>
+<PRE>pagerank tolerance Nmax alpha -i in1 -o out1.file out1.mr 
+</PRE>
+<UL><LI>tolerance = stopping tolerance on PageRank iterations
+<LI>Nmax = max # of matrix-vector iterations to allow
+<LI>alpha = ???
+<LI>in1 = graph edges: Key = Vi Vj, Value = weight
+<LI>out1 = distance to each vertex: Key = Vi, Value = distance 
+</UL>
+<P><B>Examples:</B>
+</P>
+<PRE>pagerank 0.01 50 0.3 -i mre -o prank.txt NULL 
+</PRE>
+<P><B>Description:</B>
+</P>
+<P>This is a named command which computes the PageRank numeric score for
+vertices in a directed graph.  The PageRank of a vertex is a measure
+of how "important" it is in the graph, based on what vertices point to
+it, and the PageRank of those vertices.  If the graph represents WWW
+pages linked to each other, then this is part of how Google ranks the
+relative importance of pages it shows you as the result of a search.
+See <A HREF = "#Google">this Google site</A> for more information.
+</P>
+<P>The PageRank calculation is performed via an iterative matrix-vector
+multiply operation, where the graph can be though of as a sparse
+matrix.  The MapReduce version of this PageRank implementation is
+described in the paper of <A HREF = "#Plimpton">(Plimpton)</A>.
+</P>
+<P>Describe what alpha and tolerance and maxiter do.
+</P>
+<P>See the <A HREF = "command.html">named command</A> doc page for various ways in which
+the -i inputs and -o outputs for a named command can be specified.
+</P>
+<P>In1 stores a set of edges with weights, assumed to have no duplicates,
+meaning that (Vi,Vj) only appears once.  Each edge is directed in the
+sense that Vi points to Vj.  The weight is effectively the non-zero
+value of the (Vi,Vj) element of the matrix.  Typically it should be
+1/D where D is the out-degree of Vi, but this is not required.  The
+input is unchanged by this command.
+</P>
+<P>Out1 will store the list of vertices and the numeric rank of each
+vertex.
+</P>
+<P><B>Related commands:</B> none
+</P>
+<HR>
+
+<A NAME = "Google"></A>
+
+<P><B>(Google)</B> Some citation to a Google paper or WWW site, explaining
+PageRank, (2005).
+</P>
+<A NAME = "Plimpton"></A>
+
+<P><B>(Plimpton)</B> Plimpton and Devine, "MapReduce in MPI for Large-Scale
+Graph Algorithms", to appear in Parallel Computing (2011).
+</P>
+</HTML>

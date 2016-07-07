@@ -1,0 +1,50 @@
+<HTML>
+<CENTER><A HREF = "http://mapreduce.sandia.gov">MR-MPI WWW Site</A> -<A HREF = "../doc/Manual.html">MR-MPI Documentation</A> - <A HREF = "Manual.html">OINK
+Documentation</A> - <A HREF = "Section_script.html#comm">OINK Commands</A> 
+</CENTER>
+
+
+
+
+
+
+
+
+<HR>
+
+<H3>print command 
+</H3>
+<P><B>Syntax:</B>
+</P>
+<PRE>print str 
+</PRE>
+<UL><LI>str = text string to print, which may contain variables 
+</UL>
+<P><B>Examples:</B>
+</P>
+<P>print "Done with first stage"
+print "Elapsed time = $t secs on $p procs"
+</P>
+<P><B>Description:</B>
+</P>
+<P>Print a text string to the screen and logfile.  One line of output is
+generated.  If the string has white space in it (spaces, tabs, etc),
+then you must enclose it in quotes so that it is treated as a single
+argument.  If variables are included in the string, they will be
+evaluated and their current values printed.
+</P>
+<P>See the <A HREF = "variable.html">variable</A> command for a description of various
+kinds of variables, any of which can be used with the print command.
+Note that there are keywords for the number of processors
+and elapsed time for a command or MR-MPI library call which
+can be accessed with variables, e.g.
+</P>
+<PRE>variable t equal time
+variable p equal nprocs
+print "Elapsed time = $t secs on $p procs" 
+</PRE>
+<P><B>Related commands:</B>
+</P>
+<P><A HREF = "variable.html">variable</A>
+</P>
+</HTML>

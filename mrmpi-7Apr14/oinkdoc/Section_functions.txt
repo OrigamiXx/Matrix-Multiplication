@@ -1,0 +1,257 @@
+"MR-MPI WWW Site"_mws -"MR-MPI Documentation"_md - "OINK
+Documentation"_od - "OINK Commands"_oc :c
+
+:link(mws,http://mapreduce.sandia.gov)
+:link(md,../doc/Manual.html)
+:link(od,Manual.html)
+:link(oc,Section_script.html#comm)
+
+:line
+
+3. Adding Callback Functions to OINK :h3
+
+In the oink directory, the files map_*.cpp, reduce_*.cpp,
+compare_*.cpp, hash_*.cpp, and scan_*.cpp each contain one or more
+functions which can be used as callback methods, passed to MR-MPI
+library calls, such as the "map()"_doc/..map.html and
+"reduce()"_../doc/reduce.html operations.  This can be done either in
+"named commands"_command.html that you write, as described in "this
+section"_Section_commands.html of the documention, or in "MR-MPI
+library commands"_mrmpi.html made directly from an OINK input script.
+
+The collection of these files and callback functions is effectively a
+library of tools that can be used by new "named commands"_command.html
+or your input script to speed the development of new MapReduce
+algorithms and workflows.  Over time, we intend to add new callback
+function to OINK, and also invite users to send their own functions to
+the developers for inclusion in OINK.
+
+The map(), reduce(), and scan() callback functions include a "void
+*ptr" as a final argument, which the caller can pass to the callback.
+This is typically done to enable the callback function to access
+additional parameters stored by the caller.  When doing this with
+functions listed in the map_*.cpp, reduce_*.cpp, and scan_*.cpp files
+in OINK, you will want to make the data these pointers point to
+"portable", so that and "named command" can use it.  Thus you would
+should not typically encode class-specific or command-specific data in
+the structure pointed to.  Instead, your caller should create the
+minimial data structure that the callback function needs to operate,
+and store the structure in a map_*.h file that corresponds to the
+specific map_*.cpp file that contains the function (or reduce_*.h or
+scan_*.h).  See the file oink/map_rmat_generate.h file as an example.
+It contains the definition of an RMAT_params structure, which is used
+by both the "rmat command"_rmat.txt and the map() methods it uses,
+listed in map_rmat_generate.cpp.  Both the rmat.h and
+map_rmat_generate.cpp files include the map_rmat_generate.h header
+file to accomplish this.  Other commands or callback functions could
+use the same data structure by including that header file.
+
+The following sections list the various callback function currently
+included in OINK, and a brief explanation of what each of them does.
+
+Note that map() functions come in 4 flavors, depending on what MR-MPI
+library "map() method"_../doc/map.html is being used.  Similarly,
+scan() functions come in 2 flavors, as documented on the "scan()
+method"_../doc/scan.html page.  Map_*.cpp and scan_*.cpp files within
+OINK can contain any of the 4 or 2 flavors of map() and scan()
+methods.
+
+3.1 "Map() functions"_#3_1
+3.2 "Reduce() functions"_#3_2
+3.3 "Compare() functions"_#3_3
+3.4 "Hash() functions"_#3_4
+3.5 "Scan() functions"_#3_5 :all(b)
+
+The documenation below this double line is auto-generated when the
+OINK manual is created.  This is done by extracting C-style
+documentation text from the map_*.cpp, reduce_*.cpp, compare_*.cpp,
+hash_*.cpp, and scan_*.cpp files in the oink directory.  Thus you
+should not edit content below this double line.
+
+In the *.cpp files in the oink directory, the lines between a line
+with a "/*" and a line with a "*/" are extracted.  In the tables
+below, the first such line of extracted text is assumed to be the
+function name and appears in the left column.  The remaining lines
+appear in the right columns.
+
+:line
+:line
+
+Map() functions :link(3_1),h4
+
+<DIV ALIGN=center><TABLE WIDTH="0%" BORDER=1><TR>
+<TD>add_label</TD>
+<TD>
+add a default integer label to each key, key could be vertex or edge<BR>
+input: key = anything, value = NULL<BR>
+output: key = unchanged, value = 1<BR>
+</TD>
+</TR>
+<TR>
+<TD>add_weight</TD>
+<TD>
+add a default floating point weight to each key, key could be vertex or edge<BR>
+input: key = anything, value = NULL<BR>
+output: key = unchanged, value = 1.0<BR>
+</TD>
+</TR>
+<TR>
+<TD>edge_to_vertex</TD>
+<TD>
+emit 1 vertex for each edge, just first one<BR>
+input: key = Vi Vj, value = NULL<BR>
+output: key = Vi, value = NULL<BR>
+</TD>
+</TR>
+<TR>
+<TD>edge_to_vertex_pair</TD>
+<TD>
+emit 1 vertex for each edge, just first one<BR>
+input: key = Vi Vj, value = NULL<BR>
+output: key = Vi, value = NULL<BR>
+</TD>
+</TR>
+<TR>
+<TD>edge_to_vertices</TD>
+<TD>
+emit 2 vertices for each edge<BR>
+input: key = Vi Vj, value = NULL<BR>
+output:<BR>
+key = Vi, value = NULL<BR>
+key = Vj, value = NULL<BR>
+</TD>
+</TR>
+<TR>
+<TD>edge_upper</TD>
+<TD>
+emit each edge with Vi < Vj, drop self-edges with Vi = Vj<BR>
+input: key = Vi Vj, value = NULL<BR>
+output: key = Vi Vj, value = NULL, with Vi < Vj<BR>
+</TD>
+</TR>
+<TR>
+<TD>invert</TD>
+<TD>
+invert key and value<BR>
+input: key, value<BR>
+output: key = value, value = key<BR>
+</TD>
+</TR>
+<TR>
+<TD>read_edge</TD>
+<TD>
+read edges from file, formatted with 2 vertices per line<BR>
+output: key = Vi Vj, value = NULL<BR>
+</TD>
+</TR>
+<TR>
+<TD>read_edge_label</TD>
+<TD>
+read edges and labels from file<BR>
+file format = 2 vertices and integer label per line<BR>
+output: key = Vi Vj, value = label<BR>
+</TD>
+</TR>
+<TR>
+<TD>read_edge_weight</TD>
+<TD>
+read edges and weights from file<BR>
+file format = 2 vertices and floating point weight per line<BR>
+output: key = Vi Vj, value = weight<BR>
+</TD>
+</TR>
+<TR>
+<TD>read_vertex_label</TD>
+<TD>
+read vertices and labels from file<BR>
+file format = vertex and integer label per line<BR>
+output: key = Vi, value = label<BR>
+</TD>
+</TR>
+<TR>
+<TD>read_vertex_weight</TD>
+<TD>
+read vertices and weights from file<BR>
+file format = vertex and floating point weight per line<BR>
+output: key = Vi, value = weight<BR>
+</TD>
+</TR>
+<TR>
+<TD>read_words</TD>
+<TD>
+read words from file, separated by whitespace<BR>
+output: key = word, value = NULL<BR>
+</TD>
+</TR>
+<TR>
+<TD>rmat_generate</TD>
+<TD>
+generate graph edges via recursive R-MAT algorithm<BR>
+input: # to generated & R-MAT params extracted from RMAT_struct in ptr<BR>
+output: key = Vi Vj, value = NULL<BR>
+</TD>
+</TR>
+</TABLE></DIV>
+
+:line
+
+Reduce() functions :link(3_1),h4
+
+<DIV ALIGN=center><TABLE WIDTH="0%" BORDER=1><TR>
+<TD>count</TD>
+<TD>
+count number of values associated with key<BR>
+input: KMV with key and one or more values<BR>
+output: key = unchanged, value = count<BR>
+</TD>
+</TR>
+<TR>
+<TD>cull</TD>
+<TD>
+eliminate duplicate values<BR>
+input: KMV with key and one or more values (assumed to be duplicates)<BR>
+output: key = unchanged, value = first value<BR>
+</TD>
+</TR>
+</TABLE></DIV>
+
+:line
+
+Compare() functions :link(3_1),h4
+
+<DIV ALIGN=center><TABLE WIDTH="0%" BORDER=1></TABLE></DIV>
+
+:line
+
+Hash() functions :link(3_1),h4
+
+<DIV ALIGN=center><TABLE WIDTH="0%" BORDER=1></TABLE></DIV>
+
+:line
+
+Scan() functions :link(3_1),h4
+
+<DIV ALIGN=center><TABLE WIDTH="0%" BORDER=1><TR>
+<TD>print_edge</TD>
+<TD>
+print out an edge to a file<BR>
+input: key = Vi Vj, value = NULL<BR>
+</TD>
+</TR>
+<TR>
+<TD>print_string_int</TD>
+<TD>
+print out key as string and value as int, to a file<BR>
+input: key = string, value = int<BR>
+</TD>
+</TR>
+<TR>
+<TD>print_vertex</TD>
+<TD>
+print out an vertex to a file<BR>
+input: key = Vi, value = NULL<BR>
+</TD>
+</TR>
+</TABLE></DIV>
+
+:line

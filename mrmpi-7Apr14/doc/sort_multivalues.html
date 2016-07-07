@@ -1,0 +1,69 @@
+<HTML>
+<CENTER><A HREF = "http://mapreduce.sandia.gov">MapReduce-MPI WWW Site</A> - <A HREF = "Manual.html">MapReduce-MPI Documentation</A> 
+</CENTER>
+
+
+
+
+<HR>
+
+<H3>MapReduce sort_multivalues() method 
+</H3>
+<PRE>uint64_t MapReduce::sort_multivalues(int (*mycompare)(char *, int, char *, int))
+uint64_t MapReduce::sort_multivalues(int) 
+</PRE>
+<P>This calls the sort_multivalues() method of a MapReduce object, which
+sorts the values for each key within a KeyMultiValue object to produce
+a new KeyMultiValue object.
+</P>
+<P>For the first variant, you provide a mycompare() function which
+compares pairs of values for the sort, since the MapReduce object does
+not know how to interpret the content of your values.  The method
+returns the total number of key/multi-value pairs in the new
+KeyMultiValue object which will be the same as in the original.
+</P>
+<P>For the second variant, you can select one of several pre-defined
+compare functions, so you do not have to write the compare function
+yourself:
+</P>
+<DIV ALIGN=center><TABLE  BORDER=1 >
+<TR ALIGN="center"><TD >flag = 1 </TD><TD > compare 2 integers</TD></TR>
+<TR ALIGN="center"><TD >flag = 2 </TD><TD > compare 2 64-bit unsigned integers</TD></TR>
+<TR ALIGN="center"><TD >flag = 3 </TD><TD > compare 2 floats</TD></TR>
+<TR ALIGN="center"><TD >flag = 4 </TD><TD > compare 2 doubles</TD></TR>
+<TR ALIGN="center"><TD >flag = 5 </TD><TD > compare 2 NULL-terminated strings via strcmp()</TD></TR>
+<TR ALIGN="center"><TD >flag = 6 </TD><TD > compare 2 arbitrary strings via strncmp() 
+</TD></TR></TABLE></DIV>
+
+<P>For the flag = 6 case, the 2 strings do not have to be NULL-terminated
+since only the first N characters are compared, where N is the shorter
+of the 2 string lengths.
+</P>
+<P>This method can be used to sort a set of multi-values within a key
+before they are passed to your application, e.g. via the
+<A HREF = "reduce.html">reduce()</A> method.  Note that it typically only makes
+sense to use sort_multivalues() for a KeyMultiValue object created by
+the <A HREF = "convert.html">convert()</A> or <A HREF = "collate.html">collate()</A> methods, not
+KeyMultiValue objects created by the <A HREF = "clone.html">clone()</A> or
+<A HREF = "collapse.html">collapse()</A> or <A HREF = "scrunch.html">scrunch()</A> methods.
+</P>
+<P>In this example for the first variant, the user function is called
+mycompare() and it must have the following interface
+</P>
+<PRE>int mycompare(char *value1, int len1, char *value2, int len2) 
+</PRE>
+<P>Value1 and value2 are pointers to the byte strings for 2 values, each
+of length len1 and len2.  Your function should compare them and return
+a -1, 0, or 1 if value1 is less than, equal to, or greater than
+value2, respectively.
+</P>
+<P>This method is an on-processor operation, requiring no communication.
+When run in parallel, each processor operates only on the
+key/multi-value pairs it stores.
+</P>
+<HR>
+
+<P><B>Related methods</B>: <A HREF = "sort_keys.html">sort_keys()</A>,
+<A HREF = "sort_values.html">sort_values()</A>
+</P>
+</HTML>

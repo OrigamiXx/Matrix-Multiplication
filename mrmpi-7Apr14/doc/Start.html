@@ -1,0 +1,143 @@
+<HTML>
+<CENTER><A HREF = "http://mapreduce.sandia.gov">MapReduce-MPI WWW Site</A> - <A HREF = "Manual.html">MapReduce-MPI Documentation</A> 
+</CENTER>
+
+
+
+
+<HR>
+
+<H3>Getting Started 
+</H3>
+<P>Once you have
+<A HREF = "http://www.sandia.gov/~sjplimp/download.html">downloaded</A> the
+MapReduce MPI (MR-MPI) library, you should have the tarball
+mapreduce.tar.gz on your machine.  Unpack it with the following
+commands:
+</P>
+<PRE>gunzip mapreduce.tar.gz
+tar xvf mapreduce.tar 
+</PRE>
+<P>which should create a mapreduce directory containing the following:
+</P>
+<UL><LI>README
+<LI>LICENSE
+<LI>doc
+<LI>examples
+<LI>mpistubs
+<LI>oink
+<LI>oinkdoc
+<LI>python
+<LI>src
+<LI>user 
+</UL>
+<P>The doc directory contains this documentation.  The oink and oinkdoc
+directories contain the <A HREF = "../oinkdoc/Manual.html">OINK scripting
+interface</A> to the MR-MPI library and its
+separate documentation.  The examples directory contains a few simple
+MapReduce programs which call the MR-MPI library.  These are
+documented by a README file in that directory and are discussed below.
+The mpistubs directory contains a dummy MPI library which can be used
+to build a MapReduce program on a serial machine.  The python
+directory contains the Python wrapper files needed to call the MR-MPI
+library from Python.  The src directory contains the files that
+comprise the MR-MPI library.  The user directory contains
+user-contributed MapReduce programs.  See the README in that directory
+for further details.
+</P>
+<H5><B>Static library:</B> 
+</H5>
+<P>To build a static library for use by a C++ or C program (*.a file on
+Linux), go to the src directory and type
+</P>
+<PRE>make 
+</PRE>
+<P>You will see a list of machine names, each of which has their own
+Makefile.machine file in the src/MAKE directory.  You can choose
+one of these and attempt to build the MR-MPI library by typing
+</P>
+<PRE>make machine 
+</PRE>
+<P>If you are successful, this will produce the file "libmrmpi_machine.a"
+which can be linked by other programs.  If not, you will need to
+create a src/MAKE/Makefile.machine file compatible with your platform,
+using one of the existing files as a template.
+</P>
+<P>The only settings in a Makefile.machine file that need to be specified
+are those for the compiler and the MPI library on your machine.  If
+MPI is not already installed, you can install one of several free
+versions that work on essentially all platforms.  MPICH and OpenMPI
+are the most common.
+</P>
+<P>Within Makefile.machine you can either specify via -I and -L switches
+where the MPI include and library files are found, or you can use a
+compiler wrapper provided with MPI, like mpiCC or mpic++, which will
+know where those files are.
+</P>
+<P>You can also build the MR-MPI library without MPI, using the dummy MPI
+library provided in the mpistubs directory.  In this case you can only
+run the library on a single processor.  To do this, first build the
+dummy MPI library, by typing "make" from within the mpistubs
+directory.  Again, you may need to edit mpistubs/Makefile for your
+machine.  Then from the src directory, type "make serial" which uses
+the src/MAKE/Makefile.serial file.
+</P>
+<P>Both a C++ and <A HREF = "Interface_c.html">C interface</A> are part of the MR-MPI
+library, so it should be usable from any hi-level language.
+</P>
+<H5><B>Shared library:</B> 
+</H5>
+<P>You can also build the MR-MPI library as a dynamic shared library
+(*.so file instead of *.a on Linux).  This is required if
+you want to use the library from Python.  To do this, type
+</P>
+<PRE>make -f Makefile.shlib machine 
+</PRE>
+<P>This will create the file libmrmpi_machine.so, as well as a soft link
+libmrmpi.so, which is what the Python wrapper will load by default.
+Note that if you are building multiple machine versions of the shared
+library, the soft link is always set to the most recently built
+version.
+</P>
+<H5><B>Additional requirement for using a shared library:</B> 
+</H5>
+<P>The operating system finds shared libraries to load at run-time using
+the environment variable LD_LIBRARY_PATH.  So you may wish to copy the
+file src/libmrmpi.so or src/libmrmpi_g++.so (for example) to a place
+the system can find it by default, such as /usr/local/lib, or you may
+wish to add the MR-MPI src directory to LD_LIBRARY_PATH, so that the
+current version of the shared library is always available to programs
+that use it.
+</P>
+<P>For the csh or tcsh shells, you would add something like this to your
+~/.cshrc file:
+</P>
+<PRE>setenv LD_LIBRARY_PATH $<I>LD_LIBRARY_PATH</I>:/home/sjplimp/mrmpi/src 
+</PRE>
+<HR>
+
+<P>The MapReduce programs in the examples directory can be built by
+typing
+</P>
+<PRE>make -f Makefile.machine 
+</PRE>
+<P>from within the examples directory, where Makefile.machine is one of
+the Makefiles in the examples directory.  Again, you may need to
+modify one of the existing ones to create a new one for your machine.
+Some of the example programs are provided as a C++ program, a C
+program, as a Python script, or as an OINK input script.
+Once you have built OINK, the latter can be run as, for example,
+</P>
+<PRE>oink_linux < in.rmat 
+</PRE>
+<P>When you run one of the example MapReduce programs or your own, if you
+get an immediate error about the MRMPI_BIGINT data type, you will need
+to edit the file src/mrtype.h and re-compile the library.  Mrtype.h
+and the error check insures that your MPI will perform operations on
+8-byte unsigned integers as required by the MR-MPI library.  For the
+MPI on most machines, this is satisfied by the MPI data type
+MPI_UNSIGNED_LONG_LONG.  But some machines do not support the "long
+long" data type, and you may need a different setting for your machine
+and installed MPI, such as MPI_UNSIGNED_LONG.
+</P>
+</HTML>

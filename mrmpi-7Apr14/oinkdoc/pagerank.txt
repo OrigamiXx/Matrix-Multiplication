@@ -1,0 +1,67 @@
+"MR-MPI WWW Site"_mws -"MR-MPI Documentation"_md - "OINK
+Documentation"_od - "OINK Commands"_oc :c
+
+:link(mws,http://mapreduce.sandia.gov)
+:link(md,../doc/Manual.html)
+:link(od,Manual.html)
+:link(oc,Section_script.html#comm)
+
+:line
+
+pagerank command :h3
+
+[Syntax:]
+
+pagerank tolerance Nmax alpha -i in1 -o out1.file out1.mr :pre
+
+tolerance = stopping tolerance on PageRank iterations
+Nmax = max # of matrix-vector iterations to allow
+alpha = ???
+in1 = graph edges: Key = Vi Vj, Value = weight
+out1 = distance to each vertex: Key = Vi, Value = distance :ul
+
+[Examples:]
+
+pagerank 0.01 50 0.3 -i mre -o prank.txt NULL :pre
+
+[Description:]
+
+This is a named command which computes the PageRank numeric score for
+vertices in a directed graph.  The PageRank of a vertex is a measure
+of how "important" it is in the graph, based on what vertices point to
+it, and the PageRank of those vertices.  If the graph represents WWW
+pages linked to each other, then this is part of how Google ranks the
+relative importance of pages it shows you as the result of a search.
+See "this Google site"_#Google for more information.
+
+The PageRank calculation is performed via an iterative matrix-vector
+multiply operation, where the graph can be though of as a sparse
+matrix.  The MapReduce version of this PageRank implementation is
+described in the paper of "(Plimpton)"_#Plimpton.
+
+Describe what alpha and tolerance and maxiter do.
+
+See the "named command"_command.html doc page for various ways in which
+the -i inputs and -o outputs for a named command can be specified.
+
+In1 stores a set of edges with weights, assumed to have no duplicates,
+meaning that (Vi,Vj) only appears once.  Each edge is directed in the
+sense that Vi points to Vj.  The weight is effectively the non-zero
+value of the (Vi,Vj) element of the matrix.  Typically it should be
+1/D where D is the out-degree of Vi, but this is not required.  The
+input is unchanged by this command.
+
+Out1 will store the list of vertices and the numeric rank of each
+vertex.
+
+[Related commands:] none
+
+:line
+
+:link(Google) 
+[(Google)] Some citation to a Google paper or WWW site, explaining
+PageRank, (2005).
+
+:link(Plimpton) 
+[(Plimpton)] Plimpton and Devine, "MapReduce in MPI for Large-Scale
+Graph Algorithms", to appear in Parallel Computing (2011).

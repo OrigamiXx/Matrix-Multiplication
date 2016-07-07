@@ -1,0 +1,168 @@
+<HTML>
+<CENTER><A HREF = "http://mapreduce.sandia.gov">MR-MPI WWW Site</A> -<A HREF = "../doc/Manual.html">MR-MPI Documentation</A> - <A HREF = "Manual.html">OINK
+Documentation</A> - <A HREF = "Section_script.html#comm">OINK Commands</A> 
+</CENTER>
+
+
+
+
+
+
+
+
+<HR>
+
+<H3>named commands 
+</H3>
+<P><B>Syntax:</B>
+</P>
+<PRE>cmomand-name params ... -i input1 input2 ,.. -o output1.file output1.ID output2.file output2.ID ... 
+</PRE>
+<UL><LI>commmand-name = name of command
+<LI>params = zero or more params required by command
+<LI>-i = start of input definitions required by command
+<LI>inputN = list of 0 or more input objects
+<LI>-o = start of output definitions to command
+<LI>outputN.file = list of 0 or more output files
+<LI>outputN.ID = list of 0 or more output MR-MPI objects 
+</UL>
+<P><B>Examples:</B>
+</P>
+<PRE>wordfreq 5 -i v_files -o NULL NULL
+rmat 10 8 0.25 0.25 0.25 0.25 0.0 12345 -o tmp.rmat NULL
+degree -i graph/edges -o degree/degree degree 
+</PRE>
+<P><B>Description:</B>
+</P>
+<P>Invoke a named command with the list of parameters it requires, as
+well as the list of input and output objects it expects.  In OINK a
+named command is a child class that derives from the Command parent
+class, meaning that it contains several methods that can be called
+from the OINK framwork.  See <A HREF = "Section_commands.html">this section</A> of
+the manual for details on how to write new named commands and add them
+to OINK.  The list of named commands currently included with OINK are
+listed on <A HREF = "Section_script.txt#comm">this page</A>.  They are also listed
+in the source code in the file src/style_command.h which is
+auto-generated each time that OINK is built.
+</P>
+<P>Each named command has a "name", defined in the *.h file for the
+class, which is the command name used in the input script to invoke
+the command, e.g. wordfreq or rmat or degree in the examples above.
+</P>
+<P>Any arguments that follow the command name, upto a "-i" or "=o"
+argument are passed as <I>params</I> to the command before it is invoked,
+so that it can process and store them as needed.  The number and
+nature of these parameters are defined by the command itself and it
+should generate errors if they are not specified correctly.  The code
+that processes parameters can be written to allow for optional
+parameters and keywords within the list of <I>params</I>.
+</P>
+<P>The "-i" and "-o" arguments can be listed in either order.  The
+arguments that follow each of them, either between them, or upto the
+end of the command, are passed to an "input" and "output" processing
+routine within the command class.  Each command requires a specific
+number of input and output "definitions", as explained below.  Input
+definitions are single arguments.  Output definitions are pairs of
+arguments.  If zero input (or output) definitions are required by the
+command, then the "-i" (or "-o") argument need not be specified.  If 2
+output definitions are required, then 4 arguments must follow the
+"-o".
+</P>
+<P>Typically each required input definition is a form of data input that
+the command requires.  It can come from reading one or more files or
+from an MR-MPI object that already exists.  Similarly, each required
+output definition is a form of data output that the command produces.
+It can be stored either in one or more files or in an MR-MPI object
+that the command creates.  In OINK, an MR-MPI object is a thin wrapper
+on a MapReduce object created via the <A HREF = "../doc/Manual.html">MR-MPI library</A>.  See <A HREF = "mrmpi.html">this
+doc page</A> for more discussion of MR-MPI objects and input
+script operations that can be performed on them directly.
+</P>
+<HR>
+
+<P>Each input definition <I>inputN</I> is one of three things.
+</P>
+<P>First, it can be the ID of an existing MR-MPI object, which wraps a
+MapReduce object which contains key/value pairs.  If <I>inputN</I> matches
+such an ID, then the second or third options are not considered.  In
+this case, it is assumed that the data stored within the MapReduce
+object is already in the form that would be produced by the map()
+method that would read the input from one or more file or directory
+names.
+</P>
+<P>Second, the <I>inputN</I> can be the path name of a file or directory.
+Third, it can be a variable defined elsewhere in the OINK input script
+that contains one or more strings.  In the third case <I>inputN</I> should
+be specified as v_name, where name is the name of the variable.  All
+the different styles of variables (except equal-style) store strings;
+see the <A HREF = "variable.html">variable</A> command for details.  Also note that
+there is a <A HREF = "Section_build.txt#1_4">command-line option</A> -var or -v
+which can be specified when OINK is executed to store a list of
+strings in an index-style variable.  The strings are treated as a list
+of file or directory names.  Thus in both the first or second case the
+effect is that a list of one or more file/directory names is passed to
+the command.  The command creates a temporary, unnamed MR-MPI object
+and invokes a map() method within it, as specified in the code of the
+command class, using the list of file/directory names as input.
+</P>
+<P>There are several options available which influence how the list of
+strings specified in the input script are converted into actual
+file/directory paths passed to the map() method.  This include
+wildcard charcters "%" and "*".  See the <A HREF = "input.html">input</A> command
+for details.
+</P>
+<HR>
+
+<P>Each required ouptut definition is a pair of arguments: <I>ouputN.file</I>
+and <I>outputN.ID</I>.  Either or both can be specified as NULL if no
+output in that form is desired.
+</P>
+<P>The <I>outputN.file</I> argument is the path name of a file.  A map() or
+reduce() or scan() method, as specified in the code of the command
+class, will be invoked which will write data to that file when the
+command is finished.  A processor-ID (0 to Nprocs-1) will be appended
+to the filename, so that when running on multiple processors, multiple
+files will be created.
+</P>
+<P>If the specfied path name does not entirely exist, additional
+directories in the path name will be created as needed.  Also, there
+are several options available which influence how the file name
+specified in the input script is converted into the file name actually
+opened by OINK and written to by the map(), reduce(), or scan()
+method.  This include wildcard charcters "%" and "*".  See the
+<A HREF = "input.html">output</A> command for details.
+</P>
+<P>The <I>outputN.ID</I> argument is the ID of an MR-MPI object which wraps a
+MapReduce object.  The code in the command class will have created or
+altered the MR-MPI object and its associated MapReduce object and
+populated it with data.  As a final step, the specified ID is assigned
+to that MR-MPI object.  If the ID is already in use, then the name is
+removed from the other MR-MPI object.  This means that if an
+<I>outputN.ID</I> is the same as an <I>inputN</I> to the command then the output
+will effectively overwrite that input.
+</P>
+<P>When the command completes, named MR-MPI objects persist so that they
+can be used in subsequent input script commands.  All unnamed MR-MPI
+objects are deleted.
+</P>
+<HR>
+
+<P>When any named command is executed, its elapsed execution time is
+stored internally by OINK.  This value can be accessed by the keyword
+"time" in an <A HREF = "variable.html">equal-style variable</A> and printed out in
+the following manner:
+</P>
+<PRE>variable t equal time
+rmat 10 8 0.25 0.25 0.25 0.25 0.0 12345 -o tmp.rmat NULL
+print "Time for RMAT generation = $t" 
+</PRE>
+<HR>
+
+<P><B>Related commands:</B>
+</P>
+<P><A HREF = "mrmpi.html">MR-MPI library commands</A>, <A HREF = "mr.html">mr</A>, <A HREF = "../doc/Manual.html">MR-MPI library
+documentation</A>, <A HREF = "Section_commands.html">how to write named
+commands</A>, <A HREF = "input.html">input</A>,
+<A HREF = "output.html">output</A>
+</P>
+</HTML>

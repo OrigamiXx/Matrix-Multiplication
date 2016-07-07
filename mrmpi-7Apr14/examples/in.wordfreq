@@ -1,0 +1,12 @@
+# OINK script for word frequency counting
+# run as: oink_machine -var files *.cpp < in.wordfreq
+
+variable t equal time
+variable p equal nprocs
+
+set scratch SCRATCH
+#set verbosity 1
+#set timer 1
+
+wordfreq 10 -i v_files -o NULL NULL
+print "WordFreq: $t secs on $p procs"

@@ -1,0 +1,27 @@
+This directory contains Python code which wraps MR-MPI as a library
+and allows the MR-MPI library interface to be invoked from Python,
+either from a script or interactively.
+
+Details on the Python interface to MR-MPI and how to build MR-MPI as a
+shared library, for use with Python, are given in
+doc/Interface_python.html and in doc/Start.html.
+
+Basically you need to follow these steps in the src directory:
+
+% make -f Makefile.shlib g++    # or whatever machine target you wish
+% make install-python           # may need to do this via sudo
+
+You can replace the last step with running the python/install.py
+script directly to give you more control over where two relevant files
+are installed, or by setting environment variables in your shell
+script.  See doc/Interface_python.html for details.
+
+You can then launch Python and instantiate an instance of MR-MPI:
+
+% python
+>>> from mrmpi import mrmpi
+>>> mr = mrmpi()
+
+If that gives no errors, you have succesfully wrapped MR-MPI with
+Python.  You should then be able to run the Python scripts in the
+examples sub-directory.

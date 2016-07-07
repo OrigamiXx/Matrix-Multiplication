@@ -1,0 +1,372 @@
+"MR-MPI WWW Site"_mws -"MR-MPI Documentation"_md - "OINK
+Documentation"_od - "OINK Commands"_oc :c
+
+:link(mws,http://mapreduce.sandia.gov)
+:link(md,../doc/Manual.html)
+:link(od,Manual.html)
+:link(oc,Section_script.html#comm)
+
+:line
+
+5. Errors :h3
+
+OINK tries to flag errors and print informative error messages so you
+can fix the problem.
+
+If you get an error message about an invalid command in your input
+script, you can determine what command is causing the problem by
+looking in the log.oink file or using the "echo command"_echo.html
+to see it on the screen.  For a given command, OINK expects certain
+arguments in a specified order.  If you mess this up, OINK will
+often flag the error.
+
+Generally, OINK will print a message to the screen and logfile and
+exit gracefully when it encounters a fatal error.  Sometimes it will
+print a WARNING to the screen and logfile and continue on; you can
+decide if the WARNING is important or not.  If OINK crashes or hangs
+without spitting out an error message first then it could be a bug
+
+If you think you have found a bug in OINK, please send an email to the
+"developers"_http://mapreduce.sandia.gov with info
+about the problem.  Anything you can do to isolate the problem and
+reproduce it on a small data set will be helpful.
+
+:line
+
+5.1 Error & warning messages :h4,link(5_1)
+
+These are two alphabetic lists of the "ERROR"_#error and
+"WARNING"_#warn messages OINK prints out and the reason why.  If the
+explanation here is not sufficient, the documentation for the
+offending command may help.  Grepping the source files for the text of
+the error message and staring at the source code and comments is also
+not a bad idea!  Note that sometimes the same message can be printed
+from multiple places in the code.
+
+Errors: :h4,link(error)
+
+:dlb
+
+{All universe/uloop variables must have same # of values} :dt
+
+Self-explanatory. :dd
+
+{All variables in next command must be same style} :dt
+
+Self-explanatory. :dd
+
+Cannot attempt to open a 2nd input script, when the original file is
+still being processed. :dd
+
+{Arccos of invalid value in variable formula} :dt
+
+Argument of arccos() must be between -1 and 1. :dd
+
+{Arcsin of invalid value in variable formula} :dt
+
+Argument of arcsin() must be between -1 and 1. :dd
+
+{Cannot open input script %s} :dt
+
+Self-explanatory. :dd
+
+{Cannot open log.oink} :dt
+
+The default OINK log file cannot be opened.  Check that the directory
+you are running in allows for files to be created. :dd
+
+{Cannot open logfile %s} :dt
+
+The OINK log file specified in the input script cannot be opened.
+Check that the path and name are correct. :dd
+
+{Cannot open logfile} :dt
+
+The OINK log file named in a command-line argument cannot be opened.
+Check that the path and name are correct. :dd
+
+{Cannot open screen file} :dt
+
+The screen file specified as a command-line argument cannot be
+opened.  Check that the directory you are running in allows for files
+to be created. :dd
+
+{Cannot open universe log file} :dt
+
+For a multi-partition run, the master log file cannot be opened.
+Check that the directory you are running in allows for files to be
+created. :dd
+
+{Cannot open universe screen file} :dt
+
+For a multi-partition run, the master screen file cannot be opened.
+Check that the directory you are running in allows for files to be
+created. :dd
+
+{Cannot redefine variable as a different style} :dt
+
+An equal-style variable can be re-defined but only if it was
+originally an equal-style variable. :dd
+
+{Command input is equal-style variable} :dt
+
+Only variables that store strings can be used. :dd
+
+{Command input variable is unknown} :dt
+
+Self-explanatory. :dd
+
+{Command outputs must be specified in pairs} :dt
+
+Self-explanatory. :dd
+
+{Could not create dir for file %s\n} :dt
+
+Self-explanatory. :dd
+
+{Could not open file in print} :dt
+
+This comes from the output "print" routine of the neigh_tri
+command. :dd
+
+{Could not open output file %s for output object()} :dt
+
+Self-explanatory. :dd
+
+{Divide by 0 in variable formula} :dt
+
+Self-explanatory. :dd
+
+{Expected floating point parameter in variable definition} :dt
+
+The quantity being read is an integer on non-numeric value. :dd
+
+{Expected integer parameter in variable definition} :dt
+
+The quantity being read is a floating point or non-numeric value. :dd
+
+{Failed to allocate %d bytes for array %s} :dt
+
+Your OINK simulation has run out of memory.  You need to run a
+smaller simulation or on more processors. :dd
+
+{Failed to reallocate %d bytes for array %s} :dt
+
+Your OINK simulation has run out of memory.  You need to run a
+smaller simulation or on more processors. :dd
+
+{ID in mr command is already in use} :dt
+
+Self-explanatory. :dd
+
+{Illegal ... command} :dt
+
+Self-explanatory.  Check the input script syntax and compare to the
+documentation for the command.  You can use -echo screen as a
+command-line option when running OINK to see the offending line. :dd
+
+{Input line too long after variable substitution} :dt
+
+This is a hard (very large) limit defined in the input.cpp file. :dd
+
+{Input line too long: %s} :dt
+
+This is a hard (very large) limit defined in the input.cpp file. :dd
+
+{Invalid Boolean syntax in if command} :dt
+
+Self-explanatory. :dd
+
+{Invalid named command switch} :dt
+
+Only -i and -o are allowed. :dd
+
+{Invalid command-line argument} :dt
+
+One or more command-line arguments is invalid.  Check the syntax of
+the command you are using to launch OINK. :dd
+
+{Invalid keyword in variable formula} :dt
+
+Self-explanatory. :dd
+
+{Invalid math function in variable formula} :dt
+
+Self-explanatory. :dd
+
+{Invalid seed for Marsaglia random # generator} :dt
+
+The initial seed for this random number generator must be a positive
+integer less than or equal to 900 million. :dd
+
+{Invalid syntax in variable formula} :dt
+
+Self-explanatory. :dd
+
+{Invalid variable evaluation in variable formula} :dt
+
+A variable used in a formula could not be evaluated. :dd
+
+{Invalid variable in next command} :dt
+
+Self-explanatory. :dd
+
+{Invalid variable name in variable formula} :dt
+
+Variable name is not recognized. :dd
+
+{Invalid variable name} :dt
+
+Variable name used in an input script line is invalid. :dd
+
+{Invalid variable style with next command} :dt
+
+Variable styles {equal} and {world} cannot be used in a next
+command. :dd
+
+{Label wasn't found in input script} :dt
+
+Self-explanatory. :dd
+
+{Log of zero/negative value in variable formula} :dt
+
+Self-explanatory. :dd
+
+{MR ID must be alphanumeric or underscore characters} :dt
+
+Self-explanatory. :dd
+
+{MR object map command variable is unknown} :dt
+
+Variable used as collection of strings is not recognized. :dd
+
+{MR object add comand MR object does not exist} :dt
+
+Second MR object is not recognized. :dd
+
+{MR object command input is equal-style variable} :dt
+
+Only variables that store strings can be used. :dd
+
+{MR object created by copy already exists} :dt
+
+This command creates a new MR object, which cannot already
+be defined. :dd
+
+{MR object map command MR object does not exist} :dt
+
+Second MR object is not recognized. :dd
+
+{Mismatch in command inputs} :dt
+
+Named command defines different number of inputs. :dd
+
+{Mismatch in command outputs} :dt
+
+Named command defines different number of outputs. :dd
+
+{Must use -in switch with multiple partitions} :dt
+
+A multi-partition simulation cannot read the input script from stdin.
+The -in command-line option must be used to specify a file. :dd
+
+{Object input() invoked with invalid index} :dt
+
+Index argument must be from 1 to Ninputs. :dd
+
+{Object input() map function does not match input mode} :dt
+
+Input command is used to select map mode (mmode) which much
+match map() function. :dd
+
+{Object input() with no map function} :dt
+
+Input script specified input from file, but no map() method
+was provided by named command. :dd
+
+{Object output() as MR object not allowed} :dt
+
+Input script speficied output as MR object, but named command
+invoked disallow flag. :dd
+
+{Object output() called for unknown MR object} :dt
+
+A MapReduce object unknown to the object manager was passed
+to the output() method by a named command. :dd
+
+{Object output() invoked with invalid index} :dt
+
+Index argument must be from 1 to Noutputs. :dd
+
+{Object permanent() called for unknown MR object} :dt
+
+A MapReduce object unknown to the object manager was passed
+to the permanent() method by a named command. :dd
+
+{Ouptut MR ID must be alphanumeric or underscore characters} :dt
+
+Self-explanatory. :dd
+
+{Power by 0 in variable formula} :dt
+
+Self-explanatory. :dd
+
+{Processor partitions are inconsistent} :dt
+
+The total number of processors in all partitions must match the number
+of processors LAMMPS is running on. :dd
+
+{RMAT a,b,c,d must sum to 1} :dt
+
+Self-explanatory. :dd
+
+{RMAT fraction must be < 1} :dt
+
+Self-explanatory. :dd
+
+{Sqrt of negative value in variable formula} :dt
+
+Self-explanatory. :dd
+
+{Substitution for illegal variable} :dt
+
+Input script line contained a variable that could not be substituted
+for. :dd
+
+{Too many edges for one vertex in reduce first_degree} :dt
+
+Number of edges of one vertex exceeds max integer in tri_find command.
+Will never be able to emit N^2 angles. :dd
+
+{Tour + vertex reduce exceeds one block} :dt
+
+No matching end double quote was found following a leading double
+quote. :dd
+
+{Universe/uloop variable count < # of partitions} :dt
+
+A universe or uloop style variable must specify a number of values >= to the
+number of processor partitions. :dd
+
+{Unknown command: %s} :dt
+
+The command is not known to OINK.  Check the input script. :dd
+
+{Variable name must be alphanumeric or underscore characters} :dt
+
+Self-explanatory. :dd
+
+{World variable count doesn't match # of partitions} :dt
+
+A world-style variable must specify a number of values equal to the
+number of processor partitions. :dd
+ 
+Warnings: :h4,link(warn)
+
+:dlb
+
+{Placeholder} :dt
+
+No warnings are yet defined in OINK. :dd
+
+:dle

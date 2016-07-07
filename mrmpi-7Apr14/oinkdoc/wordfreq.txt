@@ -1,0 +1,56 @@
+"MR-MPI WWW Site"_mws -"MR-MPI Documentation"_md - "OINK
+Documentation"_od - "OINK Commands"_oc :c
+
+:link(mws,http://mapreduce.sandia.gov)
+:link(md,../doc/Manual.html)
+:link(od,Manual.html)
+:link(oc,Section_script.html#comm)
+
+:line
+
+wordfreq command :h3
+
+[Syntax:]
+
+wordfreq Ntop -i in1 -o out1.file out1.mr :pre
+
+Ntop = print Ntop of the most frequently occurring words to screen
+in1 = words: Key = word, Value = NULL
+out1 = frequency count of each word: Key = word, Value = count :ul
+
+[Examples:]
+
+wordfreq 10 -i v_files -o full.list NULL
+wordfreq 10 -i v_files -o NULL NULL :pre
+
+[Description:]
+
+This is a named command which calculates the frequency of word
+occurrence in an input data set, which is typically a set of files.
+
+See the "named command"_command.html doc page for various ways in
+which the -i inputs and -o outputs for a named command can be
+specified.
+
+In1 stores a set of words.  The input is unchanged by this command.
+
+If the input is one or more files then the files are read and each
+"word" is defined as separated by whitespace.  Note that you can pass
+a list of files as the input argument after the "-i" argument by using
+a variable, which in turn can be initialized with a command-line
+argument to OINK.  E.g. this line would work with the first example
+above:
+
+oink_linux -var files *.cpp < in.script :pre
+
+See "this section"_Section_build.html#1_4 of the manual and the
+"variable"_variable.html doc page for more details.
+
+Out1 will store the frequency count of all unique words.
+
+Additional statistics can be generated and printed via the {Ntop}
+setting.  The highest frequency {Ntop} words will be printed to the
+screen with their count, in sorted order.  If {Ntop} is 0, nothing is
+printed.
+
+[Related commands:] none

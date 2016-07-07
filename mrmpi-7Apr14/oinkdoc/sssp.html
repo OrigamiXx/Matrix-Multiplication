@@ -1,0 +1,71 @@
+<HTML>
+<CENTER><A HREF = "http://mapreduce.sandia.gov">MR-MPI WWW Site</A> -<A HREF = "../doc/Manual.html">MR-MPI Documentation</A> - <A HREF = "Manual.html">OINK
+Documentation</A> - <A HREF = "Section_script.html#comm">OINK Commands</A> 
+</CENTER>
+
+
+
+
+
+
+
+
+<HR>
+
+<H3>sssp command 
+</H3>
+<H3>sssp2 command 
+</H3>
+<P><B>Syntax:</B>
+</P>
+<PRE>sssp N seed -i in1 -o out1.file out1.mr 
+</PRE>
+<PRE>sssp2 N seed -i in1 -o out1.file out1.mr 
+</PRE>
+<UL><LI>N = # of random starting vertices to choose
+<LI>seed = random number seed (positive integer)
+<LI>in1 = graph edges: Key = Vi Vj, Value = weight
+<LI>out1 = distance to each vertex: Key = Vi, Value = distance 
+</UL>
+<P><B>Examples:</B>
+</P>
+<PRE>sssp 10 12345 -i mre -o sssp.dist mrdist
+sssp2 10 12345 -i mre -o sssp.dist mrdist 
+</PRE>
+<P><B>Description:</B>
+</P>
+<P>These are named commands which compute the shortest path to each
+vertex from a source vertex in an undirected graph.  This is called a
+single-source shortest-path (SSSP) calculation.  The source vertex is
+selected randomly.  Each edge in the graph has a weight.  The
+shortest-path distance to any other vertex is the minimum summed
+weight of a list of consecutive edges that connect the two vertices.
+</P>
+<P>This calculation involves a breadth-first search on the graph.  The
+MapReduce algorithms used for performing the SSSP calculation are
+described in the paper of <A HREF = "#Plimpton">(Plimpton)</A>.  The sssp command
+implements the first of the two algorithms discussed in the paper.
+The sssp2 command implements the second of the two algorithms.
+</P>
+<P>See the <A HREF = "command.html">named command</A> doc page for various ways in which
+the -i inputs and -o outputs for a named command can be specified.
+</P>
+<P>In1 stores a set of edges with floating point weights, assumed to have
+no duplicates or self-edges.  This means that either (Vi,Vj) or
+(Vj,Vi) appears, but not both.  Also (Vi,Vi) does not appear.  The
+input is unchanged by this command.
+</P>
+<P>Out1 will store the list of vertices and the distance to each vertex.
+If the specified N > 1, then this will be the SSSP result for only the
+last source vertex randomly selected.
+</P>
+<P><B>Related commands:</B> none
+</P>
+<HR>
+
+<A NAME = "Plimpton"></A>
+
+<P><B>(Plimpton)</B> Plimpton and Devine, "MapReduce in MPI for Large-Scale
+Graph Algorithms", to appear in Parallel Computing (2011).
+</P>
+</HTML>

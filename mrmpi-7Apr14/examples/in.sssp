@@ -1,0 +1,12 @@
+variable t equal time
+variable p equal nprocs
+
+#set scratch SCRATCH
+#set verbosity 1
+#set timer 1
+
+rmat 4 3 0.25 0.25 0.25 0.25 0.0 12345 -o NULL mre
+#edge_upper -i mre -o NULL mre
+mre map/mr mre add_weight
+sssp 10 12345 -i mre -o tmp.sssp NULL
+print "SSSP: $t secs on $p procs"

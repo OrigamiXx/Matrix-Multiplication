@@ -1,0 +1,113 @@
+"MR-MPI WWW Site"_mws -"MR-MPI Documentation"_md - "OINK
+Documentation"_od - "OINK Commands"_oc :c
+
+:link(mws,http://mapreduce.sandia.gov)
+:link(md,../doc/Manual.html)
+:link(od,Manual.html)
+:link(oc,Section_script.html#comm)
+
+:line
+
+set command :h3
+
+[Syntax:]
+
+set keyword value ... :pre
+
+one or more keyword/value pairs may be appended :ulb,l
+keyword = {verbosity} or {timer} or {memsize} or {outofcore} or {scratch} or {prepend} or {substitute} :l
+  {verbosity} value = setting for created MapReduce objects
+  {timer} value = setting for created MapReduce objects
+  {memsize} value = setting for created MapReduce objects
+  {outofcore} value = setting for created MapReduce objects
+  {minpage} value = setting for created MapReduce objects
+  {maxpage} value = setting for created MapReduce objects
+  {freepage} value = setting for created MapReduce objects
+  {zeropage} value = setting for created MapReduce objects
+  {scratch} value = setting for created MapReduce objects
+  {prepend} value = string to prepend to file/directory path names
+  {substitute} value = 0 or 1 = how to substitute for "%" in path name :pre
+:ule
+
+[Examples:]
+
+set verbosity 2
+set verbosity 1 timer 1 memsize 16
+set scratch /tmp/mr
+set prepend /scratch%/data substitute 1
+
+[Description:]
+
+This command sets global settings which are used in the creation of
+MR-MPI objects and the underlying MapReduce objects they wrap.  Note
+that many of these setting names have the same meaning they do in the
+MR-MPI library themselves, as discussed on "this doc
+page"_../doc/settings.html.
+
+The settings for the {verbosity}, {timer}, {memsize}. {outofcore},
+{minpage}, {maxpage}, {freepage}, and {zeropage} keywords are used by
+the "mr"_mr.html command creates a MapReduce object to set its
+attributes.  Note that the "mr"_mr.html command itself can override
+several of these global settings.
+
+"Named commands"_command.html can also create MapReduce objects,
+either when inputting and outputting data, or when the run() method in
+the named command class invokes certain methods, like create_mr() or
+copy_mr().  Each time a new MapReduce object is created, these same
+global settings are applied to it.  See "this doc
+page"_Section_commands.html for more discussion of the input/output
+options and these methods.
+
+The {scratch} keyword is a directory pathname which all MapReduce
+objects will use for writing temporary files when they operate in
+out-of-core mode.  Every MapReduce object created by OINK will have
+its scratch directory set to this value, via the fpath() call
+described on "this doc page"_../doc/settings.html
+
+The {prepend} and {substitute} keywords affect how file and directory
+names are interpreted by OINK.  File and directory names are used as
+input and output options to "named commands"_command.html via the "-i"
+and "-o" arguments in an input script.  Before these path names are
+passed to the MR-MPI library, e.g. as part of a
+"map()"_../doc/map.html method, they can have a directory name
+prepended to them, and "%" characters in the path name substituted for
+with a processor ID.  This is to enable flexible options for
+input/output of different files by different processors.
+
+If the {prepend} keyword is set, its value should be a directory name
+(without the trailing "/").  This will be prepended to every input and
+output pathname used by OINK, including the scratch directory noted
+above.  This global setting can be overridden for a single input or
+output of the next-executed "named command"_command.html by setting
+the same {prepend} keyword in the "input"_input.html or
+"output"_output.html command.
+
+Input file or directory names can contain the wildcard character "%".
+Only the first occurrence of the wildcard character is replaced.
+
+If the {substitute} keyword is set to 0, then a "%" is replaced by the
+processor ID, 0 to Nprocs-1.  If it is set to N > 0, then "%" is
+replaced by (proc-ID % N) + 1.  I.e. for 8 processors and N = 4, then
+the 8 processors replace the "%" with (1,2,3,4,1,2,3,4).  This can be
+useful for multi-core nodes where each core has its own local disk.
+E.g. you wish each core to read data from one disk.
+
+As with the {prepend} keyword, this substitution rule will be applied
+to every input and output pathname used by OINK, including the scratch
+directory noted above.  This global setting can be overridden for a
+single input or output of the next-executed "named
+command"_command.html by setting the same {substitute} keyword in the
+"input"_input.html or "output"_output.html command.
+
+[Related commands:]
+
+"input"_input.html, "output"_output.html, "named
+commands"_command.html, "MR-MPI library commands"_mrmpi.html,
+"Section_commands"_Section_commands.html
+
+[Defaults:]
+
+The setting defaults are the same as for the MR-MPI library itself,
+namely verbosity = 0, timer = 0, memsize = 64, outofcore = 0, minpage
+= 0, maxpage = 0, freepage = 1, zeropage = 0, scratch = ".".  There
+are additional default values: prepend = NULL, and substitute = 0.

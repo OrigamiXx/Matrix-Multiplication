@@ -1,0 +1,269 @@
+"MR-MPI WWW Site"_mws -"MR-MPI Documentation"_md - "OINK
+Documentation"_od - "OINK Commands"_oc :c
+
+:link(mws,http://mapreduce.sandia.gov)
+:link(md,../doc/Manual.html)
+:link(od,Manual.html)
+:link(oc,Section_script.html#comm)
+
+:line
+
+1. Building OINK :h3
+
+This section describes how to build and run OINK, which is a simple
+C++ program which wraps the MapReduce-MPI (MR-MPI) library.
+
+1.1 "Making OINK"_#1_1
+1.2 "Building OINK as a library"_#1_2
+1.3 "Running OINK"_#1_3
+1.4 "Command-line options"_#1_4 :all(b)
+
+:line
+
+1.1 Making OINK :h4,link(1_1)
+
+All of the OINK source files are in the "oink" directory of the MR-MPI
+distribution tarball.  The "src" directory contains the source files
+for the MR-MPI library itself.
+
+These are the 4 steps to building OINK:
+
+(1) Insure MPI is installed on your system.
+(2) Build the MR-MPI library.
+(3) Use or create a oink/MAKE/Makefile.machine file appropriate for your machine.
+(4) Type "make machine" :ul
+
+Here are more details on each step:
+
+(1) MPI installation
+
+MPI is the message passing interface library, which is likely already
+installed on your Linux box or Mac, and on most parallel machines.  If
+not, it is freely available.  The two most commonly used generic
+versions are "OpenMPI"_openmpi and "MPICH"_mpich.  Download and
+install one of these if you need to.  The default installation
+location on Linux is under /usr/local.
+
+Or if you do not plan to run the MR-MPI library or OINK in parallel,
+you can use the provided dummy MPI library in the mpistubs dir.  From
+mpistubs, type "make" and you should get a libmpi.a file.  If not, you
+may need to edit the mpistubs/Makefile.
+
+(2) Build the MR-MPI library
+
+See "this section"_../doc/Start.html of the MapReduce-MPI library doc
+pages for instructions on how to do this.  When you have done this a
+file named src/libmrmpi_machine.a should exist.
+
+(3) Create a Makefile.machine appropriate for your machine.
+
+See the oink/MAKE dir for examples of these.  You
+may be able to use one of these, or edit one that
+is close to create one for your machine.
+
+The only settings you need to worry about are those in the top
+section.  Set the C++ compiler name and settings appropriate for your
+box.  The only extra libraries used by OINK are MPI and MR-MPI.  The
+settings for the latter are already present in the Makefile.machine
+files.  You may need to change the MPI settings depending on how you
+did your installation.
+
+If you use the MPI compiler wrappers (mpiCC) for building an MPI-based
+program like OINK, then you likely need no additional -I or -L or LIB
+settings.
+
+If you use your system compilers directly, e.g. g++, then
+you will typically need these MPI-related settings:
+
+An -I setting for where to find the file mpi.h.
+A -L setting for where the MPI library is, libmpich.a
+A LIB setting for the MPI library, e.g. -lmpich :ul
+
+If you are using the provided dummy MPI library (no parallelism), then
+see MAKE/Makefile.serial for how to compile/link with it.
+
+Note that you should insure you build both OINK and the MR-MPI library
+with the same MPI.  If not, confusion will ensue.
+
+(4) Type "make machine"
+
+Do this from the oink directory where its source files are.
+If you just type "make" you will see what machine options
+are available (first line of oink/MAKE/Makefile.machine files).
+Some other options are also listed, e.g. for cleaning up.
+
+If you type "make machine", an executable file oink_machine should be
+created, e.g. oink_linux or oink_mac.  If that happens, you're done.
+
+If some error is generated, then you'll need to edit your
+oink/MAKE/Makefile.machine.  Find a local make or machine expert to
+help if you have problems.
+
+If you build OINK on a new kind of machine, for which there isn't a
+similar Makefile for in the oink/MAKE directory, send it to the
+developers and we'll add it to the OINK distribution.
+
+You can make OINK for multiple platforms from the same oink directory.
+Each target creates its own object sub-directory called Obj_name where
+it stores the system-specific *.o files.
+
+:line
+
+1.2 Building OINK as a library :h4,link(1_4)
+
+OINK can be built as a library, which can then be called from another
+application or a scripting language.  This is done by typing:
+
+make makelib
+make -f Makefile.lib foo :pre
+
+where foo is the machine name.  The first "make" command will create a
+current Makefile.lib with all the file names in your src dir.  The 2nd
+"make" command will use it to build OINK as a library.  This requires
+that Makefile.foo have a library target (lib) and system-specific
+settings for ARCHIVE and ARFLAGS.  See Makefile.linux for an example.
+The build will create the file liboink_foo.a which another application
+can link to.
+
+When used from a C++ program, the library allows one or more OINK
+objects to be instantiated.  All of OINK is wrapped in a OINK_NS
+namespace; you can safely use any of its classes and methods from
+within your application code, as needed.
+
+When used from a C or Fortran program or a scripting language, the
+library has a simple C-style interface, provided in oink/library.cpp
+and oink/library.h.
+
+:line
+
+1.3 Running OINK :h4,link(1_3)
+
+By default, OINK runs by reading commands from stdin; e.g. oink_linux
+< in.file.  This means you first create an input script (e.g. in.file)
+containing the desired commands.  "This section"_Section_commands.html
+describes how input scripts are structured and what commands they
+contain.
+
+You can test OINK on any of the sample inputs provided in the examples
+directory.  OINK input scripts are named in.*.
+
+Here is how you might run one of the tests on a Linux box, using
+mpirun to launch a parallel job:
+
+cd src
+make -f Makefile.linux       # builds src/libmrmpi.a
+cd ../oink
+make linux                   # builds oink/oink_linux
+cd ../examples
+mpirun -np 4 ../oink/oink_linux ../doc/*.txt < in.wordcount :pre
+
+If OINK encounters errors in the input script or while running a
+command it will print an ERROR message and stop or a WARNING message
+and continue.  See "this section"_Section_errors.html for a discussion
+of the various kinds of errors OINK can or can't detect, a list of all
+ERROR and WARNING messages, and what to do about them.
+
+OINK can run a MapReduce calculation on any number of processors,
+including a single processor.
+
+:line
+
+2.6 Command-line options :h4,link(2_6)
+
+At run time, OINK recognizes several optional command-line switches
+which may be used in any order.  Either the full
+word or the one-letter abbreviation can be used:
+
+-echo or -e
+-partition or -p
+-in or -i
+-log or -l
+-screen or -s
+-var or -v :ul
+
+For example, oink_ibm might be launched as follows:
+
+mpirun -np 16 oink_ibm -var file tmp.out -log my.log -screen none < in.graph :pre
+
+Here are the details on the options:
+
+-echo style :pre
+
+Set the style of command echoing.  The style can be {none} or {screen}
+or {log} or {both}.  Depending on the style, each command read from
+the input script will be echoed to the screen and/or logfile.  This
+can be useful to figure out which line of your script is causing an
+input error.  The default value is {log}.  The echo style can also be
+set by using the "echo"_echo.html command in the input script itself.
+
+-partition 8x2 4 5 ... :pre
+
+Invoke OINK in multi-partition mode.  When OINK is run on P processors
+and this switch is not used, OINK runs in one partition, i.e. all P
+processors run a single calculation.  If this switch is used, the P
+processors are split into separate partitions and each partition runs
+its own calculation.  The arguments to the switch specify the number
+of processors in each partition.  Arguments of the form MxN mean M
+partitions, each with N processors.  Arguments of the form N mean a
+single partition with N processors.  The sum of processors in all
+partitions must equal P.  Thus the command "-partition 8x2 4 5" has 10
+partitions and runs on a total of 25 processors.
+
+Note that with MPI installed on a machine (e.g. your desktop), you can
+run on more (virtual) processors than you have physical processors.
+
+The input script specifies what simulation is run on which partition;
+see the "variable"_variable.html and "next"_next.html commands.
+
+-in file :pre
+
+Specify a file to use as an input script.  This is an optional switch
+when running OINK in one-partition mode.  If it is not specified, OINK
+reads its input script from stdin - e.g. oink_linux < in.run.  This is
+a required switch when running OINK in multi-partition mode, since
+multiple processors cannot all read from stdin.
+
+-log file :pre
+
+Specify a log file for OINK to write status information to.  In
+one-partition mode, if the switch is not used, OINK writes to the file
+log.oink.  If this switch is used, OINK writes to the specified file.
+In multi-partition mode, if the switch is not used, a log.oink file is
+created with hi-level status information.  Each partition also writes
+to a log.oink.N file where N is the partition ID.  If the switch is
+specified in multi-partition mode, the hi-level logfile is named
+"file" and each partition also logs information to a file.N.  For both
+one-partition and multi-partition mode, if the specified file is
+"none", then no log files are created.  Using a "log"_log.html command
+in the input script will override this setting.
+
+-screen file :pre
+
+Specify a file for OINK to write its screen information to.  In
+one-partition mode, if the switch is not used, OINK writes to the
+screen.  If this switch is used, OINK writes to the specified file
+instead and you will see no screen output.  In multi-partition mode,
+if the switch is not used, hi-level status information is written to
+the screen.  Each partition also writes to a screen.N file where N is
+the partition ID.  If the switch is specified in multi-partition mode,
+the hi-level screen dump is named "file" and each partition also
+writes screen information to a file.N.  For both one-partition and
+multi-partition mode, if the specified file is "none", then no screen
+output is performed.
+
+-var name value1 value2 ... :pre
+
+Specify a variable that will be defined for substitution purposes when
+the input script is read.  "Name" is the variable name which can be a
+single character (referenced as $x in the input script) or a full
+string (referenced as $\{abc\}).  An "index-style
+variable"_variable.html will be created and populated with the
+subsequent values, e.g. a set of filenames.  Using this command-line
+option is equivalent to putting the line "variable name index value1
+value2 ..."  at the beginning of the input script.  Defining an index
+variable as a command-line argument overrides any setting for the same
+index variable in the input script, since index variables cannot be
+re-defined.  See the "variable"_variable.html command for more info on
+defining index and other kinds of variables and "this
+section"_Section_commands.html#3_2 for more info on using variables in
+input scripts.

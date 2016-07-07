@@ -1,0 +1,11 @@
+# Serial Makefile for MapReduce examples, g++, no MPI
+
+CC =		gcc
+CPP =		g++
+CCFLAGS =	-O -I../src -I../mpistubs
+LINK =		g++
+LINKFLAGS =	-O
+USRLIB =	../src/libmrmpi_serial.a ../mpistubs/libmpi.a
+SYSLIB =
+
+include Makefile.common

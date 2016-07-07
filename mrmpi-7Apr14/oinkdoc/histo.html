@@ -1,0 +1,60 @@
+<HTML>
+<CENTER><A HREF = "http://mapreduce.sandia.gov">MR-MPI WWW Site</A> -<A HREF = "../doc/Manual.html">MR-MPI Documentation</A> - <A HREF = "Manual.html">OINK
+Documentation</A> - <A HREF = "Section_script.html#comm">OINK Commands</A> 
+</CENTER>
+
+
+
+
+
+
+
+
+<HR>
+
+<H3>histo command 
+</H3>
+<P><B>Syntax:</B>
+</P>
+<PRE>histo -i in1 -o out1.file out1.mr 
+</PRE>
+<UL><LI>in1 = anthing: Key = key, Value = value
+<LI>out1 = frequency count of each key: Key = key, Value = count 
+</UL>
+<P><B>Examples:</B>
+</P>
+<PRE>histo -i mrdata -o NULL out1.mr 
+</PRE>
+<P><B>Description:</B>
+</P>
+<P>This is a named command which calculates the frequency of key occurrence
+in an input set of key/values.
+</P>
+<P>See the <A HREF = "command.html">named command</A> doc page for various ways in
+which the -i inputs and -o outputs for a named command can be
+specified.
+</P>
+<P>In1 is any MR-MPI object containing key/value pairs.  The input is
+unchanged by this command.
+</P>
+<P>In1 cannot be specified as input from file(s) since no assumption is
+made about how the files store key/value pairs.  You would need to
+read the files into a MR-MPI object as a pre-processing step, using a
+map() function you provide, before passing that object to the histo
+command as an input.
+</P>
+<P>Out1 will store the frequency count of all unique keys.
+</P>
+<P>Out1 cannot be specified as output to a file since no assumption is
+made about how the key should be formatted for output.  You would need
+to write the files from the output MR-MPI object as a post-processing
+step, using a map() or scan() function you provide.
+</P>
+<P>Statistics on the count of each key will be printed to the screen in
+sorted order.
+</P>
+<P><B>Related commands:</B>
+</P>
+<P><A HREF = "degree_stats.html">degree_stats</A>, <A HREF = "wordfreq.html">wordfreq</A>
+</P>
+</HTML>

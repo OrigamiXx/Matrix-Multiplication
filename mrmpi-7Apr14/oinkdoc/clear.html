@@ -1,0 +1,42 @@
+<HTML>
+<CENTER><A HREF = "http://mapreduce.sandia.gov">MR-MPI WWW Site</A> -<A HREF = "../doc/Manual.html">MR-MPI Documentation</A> - <A HREF = "Manual.html">OINK
+Documentation</A> - <A HREF = "Section_script.html#comm">OINK Commands</A> 
+</CENTER>
+
+
+
+
+
+
+
+
+<HR>
+
+<H3>clear command 
+</H3>
+<P><B>Syntax:</B>
+</P>
+<PRE>clear 
+</PRE>
+<P><B>Examples:</B>
+</P>
+<PRE>(commands for 1st computation)
+clear
+(commands for 2nd computation) 
+</PRE>
+<P><B>Description:</B>
+</P>
+<P>This command deletes all data structures and restores all settings to
+their default values.  Once a clear command has been executed, it is
+as if OINK were starting over, with only the exceptions noted below.
+This command enables multiple jobs to be run sequentially from one
+input script.
+</P>
+<P>These settings are not affected by a clear command: the working
+directory (<A HREF = "shell.html">shell</A> command), log file status
+(<A HREF = "log.html">log</A> command), echo status (<A HREF = "echo.html">echo</A> command), and
+input script variables (<A HREF = "variable.html">variable</A> command).
+</P>
+<P><B>Related commands:</B> none
+</P>
+</HTML>

@@ -1,0 +1,55 @@
+<HTML>
+<CENTER><A HREF = "http://mapreduce.sandia.gov">MR-MPI WWW Site</A> -<A HREF = "../doc/Manual.html">MR-MPI Documentation</A> - <A HREF = "Manual.html">OINK
+Documentation</A> - <A HREF = "Section_script.html#comm">OINK Commands</A> 
+</CENTER>
+
+
+
+
+
+
+
+
+<HR>
+
+<H3>degree command 
+</H3>
+<P><B>Syntax:</B>
+</P>
+<PRE>degree dupflag -i in1 -o out1.file out1.mr 
+</PRE>
+<UL><LI>dupflag = 1/2 for counting edge once/twice
+<LI>in1 = graph edges: Key = Vi Vj, Value = NULL
+<LI>out1 = degree of each vertex: Key = Vi, Value = degree 
+</UL>
+<P><B>Examples:</B>
+</P>
+<P>degree 1 -i mrv -o degree.list NULL
+</P>
+<P><B>Description:</B>
+</P>
+<P>This is a named command which calculates the degree of each vertex in
+a graph.
+</P>
+<P>If the dupflag is 2, then each edge increments the degree of both of
+its vertices.  If the dupflag is 1, then each edge only increments the
+degree of the first of its vertices.  The former is usually more
+approrpriate for undirected graphs; the latter for directed graphs, in
+which case the out-degree of each vertex is being calculated.
+</P>
+<P>See the <A HREF = "command.html">named command</A> doc page for various ways in
+which the -i inputs and -o outputs for a named command can be
+specified.
+</P>
+<P>In1 stores a set of edges.  No assumption is made about duplicates or
+self edges, i.e. (Vi,Vj) may appear multiple times, both (Vi,Vj) or
+(Vj,Vi) may appear, as may (Vi,Vi).  The input is unchanged by this
+command.
+</P>
+<P>Out1 will store the degree count of each vertex.
+</P>
+<P><B>Related commands:</B>
+</P>
+<P><A HREF = "neighbor.html">neighbor</A>, <A HREF = "degree_stats.html">degree_stats</A>
+</P>
+</HTML>

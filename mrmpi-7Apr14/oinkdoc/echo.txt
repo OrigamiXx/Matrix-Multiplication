@@ -1,0 +1,36 @@
+"MR-MPI WWW Site"_mws -"MR-MPI Documentation"_md - "OINK
+Documentation"_od - "OINK Commands"_oc :c
+
+:link(mws,http://mapreduce.sandia.gov)
+:link(md,../doc/Manual.html)
+:link(od,Manual.html)
+:link(oc,Section_script.html#comm)
+
+:line
+
+echo command :h3
+
+[Syntax:]
+
+echo style :pre
+
+style = {none} or {screen} or {log} or {both} :ul
+
+[Examples:]
+
+echo both
+echo log :pre
+
+[Description:]
+
+This command determines whether OINK echoes each input script command
+to the screen and/or log file as it is read and processed.  If an
+input script has errors, it can be useful to look at echoed output to
+see the last command processed.
+
+The "command-line switch"_Section_start.html#2_4 -echo can be used in
+place of this command.
+
+The default is echo log, i.e. commands are echoed to the log file.
+
+[Related commands:] none

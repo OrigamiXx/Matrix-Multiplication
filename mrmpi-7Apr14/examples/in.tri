@@ -1,0 +1,13 @@
+# OINK script for triangle finding
+
+variable t equal time
+variable p equal nprocs
+
+set scratch SCRATCH
+#set verbosity 1
+#set timer 1
+
+rmat 16 8 0.25 0.25 0.25 0.25 0.0 12345 -o NULL mre
+edge_upper -i mre -o NULL mre
+tri_find -i mre -o tmp.tri mrt
+print "TRI: $t secs on $p procs"

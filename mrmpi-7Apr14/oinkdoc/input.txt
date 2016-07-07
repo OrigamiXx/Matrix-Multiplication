@@ -1,0 +1,147 @@
+"MR-MPI WWW Site"_mws -"MR-MPI Documentation"_md - "OINK
+Documentation"_od - "OINK Commands"_oc :c
+
+:link(mws,http://mapreduce.sandia.gov)
+:link(md,../doc/Manual.html)
+:link(od,Manual.html)
+:link(oc,Section_script.html#comm)
+
+:line
+
+input command :h3
+
+[Syntax:]
+
+input N keyword value ... :pre
+
+N = which input to set options for :ulb,l
+one or more keyword/value pairs may be appended :l
+keyword = {prepend} or {substitute} or {multi} or {mmode} or {recurse} or {self} or {readfile} or {nmap} or {sepchar} or {sepstr} or {delta}
+  {prepend} value = string to prepend to file/directory path names
+  {substitute} value = 0 or 1 = how to substitute for "%" in path name
+  {multi} value = Nmulti = multiplicity of path names to generate
+  {mmode} value = 0 or 1 or 2 = which style of map() method to invoke
+  {recurse} value = 0 or 1 = passed to map() method
+  {self} value = 0 or 1 = passed to map() method
+  {readfile} value = 0 or 1 = passed to map() method
+  {nmap} value = number of map tasks = passed to map() method
+  {sepchar} value = single character = passed to map() method
+  {sepstr} value = string = passed to map() method
+  {delta} value = Ndelta = passed to map() method :pre
+:ule
+
+[Examples:]
+
+input 1 multi 4
+input 2 self 1 substitute 4 prepend /scratch%/hadoop-datastore/local_files :pre
+
+[Description:]
+
+This command is used to control the reading of input data that a
+"named command"_command.html performs as part of its input.  It does
+this by setting options on specific inputs to "named
+commands"_command.html.  The options set by this command are in effect
+for ONLY the next named commmand.  After a named command is invoked,
+it restores all input options to their default values.  Note that all
+of the options which can be set by this command have default values,
+so you don't need to set those you don't want to change.
+
+As described on the "named command"_command.html doc page, a named
+command may specify one or more input descriptors.  If the descriptor
+is one or more file or directory names, then each of them is converted
+into a list of strings which is passed to a map() method of a created
+MR-MPI object, along with various other arguments needed by the map()
+method.  The purpose of the input command is to give you control over
+how that conversion takes place and what the values of those
+additional arguments are.
+
+The {N} value corresponds to a particular input descriptor, as defined
+by the "named command"_command.html.  It should be an integer from 1
+to Ninput, where Ninput is the number of input descriptors the command
+requires.  The input command can be used multiple times with the same
+{N} to specify different parameters, e.g. one at a time.
+
+The remaining arguments are pairs of {keywords} and {values}.  One
+or more can be specified.
+
+:line
+
+The {prepend}, {substitute}, and {multi} keywords alter
+the file and directory path names specified with an input descriptor
+in a named command.
+
+IMPORTANT NOTE: The {prepend}, {substitute}, and {multi} keywords are
+applied to each file of directory name in the list of such names that
+the "named command"_command.html uses in its input descriptor.
+
+IMPORTANT NOTE: The {prepend} and {substitute} keywords can also be
+set globally so that their values will be applied to all input
+descriptors of all "named commands"_command.html.  See the
+"set"_set.html command for details.  If an input command is not used
+to override the global value, then the global value is used by the
+"named command"_command.html.
+
+The {prepend} keyword specifies a path name to prepend to each input
+file or directory name specified with the "named
+command"_command.html. The prepend string is presumed to be a
+directory name and should be specified without the trailing "/"
+character, since that is added when the prepending is done.
+
+Input file or directory names specified with the "named
+command"_command.html can contain either or both of two wildcard
+characters: "%" or "*".  Only the first occurrence of each wildcard
+character is replaced.
+
+If the {substitute} keyword is set to 0, then a "%" is replaced by the
+processor ID, 0 to Nprocs-1.  If it is set to N > 0, then "%" is
+replaced by (proc-ID % N) + 1.  I.e. for 8 processors and N = 4, then
+the 8 processors replace the "%" with (1,2,3,4,1,2,3,4).  This can be
+useful for multi-core nodes where each core has its own local disk.
+E.g. you wish each core to read data from one disk.
+
+If a "*" appears, then the file or directory name is duplicated N
+times where N is the value set by the {multi} keyword.  In each of the
+N duplicates, the "*" is replaced by the number 1 to N.  Again, this
+can be useful for multi-core nodes where each core has its own local
+disk.  E.g. you want a single core to read data from each of several
+local disks on the node, presumably because you have launched an MPI
+job so that it runs on a single core per node.
+
+:line
+
+The {mmode} keyword stands for "map mode" and determines what form of
+the "MR-MPI library map() method"_../doc/map.html is invoked by the
+"named command"_command.html.  It is up to the coding of the "named
+command" to determine which of these forms of data input it supports.
+There are 3 variants of the map() method which involve file input:
+
+mmode = 0 = map(int nstr, char **strings, int self, int recurse, int readfile, void (*mymap)(), void *ptr)
+mmode = 1 = map(int nmap, int nstr, char **strings, int recurse, int readfile, char sepchar, int delta, void (*mymap)(), void *ptr)
+mmode = 2 = map(int nmap, int nstr, char **strings, int recurse, int
+readfile, char *sepstr, int delta, void (*mymap)(), void *ptr) :pre
+
+The "nstr" and "strings" arguments to these methods are created by
+OINK, using the settings described above.  The remaining arguments are
+set by the keywords of the input command, as needed.  Note that some
+keywords have no meaning for certain map() method variants, in which
+case they are simply ignored.
+
+The meaning of the {self}, {recurse}, {readfile}, {nmap}, {sepchar},
+{sepstr}, and {delta} keywords is the same as explained on the doc
+page for the "map() method"_../doc/map.html of the MR-MPI library.
+The value for the {sepchar} keyword will be treated as a single
+character.  The value for the {sepstr} keyword will be treated as a
+string.
+
+:line
+
+[Related commands:]
+
+"output"_output.html, "named commands"_command.html, "how to write
+named commands"_Section_commands.html, "set"_set.html
+
+[Defaults:]
+
+The option defaults are prepend = NULL, substitute = 0, multi = 1,
+mmode = 0, recurse = 0, self = 0, readfile = 0, nmap = 0, sepchar =
+newline character, sepstr = newline, delta = 80.

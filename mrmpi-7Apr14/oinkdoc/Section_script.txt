@@ -1,0 +1,196 @@
+"MR-MPI WWW Site"_mws -"MR-MPI Documentation"_md - "OINK
+Documentation"_od - "OINK Commands"_oc :c
+
+:link(mws,http://mapreduce.sandia.gov)
+:link(md,../doc/Manual.html)
+:link(od,Manual.html)
+:link(oc,Section_script.html#comm)
+
+:line
+
+2. OINK Commands :h3
+
+This section describes OINK input scripts and what commands are used
+to define an OINK calculation.
+
+2.1 "Input script operation"_#2_1
+2.2 "Parsing rules"_#2_2
+2.3 "Input script commands"_#2_3 :all(b)
+
+:line
+
+2.1 Input script operation :link(3_1),h4
+
+OINK executes by reading commands from a input script (text file), one
+line at a time.  When the input script ends, OINK exits.  Each command
+causes OINK to take some action.  It may set an internal variable,
+read in a file, or perform a MapReduce operation.  Most commands have
+default settings, which means you only need to use the command if you
+wish to change the default.
+
+Note that OINK does not read your entire input script and then perform
+a calculation with all the settings.  Rather, the input script is read
+one line at a time and each command takes effect when it is read.
+Thus this sequence of commands:
+
+set verbosity 1 
+mr foo :pre
+
+does something different than this sequence:
+
+mr foo
+set verbosity 1 :pre
+
+In the first case, the MR object created will have its verbosity set
+to 1.  In the latter case it will have the default verbosity of 0,
+since the set command was not used until after the MR object was
+created.
+
+Many input script errors are detected by OINK and an ERROR or WARNING
+message is printed.  "This section"_Section_errors.html gives more
+information on what errors mean.  The documentation for each command
+gives additional information.
+
+:line
+
+2.2 Parsing rules :link(3_2),h4
+
+Each non-blank line in the input script is treated as a command.  OINK
+commands are case sensitive.  Pre-defined command names are
+lower-case, as are specified command arguments.  Upper case letters
+may be used in file names or user-chosen ID strings.
+
+Here is how each line in the input script is parsed by OINK:
+
+(1) If the last printable character on the line is a "&" character
+(with no surrounding quotes), the command is assumed to continue on
+the next line.  The next line is concatenated to the previous line by
+removing the "&" character and newline.  This allows long commands to
+be continued across two or more lines.
+
+(2) All characters from the first "#" character onward are treated as
+comment and discarded.  See an exception in (6).  Note that a
+comment after a trailing "&" character will prevent the command from
+continuing on the next line.  Also note that for multi-line commands a
+single leading "#" will comment out the entire command.
+
+(3) The line is searched repeatedly for $ characters, which indicate
+variables that are replaced with a text string.  See an exception in
+(6).  If the $ is followed by curly brackets, then the variable name
+is the text inside the curly brackets.  If no curly brackets follow
+the $, then the variable name is the single character immediately
+following the $.  Thus $\{myTemp\} and $x refer to variable names
+"myTemp" and "x".  See the "variable"_variable.html command for
+details of how strings are assigned to variables and how they are
+substituted for in input script commands.
+
+(4) The line is broken into "words" separated by whitespace (tabs,
+spaces).  Note that words can thus contain letters, digits,
+underscores, or punctuation characters.
+
+(5) The first word is the command name.  All successive words in the
+line are arguments.
+
+(6) If you want text with spaces to be treated as a single argument,
+it can be enclosed in either double or single quotes.  E.g.
+
+print "Value = $t"
+print 'Value = $t' :pre
+
+The quotes are removed when the single argument is stored internally.
+See the "if"_if.html commands for examples.  A "#" or "$" character
+that is between quotes will not be treated as a comment indicator in
+(2) or substituted for as a variable in (3).
+
+IMPORTANT NOTE: If the argument is itself a command that requires a
+quoted argument (e.g. using a "print"_print.html command as part of an
+"if"_if.html command), then the double and single quotes can be nested
+in the usual manner.  See the doc pages for those commands for
+examples.  Only one of level of nesting is allowed, but that should be
+sufficient for most use cases.
+
+:line
+
+2.3 Input script commands :h4,link(2_3)
+
+There are 4 kinds of OINK commands:
+
+(1) Set command to alter parameters:
+
+"set"_set.html :ul
+
+(2) MR-MPI library commands:
+
+"mr foo"_mr.html
+"foo map ..., foo reduce ..., etc"_mrmpi.html :ul
+
+(3) Named commands:
+
+"input"_input.html
+"output"_output.html
+"myfoo params ... -i ... -o ..."_command.html :ul
+
+(4) Miscellaneous commands that are part of the scripting language:
+
+"clear"_clear.html
+"echo"_echo.html
+"if"_if.html
+"include"_include.html
+"jump"_jump.html
+"label"_label.html
+"log"_log.html
+"next"_next.html
+"print"_print.html
+"shell"_shell.html
+"variable"_variable.html :ul
+
+:line
+
+:link(comm)
+
+Here is a list of all OINK input script commands alphabetically:
+
+"clear"_clear.html,
+"echo"_echo.html,
+"if"_if.html,
+"include"_include.html,
+"input"_input.html,
+"jump"_jump.html,
+"label"_label.html,
+"log"_log.html,
+"mr"_mr.html,
+"library commands"_mrmpi.html,
+"named commands"_command.html,
+"next"_next.html,
+"output"_output.html,
+"print"_print.html,
+"set"_set.html,
+"shell"_shell.html,
+"variable"_variable.html :tb(c=6,ea=c)
+
+These are the named commands currently included in OINK.  We will add
+to this list from time to time.  If you write a useful new command,
+send it to us and we can include it in the distribution.
+
+"cc_find"_cc_find.html,
+"cc_stats"_cc_stats.html,
+"degree"_degree.html,
+"degree_stats"_degree_stats.html,
+"degree_weight"_degree_weight.html,
+"edge_upper"_edge_upper.html,
+"histo"_histo.html,
+"luby_find"_luby_find.html,
+"neigh_tri"_neigh_tri.html,
+"neighbor"_neighbor.html,
+"rmat"_rmat.html,
+"rmat2"_rmat.html,
+"sssp"_sssp.html,
+"sssp2"_sssp.html,
+"tri_find"_tri_find.html,
+"vertex_extract"_vertex_extract.html,
+"wordfreq"_wordfreq.html :tb(c=2,ea=c)
+
+Here is a link to the MR-MPI library commands that can be invoked
+directly from an OINK input script:
+
+"MR-MPI library commands"_mrmpi.html :tb(c=1,ea=c)

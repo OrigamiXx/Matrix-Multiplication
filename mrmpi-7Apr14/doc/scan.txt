@@ -1,0 +1,84 @@
+"MapReduce-MPI WWW Site"_mws - "MapReduce-MPI Documentation"_md :c
+
+:link(mws,http://mapreduce.sandia.gov)
+:link(md,Manual.html)
+
+:line
+
+MapReduce scan() method :h3
+
+uint64_t MapReduce::scan(void (*myscan)(char *, int, char *, int, void *), void *ptr)
+uint64_t MapReduce::scan(void (*myscan)(char *, int, char *, int, int *, void *), void *ptr) :pre
+
+This calls the scan() method of a MapReduce object, passing it a
+function pointer to a myscan function you write.  Depending on whether
+you pass it a function for processing key/value (KV) or
+key/multi-value (KMV) pairs, it will call your myscan function once
+for each KV or KMV pair owned by that processor.  The KV or KMV pairs
+stored by the MapReduce object are not altered by this operation, nor
+are you allowed to emit any new KV pairs.  Thus your myscan function
+is not passed a KV pointer.  This is a useful way to simply scan over
+the existing KV or KMV pairs and process them in some way, e.g. for
+debugging or statistics generation or output.
+
+Contrast this method with the "map()"_map.html method variant that
+takes a MapReduce object as input and returns KV pairs to your mymap()
+function.  If that MapReduce object is the same as the caller and if
+the addflag parameter is set to 0, your existing KV pairs are deleted
+by this action.  If the addflag parameter is set to 1, and you emit no
+new KV pairs, then your existing KV pairs are unchanged.  However a
+copy of all your KV pairs is first performed to insure this outcome.
+The scan() method avoids this copy.
+
+Also contrast this method with the "reduce()"_reduce.html method which
+returns KMV pairs to your myreduce() function.  Your existing KMV
+pairs are deleted by this action, and replaced with new KV pairs which
+you generate.
+
+You can give this method a pointer (void *ptr) which will be returned
+to your myscan() function.  See the "Technical Details"_Technical.html
+section for why this can be useful.  Just specify a NULL if you don't
+need this.
+
+In this example the user function is called myscan() and it must have
+one of the two following interfaces, depending on whether
+the MapReduce object currently contains KV or KMV pairs:
+
+void myscan(char *key, int keybytes, char *value, int valuebytes, void *ptr)
+void myscan(char *key, int keybytes, char *multivalue, int nvalues, int *valuebytes, void *ptr) :pre
+
+Either a single KV or KMV pair is passed to your function from the
+KeyValue or KeyMultiValue object stored by the MapReduce object.  In
+the case of KMV pairs, the key is typically unique to this scan task
+and the multi-value is a list of the nvalues associated with that key
+in the KeyMultiValue object.
+
+There are two possibilities for a KMV pair returned to your function.
+The first is that it fits in one page of memory allocated by the
+MapReduce object, which is the usual case.  Or it does not, in which
+case the meaning of the arguments passed to your function is changed.
+This behavior is identical to that of the "reduce()"_reduce.html
+method, including the meaning of the arguments returned to your
+myscan() function, and the 3 additional library functions you can call
+to retrieve additional values in the KMV pair, namely:
+
+uint64_t MapReduce::multivalue_blocks()
+int MapReduce::multivalue_block(int iblock, char **ptr_multivalue, int **ptr_valuesizes)
+void MapReduce::multivalue_block_select(int which) :pre
+
+See the "reduce()"_reduce.html method doc page for details.
+
+See the "Settings"_settings.html and "Technical
+Details"_Technical.html sections for details on the byte-alignment of
+keys and values that are passed to your myscan() function.  Note that
+only the first value of a multi-value (or of each block of values)
+passed to your myscan() function will be aligned to the {valuealign}
+"setting"_settings.html.
+
+This method is an on-processor operation, requiring no communication.
+When run in parallel, each processor performs a myscan() on each of
+the KV or KMV pairs it owns.
+
+:line
+
+[Related methods]: "map()"_map.html, "reduce()"_reduce.html

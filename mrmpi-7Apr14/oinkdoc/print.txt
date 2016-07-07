@@ -1,0 +1,44 @@
+"MR-MPI WWW Site"_mws -"MR-MPI Documentation"_md - "OINK
+Documentation"_od - "OINK Commands"_oc :c
+
+:link(mws,http://mapreduce.sandia.gov)
+:link(md,../doc/Manual.html)
+:link(od,Manual.html)
+:link(oc,Section_script.html#comm)
+
+:line
+
+print command :h3
+
+[Syntax:]
+
+print str :pre
+
+str = text string to print, which may contain variables :ul
+
+[Examples:]
+
+print "Done with first stage"
+print "Elapsed time = $t secs on $p procs"
+
+[Description:]
+
+Print a text string to the screen and logfile.  One line of output is
+generated.  If the string has white space in it (spaces, tabs, etc),
+then you must enclose it in quotes so that it is treated as a single
+argument.  If variables are included in the string, they will be
+evaluated and their current values printed.
+
+See the "variable"_variable.html command for a description of various
+kinds of variables, any of which can be used with the print command.
+Note that there are keywords for the number of processors
+and elapsed time for a command or MR-MPI library call which
+can be accessed with variables, e.g.
+
+variable t equal time
+variable p equal nprocs
+print "Elapsed time = $t secs on $p procs" :pre
+
+[Related commands:]
+
+"variable"_variable.html

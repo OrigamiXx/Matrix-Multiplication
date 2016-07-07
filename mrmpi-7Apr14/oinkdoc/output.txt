@@ -1,0 +1,108 @@
+"MR-MPI WWW Site"_mws -"MR-MPI Documentation"_md - "OINK
+Documentation"_od - "OINK Commands"_oc :c
+
+:link(mws,http://mapreduce.sandia.gov)
+:link(md,../doc/Manual.html)
+:link(od,Manual.html)
+:link(oc,Section_script.html#comm)
+
+:line
+
+output command :h3
+
+[Syntax:]
+
+output N keyword value ... :pre
+
+N = which output to set options for :ulb,l
+one or more keyword/value pairs may be appended :l
+keyword = {prepend} or {substitute}
+  {prepend} value = string to prepend to file path names
+  {substitute} value = 0 or 1 = how to substitute for "%" in path name
+:ule
+
+[Examples:]
+
+output 1 substitue 4
+output 2 substitute 4 prepend /scratch%/hadoop-datastore/local_files :pre
+
+[Description:]
+
+This command is used to control the writing of data that a "named
+command"_command.html performs as part of its output.  It does this by
+setting options on specific outputs to "named commands"_command.html.
+The options set by this command are in effect for ONLY the next named
+commmand.  After a named command is invoked, it restores all output
+options to their default values.  Note that all of the options which
+can be set by this command have default values, so you don't need to
+set those you don't want to change.
+
+As described on the "named command"_command.html doc page, a named
+command may specify one or more output descriptors.  Each descriptor
+is a pair of arguemnts, the first of which is an output filename (if
+it is not specified as NULL).  OINK converts the specified argument
+into an actual filename which is opened by each processor.  The
+purpose of the output command is to give you control over how that
+conversion takes place.
+
+The {N} value corresponds to a particular output descriptor, as
+defined by the "named command"_command.html.  It should be an integer
+from 1 to Noutput, where Noutput is the number of output descriptors
+the command requires.  The output command can be used multiple times
+with the same {N} to specify different parameters, e.g. one at a time.
+
+The remaining arguments are pairs of {keywords} and {values}.  One
+or more can be specified.
+
+:line
+
+The {prepend} and {substitute} keywords alter the file and directory
+path names specified with the filename of an output descriptor in a
+named command.
+
+IMPORTANT NOTE: The {prepend} and {substitute} keywords can also be
+set globally so that their values will be applied to all output
+descriptors of all "named commands"_command.html.  See the
+"set"_set.html command for details.  If an output command is not used
+to override the global value, then the global value is used by the
+"named command"_command.html.
+
+The {prepend} keyword specifies a path name to prepend to the output
+file specified with the "named command"_command.html.  The prepend
+string is presumed to be a directory name and should be specified
+without the trailing "/" character, since that is added when the
+prepending is done.
+
+Ouptut file or directory names specified with the "named
+command"_command.html can contain either or both of two wildcard
+characters: "%" or "*".  Only the first occurrence of each wildcard
+character is replaced.
+
+If the {substitute} keyword is set to 0, then a "%" is replaced by the
+processor ID, 0 to Nprocs-1.  If it is set to N > 0, then "%" is
+replaced by (proc-ID % N) + 1.  I.e. for 8 processors and N = 4, then
+the 8 processors replace the "%" with (1,2,3,4,1,2,3,4).  This can be
+useful for multi-core nodes where each core has its own local disk.
+E.g. you wish each core to write data to one disk.
+
+IMPORTANT NOTE: The proessor ID is also added as a suffix to the
+specified output file by each processor, so that one output file per
+processor is generated.  This is in addition to any replacement of a
+"%" wildcard character.
+
+If a "*" appears, then it is replaced with a 1.  Unlike for "input
+files"_input.html, this is not a particularly useful wildcard for
+output files.
+
+:line
+
+[Related commands:]
+
+"input"_input.html, "named commands"_command.html, "how to write
+named commands"_Section_commands.html, "set"_set.html
+
+[Defaults:]
+
+The option defaults are prepend = NULL, substitute = 0, multi = 1,
+mmode = 0, recurse = 0, self = 0, readfile = 0, nmap = 0, sepchar =
+newline character, sepstr = newline, delta = 80.

@@ -1,0 +1,399 @@
+<HTML>
+<CENTER><A HREF = "http://mapreduce.sandia.gov">MR-MPI WWW Site</A> -<A HREF = "../doc/Manual.html">MR-MPI Documentation</A> - <A HREF = "Manual.html">OINK
+Documentation</A> - <A HREF = "Section_script.html#comm">OINK Commands</A> 
+</CENTER>
+
+
+
+
+
+
+
+
+<HR>
+
+<H3>variable command 
+</H3>
+<P><B>Syntax:</B>
+</P>
+<PRE>variable name style args ... 
+</PRE>
+<UL><LI>name = name of variable to define 
+
+<LI>style = <I>delete</I> or <I>index</I> or <I>loop</I> or <I>world</I> or <I>universe</I> or <I>uloop</I> or <I>string</I> or <I>equal</I> or <I>atom</I> 
+
+<PRE>  <I>delete</I> = no args
+  <I>index</I> args = one or more strings
+  <I>loop</I> args = N
+    N = integer size of loop, loop from 1 to N inclusive
+  <I>loop</I> args = N pad
+    N = integer size of loop, loop from 1 to N inclusive
+    pad = all values will be same length, e.g. 001, 002, ..., 100
+  <I>loop</I> args = N1 N2
+    N1,N2 = loop from N1 to N2 inclusive
+  <I>loop</I> args = N1 N2 pad
+    N1,N2 = loop from N1 to N2 inclusive
+    pad = all values will be same length, e.g. 050, 051, ..., 100
+  <I>world</I> args = one string for each partition of processors
+  <I>universe</I> args = one or more strings
+  <I>uloop</I> args = N
+    N = integer size of loop
+  <I>uloop</I> args = N pad
+    N = integer size of loop
+    pad = all values will be same length, e.g. 001, 002, ..., 100
+  <I>string</I> arg = one string
+  <I>equal</I> args = one formula containing numbers, keywords, math
+  operations, variable references
+    numbers = 0.0, 100, -5.4, 2.8e-4, etc
+    constants = PI
+    keywords = nprocs, time
+    math operators = (), -x, x+y, x-y, x*y, x/y, x^y, 
+                     x==y, x!=y, x<y, x<=y, x>y, x>=y, x&&y, x||y, !x
+    math functions = sqrt(x), exp(x), ln(x), log(x),
+                     sin(x), cos(x), tan(x), asin(x), acos(x), atan(x), atan2(y,x),
+                     random(x,y,z), normal(x,y,z), ceil(x), floor(x), round(x)
+                     ramp(x,y), stagger(x,y), logfreq(x,y,z), vdisplace(x,y), swiggle(x,y,z), cwiggle(x,y,z)
+   variable references = v_name 
+</PRE>
+
+</UL>
+<P><B>Examples:</B>
+</P>
+<PRE>variable x index run1 run2 run3 run4 run5 run6 run7 run8
+variable LoopVar loop $n
+variable p equal nprocs
+variable b1 equal 0.5*v_flag
+variable b1 equal "10 + 0.5*v_flag"
+variable foo myfile
+variable x universe 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
+variable x uloop 15 pad
+variable x delete 
+</PRE>
+<P><B>Description:</B>
+</P>
+<P>This command assigns one or more strings to a variable name for
+evaluation later in the input script or during a simulation.
+</P>
+<P>Variables can be used in several ways in OINK.  A variable can be
+referenced elsewhere in an input script to become part of a new input
+command.  For variable styles that store multiple strings, the
+<A HREF = "next.html">next</A> command can be used to increment which string is
+assigned to the variable.  Variables of style <I>equal</I> store a formula
+which when evaluated produces a single numeric value which can be
+output via the <A HREF = "print.html">print</A> command.  Variables that store a
+collection of strings can be used as input to a named command, e.g. to
+process a collection of filenames.  See the <A HREF = "command.html">named
+command</A> doc page for details.
+</P>
+<P>In the discussion that follows, the "name" of the variable is the
+arbitrary string that is the 1st argument in the variable command.
+This name can only contain alphanumeric characters and underscores.
+The "string" is one or more of the subsequent arguments.  The "string"
+can be simple text as in the 1st example above, it can contain other
+variables as in the 2nd example, or it can be a formula as in the 3rd
+example.  The "value" is the numeric quantity resulting from
+evaluation of the string.  Note that the same string can generate
+different values when it is evaluated at different times during a
+simulation.
+</P>
+<P>IMPORTANT NOTE: When the input script line that defines a variable of
+style <I>equal</I> is encountered, the formula is NOT immediately evaluated
+and the result stored.  See the discussion below about "Immediate
+Evaluation of Variables" if you want to do this.
+</P>
+<P>IMPORTANT NOTE: When a variable command is encountered in the input
+script and the variable name has already been specified, the command
+is ignored.  This means variables can NOT be re-defined in an input
+script (with 2 exceptions, read further).  This is to allow an input
+script to be processed multiple times without resetting the variables;
+see the <A HREF = "jump.html">jump</A> or <A HREF = "include.html">include</A> commands.  It also
+means that using the <A HREF = "Section_start.html#2_6">command-line switch</A> -var
+will override a corresponding index variable setting in the input
+script.
+</P>
+<P>There are two exceptions to this rule.  First, variables of style
+<I>string</I> and <I>equal</I> ARE redefined each time the command is
+encountered.  This allows these style of variables to be redefined
+multiple times in an input script.  In a loop, this means the formula
+associated with an <I>equal</I>-style variable can change if it contains a
+substitution for another variable, e.g. $x.
+</P>
+<P>Second, as described below, if a variable is iterated on to the end of
+its list of strings via the <A HREF = "next.html">next</A> command, it is removed
+from the list of active variables, and is thus available to be
+re-defined in a subsequent variable command.  The <I>delete</I> style does
+the same thing.
+</P>
+<HR>
+
+<P><A HREF = "Section_script.html#2_2">This section</A> of the manual explains how
+occurrences of a variable name in an input script line are replaced by
+the variable's string.  The variable name can be referenced as $x if
+the name "x" is a single character, or as ${LoopVar} if the name
+"LoopVar" is one or more characters.
+</P>
+<P>As described below, for variable styles <I>index</I>, <I>loop</I>, <I>universe</I>,
+and <I>uloop</I>, which string is assigned to a variable can be incremented
+via the <A HREF = "next.html">next</A> command.  When there are no more strings to
+assign, the variable is exhausted and a flag is set that causes the
+next <A HREF = "jump.html">jump</A> command encountered in the input script to be
+skipped.  This enables the construction of simple loops in the input
+script that are iterated over and then exited from.
+</P>
+<P>As explained above, an exhausted variable can be re-used in an input
+script.  The <I>delete</I> style also removes the variable, the same as if
+it were exhausted, allowing it to be redefined later in the input
+script or when the input script is looped over.  This can be useful
+when breaking out of a loop via the <A HREF = "if.html">if</A> and <A HREF = "jump.html">jump</A>
+commands before the variable would become exhausted.  For example,
+</P>
+<PRE>label	    loop
+variable    a loop 5
+print	    "A = $a"
+if	    $a > 2 then "jump in.script break"
+next	    a
+jump	    in.script loop
+label	    break
+variable    a delete 
+</PRE>
+<HR>
+
+<P>For the <I>index</I> style, one or more strings are specified.  Initially,
+the 1st string is assigned to the variable.  Each time a
+<A HREF = "next.html">next</A> command is used with the variable name, the next
+string is assigned.  All processors assign the same string to the
+variable.
+</P>
+<P><I>Index</I> style variables with a single string value can also be set by
+using the command-line switch -var; see <A HREF = "Section_start.html#2_6">this
+section</A> for details.
+</P>
+<P>The <I>loop</I> style is identical to the <I>index</I> style except that the
+strings are the integers from 1 to N inclusive, if only one argument N
+is specified.  This allows generation of a long list of runs
+(e.g. 1000) without having to list N strings in the input script.
+Initially, the string "1" is assigned to the variable.  Each time a
+<A HREF = "next.html">next</A> command is used with the variable name, the next
+string ("2", "3", etc) is assigned.  All processors assign the same
+string to the variable.  The <I>loop</I> style can also be specified with
+two arguments N1 and N2.  In this case the loop runs from N1 to N2
+inclusive, and the string N1 is initially assigned to the variable.
+</P>
+<P>For the <I>world</I> style, one or more strings are specified.  There must
+be one string for each processor partition or "world".  See <A HREF = "Section_build.html#1_4">this
+section</A> of the manual for information on
+running OINK with multiple partitions via the "-partition"
+command-line switch.  This variable command assigns one string to each
+world.  All processors in the world are assigned the same string.  The
+next command cannot be used with <I>equal</I> style variables, since there
+is only one value per world.  This style of variable is useful when
+you wish to perform different calculations on different partitions.
+</P>
+<P>For the <I>universe</I> style, one or more strings are specified.  There
+must be at least as many strings as there are processor partitions or
+"worlds".  See <A HREF = "Section_start.html#2_6">this page</A> for information on
+running OINK with multiple partitions via the "-partition"
+command-line switch.  This variable command initially assigns one
+string to each world.  When a <A HREF = "next.html">next</A> command is encountered
+using this variable, the first processor partition to encounter it, is
+assigned the next available string.  This continues until all the
+variable strings are consumed.  Thus, this command can be used to run
+50 simulations on 8 processor partitions.  The simulations will be run
+one after the other on whatever partition becomes available, until
+they are all finished.  <I>Universe</I> style variables are incremented
+using the files "tmp.oink.variable" and "tmp.oink.variable.lock"
+which you will see in your directory during such a OINK run.
+</P>
+<P>The <I>uloop</I> style is identical to the <I>universe</I> style except that the
+strings are the integers from 1 to N.  This allows generation of long
+list of runs (e.g. 1000) without having to list N strings in the input
+script.
+</P>
+<P>All <I>universe</I>- and <I>uloop</I>-style variables defined in an input script
+must have the same number of values.
+</P>
+<HR>
+
+<P>For the <I>equal</I> style, a single string is specified which represents a
+formula that will be evaluated afresh each time the variable is used.
+If you want spaces in the string, enclose it in double quotes so the
+parser will treat it as a single argument.  The formula computes a
+scalar quantity, which becomes the value of the variable whenever it
+is evaluated.
+</P>
+<P>Note that <I>equal</I> variables can produce different values at different
+stages of the input script or at different times during a run.  For
+example, if the <I>equal</I> variable is printed during a loop, different
+values could be printed each time it was invoked.  If you want a
+variable to be evaluated immediately, so that the result is stored by
+the variable instead of the string, see the section below on
+"Immediate Evaluation of Variables".
+</P>
+<P>The next command cannot be used with <I>equal</I> style variables, since
+there is only one string.
+</P>
+<P>The formula for an <I>equal</I> variable can contain a variety of
+quantities.  The syntax for each kind of quantity is simple, but
+multiple quantities can be nested and combined in various ways to
+build up formulas of arbitrary complexity.
+</P>
+<P>Specifically, an formula can contain numbers, keywords, math
+operators, math functions, and references to other variables.
+</P>
+<DIV ALIGN=center><TABLE  BORDER=1 >
+<TR><TD >Number</TD><TD > 0.2, 100, 1.0e20, -15.4, etc</TD></TR>
+<TR><TD >Constant</TD><TD > PI</TD></TR>
+<TR><TD >Keywords</TD><TD > nprocs, time</TD></TR>
+<TR><TD >Math operators</TD><TD > (), -x, x+y, x-y, x*y, x/y, x^y, x==y, x!=y, x<y, x<=y, x>y, x>=y, x&&y, x||y, !x</TD></TR>
+<TR><TD >Math functions</TD><TD > sqrt(x), exp(x), ln(x), log(x), sin(x), cos(x), tan(x), asin(x), acos(x), atan(x), atan2(y,x), random(x,y,z), normal(x,y,z), ceil(x), floor(x), round(x), ramp(x,y), stagger(x,y), logfreq(x,y,z), vdisplace(x,y), swiggle(x,y,z), cwiggle(x,y,z)</TD></TR>
+<TR><TD >Other variables</TD><TD > v_name 
+</TD></TR></TABLE></DIV>
+
+<HR>
+
+<P>The keywords allowed in a formula are <I>nprocs</I> and <I>time</I>.  Nprocs is
+the number of processors being used.  Time is the elapsed time of the
+most recently executed <A HREF = "command.html">named command</A> or <A HREF = "mrmpi.html">MR-MPI library
+command</A>.
+</P>
+<HR>
+
+<H4>Math Operators 
+</H4>
+<P>Math operators are written in the usual way, where the "x" and "y" in
+the examples can themselves be arbitrarily complex formulas, as in the
+examples above. 
+</P>
+<P>Operators are evaluated left to right and have the usual C-style
+precedence: unary minus and unary logical NOT operator "!" have the
+highest precedence, exponentiation "^" is next; multiplication and
+division are next; addition and subtraction are next; the 4 relational
+operators "<", "<=", ">", and ">=" are next; the two remaining
+relational operators "==" and "!=" are next; then the logical AND
+operator "&&"; and finally the logical OR operator "||" has the lowest
+precedence.  Parenthesis can be used to group one or more portions of
+a formula and/or enforce a different order of evaluation than what
+would occur with the default precedence.
+</P>
+<P>The 6 relational operators return either a 1.0 or 0.0 depending on
+whether the relationship between x and y is TRUE or FALSE.  For
+example the expression x<10.0 in an atom-style variable formula will
+return 1.0 for all atoms whose x-coordinate is less than 10.0, and 0.0
+for the others.  The logical AND operator will return 1.0 if both its
+arguments are non-zero, else it returns 0.0.  The logical OR operator
+will return 1.0 if either of its arguments is non-zero, else it
+returns 0.0.  The logical NOT operator returns 1.0 if its argument is
+0.0, else it returns 0.0.
+</P>
+<HR>
+
+<H4>Math Functions 
+</H4>
+<P>Math functions are specified as keywords followed by one or more
+parenthesized arguments "x", "y", "z", each of which can themselves be
+arbitrarily complex formulas.
+</P>
+<P>Most of the math functions perform obvious operations.  The ln() is
+the natural log; log() is the base 10 log. 
+</P>
+<P>The random(x,y,z) function takes 3 arguments: x = lo, y = hi, and z =
+seed.  It generates a uniform random number between lo and hi.  The
+normal(x,y,z) function also takes 3 arguments: x = mu, y = sigma, and
+z = seed.  It generates a Gaussian variate centered on mu with
+variance sigma^2.  In both cases the seed is used the first time the
+internal random number generator is invoked, to initialize it.  For
+equal-style variables, every processor uses the same seed so that they
+each generate the same sequence of random numbers.
+</P>
+<P>IMPORTANT NOTE: Internally, there is just one random number generator
+for all equal-style variables.  If you define multiple variables (of
+each style) which use the random() or normal() math functions, then
+the internal random number generators will only be initialized once,
+which means only one of the specified seeds will determine the
+sequence of generated random numbers.
+</P>
+<P>The ceil(), floor(), and round() functions are those in the C math
+library.  Ceil() is the smallest integer not less than its argument.
+Floor() if the largest integer not greater than its argument.  Round()
+is the nearest integer to its argument.
+</P>
+<HR>
+
+<H4>Variable References 
+</H4>
+<P>Variable references access quantities calulated by other variables,
+which will cause those variables to be evaluated.  The name in the
+reference should be replaced by the name of a variable defined
+elsewhere in the input script.
+</P>
+<P>IMPORTANT NOTE: If you define variables in circular manner like this:
+</P>
+<PRE>variable a equal v_b
+variable b equal v_a
+print $a 
+</PRE>
+<P>then OINK may run for a while when the print statement is invoked!
+</P>
+<HR>
+
+<P><B>Immediate Evaluation of Variables:</B>
+</P>
+<P>There is a difference between referencing a variable with a leading $
+sign (e.g. $x or ${abc}) versus with a leading "v_" (e.g. v_x or
+v_abc).  The former can be used in any command, including a variable
+command, to force the immediate evaluation of the referenced variable
+and the substitution of its value into the command.  The latter is a
+required kind of argument to some commands (e.g. the <A HREF = "fix_ave_spatial.html">fix
+ave/spatial</A> or <A HREF = "dump.html">dump custom</A> or
+<A HREF = "thermo_style.html">thermo_style</A> commands) if you wish it to evaluate
+a variable periodically during a run.  It can also be used in a
+variable formula if you wish to reference a second variable.  The
+second variable will be evaluated whenever the first variable is
+evaluated.
+</P>
+<P>As an example, suppose you use this command in your input script to
+define the variable "v" as
+</P>
+<PRE>variable v equal vol 
+</PRE>
+<P>before a run where the simulation box size changes.  You might think
+this will assign the initial volume to the variable "v".  That is not
+the case.  Rather it assigns a formula which evaluates the volume
+(using the thermo_style keyword "vol") to the variable "v".  If you
+use the variable "v" in some other command like <A HREF = "fix_ave_time.html">fix
+ave/time</A> then the current volume of the box will be
+evaluated continuously during the run.
+</P>
+<P>If you want to store the initial volume of the system, you can do it
+this way:
+</P>
+<PRE>variable v equal vol
+variable v0 equal $v 
+</PRE>
+<P>The second command will force "v" to be evaluated (yielding the
+initial volume) and assign that value to the variable "v0".  Thus the
+command
+</P>
+<PRE>thermo_style custom step v_v v_v0 
+</PRE>
+<P>would print out both the current and initial volume periodically
+during the run.
+</P>
+<P>Note that it is a mistake to enclose a variable formula in double
+quotes if it contains variables preceeded by $ signs.  For example,
+</P>
+<PRE>variable vratio equal "${vfinal}/${v0}" 
+</PRE>
+<P>This is because the quotes prevent variable substitution (see <A HREF = "Section_commands.html#3_2">this
+section</A> on parsing input script commands),
+and thus an error will occur when the formula for "vratio" is
+evaluated later.
+</P>
+<HR>
+
+<P><B>Related commands:</B>
+</P>
+<P><A HREF = "next.html">next</A>, <A HREF = "jump.html">jump</A>, <A HREF = "include.html">include</A>,
+<A HREF = "print.html">print</A>
+</P>
+</HTML>

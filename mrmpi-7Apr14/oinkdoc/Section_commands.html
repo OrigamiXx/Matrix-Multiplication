@@ -1,0 +1,579 @@
+<HTML>
+<CENTER><A HREF = "http://mapreduce.sandia.gov">MR-MPI WWW Site</A> -<A HREF = "../doc/Manual.html">MR-MPI Documentation</A> - <A HREF = "Manual.html">OINK
+Documentation</A> - <A HREF = "Section_script.html#comm">OINK Commands</A> 
+</CENTER>
+
+
+
+
+
+
+
+
+<HR>
+
+<H3>4. Adding Commands to OINK 
+</H3>
+<P>The purpose of this section is to give details of how to write new
+<A HREF = "command.html">named commands</A> that can be added to OINK and which will
+be invokable by your input scripts and will interact appropriately
+with other OINK commands.
+</P>
+<P>OINK is designed to make this easy to do with a minimum of special
+coding on your part.  Several such named commands are included with
+the OINK distribution; more will be added over time.  See <A HREF = "Section_script.html#comm">this
+section</A> of the manual for a list of the
+current named commands in OINK.  We also invite OINK users to send
+email to the developers with new commands they have written and wish
+to share, so we can add them to the distribution, attributed to you.
+</P>
+4.1 <A HREF = "#4_1">Source files for the new class</A><BR>
+4.2 <A HREF = "#4_2">Methods in the new class</A><BR>
+4.3 <A HREF = "#4_3">Calls to the OINK object manager</A><BR>
+4.4 <A HREF = "#4_4">Calling back to map() and reduce() functions</A> <BR>
+
+<HR>
+
+<HR>
+
+<A NAME = "4_1"></A><H4>4.1 Source files for the new class 
+</H4>
+<P>In OINK a named command is a child class that derives from the Command
+parent class (see src/command.cpp and src/command.h), meaning that it
+contains several methods that can be called by the OINK framework.
+Adding a new named command to OINK is as simple as writing the code
+for it in two new files (e.g. foo.cpp and foo.h), dropping them into
+the src directory, and re-building OINK.
+</P>
+<P>It is easiest to understand the description that follows if you look
+at an example named command in OINK.  In what follows we will use the
+<A HREF = "deree.html">degree</A> command, contained in src/degree.cpp and
+src/degree.h for illustration purposes.
+</P>
+<P>The *.h file for a new named command should have lines like these
+at the top (from the src/degree.h file):
+</P>
+<PRE>#ifdef COMMAND_CLASS
+CommandStyle(degree,Degree)
+#else 
+</PRE>
+<P>CommandStyle(arg1,arg2) is a macro that gets converted by the OINK
+build procedure into source code.  Arg1 is the "name" of the named
+command, which is how you reference it in your input script, e.g. as
+</P>
+<PRE>degree -i graphdir -o out/outfile NULL 
+</PRE>
+<P>Arg2 is the class that implements that command.
+</P>
+<P>The list of all such named commands will appear in the style_command.h
+file after OINK is (re)built, via a make command.
+</P>
+<P>The remainder of the *.h file (between the #else and final pair of
+#endif) is the definition of your new class.  Note that you will need
+to include the mapreduce.h file (from the MR-MPI library src dir) and
+the MAPREDUCE_NS namespace if your class definition includes any
+map(), reduce(), etc callback functions since they have the "KeyValue"
+class name in their prototype.
+</P>
+<HR>
+
+<HR>
+
+<A NAME = "4_2"></A><H4>4.2 Methods in the new class 
+</H4>
+<P>When a line in the input script starts with a <A HREF = "command.html">named
+command</A>, the associated class is instantiated, its
+params() and run() methods are called, and the instance of the class
+is destroyed.
+</P>
+<P>The constructor of your new class should set two variables, ninputs
+and noutputs, which are the number of input and output descriptors it
+requires you to list in the input script.  For the
+<A HREF = "degree.html">degree</A> command, ninputs = noutpus = 1, as illustrated in
+the example above.
+</P>
+<P>Your new class is required to define only two methods: params() and
+run().
+</P>
+<P>Params() is passed the list of arguments following the command name,
+excluding the "-i" and "-o" arguments, which are processed separately
+by the parent Command class.  Your params() method should parse and
+check the arguments and generate an error message if the number of
+arguments is incorrect or any of their values is invalid.  Note that
+the <A HREF = "degree.html">degree</A> command takes 0 arguments.
+</P>
+<P>Run() is called to invoke the meat of your command and it can perform
+any series of MapReduce or other operations you wish, using as many
+<A HREF = "../doc/Manual.html">MapReduce objects</A> (from the MR-MPI library) and <A HREF = "mr.html">MR-MPI
+objects</A> (managed by OINK) as you wish.  The calls that run()
+can make to the OINK object manager (obj) are discussed in the next
+section.
+</P>
+<P>The desstructor of your new class should free any memory it has
+allocated, including any local MapReduce objects that it allocated.
+Note that this is different from <A HREF = "mr.html">MR-MPI objects</A> and the
+underlying MapReduce objects they wrap, and which are often associated
+with the input and output descriptors of your command in the input
+script; those objects are created/destroyed by OINK itself, as
+discussed in the next section.
+</P>
+<HR>
+
+<HR>
+
+<A NAME = "4_3"></A><H4>4.3 Calls to the OINK object manager 
+</H4>
+<P>These are the calls that the run() method of your new class can make
+to the OINK object manager.  Each is discussed below.  Note that you
+make the calls via the "obj" pointer which is visible to your class,
+e.g. obj->cleanup().  This means you should add the line
+</P>
+<PRE>#include "object.h" 
+</PRE>
+<P>at the top of your *.cpp file.
+</P>
+<PRE>MapReduce *Object::create_mr();
+MapReduce *Object::create_mr(int verbosity, int timer,
+			     int memsize, int outofcore);
+MapReduce *Object::copy_mr(MapReduce *mr);
+int Object::permanent(MapReduce *mr); 
+</PRE>
+<PRE>MapReduce *Object::input(int index);
+MapReduce *Object::input(int index,
+			 void (*map1)(int, char *, KeyValue *, void *),
+			 void *ptr);
+MapReduce *Object::input(int index,
+			 void (*map2)(int, char *, int, KeyValue *, void *),
+			 void *ptr);
+MapReduce *Object::input(int index,
+			 void (*map1)(int, char *, KeyValue *, void *),
+			 void (*map2)(int, char *, int, KeyValue *, void *),
+			 void *ptr); 
+</PRE>
+<PRE>void Object::output(int index, MapReduce *mr);
+void Object::output(int index, MapReduce *mr,
+		    void (*scankv)(char *, int, char *, int, void *), 
+		    void *ptr, int disallow);
+void Object::output(int index, MapReduce *mr,
+		    void (*scankmv)(char *, int, char *, int, int *, void *), 
+		    void *ptr, int disallow);
+void Object::output(int index, MapReduce *mr,
+		    void (*map)(uint64_t, char *, int, char *, int, 
+				KeyValue *, void *), 
+		    void *ptr, int disallow);
+void Object::output(int index, MapReduce *mr,
+		    void (*reduce)(char *, int, char *, int, int *, 
+				   KeyValue *, void *), 
+		    void *ptr, int disallow);
+void Object::output(int index, MapReduce *mr,
+		    void (*scankv)(char *, int, char *, int, void *), 
+		    void (*scankmv)(char *, int, char *, int, int *, void *),
+		    void (*map)(uint64_t, char *, int, char *, int, 
+				KeyValue *, void *), 
+		    void (*reduce)(char *, int, char *, int, int *,
+				   KeyValue *, void *),
+		    void *ptr, int disallow); 
+</PRE>
+<PRE>void Object::cleanup(); 
+</PRE>
+<P>Here is a brief summary of the calls your run() method will
+typically make:
+</P>
+<UL><LI>1 call to input() for each of its Ninput input descriptors
+<LI>calls to create_mr() or copy_mr() for additional MapReduce objects it uses
+<LI>1 call to output() for each of its Noutput output descriptors
+<LI>final call to cleanup() at the end 
+</UL>
+<P>The details are discussed below.
+</P>
+<HR>
+
+<P>Your run() method should call one of the 4 variants of the input()
+methods one time for each of its inputs.  Which variant it calls
+depends on what forms of input you wish to support, which is related
+to the "-i" arguments specified with your <A HREF = "command.html">named command</A>
+in the input script and additional options set by the
+<A HREF = "input.html">input</A> command.
+</P>
+<P>Each call takes an "index" argument which is the index of the input
+descriptor being referenced, from 1 to Ninputs.  Each call returns a
+pointer to a MapReduce object which will contain the desired input
+data as key/value (KV) pairs.  As the <A HREF = "command.html">named command</A> doc
+page explains, each input descriptor for your command can be specified
+in the input script as one or more files or directories or as an
+existing MR-MPI object.  For reading files, there are 2 kinds of map()
+methods that can be used to convert the file contents into KV pairs,
+one where a filename is passed to your callback function, and the
+other where a chunk of bytes is passed to your callback function.  See
+the <A HREF = "..doc/map.html">map() method</A> doc page for details.
+</P>
+<P>If you invoke this method:
+</P>
+<PRE>MapReduce *Object::input(int index); 
+</PRE>
+<P>then the input descriptor must be specified in your input script as an
+existing MR-MPI object.  No reading of files is allowed.
+</P>
+<P>If you invoke this method:
+</P>
+<PRE>MapReduce *Object::input(int index,
+			 void (*map1)(int, char *, KeyValue *, void *),
+			 void *ptr); 
+</PRE>
+<P>then the input can be specified as either an MR-MPI object or as files
+which will be processed via the map1() callback function which
+receives a filename as an argument, so that it can open the file, read
+it, and generate KV pairs.
+</P>
+<P>If you invoke this method:
+</P>
+<PRE>MapReduce *Object::input(int index,
+			 void (*map2)(int, char *, int, KeyValue *, void *),
+			 void *ptr); 
+</PRE>
+<P>then the input can be specied as either an MR-MPI object or as files
+which will be processed via the map2() callback function which
+receives a chunk of bytes read from a file as an arbument, so that it
+can convert the byte string into KV pairs.  To use this map2() method,
+you would also need to specify an <A HREF = "input.html">input</A> command in your
+input script that setup various options needed to call the <A HREF = "../doc/map.html">MR-MPI
+library map() method</A> that uses map2() as a callback
+function.
+</P>
+<P>If you invoke the 4th variant:
+</P>
+<PRE>MapReduce *Object::input(int index,
+			 void (*map1)(int, char *, KeyValue *, void *),
+			 void (*map2)(int, char *, int, KeyValue *, void *),
+			 void *ptr); 
+</PRE>
+<P>then both kinds of map() callback functions can be specified, map1()
+and map2(), and OINK will select which to use depending on what
+options have been setup via the <A HREF = "input.html">input</A> command for this
+input descriptor.
+</P>
+<P>Note that you have to provide the map1() and/or map2() callback
+functions to the input() calls, with the correct prototype.  As
+discussed below and on <A HREF = "Section_functions.html">this doc page</A>, they
+can be static methods in your class, or they can be map() methods in
+separate files in the OINK src directory, which are named map_*.cpp.
+</P>
+<P>Also note that if you want to provide maximum flexibility for using
+your <A HREF = "command.html">named command</A>, then you should provide one of both
+flavors of callback map() functions for allowing input from files
+along with input from an existing MR-MPI object.  If you do not
+provide either callback or just one of the two, then input scripts
+will be limited in what forms of input descriptor they can define.
+</P>
+<HR>
+
+<P>Your run() method should call one of the 6 variants of the output()
+methods one time for each of its outputs.  Which variant it calls
+depends on what forms of output you wish to support, which is related
+to the "-o" arguments specified with your <A HREF = "command.html">named command</A>
+in the input script and additional options set by the
+<A HREF = "output.html">output</A> command.
+</P>
+<P>Each call takes an "index" argument which is the index of the output
+descriptor being referenced, from 1 to Noutputs.  Each call also takes
+a MapReduce object pointer "mr", which contains the data you wish to
+output.  As the <A HREF = "command.html">named command</A> doc page explains, each
+output descriptor for your command is specified in the input script
+with 2 parts, either of which can be NULL.  The first part is a
+filename for writing output to files.  The second part is the ID of an
+MR-MPI object which will contain the output.  For writing files, there
+are 4 kinds of callback methods that can be used to write the contents
+of "mr" to a file.  Each of these 4 methods is called with a "FILE *"
+as its final "void *" argument.  This is the file pointer to a file
+created and opened (and later closed) by OINK which the callback
+method can write its data to.  If you pass your own non-NULL pointer
+to the callback method via the "void *ptr" argument to the output()
+calls, then it will be appended to the FILE *, so that it can be
+dereferenced as a 2nd pointer passed to the callback function.
+</P>
+<P>If you invoke this method:
+</P>
+<PRE>void Object::output(int index, MapReduce *mr); 
+</PRE>
+<P>then the output descriptor must be specified in your input script as
+only defining a MR-MPI object for output.  No writing to files is
+allowed.  This call will assign the ID specified in your input script
+to the MR-MPI object that wraps "mr".  Also note, that this will
+remove the ID from any other MR-MPI object that has the same ID.  They
+then become unnamed or temporary MR-MPI objects which will be deleted
+at the end of your run() method.  See further discussion of temporaray
+versus permanent MR-MPI objects in the next section.
+</P>
+<P>If you invoke one of these 2 methods:
+</P>
+<PRE>void Object::output(int index, MapReduce *mr,
+		    void (*scankv)(char *, int, char *, int, void *), 
+		    void *ptr, int disallow);
+void Object::output(int index, MapReduce *mr,
+		    void (*scankmv)(char *, int, char *, int, int *, void *), 
+		    void *ptr, int disallow); 
+</PRE>
+<P>then the output can be specified as either an MR-MPI object or as
+files which will be written to via the scankv() or scankmv() callback
+functions respectively.  In the first case, the scankv() function will
+receive key/value (KV) pairs, one at time from the "mr" MapReduce
+object.  In the second case, the scankmv() function will receive
+key/multivalue (KMV) pairs, one at time from the "mr" MapReduce
+object.  The MapReduce object will be unaltered by this operation.
+See the <A HREF = "..doc/scan.html">scan() method</A> doc page in the MR-MPI library
+for details.  The "disallow" flag is explained below.
+</P>
+<P>If you invoke one of these 2 methods:
+</P>
+<PRE>void Object::output(int index, MapReduce *mr,
+		    void (*map)(uint64_t, char *, int, char *, int, 
+				KeyValue *, void *), 
+		    void *ptr, int disallow);
+void Object::output(int index, MapReduce *mr,
+		    void (*reduce)(char *, int, char *, int, int *, 
+				   KeyValue *, void *), 
+		    void *ptr, int disallow); 
+</PRE>
+<P>then the output can be specified as either an MR-MPI object or as
+files which will be written to via the map() or reduce() callback
+functions respectively.  In the first case, the map() function will
+receive key/value (KV) pairs, one at time from the "mr" MapReduce
+object.  In the second case, the reduce() function will receive
+key/multivalue (KMV) pairs, one at time from the "mr" MapReduce
+object.  For the first case, the MapReduce object will typically be
+unaltered by this operation, since the <A HREF = "..doc/map.html">MR-MPI library map()
+method</A> is called with addflag=1, so that the existing
+KV pairs are preserved.  But your map() callback function should not
+emit any new KV pairs.  For the second case, the MapReduce object will
+be altered by this operation, since the <A HREF = "..doc/reduce.html">MR-MPI library reduce()
+method</A> deletes the KMV pairs and replaces them with
+new KV pairs which your reduce() callback function may or may not
+emit.  The "disallow" flag is explained below.
+</P>
+<P>If you invoke the 6th variant:
+</P>
+<PRE>void Object::output(int index, MapReduce *mr,
+		    void (*scankv)(char *, int, char *, int, void *), 
+		    void (*scankmv)(char *, int, char *, int, int *, void *),
+		    void (*map)(uint64_t, char *, int, char *, int, 
+				KeyValue *, void *), 
+		    void (*reduce)(char *, int, char *, int, int *,
+				   KeyValue *, void *),
+		    void *ptr, int disallow); 
+</PRE>
+<P>then any of the 4 kinds of callback functions can be specified, namely
+scankv(), scankmv(), map(), or reduce().  Those that you do not wish
+to provide or that are not compatible with the current state of the
+MapReduce object "mr" (which will contain either kV or KMV pairs, but
+not both), can be specified as NULL.
+</P>
+<P>Note that you have to provide each of these 4 callback functions to
+the output() calls, with the correct prototype.  As discussed below
+and on <A HREF = "Section_functions.html">this doc page</A>, they can be static
+methods in your class, or they can be methods in separate files in the
+OINK src directory, which are named scan_*.cpp, map_*.cpp, and
+reduce_*.cpp respectively.
+</P>
+<P>Also note that if you want to provide maximum flexibility for using
+your <A HREF = "command.html">named command</A>, then you should provide at least
+one flavor of a callback function for allowing output to files along
+with output to an MR-MPI object.  If you do not do this, then input
+scripts will be limited in what forms of output descriptor they can
+define.
+</P>
+<P>All but the first of the output() variants can be called with an
+optional disallow flag which is set to 0 by default.  If these methods
+are called with disallow=1, then no output to an MR-MPI object is
+allowed.  This is useful if you expect the run() method of your <A HREF = "command.html">named
+command</A> to subsequently change the data stored in the
+MapReduce object, and thus make the data written to an output file
+differ from what is stored in the MapReduce object.
+</P>
+<HR>
+
+<P>Your run() method may need to use additional MapReduce objects
+as workspace, in addition to its inputs.  Some of these may end
+up holding the data you wish to output.
+</P>
+<P>One key point to understand is that the OINK object manager keeps
+track of two kinds of MR-MPI objects, each of which is a thin wrapper
+on MapReduce objects which hold your key/value (KV) or key/multivalue
+(KMV) data.  Each MR-MPI object can be "permanent" meaning it has an
+ID which can be referenced by input script commands.  Or it can be
+"temporary", meaning it has no ID and was created to hold data input
+from a file or by the function calls discussed below.  Permanent
+MR-MPI objects persist until they are explicitly deleted by your input
+script.  Temporary MR-MPI objects are deleted at the end of your run()
+method; they can be thought of as workspace created and used by your
+run() method.
+</P>
+<P>These two calls create a new temporary MR-MPI object and return a
+pointer to the MapReduce object contained within it:
+</P>
+<PRE>MapReduce *Object::create_mr();
+MapReduce *Object::create_mr(int verbosity, int timer,
+			     int memsize, int outofcore); 
+</PRE>
+<P>The first variant will use the default settings for the MapReduce
+object; see the <A HREF = "set.html">set</A> command and the <A HREF = "../doc/settings.html">settings doc
+page</A> of the MR-MPI library for details.  The
+second variant allows you to override a few of the settings with
+specified values.
+</P>
+<P>This call makes a copy of the "mr" MapReduce object, wraps it in a new
+temporary MR-MPI object, and returns a pointer to the new MapReduce
+object:
+</P>
+<PRE>MapReduce *Object::copy_mr(MapReduce *mr); 
+</PRE>
+<P>There are two reasons to create new and copied MapReduce objects via
+these calls, rather than direcly invoking MR-MPI library calls within
+your run() method.  I.e. two reasons to do one of these:
+</P>
+<PRE>MapReduce *mr = obj->create_mr();
+MapReduce *mr2 = obj->copy(mr); 
+</PRE>
+<P>instead of one of these:
+</P>
+<PRE>MapReduce *mr = new MapReduce();
+MapReduce *mr2 = mr->copy(); 
+</PRE>
+<P>The first reason is that OINK will manage the memory associated with
+the new MR-MPI objects and free them for you at the end of your run()
+method; see the cleanup() method discussion below.  The second is that
+you can assign an ID to these temporary MR-MPI objects via the
+output() calls discussed above, which you cannot do if you create the
+MapReduce object directly yourself.  I.e. you cannot pass to an
+output() method a pointer to a MapReduce object that you allocated
+yourself if that operation will assign an ID (specified in your input
+script) to the MR-MPI object.
+</P>
+<P>You are of course free to create additional MapReduce objects yourself
+via direct calls to the MR-MPI library.  In this case you should
+insure you free the objects yourself before the run() method ends, so
+as not to leak memory.
+</P>
+<P>One additional point is that it is fine to do this within your run()
+method, where mr is a pointer returned by obj->create_mr():
+</P>
+<PRE>mr = obj->copy(mr); 
+</PRE>
+<P>whereas you should not do this:
+</P>
+<PRE>mr = mr->copy(); 
+</PRE>
+<P>The former simply overwrites the local mr pointer, but OINK will
+manage and free the memory if necessary for the underlying MapReduce
+objects associated with both the original and new mr pointers. The
+latter will leak memory since the underlying MapReduce object
+associated with the original mr pointer is lost.
+</P>
+<P>This call is useful for checking whether a MR-MPI object has
+been assigned a name or not, when it was used for input or output:
+</P>
+<PRE>int Object::permanent(MapReduce *mr); 
+</PRE>
+<P>It is called using a MapReduce object pointer and returns a 1 if the
+associated MR-MPI object that wraps it has a name, and a 0 if it does
+not.  There are two uses for this call.
+</P>
+<P>First, it can be used after an input() call to determine whether the
+input was done from a file or an existing MR-MPI object.  In the
+former case permanent() will return 0, since the new MR-MPI object
+holding the data is unnamed.  In the latter case it will return 1,
+since the MR-MPI object holding the data was named in your input
+script as one of the "-i" arguments to the <A HREF = "command.html">named
+command</A>.  If the run() method will subsequently alter
+the MapReduce object and it is permanent, you can make a copy of it,
+so as to not alter the original.
+</P>
+<P>Second, it can be used after an output() call to determine whether the
+MapReduce object was assigned a name.  This will be the case if a
+MR-MPI ID was specified in your input script as one of the "-o"
+arguments to the <A HREF = "command.html">named command</A>.  If this is the case,
+you typically do not want to alter the data in the MapReduce object
+after outputting it.  If you wish to further process the data, you can
+make a copy.
+</P>
+<P>Finally, this method should be called at the end of your run() method
+to free all the temporary MR-MPI objects stored by OINK, and perform
+other internal cleanup:
+</P>
+<PRE>void Object::cleanup(); 
+</PRE>
+<HR>
+
+<A NAME = "4_4"></A><H4>4.4 Calling back to map() and reduce() functions 
+</H4>
+<P>You run() method will typically invoke various methods from the MR-MPI
+library which involve callback functions, e.g. for performing map() or
+reduce() operations.
+</P>
+<P>The <A HREF = "../doc/Technical.html#callback">MR-MPI library manual</A> discusses
+the general rules for passing a pointer to a callback function to a
+MR-MPI library method.  Since you will be doing this from within the
+class that encodes your <A HREF = "command.html">named command</A> you have two
+choices.
+</P>
+<P>First, you can pass a pointer to a static function declared within
+your class.  This function cannot directly access any class variables,
+but you can pass it the "this" pointer for the class (as the void *
+argument to the map() or reduce() function) which the callback
+function can use to access class variables indirectly, through that
+pointer.  If you do this, then the map() and reduce() methods defined
+in your class can only be used by that <A HREF = "command.html">named command</A>.
+</P>
+<P>An alternative is to put your callback functions in their own files,
+named map_*.cpp for map() functions, reduce_*.cpp for reduce()
+functions, compare_*.cpp for compare() functions, hash_*.cpp for
+hash() functions, and scan_*.cpp functions.  By doing this the
+callback functions can be used by any <A HREF = "command.html">named command</A> or
+as arguments to the "MR-MPI library commands" used in an input script
+to invoke the MR-MPI library methods directly.  See the oink/rmat.cpp
+file, which implements the <A HREF = "rmat.html">rmat</A> command, for an example of
+a <A HREF = "command.html">named command</A> which accesses several of its callback
+functions in this manner.
+</P>
+<P>Each map_*.cpp file (and reduce_*.cpp, compare_*.cpp, etc) can contain
+one or more map() (reduce(), compare(), etc) callback functions.
+These are not class methods, but stand-alone functions.  See examples
+in the oink directory.  The header files that contain the prototypes
+for these functions are named style_map.h, style_reduce.h, etc and are
+auto-generated when OINK is built.  Your <A HREF = "command.html">named command</A>
+class, e.g. rmat.cpp, simply needs to include these style header files
+in order to use any of the callback functions in OINK.  Likewise, any
+callback function included in one of these files can be accessed by
+name in your input script when using one of the <A HREF = "mrmpi.html">MR-MPI library
+commands</A>.  Documentation for the collection of map(),
+reduce(), etc functions is also auto-extracted and included in <A HREF = "Section_functions.html">this
+section</A> of the OINK documentation.
+Instructions on how to pass generic pointers to the callback functions
+is also discussed in <A HREF = "Section_functions.html">this section</A>.
+</P>
+<P>It is also possible in the run() method of your <A HREF = "command.html">named
+command</A> to select a callback function based on an input
+script parameter to your command.  For example, the input script could
+list the name of a particular compare() function you wish to you to
+use to sort the data in a MapReduce object.  By calling the
+appropriate lookup() method in the MRMPI class (oink/mrmpi.cpp), the
+parameter string can be converted into a matching function pointer.
+For example, consider these lines of code:
+</P>
+<PRE>MapReduce *mr = obj->create_mr();
+...
+CompareFnPtr compare = compare_lookup(userparam);
+mr->sort_keys(compare); 
+</PRE>
+<P>In this example "userparam" is a string, listed in the input script as
+a command parameter, which contains a function name,
+e.g. mySpecialCompare.  Assuming that function is included in OINK in
+a compare_*.cpp file, the the compare_lookup() method will be able to
+match the string to the function and return a pointer to the function
+which can then be used as an argument to the
+<A HREF = "../doc/sort.html">sort_keys()</A> MR-MPI library method.
+</P>
+<P>The definition of CompareFnPtr and all other callback function
+pointers is in the "typedefs.h" file, which can be included at the top
+of your <A HREF = "command.html">named commmand</A> *.cpp file.
+</P>
+</HTML>

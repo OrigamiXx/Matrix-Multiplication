@@ -1,0 +1,64 @@
+<HTML>
+<CENTER><A HREF = "http://mapreduce.sandia.gov">MR-MPI WWW Site</A> -<A HREF = "../doc/Manual.html">MR-MPI Documentation</A> - <A HREF = "Manual.html">OINK
+Documentation</A> - <A HREF = "Section_script.html#comm">OINK Commands</A> 
+</CENTER>
+
+
+
+
+
+
+
+
+<HR>
+
+<H3>luby_find command 
+</H3>
+<P><B>Syntax:</B>
+</P>
+<PRE>luby_find seed -i in1 -o out1.file out1.mr 
+</PRE>
+<UL><LI>seed = random number seed (positive integer)
+<LI>in1 = graph edges: Key = Vi Vj, Value = NULL
+<LI>out1 = minimal independent set: Key = Vi, Value = NULL 
+</UL>
+<P><B>Examples:</B>
+</P>
+<PRE>luby_find 982938 -i mre -o mis.list mis 
+</PRE>
+<P><B>Description:</B>
+</P>
+<P>This is a named command which computes a minimal independent set (MIS)
+of vertices for an undirected graph.  A MIS contains vertices which do
+not share an edge and to which no additional vertex can be added.  For
+a given graph there are typically many possible MIS's; the MIS that is
+computed is a function of the specified random number seed.  The MIS
+is found by <A HREF = "#Luby">Luby's algorithm</A>, which is an interative method.
+The MapReduce version of Luby's algorithm implemented by this command
+is discussed in the paper of <A HREF = "#Plimpton">(Plimpton)</A>.
+</P>
+<P>See the <A HREF = "command.html">named command</A> doc page for various ways in which
+the -i inputs and -o outputs for a named command can be specified.
+</P>
+<P>In1 stores a set of edges, assumed to have no duplicates or
+self-edges.  This means that either (Vi,Vj) or (Vj,Vi) appears, but
+not both.  Also (Vi,Vi) does not appear.  The input is unchanged by
+this command.
+</P>
+<P>Out1 will store the list of vertices in the MIS.
+</P>
+<P><B>Related commands:</B> none
+</P>
+<HR>
+
+<A NAME = "Luby"></A>
+
+<P><B>(Luby)</B> Luby, "A Simple Parallel Algorithm for the Maximal
+Independent Set Problem", SIAM J Computing, 15, 1036-1055 (1986).
+</P>
+<A NAME = "Plimpton"></A>
+
+<P><B>(Plimpton)</B> Plimpton and Devine, "MapReduce in MPI for Large-Scale
+Graph Algorithms", to appear in Parallel Computing (2011).
+</P>
+</HTML>

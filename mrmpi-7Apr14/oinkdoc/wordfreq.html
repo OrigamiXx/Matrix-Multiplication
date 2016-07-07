@@ -1,0 +1,62 @@
+<HTML>
+<CENTER><A HREF = "http://mapreduce.sandia.gov">MR-MPI WWW Site</A> -<A HREF = "../doc/Manual.html">MR-MPI Documentation</A> - <A HREF = "Manual.html">OINK
+Documentation</A> - <A HREF = "Section_script.html#comm">OINK Commands</A> 
+</CENTER>
+
+
+
+
+
+
+
+
+<HR>
+
+<H3>wordfreq command 
+</H3>
+<P><B>Syntax:</B>
+</P>
+<PRE>wordfreq Ntop -i in1 -o out1.file out1.mr 
+</PRE>
+<UL><LI>Ntop = print Ntop of the most frequently occurring words to screen
+<LI>in1 = words: Key = word, Value = NULL
+<LI>out1 = frequency count of each word: Key = word, Value = count 
+</UL>
+<P><B>Examples:</B>
+</P>
+<PRE>wordfreq 10 -i v_files -o full.list NULL
+wordfreq 10 -i v_files -o NULL NULL 
+</PRE>
+<P><B>Description:</B>
+</P>
+<P>This is a named command which calculates the frequency of word
+occurrence in an input data set, which is typically a set of files.
+</P>
+<P>See the <A HREF = "command.html">named command</A> doc page for various ways in
+which the -i inputs and -o outputs for a named command can be
+specified.
+</P>
+<P>In1 stores a set of words.  The input is unchanged by this command.
+</P>
+<P>If the input is one or more files then the files are read and each
+"word" is defined as separated by whitespace.  Note that you can pass
+a list of files as the input argument after the "-i" argument by using
+a variable, which in turn can be initialized with a command-line
+argument to OINK.  E.g. this line would work with the first example
+above:
+</P>
+<PRE>oink_linux -var files *.cpp < in.script 
+</PRE>
+<P>See <A HREF = "Section_build.html#1_4">this section</A> of the manual and the
+<A HREF = "variable.html">variable</A> doc page for more details.
+</P>
+<P>Out1 will store the frequency count of all unique words.
+</P>
+<P>Additional statistics can be generated and printed via the <I>Ntop</I>
+setting.  The highest frequency <I>Ntop</I> words will be printed to the
+screen with their count, in sorted order.  If <I>Ntop</I> is 0, nothing is
+printed.
+</P>
+<P><B>Related commands:</B> none
+</P>
+</HTML>

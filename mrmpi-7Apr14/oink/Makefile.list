@@ -1,0 +1,34 @@
+# MRMPI multiple-machine Makefile with explicit file list
+
+SHELL = /bin/sh
+
+# Definitions
+
+ROOT =	mrmpi
+EXE =	$(ROOT)_$@
+
+SRC =	command.cpp compare_rmat.cpp data2graph.cpp data2rare.cpp degree.cpp error.cpp input.cpp library.cpp main.cpp map_rmat.cpp memory.cpp mrmpi.cpp neigh_tri.cpp neighbor.cpp object.cpp oink.cpp random_mars.cpp reduce_rmat.cpp rmat.cpp sgi_enumerate.cpp sgi_prune.cpp sgi_sample.cpp tri_find.cpp universe.cpp variable.cpp wordfreq.cpp 
+
+INC =	blockmacros.h command.h data2graph.h data2rare.h degree.h error.h input.h library.h map_rmat.h memory.h mrmpi.h neigh_tri.h neighbor.h object.h oink.h pointers.h random_mars.h rmat.h sgi_enumerate.h sgi_prune.h sgi_sample.h style_command.h style_compare.h style_hash.h style_map.h style_reduce.h style_scan.h tri_find.h typedefs.h universe.h variable.h version.h wordfreq.h 
+
+OBJ =	$(SRC:.cpp=.o)
+
+# Targets
+
+help:
+	@echo 'Type "make target" where target is one of:'
+	@echo ''
+	@files="`ls MAKE/Makefile.*`"; \
+	for file in $$files; do head -1 $$file; done
+
+clean:
+	rm -rf Obj_*
+
+.DEFAULT:
+	@test -f MAKE/Makefile.$@
+	@if [ ! -d Obj_$@ ]; then mkdir Obj_$@; fi
+	@cp -p $(SRC) $(INC) Obj_$@
+	@cp MAKE/Makefile.$@ Obj_$@/Makefile
+	@cd Obj_$@; \
+	$(MAKE) $(MFLAGS) "OBJ = $(OBJ)" "INC = $(INC)" "EXE = ../$(EXE)" ../$(EXE)
+	@if [ -d Obj_$@ ]; then cd Obj_$@; rm -f $(SRC) $(INC) Makefile*; fi

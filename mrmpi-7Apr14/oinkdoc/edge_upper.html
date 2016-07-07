@@ -1,0 +1,49 @@
+<HTML>
+<CENTER><A HREF = "http://mapreduce.sandia.gov">MR-MPI WWW Site</A> -<A HREF = "../doc/Manual.html">MR-MPI Documentation</A> - <A HREF = "Manual.html">OINK
+Documentation</A> - <A HREF = "Section_script.html#comm">OINK Commands</A> 
+</CENTER>
+
+
+
+
+
+
+
+
+<HR>
+
+<H3>edge_upper command 
+</H3>
+<P><B>Syntax:</B>
+</P>
+<PRE>edge_upper -i in1 -o out1.file out1.mr 
+</PRE>
+<UL><LI>in1 = graph edges: Key = Vi Vj, Value = NULL
+<LI>out1 = graph edges: Key = Vi Vj, Value = NULL 
+</UL>
+<P><B>Examples:</B>
+</P>
+<PRE>edge_upper -i tmp.matrix -o mre 
+</PRE>
+<P><B>Description:</B>
+</P>
+<P>This is a named command which eliminates duplicate and self-edges from
+a graph.  A duplicate edge is when both (Vi,Vj) or (Vj,Vi) appear in
+the edge list.  A self-edge is when (Vi,Vi) appears.
+</P>
+<P>See the <A HREF = "command.html">named command</A> doc page for various ways in
+which the -i inputs and -o outputs for a named command can be
+specified.
+</P>
+<P>In1 stores a set of edges, which may have duplicates or self edges.
+The input is unchanged by this command.
+</P>
+<P>Out1 will store the edges of a new graph which has the duplicates and
+self edges removed.  In the new graph, Vi < Vj for every edge, so it
+also represents the non-zeroes of an upper-triangular matrix.
+</P>
+<P><B>Related commands:</B>
+</P>
+<P><A HREF = "rmat.html">rmat</A>
+</P>
+</HTML>

@@ -1,0 +1,60 @@
+"MR-MPI WWW Site"_mws -"MR-MPI Documentation"_md - "OINK
+Documentation"_od - "OINK Commands"_oc :c
+
+:link(mws,http://mapreduce.sandia.gov)
+:link(md,../doc/Manual.html)
+:link(od,Manual.html)
+:link(oc,Section_script.html#comm)
+
+:line
+
+cc_find command :h3
+
+[Syntax:]
+
+cc_find nthresh -i in1 -o out1.file out1.mr :pre
+
+nthresh = threshhold size at which components are split across processors
+in1 = graph edges: Key = Vi Vj, Value = NULL
+out1 = components: Key = Vi, Value = Ci :ul
+
+[Examples:]
+
+cc_find 1000 -i mre -o cc.list cc :pre
+
+[Description:]
+
+This is a named command which finds all the connected components (CCs)
+in an undirected graph.  A connected component is a set of vertices
+where each is connected to one or more other vertices in the set via
+an edge.  The CCs are found via the MapReduce algorithm of
+"(Cohen)"_#Cohen discussed in his paper with extensions described in
+the paper of "(Plimpton)"_#Plimpton which attempt to load-balance the
+calculation across processors when one or a few very large components
+exist in the graph.
+
+See the "named command"_command.html doc page for various ways in which
+the -i inputs and -o outputs for a named command can be specified.
+
+In1 stores a set of edges, assumed to have no duplicates or
+self-edges.  This means that either (Vi,Vj) or (Vj,Vi) appears, but
+not both.  Also (Vi,Vi) does not appear.  The input is unchanged by
+this command.
+
+Out1 will store the assignment of each vertex in the graph to a
+component ID.  The component ID is the smallest vertex ID of any
+vertex in the component.
+
+[Related commands:]
+
+"cc_stats"_cc_stats.html
+
+:line
+
+:link(Cohen)
+[(Cohen)] Cohen, "Graph Twiddling in a MapReduce World", Computing in
+Science and Engineering, 11, 29-41 (2009).
+
+:link(Plimpton) 
+[(Plimpton)] Plimpton and Devine, "MapReduce in MPI for Large-Scale
+Graph Algorithms", to appear in Parallel Computing (2011).

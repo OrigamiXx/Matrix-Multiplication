@@ -1,0 +1,29 @@
+"MapReduce-MPI WWW Site"_mws - "MapReduce-MPI Documentation"_md :c
+
+:link(mws,http://mapreduce.sandia.gov)
+:link(md,Manual.html)
+
+:line
+
+OINK interface to the MapReduce-MPI Library :h3
+
+OINK is a C++ application that provdes a hi-level scripting interface
+to the MR-MPI library which it uses internally. These are three goals
+of OINK:
+
+(1) To allow MapReduce algorithms which call the MR-MPI library to be
+written with a minimum of extraneous code, to work with input/output
+in various forms, and to be chained together and driven via a simple,
+yet versatile scripting language. :ulb,l
+
+(2) To create an archive of map() and reduce() functions for re-use by
+different algorithms. :l
+
+(3) To provide a scripted interface to the lo-level MR-MPI library
+calls that can speed development/debugging of new algortihms before
+coding them up in C++ or another language. :l,ule
+
+OINK has its own "manual and doc pages"_../oinkdoc/Manual.html, so
+further details are not given here.
+
+

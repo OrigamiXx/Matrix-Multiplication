@@ -1,0 +1,58 @@
+This is the MapReduce-MPI (MR-MPI) library.
+
+Copyright (2009) Sandia Corporation.  Under the terms of Contract
+DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government retains
+certain rights in this software.
+
+----------------------------------------------------------------------
+
+MapReduce is the operation popularized by Google for computing on
+large distributed data sets.  See the Wikipedia entry on MapReduce for
+an overview of what a MapReduce is.
+
+The MR-MPI library is a simple, portable implementation of MapReduce
+that runs on any serial desktop machine or large parallel machine
+using MPI message passing.
+
+As a user, you write a program which calls the MR-MPI library and you
+provide functions that operate on your data such as a map() and a
+reduce().  These functions are invoked by the library on single
+processors, so that you typically do not need to write any parallel
+code to perform a MapReduce.  You can also use a provided Python
+wrapper on the library.  You can also use a provided script-language
+interface to the library called OINK.
+
+The library is written in C++ and can be called from C++ or from C or
+other hi-level languages such as Fortran or a scripting language.  A
+Python wrapper for the library is provided.  If you want to run on a
+single processor, a dummy MPI library is provided to link against.  To
+perform MapReduces in parallel, you need to link against an installed
+MPI library.
+
+The MR-MPI library and the accompanying software is licensed under the
+Berkeley Software Distribution (BSD) License, which basically means it
+can be used by anyone for any purpose.  See the LICENSE file in this
+directory for details.
+
+The most current version of the library including all bug fixes and
+new featues can be downloaded at
+www.sandia.gov/~sjplimp/download.html.
+
+The authors of the library are Steve Plimpton and Karen Devine at
+Sandia National Laboratories who can be contacted at sjplimp, kddevin
+at sandia.gov.  Or see www.sandia.gov/~sjplimp.
+
+This MR-MPI distribution includes the following files and directories:
+
+README			   this file
+LICENSE			   the BSD License
+doc			   documentation
+examples		   simple examples of MapReduce programs
+mpistubs		   dummy MPI library
+oink                       OINK scripting framework for MR-MPI library
+oinkdoc                    documentation for OINK
+python			   Python wrapper files on MR-MPI library
+src			   library source files
+user                       user-contributed MapReduce programs
+
+Point your browser at doc/Manual.html to get started.

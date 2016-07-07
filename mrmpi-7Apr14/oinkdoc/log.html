@@ -1,0 +1,45 @@
+<HTML>
+<CENTER><A HREF = "http://mapreduce.sandia.gov">MR-MPI WWW Site</A> -<A HREF = "../doc/Manual.html">MR-MPI Documentation</A> - <A HREF = "Manual.html">OINK
+Documentation</A> - <A HREF = "Section_script.html#comm">OINK Commands</A> 
+</CENTER>
+
+
+
+
+
+
+
+
+<HR>
+
+<H3>log command 
+</H3>
+<P><B>Syntax:</B>
+</P>
+<PRE>log file 
+</PRE>
+<UL><LI>file = name of new logfile 
+</UL>
+<P><B>Examples:</B>
+</P>
+<PRE>log log.graph 
+</PRE>
+<P><B>Description:</B>
+</P>
+<P>This command closes the current OINK log file, opens a new file with
+the specified name, and begins logging information to it.  If the
+specified file name is <I>none</I>, then no new log file is opened.
+</P>
+<P>If multiple processor partitions are being used, the file name should
+be a variable, so that different processors do not attempt to write to
+the same log file.
+</P>
+<P>The file "log.oink" is the default log file for a OINK run.  The name
+of the initial log file can also be set by the command-line switch
+-log.  See <A HREF = "Section_start.html#2_6">this section</A> for details.
+</P>
+<P>The default OINK log file is named log.oink
+</P>
+<P><B>Related commands:</B> none
+</P>
+</HTML>

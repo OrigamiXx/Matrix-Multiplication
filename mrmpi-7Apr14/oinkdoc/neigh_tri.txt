@@ -1,0 +1,68 @@
+"MR-MPI WWW Site"_mws -"MR-MPI Documentation"_md - "OINK
+Documentation"_od - "OINK Commands"_oc :c
+
+:link(mws,http://mapreduce.sandia.gov)
+:link(md,../doc/Manual.html)
+:link(od,Manual.html)
+:link(oc,Section_script.html#comm)
+
+:line
+
+neigh_tri command :h3
+
+[Syntax:]
+
+neigh_tri dirname -i input1 input2 -o out1.file out1.mr :pre
+
+dirname = directory name to create set of output files in, one per vertex
+input1 = graph neighbors: Key = Vi, Value = Vj Vk ...
+input2 = triangles: Key = Vi Vj Vk, Value = NULL
+out1 = neighbors + triangle edges of each vertex: Key = Vi, MultiValue = Vj Vk ... (Vj Vk) (Vm Vn) ... :ul
+
+[Examples:]
+
+neigh_tri myneigh -i mrn mrtri -o NULL mrnplus
+
+[Description:]
+
+This is a named command which calculates a list of edges associated
+with each vertex in an undirected graph, which include all edges the
+vertex is in (its first neighbors) and also edges between pairs of its
+first neighbors (triangle edges).  This set of data is written to a
+file per vertex as a list of edges.
+
+See the "named command"_command.html doc page for various ways in
+which the -i inputs and -o outputs for a named command can be
+specified.
+
+Input1 stores a set of neighbors of each vertex.  See the
+"neighbor"_neighbor.html command, which can compute this data.  Input2
+stores a set of triangles.  See the "tri_find"_tri_find.html command,
+which can compute this data.  The two inputs are unchanged by this
+command.
+
+These 2 data sets are merged to identify the edges that exist between
+pairs of neighbors of each vertex.  This information is written to a
+file per vertex.  The name of each file is dirname/Vi where {dirname}
+is the specified argument (a directory name), and Vi is the vertex ID.
+Each file will contain a list of edges, one per line, written as Vm
+Vn.  For some of the Vm will equal Vi, which means they are edges
+containing Vi, i.e. they are the first neighbors of Vi.  Other edges
+will have Vm != Vi.  These are edges between pairs of first neighbors.
+
+Out1 will store the neighbor and triangle edge information as
+key/multivalue (KMV) pairs, not as key/value (KV) pairs (the usual
+form of output).
+
+Out1.file must be specified as NULL with the "-o" argument so that the
+output is only allowed as an MR-MPI object, not as a file.  This is
+because the file would contain data for all the vertices together.
+The equivalent info is already output as one file per vertex, as
+described above.
+
+NOTE: alter the neigh_tri.cpp code so that it uses the input dirname
+with expandpath() to apply the global prepend and substitute settings ??
+
+[Related commands:]
+
+"neighbor"_neighbor.html, "tri_find"_tri_find.html

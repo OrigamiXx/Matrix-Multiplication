@@ -1,0 +1,156 @@
+<HTML>
+<CENTER><A HREF = "http://mapreduce.sandia.gov">MR-MPI WWW Site</A> -<A HREF = "../doc/Manual.html">MR-MPI Documentation</A> - <A HREF = "Manual.html">OINK
+Documentation</A> - <A HREF = "Section_script.html#comm">OINK Commands</A> 
+</CENTER>
+
+
+
+
+
+
+
+
+<HR>
+
+<H3>input command 
+</H3>
+<P><B>Syntax:</B>
+</P>
+<PRE>input N keyword value ... 
+</PRE>
+<UL><LI>N = which input to set options for 
+
+<LI>one or more keyword/value pairs may be appended 
+
+<PRE>keyword = <I>prepend</I> or <I>substitute</I> or <I>multi</I> or <I>mmode</I> or <I>recurse</I> or <I>self</I> or <I>readfile</I> or <I>nmap</I> or <I>sepchar</I> or <I>sepstr</I> or <I>delta</I>
+  <I>prepend</I> value = string to prepend to file/directory path names
+  <I>substitute</I> value = 0 or 1 = how to substitute for "%" in path name
+  <I>multi</I> value = Nmulti = multiplicity of path names to generate
+  <I>mmode</I> value = 0 or 1 or 2 = which style of map() method to invoke
+  <I>recurse</I> value = 0 or 1 = passed to map() method
+  <I>self</I> value = 0 or 1 = passed to map() method
+  <I>readfile</I> value = 0 or 1 = passed to map() method
+  <I>nmap</I> value = number of map tasks = passed to map() method
+  <I>sepchar</I> value = single character = passed to map() method
+  <I>sepstr</I> value = string = passed to map() method
+  <I>delta</I> value = Ndelta = passed to map() method 
+</PRE>
+
+</UL>
+<P><B>Examples:</B>
+</P>
+<PRE>input 1 multi 4
+input 2 self 1 substitute 4 prepend /scratch%/hadoop-datastore/local_files 
+</PRE>
+<P><B>Description:</B>
+</P>
+<P>This command is used to control the reading of input data that a
+<A HREF = "command.html">named command</A> performs as part of its input.  It does
+this by setting options on specific inputs to <A HREF = "command.html">named
+commands</A>.  The options set by this command are in effect
+for ONLY the next named commmand.  After a named command is invoked,
+it restores all input options to their default values.  Note that all
+of the options which can be set by this command have default values,
+so you don't need to set those you don't want to change.
+</P>
+<P>As described on the <A HREF = "command.html">named command</A> doc page, a named
+command may specify one or more input descriptors.  If the descriptor
+is one or more file or directory names, then each of them is converted
+into a list of strings which is passed to a map() method of a created
+MR-MPI object, along with various other arguments needed by the map()
+method.  The purpose of the input command is to give you control over
+how that conversion takes place and what the values of those
+additional arguments are.
+</P>
+<P>The <I>N</I> value corresponds to a particular input descriptor, as defined
+by the <A HREF = "command.html">named command</A>.  It should be an integer from 1
+to Ninput, where Ninput is the number of input descriptors the command
+requires.  The input command can be used multiple times with the same
+<I>N</I> to specify different parameters, e.g. one at a time.
+</P>
+<P>The remaining arguments are pairs of <I>keywords</I> and <I>values</I>.  One
+or more can be specified.
+</P>
+<HR>
+
+<P>The <I>prepend</I>, <I>substitute</I>, and <I>multi</I> keywords alter
+the file and directory path names specified with an input descriptor
+in a named command.
+</P>
+<P>IMPORTANT NOTE: The <I>prepend</I>, <I>substitute</I>, and <I>multi</I> keywords are
+applied to each file of directory name in the list of such names that
+the <A HREF = "command.html">named command</A> uses in its input descriptor.
+</P>
+<P>IMPORTANT NOTE: The <I>prepend</I> and <I>substitute</I> keywords can also be
+set globally so that their values will be applied to all input
+descriptors of all <A HREF = "command.html">named commands</A>.  See the
+<A HREF = "set.html">set</A> command for details.  If an input command is not used
+to override the global value, then the global value is used by the
+<A HREF = "command.html">named command</A>.
+</P>
+<P>The <I>prepend</I> keyword specifies a path name to prepend to each input
+file or directory name specified with the <A HREF = "command.html">named
+command</A>. The prepend string is presumed to be a
+directory name and should be specified without the trailing "/"
+character, since that is added when the prepending is done.
+</P>
+<P>Input file or directory names specified with the <A HREF = "command.html">named
+command</A> can contain either or both of two wildcard
+characters: "%" or "*".  Only the first occurrence of each wildcard
+character is replaced.
+</P>
+<P>If the <I>substitute</I> keyword is set to 0, then a "%" is replaced by the
+processor ID, 0 to Nprocs-1.  If it is set to N > 0, then "%" is
+replaced by (proc-ID % N) + 1.  I.e. for 8 processors and N = 4, then
+the 8 processors replace the "%" with (1,2,3,4,1,2,3,4).  This can be
+useful for multi-core nodes where each core has its own local disk.
+E.g. you wish each core to read data from one disk.
+</P>
+<P>If a "*" appears, then the file or directory name is duplicated N
+times where N is the value set by the <I>multi</I> keyword.  In each of the
+N duplicates, the "*" is replaced by the number 1 to N.  Again, this
+can be useful for multi-core nodes where each core has its own local
+disk.  E.g. you want a single core to read data from each of several
+local disks on the node, presumably because you have launched an MPI
+job so that it runs on a single core per node.
+</P>
+<HR>
+
+<P>The <I>mmode</I> keyword stands for "map mode" and determines what form of
+the <A HREF = "../doc/map.html">MR-MPI library map() method</A> is invoked by the
+<A HREF = "command.html">named command</A>.  It is up to the coding of the "named
+command" to determine which of these forms of data input it supports.
+There are 3 variants of the map() method which involve file input:
+</P>
+<PRE>mmode = 0 = map(int nstr, char **strings, int self, int recurse, int readfile, void (*mymap)(), void *ptr)
+mmode = 1 = map(int nmap, int nstr, char **strings, int recurse, int readfile, char sepchar, int delta, void (*mymap)(), void *ptr)
+mmode = 2 = map(int nmap, int nstr, char **strings, int recurse, int
+readfile, char *sepstr, int delta, void (*mymap)(), void *ptr) 
+</PRE>
+<P>The "nstr" and "strings" arguments to these methods are created by
+OINK, using the settings described above.  The remaining arguments are
+set by the keywords of the input command, as needed.  Note that some
+keywords have no meaning for certain map() method variants, in which
+case they are simply ignored.
+</P>
+<P>The meaning of the <I>self</I>, <I>recurse</I>, <I>readfile</I>, <I>nmap</I>, <I>sepchar</I>,
+<I>sepstr</I>, and <I>delta</I> keywords is the same as explained on the doc
+page for the <A HREF = "../doc/map.html">map() method</A> of the MR-MPI library.
+The value for the <I>sepchar</I> keyword will be treated as a single
+character.  The value for the <I>sepstr</I> keyword will be treated as a
+string.
+</P>
+<HR>
+
+<P><B>Related commands:</B>
+</P>
+<P><A HREF = "output.html">output</A>, <A HREF = "command.html">named commands</A>, <A HREF = "Section_commands.html">how to write
+named commands</A>, <A HREF = "set.html">set</A>
+</P>
+<P><B>Defaults:</B>
+</P>
+<P>The option defaults are prepend = NULL, substitute = 0, multi = 1,
+mmode = 0, recurse = 0, self = 0, readfile = 0, nmap = 0, sepchar =
+newline character, sepstr = newline, delta = 80.
+</P>
+</HTML>

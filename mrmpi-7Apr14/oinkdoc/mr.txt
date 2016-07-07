@@ -1,0 +1,52 @@
+"MR-MPI WWW Site"_mws -"MR-MPI Documentation"_md - "OINK
+Documentation"_od - "OINK Commands"_oc :c
+
+:link(mws,http://mapreduce.sandia.gov)
+:link(md,../doc/Manual.html)
+:link(od,Manual.html)
+:link(oc,Section_script.html#comm)
+
+:line
+
+mr command :h3
+
+[Syntax:]
+
+mr MR-ID verbosity timer memsize outofcore :pre
+
+MR-ID = ID of new MR-MPI object to create
+verbosity = verbosity setting (optional)
+timer = timer setting (optional)
+memsize = memsize setting (optional)
+outofcore = outofcore setting (optional) :ul
+
+[Examples:]
+
+mr edge
+mr edge 2
+mr edge 1 1 16 0 :pre
+
+[Description:]
+
+Create a new MR-MPI object, which can be referenced by name elsewhere
+in your input script.  In OINK, a MR-MPI object is simply a thin
+wrapper on a MapReduce object created via the "MR-MPI library"_md.
+The MR-MPI object has an ID which can be used elsewhere in the input
+script.  For example it can be used as input to a "named
+command"_command.html or in a "MR-MPI library command"_mrmpi.html.
+
+The ID of an MR-MPI object can only contain alphanumeric characters
+and underscores.
+
+When the underlying MapReduce object is created, it will have default
+settings as described "here"_../doc/settings.html.  Several of these
+settings can be overridden by the 4 options listed above.  If none of
+them are specified, then the default settings are used.  To reset one
+of the settings, you must specify all the settings that preceed it.
+E.g. if just two optional arguments are used, they are the verbosity
+and timer settings.
+
+[Related commands:]
+
+"MR-MPI library commands"_mrmpi.html, "named commands"_command.html
+

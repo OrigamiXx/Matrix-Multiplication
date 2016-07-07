@@ -1,0 +1,36 @@
+"MR-MPI WWW Site"_mws -"MR-MPI Documentation"_md - "OINK
+Documentation"_od - "OINK Commands"_oc :c
+
+:link(mws,http://mapreduce.sandia.gov)
+:link(md,../doc/Manual.html)
+:link(od,Manual.html)
+:link(oc,Section_script.html#comm)
+
+:line
+
+clear command :h3
+
+[Syntax:]
+
+clear :pre
+
+[Examples:]
+
+(commands for 1st computation)
+clear
+(commands for 2nd computation) :pre
+
+[Description:]
+
+This command deletes all data structures and restores all settings to
+their default values.  Once a clear command has been executed, it is
+as if OINK were starting over, with only the exceptions noted below.
+This command enables multiple jobs to be run sequentially from one
+input script.
+
+These settings are not affected by a clear command: the working
+directory ("shell"_shell.html command), log file status
+("log"_log.html command), echo status ("echo"_echo.html command), and
+input script variables ("variable"_variable.html command).
+
+[Related commands:] none

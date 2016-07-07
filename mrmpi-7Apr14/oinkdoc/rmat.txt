@@ -1,0 +1,82 @@
+"MR-MPI WWW Site"_mws -"MR-MPI Documentation"_md - "OINK
+Documentation"_od - "OINK Commands"_oc :c
+
+:link(mws,http://mapreduce.sandia.gov)
+:link(md,../doc/Manual.html)
+:link(od,Manual.html)
+:link(oc,Section_script.html#comm)
+
+:line
+
+rmat command :h3
+rmat2 command :h3
+
+[Syntax:]
+
+rmat N Nz a b c d fraction seed -o out1.file out1.mr
+rmat2 N Nz a b c d fraction seed -o out1.file out1.mr :pre
+
+N = order of matrix, 2^N = number of rows in matrix
+Nz = average # of non-zeroes per row, Nz * 2^N = total # of non-zeroes
+a,b,c,d = R-MAT parameters which sum to 1.0
+fraction = R-MAT twiddle factor
+seed = random number seed (positive integer)
+out1 = graph edges: Key = Vi Vj, Value = NULL :ul
+
+[Examples:]
+
+rmat 20 8 0.45 0.25 0.25 0.05 0.0 284958 -o NULL mre
+rmat2 20 8 0.45 0.25 0.25 0.05 0.0 284958 -o tmp.rmat NULL :pre
+
+[Description:]
+
+These are named commands which generate a sparse random matrix via the
+procedure defined for R-MAT matrices, as discussed in the paper by
+"(Chakrabarti)"_#Chakrabarti.  Such matrices are often used to
+represent graphs where the vertices are numbered 1 to Nrows, and the
+non-zero matrix entries represent edges.  The number of rows and
+non-zero entries are determined by the specified {N} and {Nz}
+arguments.
+
+Depending on the choice of the R-MAT parameters the degree
+distribution of the resulting graph can be roughly uniform or highly
+skewed, which is useful in modeling different kind of graphs,
+e.g. Internet connectivity.  The a,b,c,d parameters must sum to 1.0
+and represent weighting for the 4 different quadrants of the matrix.
+As non-zero entries are generated, they are assigned to each quadrant
+in a recursive manner using the a,b,c,d weightings and a random number
+generator.  A fraction value of 0.0 means the a,b,c,d weightings are
+used as-is.  A fraction value > 0.0 but < 1.0 means the weightings are
+randomly twiddled at each iteration of the recursion.
+
+The MapReduce algorithms used for performing the R-MAT generation are
+described in the paper by "(Plimpton)"_#Plimpton.  The rmat command
+implements the first of the two algorithms discussed in the paper.
+The rmat2 command implements the second of the two algorithms.
+
+See the "named command"_command.html doc page for various ways in
+which the -i inputs and -o outputs for a named command can be
+specified.
+
+These commands take no inputs.
+
+Out1 will store the list of edges of the R-MAT graph, or equivalently,
+the I,J indices of non-zeroes in the matrix.  There will be exactly Nz
+* 2^N entries in out1.  This may include some duplicate or self-edges.
+A duplicate edge is when both (Vi,Vj) or (Vj,Vi) appear.  A self-edge
+is when (Vi,Vi) appears.  If desired, these can be removed by further
+processing; see the "edge_upper"_edge_upper.html command.
+
+[Related commands:]
+
+"edge_upper"_edge_upper.html
+
+:line
+
+:link(Chakrabarti)
+[(Chakrabarti]) Chakrabarti, Zhan, Faloutsos, "R-MAT: A recursive
+model for graph mining", in SIAM Data Mining (2004).
+
+:link(Plimpton)
+[(Plimpton)] Plimpton and Devine, "MapReduce in MPI for Large-Scale
+Graph Algorithms", to appear in Parallel Computing (2011).

@@ -1,0 +1,56 @@
+"MR-MPI WWW Site"_mws -"MR-MPI Documentation"_md - "OINK
+Documentation"_od - "OINK Commands"_oc :c
+
+:link(mws,http://mapreduce.sandia.gov)
+:link(md,../doc/Manual.html)
+:link(od,Manual.html)
+:link(oc,Section_script.html#comm)
+
+:line
+
+luby_find command :h3
+
+[Syntax:]
+
+luby_find seed -i in1 -o out1.file out1.mr :pre
+
+seed = random number seed (positive integer)
+in1 = graph edges: Key = Vi Vj, Value = NULL
+out1 = minimal independent set: Key = Vi, Value = NULL :ul
+
+[Examples:]
+
+luby_find 982938 -i mre -o mis.list mis :pre
+
+[Description:]
+
+This is a named command which computes a minimal independent set (MIS)
+of vertices for an undirected graph.  A MIS contains vertices which do
+not share an edge and to which no additional vertex can be added.  For
+a given graph there are typically many possible MIS's; the MIS that is
+computed is a function of the specified random number seed.  The MIS
+is found by "Luby's algorithm"_#Luby, which is an interative method.
+The MapReduce version of Luby's algorithm implemented by this command
+is discussed in the paper of "(Plimpton)"_#Plimpton.
+
+See the "named command"_command.html doc page for various ways in which
+the -i inputs and -o outputs for a named command can be specified.
+
+In1 stores a set of edges, assumed to have no duplicates or
+self-edges.  This means that either (Vi,Vj) or (Vj,Vi) appears, but
+not both.  Also (Vi,Vi) does not appear.  The input is unchanged by
+this command.
+
+Out1 will store the list of vertices in the MIS.
+
+[Related commands:] none
+
+:line
+
+:link(Luby) 
+[(Luby)] Luby, "A Simple Parallel Algorithm for the Maximal
+Independent Set Problem", SIAM J Computing, 15, 1036-1055 (1986).
+
+:link(Plimpton) 
+[(Plimpton)] Plimpton and Devine, "MapReduce in MPI for Large-Scale
+Graph Algorithms", to appear in Parallel Computing (2011).

@@ -1,0 +1,38 @@
+"MR-MPI WWW Site"_mws -"MR-MPI Documentation"_md - "OINK
+Documentation"_od - "OINK Commands"_oc :c
+
+:link(mws,http://mapreduce.sandia.gov)
+:link(md,../doc/Manual.html)
+:link(od,Manual.html)
+:link(oc,Section_script.html#comm)
+
+:line
+
+include command :h3
+
+[Syntax:]
+
+include file :pre
+
+file = filename of new input script to switch to :ul
+
+[Examples:]
+
+include newfile
+include in.run2 :pre
+
+[Description:]
+
+This command opens a new input script file and begins reading OINK
+commands from that file.  When the new file is finished, the original
+file is returned to.  Include files can be nested as deeply as
+desired.  If input script A includes script B, and B includes A, then
+OINK could run for a long time.
+
+If the filename is a variable (see the "variable"_variable.html
+command), different processor partitions can run different input
+scripts.
+
+[Related commands:]
+
+"variable"_variable.html, "jump"_jump.html

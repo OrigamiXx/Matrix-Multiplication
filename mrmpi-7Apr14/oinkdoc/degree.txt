@@ -1,0 +1,49 @@
+"MR-MPI WWW Site"_mws -"MR-MPI Documentation"_md - "OINK
+Documentation"_od - "OINK Commands"_oc :c
+
+:link(mws,http://mapreduce.sandia.gov)
+:link(md,../doc/Manual.html)
+:link(od,Manual.html)
+:link(oc,Section_script.html#comm)
+
+:line
+
+degree command :h3
+
+[Syntax:]
+
+degree dupflag -i in1 -o out1.file out1.mr :pre
+
+dupflag = 1/2 for counting edge once/twice
+in1 = graph edges: Key = Vi Vj, Value = NULL
+out1 = degree of each vertex: Key = Vi, Value = degree :ul
+
+[Examples:]
+
+degree 1 -i mrv -o degree.list NULL
+
+[Description:]
+
+This is a named command which calculates the degree of each vertex in
+a graph.
+
+If the dupflag is 2, then each edge increments the degree of both of
+its vertices.  If the dupflag is 1, then each edge only increments the
+degree of the first of its vertices.  The former is usually more
+approrpriate for undirected graphs; the latter for directed graphs, in
+which case the out-degree of each vertex is being calculated.
+
+See the "named command"_command.html doc page for various ways in
+which the -i inputs and -o outputs for a named command can be
+specified.
+
+In1 stores a set of edges.  No assumption is made about duplicates or
+self edges, i.e. (Vi,Vj) may appear multiple times, both (Vi,Vj) or
+(Vj,Vi) may appear, as may (Vi,Vi).  The input is unchanged by this
+command.
+
+Out1 will store the degree count of each vertex.
+
+[Related commands:]
+
+"neighbor"_neighbor.html, "degree_stats"_degree_stats.html

@@ -1,0 +1,54 @@
+"MR-MPI WWW Site"_mws -"MR-MPI Documentation"_md - "OINK
+Documentation"_od - "OINK Commands"_oc :c
+
+:link(mws,http://mapreduce.sandia.gov)
+:link(md,../doc/Manual.html)
+:link(od,Manual.html)
+:link(oc,Section_script.html#comm)
+
+:line
+
+histo command :h3
+
+[Syntax:]
+
+histo -i in1 -o out1.file out1.mr :pre
+
+in1 = anthing: Key = key, Value = value
+out1 = frequency count of each key: Key = key, Value = count :ul
+
+[Examples:]
+
+histo -i mrdata -o NULL out1.mr :pre
+
+[Description:]
+
+This is a named command which calculates the frequency of key occurrence
+in an input set of key/values.
+
+See the "named command"_command.html doc page for various ways in
+which the -i inputs and -o outputs for a named command can be
+specified.
+
+In1 is any MR-MPI object containing key/value pairs.  The input is
+unchanged by this command.
+
+In1 cannot be specified as input from file(s) since no assumption is
+made about how the files store key/value pairs.  You would need to
+read the files into a MR-MPI object as a pre-processing step, using a
+map() function you provide, before passing that object to the histo
+command as an input.
+
+Out1 will store the frequency count of all unique keys.
+
+Out1 cannot be specified as output to a file since no assumption is
+made about how the key should be formatted for output.  You would need
+to write the files from the output MR-MPI object as a post-processing
+step, using a map() or scan() function you provide.
+
+Statistics on the count of each key will be printed to the screen in
+sorted order.
+
+[Related commands:]
+
+"degree_stats"_degree_stats.html, "wordfreq"_wordfreq.html

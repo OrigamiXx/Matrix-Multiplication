@@ -1,0 +1,68 @@
+<HTML>
+<CENTER><A HREF = "http://mapreduce.sandia.gov">MR-MPI WWW Site</A> -<A HREF = "../doc/Manual.html">MR-MPI Documentation</A> - <A HREF = "Manual.html">OINK
+Documentation</A> - <A HREF = "Section_script.html#comm">OINK Commands</A> 
+</CENTER>
+
+
+
+
+
+
+
+
+<HR>
+
+<H3>cc_find command 
+</H3>
+<P><B>Syntax:</B>
+</P>
+<PRE>cc_find nthresh -i in1 -o out1.file out1.mr 
+</PRE>
+<UL><LI>nthresh = threshhold size at which components are split across processors
+<LI>in1 = graph edges: Key = Vi Vj, Value = NULL
+<LI>out1 = components: Key = Vi, Value = Ci 
+</UL>
+<P><B>Examples:</B>
+</P>
+<PRE>cc_find 1000 -i mre -o cc.list cc 
+</PRE>
+<P><B>Description:</B>
+</P>
+<P>This is a named command which finds all the connected components (CCs)
+in an undirected graph.  A connected component is a set of vertices
+where each is connected to one or more other vertices in the set via
+an edge.  The CCs are found via the MapReduce algorithm of
+<A HREF = "#Cohen">(Cohen)</A> discussed in his paper with extensions described in
+the paper of <A HREF = "#Plimpton">(Plimpton)</A> which attempt to load-balance the
+calculation across processors when one or a few very large components
+exist in the graph.
+</P>
+<P>See the <A HREF = "command.html">named command</A> doc page for various ways in which
+the -i inputs and -o outputs for a named command can be specified.
+</P>
+<P>In1 stores a set of edges, assumed to have no duplicates or
+self-edges.  This means that either (Vi,Vj) or (Vj,Vi) appears, but
+not both.  Also (Vi,Vi) does not appear.  The input is unchanged by
+this command.
+</P>
+<P>Out1 will store the assignment of each vertex in the graph to a
+component ID.  The component ID is the smallest vertex ID of any
+vertex in the component.
+</P>
+<P><B>Related commands:</B>
+</P>
+<P><A HREF = "cc_stats.html">cc_stats</A>
+</P>
+<HR>
+
+<A NAME = "Cohen"></A>
+
+<P><B>(Cohen)</B> Cohen, "Graph Twiddling in a MapReduce World", Computing in
+Science and Engineering, 11, 29-41 (2009).
+</P>
+<A NAME = "Plimpton"></A>
+
+<P><B>(Plimpton)</B> Plimpton and Devine, "MapReduce in MPI for Large-Scale
+Graph Algorithms", to appear in Parallel Computing (2011).
+</P>
+</HTML>

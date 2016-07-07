@@ -1,0 +1,44 @@
+"MR-MPI WWW Site"_mws -"MR-MPI Documentation"_md - "OINK
+Documentation"_od - "OINK Commands"_oc :c
+
+:link(mws,http://mapreduce.sandia.gov)
+:link(md,../doc/Manual.html)
+:link(od,Manual.html)
+:link(oc,Section_script.html#comm)
+
+:line
+
+cc_stats command :h3
+
+[Syntax:]
+
+cc_stats -i in1 :pre
+
+in1 = component assignment for each vertex: Key = Vi, Value = Ci
+
+[Examples:]
+
+cc_stats -i ccdir :pre
+
+[Description:]
+
+This is a named command which summarizes and prints out the statistics
+on connected components (CCs) that each vertex in a graph belongs to.
+For each component size n, one line is printed to the screen with the
+number of components of size n.  This is done in sorted order.
+
+See the "named command"_command.html doc page for various ways in
+which the -i inputs and -o outputs for a named command can be
+specified.
+
+In1 stores a set of vertices Vi and the component ID Ci which each is
+assigned to.  Typically this will have been computed previously by the
+"cc_find"_cc_find.html command.  The input is unchanged by this
+command.
+
+This command produces no output, other than what is written to the
+screen.
+
+[Related commands:]
+
+"cc_find"_cc_find.html
