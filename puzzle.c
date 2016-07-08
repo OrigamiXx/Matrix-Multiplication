@@ -27,7 +27,7 @@ puzzle * create_puzzle_from_puzzle(puzzle * p, int row_index){
 }
 
 //read a puzzle from a file.
-puzzle * create_puzzle_from_file(char * filename){
+puzzle * create_puzzle_from_file(const char * filename){
 
   puzzle * p = (puzzle *) (malloc(sizeof(puzzle)));
 
@@ -188,10 +188,13 @@ int print_puzzle(puzzle * p){
 void write_puzzle(puzzle * p, int index){
   //char a[256];
   //itoa(index, a);
-  char * extension = ".puzz";
-  char name[20+strlen(extension)+1];
+  //string extension = ".puzz";
+  char name[100];
+  //string name;
   FILE * f;
-  snprintf(name, sizeof(name), "puzzles/%d_%d_%04d%s", p -> row, p -> column, index, extension);
+  snprintf(name, sizeof(name), "puzzles/%d_%d_%04d%s", p -> row, p -> column, index, ".puzz");
+  //string name;
+  //name = "puzzles" + to_string(p->row) + "_" + to_string(p->column) + "_" + to_string(index) + extension;
   f = fopen(name, "w");
   assert(f != NULL);
   int i, j;
