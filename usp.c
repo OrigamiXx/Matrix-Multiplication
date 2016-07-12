@@ -1,6 +1,6 @@
 // check usp in c
 // author Jerry
-
+//add -std=c++11 back if want the original one working
 #include <stdio.h>
 #include <stdlib.h>
 #include "permutation.h"
@@ -26,11 +26,10 @@ int check_usp_same_col(int max_row, int column){
   puzzle * p;
   for(i = 0; i<max_poss_row; i++){
     p = create_puzzle_from_index(row, column, i);
-    M.insert(pair<string,  puzzle*>(to_string(i), p));
-    
+    //M.insert(pair<string,  puzzle*>(to_string(i), p));  
     tt++;
   }
-  // for(map<string, puzzle*>::iterator it = M.begin(); it!=M.end(); ++it){
+  //for(map<string, puzzle*>::iterator it = M.begin(); it!=M.end(); ++it){
     
   //}
   printf("row %d column %d has %d usps.\n",row,column,tt);
@@ -44,7 +43,7 @@ int check_usp_same_col(int max_row, int column){
 	p = create_puzzle_from_puzzle(it->second, i);
 	total++;
 	if(check_usp_recursive(p)){
-	  tmpM.insert(pair<string, puzzle*>(it->first+"_"+ to_string(i), p));
+	  // tmpM.insert(pair<string, puzzle*>(it->first+"_"+ to_string(i), p));
 	  t++;
 	  tt++;
 	}
@@ -229,8 +228,9 @@ std::map<string, bool>m;
 }
 //turn the s2, s3, and same_perm into a string
 string param_to_string(set s2, set s3, bool same_perm){
-   string result = to_string(s2) + "|" + to_string(s3) + "|" + to_string(same_perm); 
-   return result;
+  // string result = to_string(s2) + "|" + to_string(s3) + "|" + to_string(same_perm); 
+  string result;
+  return result;
 
 }
 

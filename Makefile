@@ -5,7 +5,7 @@
 
 MPICC=mpic++
 CC=g++ 
-CCFLAGS=-c -Wall -O3 -pg -std=c++11
+CCFLAGS=-c -Wall -O3 -pg
 LDFLAGS=-lm -pg
 RMFLAGS=-f
 OBJ-SOURCES=usp.c permutation.c puzzle.c set.c
