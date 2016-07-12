@@ -1,0 +1,19 @@
+#PBS -l nodes=10:ppn=12
+#PBS -l walltime=5:00
+#PBS -j oe
+#PBS -N jerry_out
+
+if [ "$PBS_ENVIRONMENT" != "PBS_INTERACTIVE" ] ; then
+cd $PBS_O_WORKDIR
+fi
+
+typeset integer NPROCS
+NPROCS=`wc -l $PBS_NODEFILE | awk '{print $1}'`
+echo $NPROCS
+
+##to use TCP
+mpirun --mca btl tcp,self --mca btl_tcp_if_include eth0 \
+       -hostfile $PBS_NODEFILE -np $NPROCS usp_cluster 4
+
+## Interactive command.
+##mpirun --mca btl openib,self --mca btl_tcp_if_include eth0 --mca btl_openib_cpc_include rdmacm -np 120 usp_cluster 4
