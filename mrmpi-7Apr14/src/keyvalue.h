@@ -57,6 +57,7 @@ class KeyValue {
   void add(int, char *, int *, char *, int *);
 
   void print(FILE *, int, int, int);
+  void print(FILE *, void (*)(FILE *,char *, int, char *, int));
 
  private:
   MapReduce *mr;

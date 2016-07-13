@@ -1604,6 +1604,48 @@ void MapReduce::print(int proc, int nstride, int kflag, int vflag)
   MPI_Barrier(comm);
 }
 
+
+/* ----------------------------------------------------------------------
+   print of KV or KMV pairs to screen
+   if all procs are printing, pass print token from proc to proc
+------------------------------------------------------------------------- */
+
+void MapReduce::print(int proc, void (*myprint)(FILE *,char *, int, char *, int))
+{
+  MPI_Status status;
+
+  if (kv == NULL && kmv == NULL)
+    error->all("Cannot print without KeyValue or KeyMultiValue");
+
+  if (proc == me) {
+    if (kv) {
+      kv->allocate();
+      kv->print(stdout,myprint);
+      kv->deallocate(0);
+    }
+    if (kmv) {
+      error->all("Unimplemented: Cannot function print KeyMultiValue");
+    }
+  }
+
+  if (proc >= 0) return;
+
+  int token;
+  MPI_Barrier(comm);
+  if (me > 0) MPI_Recv(&token,0,MPI_INT,me-1,0,comm,&status);
+  if (kv) {
+    kv->allocate();
+    kv->print(stdout,myprint);
+    kv->deallocate(0);
+  }
+  if (kmv) {
+    error->all("Unimplemented: Cannot function print KeyMultiValue");
+  }
+  if (me < nprocs-1) MPI_Send(&token,0,MPI_INT,me+1,0,comm);
+  MPI_Barrier(comm);
+}
+
+
 /* ----------------------------------------------------------------------
    print of KV or KMV pairs to file(s)
    if one proc is printing, write to filename

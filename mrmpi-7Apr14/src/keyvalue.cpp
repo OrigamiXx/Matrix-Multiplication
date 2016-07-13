@@ -818,3 +818,42 @@ void KeyValue::print(FILE *fp, int nstride, int kflag, int vflag)
     }
   }
 }
+
+void KeyValue::print(FILE *fp, void (*myprint)(FILE *,char *, int, char *, int))
+{
+  int keybytes,valuebytes;
+  uint64_t dummy1,dummy2,dummy3;
+  char *ptr,*key,*value,*ptr_start;
+
+  int nstride = 1;
+  int istride = 0;
+
+  for (int ipage = 0; ipage < npage; ipage++) {
+    nkey = request_page(ipage,dummy1,dummy2,dummy3);
+    ptr = page;
+    for (int i = 0; i < nkey; i++) {
+      ptr_start = ptr;
+      keybytes = *((int *) ptr);
+      valuebytes = *((int *) (ptr+sizeof(int)));;
+
+      ptr += twolenbytes;
+      ptr = ROUNDUP(ptr,kalignm1);
+      key = ptr;
+      ptr += keybytes;
+      ptr = ROUNDUP(ptr,valignm1);
+      value = ptr;
+      ptr += valuebytes;
+      ptr = ROUNDUP(ptr,talignm1);
+
+      istride++;
+      if (istride != nstride) continue;
+      istride = 0;
+
+      fprintf(fp,"KV pair: proc %d, sizes %d %d\n",me,keybytes,valuebytes);
+
+      myprint(fp,key,keybytes,value,valuebytes);
+
+      fprintf(fp,"\n");
+    }
+  }
+}
