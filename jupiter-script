@@ -1,4 +1,4 @@
-#PBS -l nodes=5:ppn=12
+#PBS -l nodes=10:ppn=12
 #PBS -l walltime=168:00:00
 #PBS -j oe
 #PBS -N jerry_out
