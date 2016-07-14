@@ -17,6 +17,7 @@
 #include "keyvalue.h"
 #include "usp.h"
 #include "puzzle.h"
+#include "usp_bi.h"
 using namespace MAPREDUCE_NS;
 
 
@@ -72,7 +73,7 @@ void extend_puzzle(uint64_t itask, char * key, int keybytes, char *value, int va
     p.column = column;
     p.puzzle = new_puz;
     p.pi = create_perm_identity(row);
-    if (check_usp(&p)){//check_usp_recursive(&p)){
+    if (check(p.puzzle, p.row, p.column)){//check_usp(&p)){//check_usp_recursive(&p)){
       //print_puzzle(&p);
       // printf("hello\n");
       index++;
