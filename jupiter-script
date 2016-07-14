@@ -2,6 +2,7 @@
 #PBS -l walltime=168:00:00
 #PBS -j oe
 #PBS -N jerry_out
+#PBS -m ae
 
 if [ "$PBS_ENVIRONMENT" != "PBS_INTERACTIVE" ] ; then
 cd $PBS_O_WORKDIR

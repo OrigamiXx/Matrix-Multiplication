@@ -5,6 +5,7 @@
 #include <math.h>
 #include "constants.h"
 #include <map>
+#include <cstdlib>
 
 // MapReduce finding usps to do matrix-multiplication
 // Syntax: mpirun -np 4 ./usp_cluster column(column number)
@@ -18,6 +19,7 @@
 #include "usp.h"
 #include "puzzle.h"
 #include "usp_bi.h"
+#include  <time.h>
 using namespace MAPREDUCE_NS;
 
 
@@ -63,9 +65,12 @@ void extend_puzzle(uint64_t itask, char * key, int keybytes, char *value, int va
     new_puz[i] = puz[i];
   }
   puzzle p;
-  int index = 0;
+  //int index = 0;
+  int percent;
   //printf("row = %d\n", row);
   //printf("column= %d\n", column);
+  int seed = 1;
+  srand(time(NULL));
   for(i = puz[row-2]; i < max_poss_row;i++){
     new_puz[row-1] = i;
     //puzzle p;
@@ -73,13 +78,17 @@ void extend_puzzle(uint64_t itask, char * key, int keybytes, char *value, int va
     p.column = column;
     p.puzzle = new_puz;
     p.pi = create_perm_identity(row);
-    if (check(p.puzzle, p.row, p.column)){//check_usp(&p)){//check_usp_recursive(&p)){
-      //print_puzzle(&p);
-      // printf("hello\n");
-      index++;
-      if(index<2){
-	kv->add((char*)new_puz, row*sizeof(int), NULL, 0);
-      }
+    
+    percent = rand() % 100;
+    //percent = 0;
+    int percentage = 25;
+    //printf("%d\n",percent);
+    if (check(p.puzzle, p.row, p.column)&&percent<percentage){//check_usp(&p)){//check_usp_recursive(&p)){
+      //index++;
+      //if(index<2){
+      
+      kv->add((char*)new_puz, row*sizeof(int), NULL, 0);
+      //}
     }
     destroy_perm(p.pi);
   }
@@ -93,7 +102,7 @@ int main(int narg, char **args)
   int me,nprocs;
   MPI_Comm_rank(MPI_COMM_WORLD,&me);
   MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
-
+  
   // parse command-line args
   //int column;
   if (narg != 2 ){//&& narg != 10) {
