@@ -81,7 +81,7 @@ void extend_puzzle(uint64_t itask, char * key, int keybytes, char *value, int va
     
     percent = rand() % 100;
     //percent = 0;
-    int percentage = 10;
+    int percentage = 25;
     //printf("%d\n",percent);
     if (check(p.puzzle, p.row, p.column)&&percent<percentage){//check_usp(&p)){//check_usp_recursive(&p)){
       //index++;
