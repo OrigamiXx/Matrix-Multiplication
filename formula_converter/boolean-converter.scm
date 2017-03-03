@@ -41,3 +41,50 @@
 ;; have defined the-grammar first.
 (load "lex-scan-parse.scm")
 
+(define empty-env
+  (lambda ()
+    (lambda (var)
+      (raise 'empty-env "No mapping for ~s." var))))
+
+(define extend-env
+  (lambda (var num env)
+    (lambda (target-var)
+      (cond
+       [(equal? target-var var) num]
+       [else (env target-var)]))))
+
+(define apply-env
+  (lambda (var env)
+    (env var)))
+      
+
+(define expand
+  (lambda (bf)
+    (expand* bf (empty-env))))
+
+(define expand*
+  (lambda (bf env)
+    (cases boolean-formula bf
+	   [not-formula (bf) (not-formula (expand bf env))]
+	   [and-formula (bf1 bf2) (and-formula (expand bf1 env) (expand bf2 env))]
+	   [or-formula (bf1 bf2) (or-formula (expand bf1 env) (expand bf2 env))]
+	   [and-many-formula (var lower upper bf)
+			     (cond
+			      [(< lower upper)
+			       (and-formula (expand bf (extend-env var lower env))
+					    (expand (and-many-formula var (+ lower 1) upper bf)))]
+			      [(= lower upper)
+			       (expand bf (extend-env var upper env))]
+			      [else (raise 'expand "Out of order bounds ~s" bf)])]
+	   [or-many-formula (var lower upper bf)
+			    (cond
+			      [(< lower upper)
+			       (or-formula (expand bf (extend-env var lower env))
+					   (expand (and-many-formula var (+ lower 1) upper bf)))]
+			      [(= lower upper)
+			       (expand bf (extend-env var upper env))]
+			      [else (raise-exception 'expand "Out of order bounds ~s" bf)])]
+	   
+
+			     
+	   )))
