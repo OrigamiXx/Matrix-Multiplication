@@ -10,7 +10,7 @@
   '(
 
     (boolean-formula
-     ("(and" identifier number number boolean-formula ")")
+     ("(and-many" identifier number number boolean-formula ")")
      and-many-formula)
 
     (boolean-formula
@@ -18,7 +18,7 @@
      and-formula)
    
     (boolean-formula
-     ("(or" identifier number number boolean-formula ")")
+     ("(or-many" identifier number number boolean-formula ")")
      or-many-formula)
     
     (boolean-formula
@@ -26,7 +26,7 @@
      or-formula)
     
     (boolean-formula
-     ("(not" boolean-forumla ")")
+     ("(not" boolean-formula ")")
      not-formula)
 
     (boolean-formula
