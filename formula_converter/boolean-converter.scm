@@ -123,3 +123,63 @@
 			 (var->num 
 			  (var-formula-simple name (map (lambda (i) (apply-env i env)) indexes))))]
 	   )))
+
+(define get-newvarnum ;; () -> varnum get a new variable number
+  (lambda ()
+    (+ (length var-ls) 1)))
+
+(define make-and-clause
+  (lambda (x y z)
+    (and-formula-simple
+     (and-formula-simple (and-formula-simple x (and-formula-simple y z))
+			 (and-formula-simple (not-formula-simple x)
+					     (and-formula-simple (not-formula-simple y) z)))
+     (and-formula-simple (and-formula-simple (not-formula-simple x)
+					     (and-formula-simple (not-formula-simple y) (not-formula-simple z)))
+			 (and-formula-simple (not-formula-simple x)
+					     (and-formula-simple y (not-formula-simple z))))) ))
+(define make-or-clause
+  (lambda (x y z)
+    (and-formula-simple
+     (and-formula-simple (and-formula-simple x (and-formula-simple y z))
+			 (and-formula-simple x
+					     (and-formula-simple (not-formula-simple y) z)))
+     (and-formula-simple (and-formula-simple (not-formula-simple x)
+					     (and-formula-simple (not-formula-simple y) (not-formula-simple z)))
+			 (and-formula-simple x
+					     (and-formula-simple y (not-formula-simple z))))) ))
+
+(define make-not-clause
+  (lambda (x y)
+    (and-formula-simple (and-formula-simple x (not-formula-simple y))
+			(and-formula-simple (not-formula-simple x) y)) ))
+    
+    
+    
+    
+(define reduce ;; bfs -> '(bfs) X var-num
+  (lambda (bfs)
+    (cases boolean-formular-simple bfs
+	   [var-num (num) (cons '() (var-num num))]
+	   [and-formula-simple (bfs1 bfs2)
+			       (let* ([new (var-num (get_newvarnum))]
+				      [fc (reduce bfs1)]    ;; first clause
+				      [sc (reduce bfs2)]
+				      [fcv (cdr fc)]
+				      [scv (cdr sc)])
+				 (cons (cons (make-and-clause new fcv scv) (append (car fc) (car sc)))
+				       new))]	   
+	   [or-formula-simple (bfs1 bfs2)
+			      (let* ([new (var-num (get_newvarnum))]
+				      [fc (reduce bfs1)]    ;; first clause
+				      [sc (reduce bfs2)]
+				      [fcv (cdr fc)]
+				      [scv (cdr sc)])
+				 (cons (cons (make-or-clause new fcv scv) (append (car fc) (car sc)))
+				       new))]
+	   [not-formula-simple (bfs)
+			       (let* ([new (var-num (get_newvarnum))]
+				      [fc (reduce bfs)]
+				      [fcv (cdr fc)])
+				 (cons (cons (make-not-clause new fcv) (car fc))
+				       news))])))
