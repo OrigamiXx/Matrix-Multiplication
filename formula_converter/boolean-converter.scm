@@ -59,7 +59,11 @@
    (num integer?))
   )
 
-(define var-ls '())
+(define var-ls '(NULL))
+
+(define init-var-ls!
+  (lambda ()
+    (set! var-ls '(NULL))))
 	   
 (define var->num
   (lambda (var)
@@ -124,11 +128,28 @@
 			  (var-formula-simple name (map (lambda (i) (apply-env i env)) indexes))))]
 	   )))
 
-(define get-newvarnum ;; () -> varnum get a new variable number
+
+
+(define reduce-var-count 0)
+
+(define init-reduce!
   (lambda ()
-    (+ (length var-ls) 1)))
+    (set! reduce-var-count 0)))
 
-(define make-and-clause
+(define get-new-var-num
+  (lambda ()
+    (set! reduce-var-count (+ reduce-var-count 1))
+    (var->num* reduce-var-count var-ls 0)))
+
+(define-datatype 3cnf-clause 3cnf-clause?
+  (clause
+   (a integer?)
+   (b integer?)
+   (c integer?)
+   )
+  )
+
+(define make-and-clauses ;; int x int x int -> Listof(3cnf-clause)
   (lambda (x y z)
     (and-formula-simple
      (and-formula-simple (and-formula-simple x (and-formula-simple y z))
@@ -138,7 +159,8 @@
 					     (and-formula-simple (not-formula-simple y) (not-formula-simple z)))
 			 (and-formula-simple (not-formula-simple x)
 					     (and-formula-simple y (not-formula-simple z))))) ))
-(define make-or-clause
+
+(define make-or-clauses ;; int x int x int -> Listof(3cnf-clause)
   (lambda (x y z)
     (and-formula-simple
      (and-formula-simple (and-formula-simple x (and-formula-simple y z))
@@ -149,37 +171,53 @@
 			 (and-formula-simple x
 					     (and-formula-simple y (not-formula-simple z))))) ))
 
-(define make-not-clause
+(define make-not-clauses ;; int x int -> Listof(3cnf-clause)
   (lambda (x y)
-    (and-formula-simple (and-formula-simple x (not-formula-simple y))
-			(and-formula-simple (not-formula-simple x) y)) ))
+    ;; x = !y
+    ;; (x or y) and (not x or not y)
+    (list
+     (clause x y y)
+     (clause (- x) (- y) (- y)))))
     
     
-    
-    
-(define reduce ;; bfs -> '(bfs) X var-num
+(define reduce ;; bfs -> Listof(3cnf-clause) X int
   (lambda (bfs)
-    (cases boolean-formular-simple bfs
-	   [var-num (num) (cons '() (var-num num))]
+    (cases boolean-formula-simple bfs
+	   [var-num (num) (cons '() num)]
 	   [and-formula-simple (bfs1 bfs2)
-			       (let* ([new (var-num (get_newvarnum))]
-				      [fc (reduce bfs1)]    ;; first clause
+			       (let* ([new (get-new-var-num)]
+				      [fc (reduce bfs1)]   
 				      [sc (reduce bfs2)]
 				      [fcv (cdr fc)]
 				      [scv (cdr sc)])
-				 (cons (cons (make-and-clause new fcv scv) (append (car fc) (car sc)))
+				 (cons (append (make-and-clauses new fcv scv) (car fc) (car sc))
 				       new))]	   
 	   [or-formula-simple (bfs1 bfs2)
-			      (let* ([new (var-num (get_newvarnum))]
-				      [fc (reduce bfs1)]    ;; first clause
+			      (let* ([new (get-new-var-num)]
+				      [fc (reduce bfs1)]   
 				      [sc (reduce bfs2)]
 				      [fcv (cdr fc)]
 				      [scv (cdr sc)])
-				 (cons (cons (make-or-clause new fcv scv) (append (car fc) (car sc)))
-				       new))]
+				(cons (append (make-or-clauses new fcv scv) (car fc) (car sc))
+				      new))]
 	   [not-formula-simple (bfs)
-			       (let* ([new (var-num (get_newvarnum))]
+			       (let* ([new (get-new-var-num)]
 				      [fc (reduce bfs)]
 				      [fcv (cdr fc)])
-				 (cons (cons (make-not-clause new fcv) (car fc))
-				       news))])))
+				 (cons (append (make-not-clauses new fcv) (car fc))
+				       new))]
+	   [var-formula-simple (var ixs)
+			       (raise "var-formula-simple should not be present in reduce, run expand first")]
+	   )))
+
+
+(define init!
+  (lambda ()
+    (init-reduce!)
+    (init-var-ls!)))
+     
+
+(define process
+  (lambda (str)
+    (init!)
+    (reduce (expand (parse str)))))
