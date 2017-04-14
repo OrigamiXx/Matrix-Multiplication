@@ -1,10 +1,7 @@
 ;; Boolean formula converter
 
-;; ================ Parser Definitions ==================================
-
-;; This defines the translation from the concrete syntax to the abstract syntax.
-;; Whenever  you add to or modify the concrete or abstract syntax the specification
-;; below must be updated.
+;; Defines concrete and initial abstract syntax for Boolean formulas.
+;; Permits large operators and indexed variables.
 
 (define the-grammar
   '(
@@ -41,8 +38,8 @@
 ;; have defined the-grammar first.
 (load "lex-scan-parse.scm")
 
-
-
+;; A simpler abstract syntax for Boolean formulas without large
+;; operators and indexed variables.
 (define-datatype boolean-formula-simple boolean-formula-simple?
   (and-formula-simple
    (rand1 boolean-formula-simple?)
@@ -59,12 +56,18 @@
    (num integer?))
   )
 
-(define var-ls '(NULL))
+;; ======== Converting Complex Boolean Formulas into Simple ones ============
 
+;; List of variable names already used.
+(define var-ls '(NULL))  
+
+;; Initializes list of variables names used to empty.
 (define init-var-ls!
   (lambda ()
     (set! var-ls '(NULL))))
-	   
+
+;; Converts a variable to a number by first looking up in var-ls.  If found
+;; it returns that number, otherwise it is assigned the next unique number.
 (define var->num
   (lambda (var)
     (cases boolean-formula-simple var
@@ -79,7 +82,8 @@
      [(null? ls) (set! var-ls (append var-ls (list var))) n]
      [(equal? var (car ls)) n]
      [else (var->num* var (cdr ls) (+ n 1))])))
-      
+
+;; Datatype for maintaining variable indexes in scope.
 (define empty-env
   (lambda ()
     (lambda (var)
@@ -96,6 +100,9 @@
   (lambda (var env)
     (env var)))
 
+;; Converts a Boolean formula in the initial abstract syntax with
+;; large operations and indexed variable into a simple Boolean formula
+;; with concrete variables.
 (define expand
   (lambda (bf)
     (expand* bf (empty-env))))
@@ -130,6 +137,21 @@
 
 
 
+;; ====== Reduce Simple Boolean Formulas into Equivalent 3CNFs =========
+
+;; Datatype for representing 3cnfs.  Literals indicated by numbers.
+;; Negative numbers indicate negation.
+(define-datatype 3cnf-clause 3cnf-clause?
+  (clause
+   (a integer?)
+   (b integer?)
+   (c integer?)
+   )
+  )
+
+
+;; Helpers to store and manipulate additional variables created as
+;; part of the reduction.
 (define reduce-var-count 0)
 
 (define init-reduce!
@@ -141,14 +163,7 @@
     (set! reduce-var-count (+ reduce-var-count 1))
     (var->num* reduce-var-count var-ls 0)))
 
-(define-datatype 3cnf-clause 3cnf-clause?
-  (clause
-   (a integer?)
-   (b integer?)
-   (c integer?)
-   )
-  )
-
+;; Creates a list of clauses for subformula of the form x = y AND z.
 (define make-and-clauses ;; int x int x int -> Listof(3cnf-clause)
   (lambda (x y z)
     (list
@@ -157,6 +172,7 @@
      (clause (- x) y z)
      (clause x (- y) (- z)))))
 
+;; Creates a list of clauses for subformula of the form x = y OR z.
 (define make-or-clauses ;; int x int x int -> Listof(3cnf-clause)
   (lambda (x y z)
     (list
@@ -165,6 +181,7 @@
      (clause x (- y) z)
      (clause x y (- z)))))
 
+;; Creates a list of clauses for subformula of the form x = !y.
 (define make-not-clauses ;; int x int -> Listof(3cnf-clause)
   (lambda (x y)
     ;; x = !y
@@ -173,7 +190,8 @@
      (clause x y y)
      (clause (- x) (- y) (- y)))))
     
-    
+;; Converts a simple Boolean formula into a list of 3cnf clauses and
+;; an integer indicating the variable of the output gate.
 (define reduce ;; bfs -> Listof(3cnf-clause) X int
   (lambda (bfs)
     (cases boolean-formula-simple bfs
@@ -211,10 +229,37 @@
     (init-var-ls!)))
      
 
+;; Parses a given string in concrete syntax of complex Boolean formulas into a 3cnf.
 (define process
   (lambda (str)
     (init!)
-    (reduce (expand (parse str)))))
+    (let*
+	([res (reduce (expand (parse str)))]
+	 [clauses (car res)]
+	 [var (cdr res)]
+	 ;; Forces the output variable of reduction to be true.
+	 [clauses2 (cons (clause var var var) clauses)])
+      (format-output clauses2)
+      )))
+
+(define format-output
+  (lambda (clauses)
+    (printf "~d\n" (- (length var-ls) 1))
+    (format-output* clauses)))
+
+(define format-output*
+  (lambda (clauses)
+    (cond
+     [(not (null? clauses))
+      (let ([c (car clauses)])
+	(cases 3cnf-clause c
+	       [clause (x y z) (printf "~d ~d ~d 0 \n" x y z)])
+	(format-output* (cdr clauses)))])))
+     
+	      
+		       
+    
+      
 
 
 
