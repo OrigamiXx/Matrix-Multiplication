@@ -151,25 +151,19 @@
 
 (define make-and-clauses ;; int x int x int -> Listof(3cnf-clause)
   (lambda (x y z)
-    (and-formula-simple
-     (and-formula-simple (and-formula-simple x (and-formula-simple y z))
-			 (and-formula-simple (not-formula-simple x)
-					     (and-formula-simple (not-formula-simple y) z)))
-     (and-formula-simple (and-formula-simple (not-formula-simple x)
-					     (and-formula-simple (not-formula-simple y) (not-formula-simple z)))
-			 (and-formula-simple (not-formula-simple x)
-					     (and-formula-simple y (not-formula-simple z))))) ))
+    (list
+     (clause (-x) y (-z))
+     (clause (-x) (-y) z)
+     (clause (-x) y z)
+     (clause x (-y) (-z)))))
 
 (define make-or-clauses ;; int x int x int -> Listof(3cnf-clause)
   (lambda (x y z)
-    (and-formula-simple
-     (and-formula-simple (and-formula-simple x (and-formula-simple y z))
-			 (and-formula-simple x
-					     (and-formula-simple (not-formula-simple y) z)))
-     (and-formula-simple (and-formula-simple (not-formula-simple x)
-					     (and-formula-simple (not-formula-simple y) (not-formula-simple z)))
-			 (and-formula-simple x
-					     (and-formula-simple y (not-formula-simple z))))) ))
+    (list
+     (clause (-x) y z)
+     (clause x (-y) (-z))
+     (clause x (-y) z)
+     (clause x y (-z))  )))
 
 (define make-not-clauses ;; int x int -> Listof(3cnf-clause)
   (lambda (x y)
@@ -221,3 +215,7 @@
   (lambda (str)
     (init!)
     (reduce (expand (parse str)))))
+
+
+
+;; (or (or (and (and (var y1) (var y2)) (var x2)) (and (var y1) (and (not (var y2)) (var x2)))) (or (and (var y1) (and (not (var y2)) (not (var x2)))) (and (not (var y1)) (and (var y2) (not (var x2))))))
