@@ -255,11 +255,21 @@
 	(cases 3cnf-clause c
 	       [clause (x y z) (printf "~d ~d ~d 0 \n" x y z)])
 	(format-output* (cdr clauses)))])))
-     
-	      
-		       
-    
-      
+
+
+;; (get-input-string) -- Reads a line from the interactive input
+;; port.  Ignores zero length strings.
+(define get-input-string
+  (lambda ()
+    (let ([str (get-line (current-input-port))])
+      (if (= (string-length str) 0) 
+	  (get-input-string)
+	  str))))
+
+
+(process (get-input-string))
+;; So it can be used on commandline, for example:
+;; $ echo "(not (var x))" | scm -q boolean-converter.scm 
 
 
 
