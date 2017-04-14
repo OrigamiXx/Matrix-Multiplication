@@ -230,7 +230,7 @@
      
 
 ;; Parses a given string in concrete syntax of complex Boolean formulas into a 3cnf.
-(define process
+(define process&display
   (lambda (str)
     (init!)
     (let*
@@ -244,7 +244,7 @@
 
 (define format-output
   (lambda (clauses)
-    (printf "~d\n" (- (length var-ls) 1))
+    (printf "p cnf ~d ~d\n" (- (length var-ls) 1) (length clauses))
     (format-output* clauses)))
 
 (define format-output*
@@ -267,10 +267,21 @@
 	  str))))
 
 
-(process (get-input-string))
+;;(process&display (get-input-string))
 ;; So it can be used on commandline, for example:
-;; $ echo "(not (var x))" | scm -q boolean-converter.scm 
+;; echo "(not (var x))" | scm -q boolean-converter.scm | tail -n+5 > simple_not.cnf
 
 
 
 ;; (or (or (and (and (var y1) (var y2)) (var x2)) (and (var y1) (and (not (var y2)) (var x2)))) (or (and (var y1) (and (not (var y2)) (not (var x2)))) (and (not (var y1)) (and (var y2) (not (var x2))))))
+
+
+(define construct-USP-formula
+  (lambda (k s)
+    "(not (var fixme))"
+    ))
+
+
+(define display-USP-formula
+  (lambda (k s)
+    (process&display (construct-USP-formula k s))))
