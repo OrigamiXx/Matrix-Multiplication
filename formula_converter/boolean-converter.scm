@@ -152,18 +152,18 @@
 (define make-and-clauses ;; int x int x int -> Listof(3cnf-clause)
   (lambda (x y z)
     (list
-     (clause (-x) y (-z))
-     (clause (-x) (-y) z)
-     (clause (-x) y z)
-     (clause x (-y) (-z)))))
+     (clause (- x) y (- z))
+     (clause (- x) (- y) z)
+     (clause (- x) y z)
+     (clause x (- y) (- z)))))
 
 (define make-or-clauses ;; int x int x int -> Listof(3cnf-clause)
   (lambda (x y z)
     (list
-     (clause (-x) y z)
-     (clause x (-y) (-z))
-     (clause x (-y) z)
-     (clause x y (-z))  )))
+     (clause (- x) y z)
+     (clause x (- y) (- z))
+     (clause x (- y) z)
+     (clause x y (- z)))))
 
 (define make-not-clauses ;; int x int -> Listof(3cnf-clause)
   (lambda (x y)
