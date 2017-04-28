@@ -29,8 +29,8 @@
     (boolean-formula
      ("(var" identifier (arbno identifier) ")")
      var-formula)
-
-    ))
+    )
+  )
 
 ;; Sets up the parser using the above concrete <-> abstract grammars.
 ;; Defines a function call parse that takes a string in the concrete
@@ -278,7 +278,26 @@
 
 (define construct-USP-formula
   (lambda (k s)
-    "(not (var fixme))"
+    "(and-many i 1 ~d (and-many j 1 ~d (and-many r 1 3 (and-many q 1 3 
+              (and (and (var y i j r q) (or-many l 1 ~d (and (var p l j r) (var x l i q))))    
+                   (and (not (var y i j r q)) (not (or-many l 1 ~d (and (var p l j r) (var x l i q)))))) 
+     ))))              
+          
+     (and (and-many i 1 ~d (and-many j 1 ~d (and (and (and (var x i j 1) (var x i j 2))
+                                                            (and (not (var x i j 1)) (not (var x i j 2))))
+                                                            (and (and (var x i j 2) (var x i j 3))
+                                                            (and (not (var x i j 2)) (not (var x i j 3))))) ))
+           (or-many i 1 ~d (or-many j 1 ~d (or (or (and (and (var y i j 1 1) (var y i j 2 2)) (not (var y i j 3 3)))
+                                               (and (and (var y i j 1 1) (not (var y i j 2 2)) ) (var y i j 3 3)))
+                                               (and (and (not (var y i j 1 1)) (var y i j 2 2)) (var y i j 3 3))))) ) 
+
+
+     (and-many q 1 3 (and-many i 1 ~d (and (or-many j 1 ~d (var x i j q)) (or-many j 1 ~d (var x j i q))) 
+                                      (and (and-many j 1 ~d     )  ????????? j \neq k for j,k \in [s]
+"
+
+
+    s k s     s s   s k                  s s s s
     ))
 
 
