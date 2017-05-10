@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "binary_tree_header.h"
+#include "binary_tree.h"
 
 
 //}binTree;
@@ -182,9 +182,10 @@ void deleteOne(tNode * node){
     node = NULL;
 }
 
-void deleteTwo(tNode node){
-    tNode * parentN, childR;
-    
+void deleteTwo(tNode * node){
+  tNode * parentN;
+  tNode * childR;
+  
     childR = node -> right;
     while(childR -> left != NULL){
         childR = childR -> left;

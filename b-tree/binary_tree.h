@@ -6,8 +6,8 @@
 //
 //
 
-//#ifndef _binary_tree_header_h
-//#define _binary_tree_header_h
+#ifndef _binary_tree_header_h
+#define _binary_tree_header_h
 typedef struct treeNode {
     int data;
     struct treeNode* parent;
@@ -42,7 +42,7 @@ void printTree(binTree * inputTree);
 
 
 
-//#endif
+#endif
 
 //// Local allocation
 //tNode n;

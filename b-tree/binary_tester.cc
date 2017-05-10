@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "binary_tree_header.h"
+#include "binary_tree.h"
 
 int main() {
     binTree * tree = createTree();
