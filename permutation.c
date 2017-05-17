@@ -9,6 +9,7 @@
 #include "constants.h"
 #include <math.h>
 
+//create an array A with size of n that A[i] = i
 perm  * create_perm_identity(int n){
   perm * tmp = (perm *) malloc(sizeof(perm));
   assert(tmp != NULL);
@@ -38,15 +39,16 @@ perm * copy_perm(perm * pi){
 }
 
 // apply perm, x must be inside the domain of the perm
+//apply-perm takes in x and return the index x of the array in pi
+
+//Return the x element in pi
 int apply_perm(perm * pi, int x){
   int result;
   result = pi->arrow[x];
   return result;
 }
 
-//last perm - Takes a perm and returns a new perm 
-//over the set of the same size which is the last perm for that
-//set.
+//last perm - Takes a perm and make goes from n-1 to 0
 perm * create_last_perm(int n){
   perm * tmp = (perm *) malloc(sizeof(perm));
   tmp -> size = n;
@@ -61,15 +63,21 @@ perm * create_last_perm(int n){
 //next_perm
 // some problems, it won't loop back and the order is a little bit off
 // Assumes that pi is not the last perm.
+//??
 perm * next_perm(perm * pi){
   int j, l, k, n;
   n = pi->size-1;
   j = n -1;
   
+    //j: index of first element that is smaller than it's next element
   while (pi->arrow[j]>=pi->arrow[j+1] && j!=0){
     j--;  
   }
   l = n;
+    
+    //l: Should usually be the next element of j
+    
+    //May break for 1432
   while (pi->arrow[j]>=pi->arrow[l]){
     l--;
   }
@@ -187,6 +195,7 @@ perm * compose_perm(perm * pi, perm * delta){
 } 
 
 
+//Print out the elements in pi in a form (i, arrow[i], arrow[arrow[i]]..).
 int print_perm(perm * pi){
   int i,n;
   n = pi->size;
