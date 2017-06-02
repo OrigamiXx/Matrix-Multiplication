@@ -386,10 +386,10 @@
     ))
 
 (define puzzle
-  '( '(1 1 2 2)
-     '(1 2 2 1)
-     '(1 3 3 1)
-     '(3 1 1 2)
+  '( (1 1 2 2)
+     (1 2 2 1)
+     (1 3 3 1)
+     (3 1 1 2)
      )      )
 (define num->bool
   (lambda (num)
@@ -399,9 +399,10 @@
      [(= num 3) '(#f #f #t)])))
 
 ;; puzzle 2d -> puzzle 3d with true false
-;;(define p-simple
-;;  (lambda (puzzle)
-    
+(define p-simple
+  (lambda (puzzle)
+    (map (lambda (n) (map num->bool n)) puzzle)))
+
 (define display-USP-formula
   (lambda (k s p)
     (process&display (construct-USP-formula k s) p)))
