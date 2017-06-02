@@ -29,6 +29,11 @@
     (boolean-formula
      ("(var" identifier (arbno identifier) ")")
      var-formula)
+
+    (boolean-formula
+     ("(delta" identifier identifier ")")
+     delta-formula)
+    
     )
   )
 
@@ -54,6 +59,14 @@
    (indexes (list-of number?)))
   (var-num
    (num integer?))
+
+  ;; (delta-formula-simple
+  ;;  (index1 number?)
+  ;;  (index2 number?))
+  
+  (true-simple)
+
+  (false-simple)
   )
 
 ;; ======== Converting Complex Boolean Formulas into Simple ones ============
@@ -133,6 +146,70 @@
 			(var-num
 			 (var->num 
 			  (var-formula-simple name (map (lambda (i) (apply-env i env)) indexes))))]
+
+	   [delta-formula (index1 index2)
+	   		  (cond
+	   		   [(= index1 index2) (true-simple)]
+	   		   [else (false-simple)] )]
+	   )))
+
+(define subst
+  (lambda (bfs p)
+    (subst* bfs 'p p)))
+
+(define subst*
+  (lambda (bfs var p)
+    (cases boolean-formula-simple bfs
+	   [var-num (num)
+		    (let ([x (list-ref var-ls num)])
+		      (cases boolean-formula-simple x
+			     [var-formula-simple (var ixs)
+						 (if (equal? var (cadr x))
+						     (if (equal? (list-ref
+						      (list-ref
+						       (list-ref p (caaddr x))
+						       (cadr (caddr x)))
+						      (caddr (caddr x))) #t) (true-simple) (false-simple)))]
+			     [else (raise-exception 'subst* "var-ls must stored the wrong thing ~a" (cadr x))]))]
+	   [and-formula-simple (bfs1 bfs2)
+			       (and-formula-simple (subst* bfs1) (subst* bfs2))]	   
+	   [or-formula-simple (bfs1 bfs2)
+			      (or-forula-simple (subst* bfs1) (subst* bfs2))]
+	   [not-formula-simple (bfs)
+			       (not-formula-simple (subst* bfs))]
+	   [var-formula-simple (var ixs)
+			       (raise "var-formula-simple should not be present in subst, run expand first")]
+	   [true-simple (true-simple)]
+	   [false-simple (false-simple)]
+	   )))
+
+(define simplify
+  (lambda (bfs)
+    (cases boolean-formula-simple bfs
+	   [var-num (num) (var-num num)]
+	   [and-formula-simple (bfs1 bfs2)
+			       (cond
+				[(equal? (true-simple) (simplify bfs1)) (simplify bfs2)]
+				[(equal? (false-simple) (simplify bfs1)) (false-simple)]
+				[(equal? (true-simple) (simplify bfs2)) (simplify bfs1)]
+				[(equal? (false-simple) (simplify bfs2)) (false-simple)]
+				[else (and-formula-simple (simplify bfs1) (simplify bfs2))])]
+	   [or-formula-simple (bfs1 bfs2)
+			       (cond
+				[(equal? (true-simple) (simplify bfs1)) (true-simple)]
+				[(equal? (false-simple) (simplify bfs1)) (simplify bfs2)]
+				[(equal? (true-simple) (simplify bfs2)) (true-simple)]
+				[(equal? (false-simple) (simplify bfs2)) (simplify bfs1)]
+				[else (or-formula-simple (simplify bfs1) (simplify bfs2))])]
+	   [not-formula-simple (bfs)
+			       (cond
+				[(equal? (true-simple) (simplify bfs)) (false-simple)]
+				[(equal? (false-simple) (simplify bfs)) (true-simple)]
+				[else (not-formula-simple (simplify bfs))])]
+	   [var-formula-simple (var ixs)
+			       (raise "var-formula-simple should not be present in subst, run expand first")]
+	   [true-simple (true-simple)]
+	   [false-simple (false-simple)]
 	   )))
 
 
@@ -146,8 +223,7 @@
    (a integer?)
    (b integer?)
    (c integer?)
-   )
-  )
+   ))
 
 
 ;; Helpers to store and manipulate additional variables created as
@@ -220,6 +296,8 @@
 				       new))]
 	   [var-formula-simple (var ixs)
 			       (raise "var-formula-simple should not be present in reduce, run expand first")]
+	   [true-simple (raise "true-simple should not be present in reduce, run simplify first")]
+	   [false-simple (raise "false-simple should not be present in reduce, run simplify first")]
 	   )))
 
 
@@ -231,10 +309,10 @@
 
 ;; Parses a given string in concrete syntax of complex Boolean formulas into a 3cnf.
 (define process&display
-  (lambda (str)
+  (lambda (str p)
     (init!)
     (let*
-	([res (reduce (expand (parse str)))]
+	([res (reduce (simplify (subst (expand (parse str)) p)))]
 	 [clauses (car res)]
 	 [var (cdr res)]
 	 ;; Forces the output variable of reduction to be true.
@@ -278,7 +356,7 @@
 
 (define construct-USP-formula
   (lambda (k s)
-    "(and-many i 1 ~d (and-many j 1 ~d (and-many r 1 3 (and-many q 1 3 
+    "(and (and (and-many i 1 ~d (and-many j 1 ~d (and-many r 1 3 (and-many q 1 3 
               (and (and (var y i j r q) (or-many l 1 ~d (and (var p l j r) (var x l i q))))    
                    (and (not (var y i j r q)) (not (or-many l 1 ~d (and (var p l j r) (var x l i q)))))) 
      ))))              
@@ -289,18 +367,41 @@
                                                             (and (not (var x i j 2)) (not (var x i j 3))))) ))
            (or-many i 1 ~d (or-many j 1 ~d (or (or (and (and (var y i j 1 1) (var y i j 2 2)) (not (var y i j 3 3)))
                                                (and (and (var y i j 1 1) (not (var y i j 2 2)) ) (var y i j 3 3)))
-                                               (and (and (not (var y i j 1 1)) (var y i j 2 2)) (var y i j 3 3))))) ) 
+                                               (and (and (not (var y i j 1 1)) (var y i j 2 2)) (var y i j 3 3))))) ) )
 
 
-     (and-many q 1 3 (and-many i 1 ~d (and (or-many j 1 ~d (var x i j q)) (or-many j 1 ~d (var x j i q))) 
-                                      (and (and-many j 1 ~d     )  ????????? j \neq k for j,k \in [s]
+     (and-many q 1 3 (and-many i 1 ~d (and (and (or-many j 1 ~d (var x i j q)) (or-many j 1 ~d (var x j i q))) 
+                                      (and (and-many j 1 ~d (and-many k 1 ~d (or (delta j k)   
+                                                                                 (or (or (and (var x i j q) (not (var x i k q)))
+                                                                                 (and (not (var x i j q)) (var x i k q)))
+                                                                                 (and (not (var x i j q)) (not (var x i k q)))))))
+                                           (and-many j 1 ~d (and-many k 1 ~d (or (delta j k)   
+                                                                                 (or (or (and (var x j i q) (not (var x k i q)))
+                                                                                 (and (not (var x j i q)) (var x k i q)))
+                                                                                 (and (not (var x j i q)) (not (var x k i q))))))))))) )
 "
 
 
-    s k s     s s   s k                  s s s s
+    s k s     s s   s k                  s s s s s s s
     ))
 
+(define puzzle
+  '( '(1 1 2 2)
+     '(1 2 2 1)
+     '(1 3 3 1)
+     '(3 1 1 2)
+     )      )
+(define num->bool
+  (lambda (num)
+    (cond
+     [(= num 1) '(#t #f #f)]
+     [(= num 2) '(#f #t #f)]
+     [(= num 3) '(#f #f #t)])))
 
+;; puzzle 2d -> puzzle 3d with true false
+;;(define p-simple
+;;  (lambda (puzzle)
+    
 (define display-USP-formula
-  (lambda (k s)
-    (process&display (construct-USP-formula k s))))
+  (lambda (k s p)
+    (process&display (construct-USP-formula k s) p)))
