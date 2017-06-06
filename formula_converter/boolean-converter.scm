@@ -149,7 +149,7 @@
 
 	   [delta-formula (index1 index2)
 	   		  (cond
-	   		   [(= index1 index2) (true-simple)]
+	   		   [(= (apply-env index1 env) (apply-env index2 env)) (true-simple)]
 	   		   [else (false-simple)] )]
 	   )))
 
@@ -165,22 +165,26 @@
 		      (cases boolean-formula-simple x
 			     [var-formula-simple (var ixs)
 						 (if (equal? var (cadr x))
-						     (if (equal? (list-ref
-						      (list-ref
-						       (list-ref p (caaddr x))
-						       (cadr (caddr x)))
-						      (caddr (caddr x))) #t) (true-simple) (false-simple)))]
+						     (if (equal?
+							  (list-ref
+							   (list-ref
+							    (list-ref p (- (car ixs) 1))
+							    (- (cadr ixs) 1))
+							   (- (caddr ixs) 1)) #t)
+							 (true-simple)
+							 (false-simple))
+						     (var-num num))]
 			     [else (raise-exception 'subst* "var-ls must stored the wrong thing ~a" (cadr x))]))]
 	   [and-formula-simple (bfs1 bfs2)
-			       (and-formula-simple (subst* bfs1) (subst* bfs2))]	   
+			       (and-formula-simple (subst* bfs1 var p) (subst* bfs2 var p))]	   
 	   [or-formula-simple (bfs1 bfs2)
-			      (or-forula-simple (subst* bfs1) (subst* bfs2))]
+			      (or-formula-simple (subst* bfs1 var p) (subst* bfs2 var p))]
 	   [not-formula-simple (bfs)
-			       (not-formula-simple (subst* bfs))]
+			       (not-formula-simple (subst* bfs var p))]
 	   [var-formula-simple (var ixs)
 			       (raise "var-formula-simple should not be present in subst, run expand first")]
-	   [true-simple (true-simple)]
-	   [false-simple (false-simple)]
+	   [true-simple () (true-simple)]
+	   [false-simple () (false-simple)]
 	   )))
 
 (define simplify
@@ -208,8 +212,8 @@
 				[else (not-formula-simple (simplify bfs))])]
 	   [var-formula-simple (var ixs)
 			       (raise "var-formula-simple should not be present in subst, run expand first")]
-	   [true-simple (true-simple)]
-	   [false-simple (false-simple)]
+	   [true-simple () (true-simple)]
+	   [false-simple () (false-simple)]
 	   )))
 
 
@@ -296,8 +300,8 @@
 				       new))]
 	   [var-formula-simple (var ixs)
 			       (raise "var-formula-simple should not be present in reduce, run expand first")]
-	   [true-simple (raise "true-simple should not be present in reduce, run simplify first")]
-	   [false-simple (raise "false-simple should not be present in reduce, run simplify first")]
+	   [true-simple () (raise "true-simple should not be present in reduce, run simplify first")]
+	   [false-simple () (raise "false-simple should not be present in reduce, run simplify first")]
 	   )))
 
 
@@ -305,6 +309,13 @@
   (lambda ()
     (init-reduce!)
     (init-var-ls!)))
+
+(define iddisp
+  (lambda (x)
+    (display x)
+    (newline)
+    x))
+  
      
 
 ;; Parses a given string in concrete syntax of complex Boolean formulas into a 3cnf.
@@ -312,7 +323,7 @@
   (lambda (str p)
     (init!)
     (let*
-	([res (reduce (simplify (subst (expand (parse str)) p)))]
+	([res (reduce (iddisp (simplify (subst (expand (parse str)) p))))]
 	 [clauses (car res)]
 	 [var (cdr res)]
 	 ;; Forces the output variable of reduction to be true.
