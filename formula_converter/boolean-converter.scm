@@ -356,33 +356,34 @@
 
 (define construct-USP-formula
   (lambda (k s)
-    "(and (and (and-many i 1 ~d (and-many j 1 ~d (and-many r 1 3 (and-many q 1 3 
-              (and (and (var y i j r q) (or-many l 1 ~d (and (var p l j r) (var x l i q))))    
-                   (and (not (var y i j r q)) (not (or-many l 1 ~d (and (var p l j r) (var x l i q)))))) 
-     ))))              
+    (format "(and (and 
+                 (and-many i 1 ~d (and-many j 1 ~d (and-many r 1 3 (and-many q 1 3 
+                      (and (and (var y i j r q) (or-many l 1 ~d (and (var p l j r) (var x l i q)) ) )    
+                           (and (not (var y i j r q)) (not (or-many l 1 ~d (and (var p l j r) (var x l i q)))) ))  ))))              
           
-     (and (and-many i 1 ~d (and-many j 1 ~d (and (and (and (var x i j 1) (var x i j 2))
-                                                            (and (not (var x i j 1)) (not (var x i j 2))))
-                                                            (and (and (var x i j 2) (var x i j 3))
-                                                            (and (not (var x i j 2)) (not (var x i j 3))))) ))
-           (or-many i 1 ~d (or-many j 1 ~d (or (or (and (and (var y i j 1 1) (var y i j 2 2)) (not (var y i j 3 3)))
-                                               (and (and (var y i j 1 1) (not (var y i j 2 2)) ) (var y i j 3 3)))
-                                               (and (and (not (var y i j 1 1)) (var y i j 2 2)) (var y i j 3 3))))) ) )
+     (and (and-many i 1 ~d (and-many j 1 ~d (and (and (and-many o 1 2 (var x i j o))
+                                                      (and-many a 1 2 (not (var x i j a))))
+                                                 (and (and-many b 2 3 (var x i j b))
+                                                      (and-many c 2 3 (not (var x i j c))) ) ) ))
+           (or-many i 1 ~d (or-many j 1 ~d (or (or (or (and-many d 1 2 (var y i j d d)) (and-many e 3 3 (not (var y i j e e))))
+                                               (and (and (and-many f 1 1 (var y i j f f)) (and-many g 2 2 (not (var y i j g g)) )) (and-many h 3 3 (var y i j h h))))
+                                               (and (and-many n 1 1 (not (var y i j n n))) (and-many m  2 3 (var y i j m m))) )        ))) 
+       )
 
 
      (and-many q 1 3 (and-many i 1 ~d (and (and (or-many j 1 ~d (var x i j q)) (or-many j 1 ~d (var x j i q))) 
-                                      (and (and-many j 1 ~d (and-many k 1 ~d (or (delta j k)   
+                                           (and (and-many j 1 ~d (and-many k 1 ~d (or (delta j k)   
                                                                                  (or (or (and (var x i j q) (not (var x i k q)))
                                                                                  (and (not (var x i j q)) (var x i k q)))
                                                                                  (and (not (var x i j q)) (not (var x i k q)))))))
-                                           (and-many j 1 ~d (and-many k 1 ~d (or (delta j k)   
+                                                (and-many j 1 ~d (and-many k 1 ~d (or (delta j k)   
                                                                                  (or (or (and (var x j i q) (not (var x k i q)))
                                                                                  (and (not (var x j i q)) (var x k i q)))
-                                                                                 (and (not (var x j i q)) (not (var x k i q))))))))))) )
+                                                                                 (and (not (var x j i q)) (not (var x k i q)))))))  )   ) )) )
 "
 
 
-    s k s     s s   s k                  s s s s s s s
+    s k s     s s   s k                  s s s s s s s s)
     ))
 
 (define puzzle
@@ -406,3 +407,5 @@
 (define display-USP-formula
   (lambda (k s p)
     (process&display (construct-USP-formula k s) p)))
+
+(display-USP-formula 4 4 (p-simple puzzle))
