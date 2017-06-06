@@ -138,7 +138,7 @@
 			    (cond
 			      [(< lower upper)
 			       (or-formula-simple (expand* bf (extend-env var lower env))
-						  (expand* (and-many-formula var (+ lower 1) upper bf) env))]
+						  (expand* (or-many-formula var (+ lower 1) upper bf) env))]
 			      [(= lower upper)
 			       (expand* bf (extend-env var upper env))]
 			      [else (raise-exception 'expand "Out of order bounds ~s" bf)])]
@@ -163,9 +163,9 @@
 	   [var-num (num)
 		    (let ([x (list-ref var-ls num)])
 		      (cases boolean-formula-simple x
-			     [var-formula-simple (var ixs)
-						 (if (equal? var (cadr x))
-						     (if (equal?
+			     [var-formula-simple (var* ixs)
+						 (if (equal? var var*)
+						      (if (equal?
 							  (list-ref
 							   (list-ref
 							    (list-ref p (- (car ixs) 1))
@@ -192,24 +192,29 @@
     (cases boolean-formula-simple bfs
 	   [var-num (num) (var-num num)]
 	   [and-formula-simple (bfs1 bfs2)
-			       (cond
-				[(equal? (true-simple) (simplify bfs1)) (simplify bfs2)]
-				[(equal? (false-simple) (simplify bfs1)) (false-simple)]
-				[(equal? (true-simple) (simplify bfs2)) (simplify bfs1)]
-				[(equal? (false-simple) (simplify bfs2)) (false-simple)]
-				[else (and-formula-simple (simplify bfs1) (simplify bfs2))])]
+			       (let ([simp1 (simplify bfs1)]
+				     [simp2 (simplify bfs2)])
+				 (cond
+				  [(equal? (true-simple) simp1) simp2]
+				  [(equal? (false-simple) simp1) (false-simple)]
+				  [(equal? (true-simple) simp2) simp1]
+				  [(equal? (false-simple) simp2) (false-simple)]
+				  [else (and-formula-simple simp1 simp2)]))]
 	   [or-formula-simple (bfs1 bfs2)
-			       (cond
-				[(equal? (true-simple) (simplify bfs1)) (true-simple)]
-				[(equal? (false-simple) (simplify bfs1)) (simplify bfs2)]
-				[(equal? (true-simple) (simplify bfs2)) (true-simple)]
-				[(equal? (false-simple) (simplify bfs2)) (simplify bfs1)]
-				[else (or-formula-simple (simplify bfs1) (simplify bfs2))])]
+			      (let ([simp1 (simplify bfs1)]
+				    [simp2 (simplify bfs2)])
+				(cond
+				 [(equal? (true-simple) simp1) (true-simple)]
+				 [(equal? (false-simple) simp1) simp2]
+				 [(equal? (true-simple) simp2) (true-simple)]
+				 [(equal? (false-simple) simp2) simp1]
+				 [else (or-formula-simple simp1 simp2)]))]
 	   [not-formula-simple (bfs)
-			       (cond
-				[(equal? (true-simple) (simplify bfs)) (false-simple)]
-				[(equal? (false-simple) (simplify bfs)) (true-simple)]
-				[else (not-formula-simple (simplify bfs))])]
+			       (let ([simp (simplify bfs)])
+				 (cond
+				  [(equal? (true-simple) simp) (false-simple)]
+				  [(equal? (false-simple) simp) (true-simple)]
+				  [else (not-formula-simple simp)]))]
 	   [var-formula-simple (var ixs)
 			       (raise "var-formula-simple should not be present in subst, run expand first")]
 	   [true-simple () (true-simple)]
@@ -323,7 +328,7 @@
   (lambda (str p)
     (init!)
     (let*
-	([res (reduce (iddisp (simplify (subst (expand (parse str)) p))))]
+	([res (reduce (iddisp (simplify  (subst  (expand (parse str)) p))))]
 	 [clauses (car res)]
 	 [var (cdr res)]
 	 ;; Forces the output variable of reduction to be true.
@@ -397,12 +402,20 @@
     s k s     s s   s k                  s s s s s s s s)
     ))
 
+;; Not a Strong USP
+;; (define puzzle
+;;   '( (1 1 2 2)
+;;      (1 2 2 1)
+;;      (1 3 3 1)
+;;      (3 1 1 2)
+;;      )      )
+
 (define puzzle
-  '( (1 1 2 2)
-     (1 2 2 1)
-     (1 3 3 1)
-     (3 1 1 2)
-     )      )
+  '( (1 1 2)
+     (2 2 3)
+     (3 3 1)
+     ))
+
 (define num->bool
   (lambda (num)
     (cond
@@ -419,4 +432,4 @@
   (lambda (k s p)
     (process&display (construct-USP-formula k s) p)))
 
-(display-USP-formula 4 4 (p-simple puzzle))
+(display-USP-formula 3 3 (p-simple puzzle))
