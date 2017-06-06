@@ -403,18 +403,18 @@
     ))
 
 ;; Not a Strong USP
-;; (define puzzle
-;;   '( (1 1 2 2)
-;;      (1 2 2 1)
-;;      (1 3 3 1)
-;;      (3 1 1 2)
-;;      )      )
-
 (define puzzle
-  '( (1 1 2)
-     (2 2 3)
-     (3 3 1)
-     ))
+  '( (1 1 2 2)
+     (1 2 2 1)
+     (1 3 3 1)
+     (3 1 1 2)
+     )      )
+
+;; (define puzzle
+;;   '( (1 1 2)
+;;      (2 2 3)
+;;      (3 3 1)
+;;      ))
 
 (define num->bool
   (lambda (num)
@@ -432,4 +432,4 @@
   (lambda (k s p)
     (process&display (construct-USP-formula k s) p)))
 
-(display-USP-formula 3 3 (p-simple puzzle))
+(display-USP-formula 4 4 (p-simple puzzle))
