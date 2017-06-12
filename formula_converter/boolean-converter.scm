@@ -1,5 +1,10 @@
 ;; Boolean formula converter
 
+;; So it can be used on commandline, for example:
+;; scm --script boolean-converter.scm | tail -n+5 > output.cnf
+
+(load "~/chez-init.scm")
+
 ;; Defines concrete and initial abstract syntax for Boolean formulas.
 ;; Permits large operators and indexed variables.
 
@@ -320,7 +325,12 @@
     (display x)
     (newline)
     x))
-  
+
+(define gotHere
+  (lambda (x)
+    (display "Got here")
+    (newline)
+    x))
      
 
 ;; Parses a given string in concrete syntax of complex Boolean formulas into a 3cnf.
@@ -328,7 +338,7 @@
   (lambda (str p)
     (init!)
     (let*
-	([res (reduce (iddisp (simplify  (subst  (expand (parse str)) p))))]
+	([res (reduce (simplify (subst  (expand (parse str)) p)))]
 	 [clauses (car res)]
 	 [var (cdr res)]
 	 ;; Forces the output variable of reduction to be true.
@@ -361,12 +371,6 @@
 	  str))))
 
 
-;;(process&display (get-input-string))
-;; So it can be used on commandline, for example:
-;; echo "(not (var x))" | scm -q boolean-converter.scm | tail -n+5 > simple_not.cnf
-
-
-
 ;; (or (or (and (and (var y1) (var y2)) (var x2)) (and (var y1) (and (not (var y2)) (var x2)))) (or (and (var y1) (and (not (var y2)) (not (var x2)))) (and (not (var y1)) (and (var y2) (not (var x2))))))
 
 
@@ -374,15 +378,15 @@
   (lambda (k s)
     (format "(and (and 
                  (and-many i 1 ~d (and-many j 1 ~d (and-many r 1 3 (and-many q 1 3 
-                      (and (and (var y i j r q) (or-many l 1 ~d (and (var p l j r) (var x l i q)) ) )    
-                           (and (not (var y i j r q)) (not (or-many l 1 ~d (and (var p l j r) (var x l i q)))) ))  ))))              
+                      (or (and (var y i j r q) (or-many l 1 ~d (and (var p l j r) (var x l i q)) ) )    
+                           (and (not (var y i j r q)) (not (or-many l 1 ~d (and (var p l j r) (var x l i q))))) )  ))))              
           
-     (and (and-many i 1 ~d (and-many j 1 ~d (and (and (and-many o 1 2 (var x i j o))
+     (or (and-many i 1 ~d (and-many j 1 ~d (and (or (and-many o 1 2 (var x i j o))
                                                       (and-many a 1 2 (not (var x i j a))))
-                                                 (and (and-many b 2 3 (var x i j b))
-                                                      (and-many c 2 3 (not (var x i j c))) ) ) ))
-           (or-many i 1 ~d (or-many j 1 ~d (or (or (or (and-many d 1 2 (var y i j d d)) (and-many e 3 3 (not (var y i j e e))))
-                                               (and (and (and-many f 1 1 (var y i j f f)) (and-many g 2 2 (not (var y i j g g)) )) (and-many h 3 3 (var y i j h h))))
+                                                 (or (and-many b 2 3 (var x i j b))
+                                                      (and-many c 2 3 (not (var x i j c)))) ) ))
+           (or-many i 1 ~d (or-many j 1 ~d (or (or (and (and-many d 1 2 (var y i j d d)) (and-many e 3 3 (not (var y i j e e))))
+                                               (and (and (and-many f 1 1 (var y i j f f)) (and-many g 2 2 (not (var y i j g g)))) (and-many h 3 3 (var y i j h h))))
                                                (and (and-many n 1 1 (not (var y i j n n))) (and-many m  2 3 (var y i j m m))) )        ))) 
        )
 
@@ -399,22 +403,53 @@
 "
 
 
-    s k s     s s   s k                  s s s s s s s s)
+    s k s s     s s     s k                  s s s s s s s)
     ))
 
 ;; Not a Strong USP
-(define puzzle
-  '( (1 1 2 2)
-     (1 2 2 1)
-     (1 3 3 1)
-     (3 1 1 2)
-     )      )
+;; (define puzzle
+;;   '( (1 1 2 3)
+;;      (1 3 2 1)
+;;      (1 3 3 1)
+;;      (3 1 1 2)
+;;      (1 1 1 1)
+;;      )      )
 
 ;; (define puzzle
 ;;   '( (1 1 2)
 ;;      (2 2 3)
 ;;      (3 3 1)
 ;;      ))
+
+;; Strong 14-by-6 USP
+;; (define puzzle
+;;   '( (1 2 3 3 1 2)
+;;      (2 3 3 3 1 2)
+;;      (2 1 1 1 2 2)
+;;      (1 3 1 1 2 2)
+;;      (3 2 2 1 2 2)
+;;      (1 1 2 3 2 2)
+;;      (1 3 3 1 3 2)
+;;      (1 1 2 1 1 3)
+;;      (3 1 3 1 1 3)
+;;      (3 2 1 2 1 3)
+;;      (1 3 1 2 1 3)
+;;      (3 3 1 1 2 3)
+;;      (1 2 3 2 2 3)
+;;      (3 3 3 2 2 3)
+;;      ))
+
+;; Strong 8-by-5 USP
+(define puzzle
+  '( (2 2 1 3 2)
+     (1 3 1 3 2)
+     (2 1 3 3 2 )
+     (1 1 1 1 3 )
+     (3 2 1 1 3 )
+     (3 3 2 1 3 )
+     (1 2 2 3 3 )
+     (2 3 2 3 3 )))
+
 
 (define num->bool
   (lambda (num)
@@ -432,4 +467,4 @@
   (lambda (k s p)
     (process&display (construct-USP-formula k s) p)))
 
-(display-USP-formula 4 4 (p-simple puzzle))
+(display-USP-formula 5 8 (p-simple puzzle))
