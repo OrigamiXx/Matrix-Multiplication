@@ -160,6 +160,7 @@ int get_column_from_row(int row_index, int col_index){
   int i,result = 1;
   int num_elements_in_row = 3;
   for(i=0; i<col_index+1; i++){
+  //Seemed to me that the result isn't used in the loop. Maybe move it out?
     result = row_index % num_elements_in_row;
     row_index = row_index/num_elements_in_row;
   }
@@ -235,6 +236,8 @@ int count_witnesses(puzzle * p){
 
 	for (l = 0; l < p -> column; l++){
 
+//Should this be i, j ,k instead of all i for the three? I assume that this is
+//a strong USP check or some kind? 
 	  int num_sat = (get_column_from_row(p -> puzzle[i], l) == 1 ? 1 : 0) 
 	    + (get_column_from_row(p -> puzzle[i], l) == 1 ? 1 : 0) 
 	    + (get_column_from_row(p -> puzzle[i], l) == 1 ? 1 : 0);
