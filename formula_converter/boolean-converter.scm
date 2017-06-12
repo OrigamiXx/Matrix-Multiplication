@@ -1,5 +1,10 @@
 ;; Boolean formula converter
 
+;; So it can be used on commandline, for example:
+;; scm --script boolean-converter.scm | tail -n+5 > output.cnf
+
+(load "~/chez-init.scm")
+
 ;; Defines concrete and initial abstract syntax for Boolean formulas.
 ;; Permits large operators and indexed variables.
 
@@ -320,7 +325,12 @@
     (display x)
     (newline)
     x))
-  
+
+(define gotHere
+  (lambda (x)
+    (display "Got here")
+    (newline)
+    x))
      
 
 ;; Parses a given string in concrete syntax of complex Boolean formulas into a 3cnf.
@@ -328,7 +338,7 @@
   (lambda (str p)
     (init!)
     (let*
-	([res (reduce (iddisp (simplify  (subst  (expand (parse str)) p))))]
+	([res (reduce (simplify (subst  (expand (parse str)) p)))]
 	 [clauses (car res)]
 	 [var (cdr res)]
 	 ;; Forces the output variable of reduction to be true.
@@ -359,12 +369,6 @@
       (if (= (string-length str) 0) 
 	  (get-input-string)
 	  str))))
-
-
-;;(process&display (get-input-string))
-;; So it can be used on commandline, for example:
-;; echo "(not (var x))" | scm -q boolean-converter.scm | tail -n+5 > simple_not.cnf
-
 
 
 ;; (or (or (and (and (var y1) (var y2)) (var x2)) (and (var y1) (and (not (var y2)) (var x2)))) (or (and (var y1) (and (not (var y2)) (not (var x2)))) (and (not (var y1)) (and (var y2) (not (var x2))))))
@@ -403,19 +407,49 @@
     ))
 
 ;; Not a Strong USP
-(define puzzle
-  '( (1 1 2 3)
-     (1 3 2 1)
-     (1 3 3 1)
-     (3 1 1 2)
-     (1 1 1 1)
-     )      )
+;; (define puzzle
+;;   '( (1 1 2 3)
+;;      (1 3 2 1)
+;;      (1 3 3 1)
+;;      (3 1 1 2)
+;;      (1 1 1 1)
+;;      )      )
 
 ;; (define puzzle
 ;;   '( (1 1 2)
 ;;      (2 2 3)
 ;;      (3 3 1)
 ;;      ))
+
+;; Strong 14-by-6 USP
+;; (define puzzle
+;;   '( (1 2 3 3 1 2)
+;;      (2 3 3 3 1 2)
+;;      (2 1 1 1 2 2)
+;;      (1 3 1 1 2 2)
+;;      (3 2 2 1 2 2)
+;;      (1 1 2 3 2 2)
+;;      (1 3 3 1 3 2)
+;;      (1 1 2 1 1 3)
+;;      (3 1 3 1 1 3)
+;;      (3 2 1 2 1 3)
+;;      (1 3 1 2 1 3)
+;;      (3 3 1 1 2 3)
+;;      (1 2 3 2 2 3)
+;;      (3 3 3 2 2 3)
+;;      ))
+
+;; Strong 8-by-5 USP
+(define puzzle
+  '( (2 2 1 3 2)
+     (1 3 1 3 2)
+     (2 1 3 3 2 )
+     (1 1 1 1 3 )
+     (3 2 1 1 3 )
+     (3 3 2 1 3 )
+     (1 2 2 3 3 )
+     (2 3 2 3 3 )))
+
 
 (define num->bool
   (lambda (num)
@@ -433,4 +467,4 @@
   (lambda (k s p)
     (process&display (construct-USP-formula k s) p)))
 
-(display-USP-formula 4 5 (p-simple puzzle))
+(display-USP-formula 5 8 (p-simple puzzle))
