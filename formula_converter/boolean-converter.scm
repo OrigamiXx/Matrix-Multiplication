@@ -434,3 +434,17 @@
     (process&display (construct-USP-formula k s) p)))
 
 (display-USP-formula 4 5 (p-simple puzzle))
+
+;; How to run cnf file on the SAT solver
+;; export MROOT=<minisat-dir>              (or setenv in cshell)
+;; cd { core | simp }
+;; gmake rs
+;; cp minisat_static <install-dir>/minisat
+
+;; ===============================================================================\
+;; =
+;; EXAMPLES:
+
+;; Run minisat with same heuristics as version 2.0:
+
+;; > minisat <cnf-file> -no-luby -rinc=1.5 -phase-saving=0 -rnd-freq=0.02
