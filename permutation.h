@@ -34,7 +34,7 @@ perm * inverse_perm(perm * pi);  // Rename: inverse_perm
 
 //Combine the two perms together. 
 perm * compose_perm(perm * pi, perm * delta); // Rename: compose_perm
-
+	
 int print_perm(perm * pi);  // Rename: print_perm
 
 //Create the last perm. Which is T[0] -> n, T[1] -> n-1..T[n] -> 0
