@@ -27,6 +27,7 @@ $(MRMPI_L):
 	make -C $(MRMPI_SRC_PATH)  mpicc
 
 $(OBJDIR)/%.o : %.c
+	mkdir -p $(OBJDIR)
 	$(CC) $(CFLAGS) $(CCFLAGS) $< -o $@
 
 %_cluster: %_cluster.c $(MRMPI_L)
