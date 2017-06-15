@@ -2,6 +2,7 @@
 
 ;; So it can be used on commandline, for example:
 ;; scm --script boolean-converter.scm | tail -n+5 > output.cnf
+;; scheme --script boolean-converter.scm | tail -n+5 > output.cnf
 
 (load "~/chez-init.scm")
 
@@ -18,15 +19,15 @@
     (boolean-formula
      ("(and" boolean-formula boolean-formula ")")
      and-formula)
-   
+
     (boolean-formula
      ("(or-many" identifier number number boolean-formula ")")
      or-many-formula)
-    
+
     (boolean-formula
      ("(or" boolean-formula boolean-formula ")")
      or-formula)
-    
+
     (boolean-formula
      ("(not" boolean-formula ")")
      not-formula)
@@ -38,7 +39,7 @@
     (boolean-formula
      ("(delta" identifier identifier ")")
      delta-formula)
-    
+
     )
   )
 
@@ -64,11 +65,6 @@
    (indexes (list-of number?)))
   (var-num
    (num integer?))
-
-  ;; (delta-formula-simple
-  ;;  (index1 number?)
-  ;;  (index2 number?))
-  
   (true-simple)
 
   (false-simple)
@@ -77,7 +73,7 @@
 ;; ======== Converting Complex Boolean Formulas into Simple ones ============
 
 ;; List of variable names already used.
-(define var-ls '(NULL))  
+(define var-ls '(NULL))
 
 ;; Initializes list of variables names used to empty.
 (define init-var-ls!
@@ -149,7 +145,7 @@
 			      [else (raise-exception 'expand "Out of order bounds ~s" bf)])]
 	   [var-formula (name indexes)
 			(var-num
-			 (var->num 
+			 (var->num
 			  (var-formula-simple name (map (lambda (i) (apply-env i env)) indexes))))]
 
 	   [delta-formula (index1 index2)
@@ -157,7 +153,9 @@
 	   		   [(= (apply-env index1 env) (apply-env index2 env)) (true-simple)]
 	   		   [else (false-simple)] )]
 	   )))
-
+;; Substitude the variables that are puzzle variables from the
+;; original input string to concrete puzzle data
+;; input from a 3-d array puzzle
 (define subst
   (lambda (bfs p)
     (subst* bfs 'p p)))
@@ -181,7 +179,7 @@
 						     (var-num num))]
 			     [else (raise-exception 'subst* "var-ls must stored the wrong thing ~a" (cadr x))]))]
 	   [and-formula-simple (bfs1 bfs2)
-			       (and-formula-simple (subst* bfs1 var p) (subst* bfs2 var p))]	   
+			       (and-formula-simple (subst* bfs1 var p) (subst* bfs2 var p))]
 	   [or-formula-simple (bfs1 bfs2)
 			      (or-formula-simple (subst* bfs1 var p) (subst* bfs2 var p))]
 	   [not-formula-simple (bfs)
@@ -191,7 +189,9 @@
 	   [true-simple () (true-simple)]
 	   [false-simple () (false-simple)]
 	   )))
-
+;; Simplify the true and false variable from the delta-formula
+;; corresponding to the and, or, not formulas.
+;; There will be no true false formulas after this step.
 (define simplify
   (lambda (bfs)
     (cases boolean-formula-simple bfs
@@ -251,7 +251,16 @@
 (define get-new-var-num
   (lambda ()
     (set! reduce-var-count (+ reduce-var-count 1))
-    (var->num* reduce-var-count var-ls 0)))
+    (var->num** reduce-var-count var-ls 0)))
+
+;; The faster verison of var->num* for reduce
+;; Since reduce's get-new-var-num will always generate new variable
+;; dont need to go through the list like var->num*
+(define var->num**
+  (lambda (var ls n)
+    (set! var-ls (append var-ls (list var)))
+      (- (length var-ls) 1) ))
+
 
 ;; Creates a list of clauses for subformula of the form x = y AND z.
 (define make-and-clauses ;; int x int x int -> Listof(3cnf-clause)
@@ -279,7 +288,9 @@
     (list
      (clause x y y)
      (clause (- x) (- y) (- y)))))
-    
+
+
+
 ;; Converts a simple Boolean formula into a list of 3cnf clauses and
 ;; an integer indicating the variable of the output gate.
 (define reduce ;; bfs -> Listof(3cnf-clause) X int
@@ -288,15 +299,15 @@
 	   [var-num (num) (cons '() num)]
 	   [and-formula-simple (bfs1 bfs2)
 			       (let* ([new (get-new-var-num)]
-				      [fc (reduce bfs1)]   
+				      [fc (reduce bfs1)]
 				      [sc (reduce bfs2)]
 				      [fcv (cdr fc)]
 				      [scv (cdr sc)])
 				 (cons (append (make-and-clauses new fcv scv) (car fc) (car sc))
-				       new))]	   
+				       new))]
 	   [or-formula-simple (bfs1 bfs2)
 			      (let* ([new (get-new-var-num)]
-				      [fc (reduce bfs1)]   
+				      [fc (reduce bfs1)]
 				      [sc (reduce bfs2)]
 				      [fcv (cdr fc)]
 				      [scv (cdr sc)])
@@ -320,6 +331,7 @@
     (init-reduce!)
     (init-var-ls!)))
 
+;; display help methods
 (define iddisp
   (lambda (x)
     (display x)
@@ -331,7 +343,7 @@
     (display "Got here")
     (newline)
     x))
-     
+
 
 ;; Parses a given string in concrete syntax of complex Boolean formulas into a 3cnf.
 (define process&display
@@ -366,7 +378,7 @@
 (define get-input-string
   (lambda ()
     (let ([str (get-line (current-input-port))])
-      (if (= (string-length str) 0) 
+      (if (= (string-length str) 0)
 	  (get-input-string)
 	  str))))
 
@@ -379,11 +391,11 @@
 
 (define construct-USP-formula
   (lambda (k s)
-    (format "(and (and 
-                 (and-many i 1 ~d (and-many j 1 ~d (and-many r 1 3 (and-many q 1 3 
-                      (or (and (var y i j r q) (or-many l 1 ~d (and (var p l j r) (var x l i q)) ) )    
-                           (and (not (var y i j r q)) (not (or-many l 1 ~d (and (var p l j r) (var x l i q))))) )  ))))              
-          
+    (format "(and (and
+                 (and-many i 1 ~d (and-many j 1 ~d (and-many r 1 3 (and-many q 1 3
+                      (or (and (var y i j r q) (or-many l 1 ~d (and (var p l j r) (var x l i q)) ) )
+                           (and (not (var y i j r q)) (not (or-many l 1 ~d (and (var p l j r) (var x l i q))))) )  ))))
+
      (not (or (and-many i 1 ~d (and-many j 1 ~d (and (or (and-many o 1 2 (var x i j o))
                                                       (and-many a 1 2 (not (var x i j a))))
                                                  (or (and-many b 2 3 (var x i j b))
@@ -394,12 +406,12 @@
        )
 
 
-     (and-many q 1 3 (and-many i 1 ~d (and (and (or-many j 1 ~d (var x i j q)) (or-many j 1 ~d (var x j i q))) 
-                                           (and (and-many j 1 ~d (and-many k 1 ~d (or (delta j k)   
+     (and-many q 1 3 (and-many i 1 ~d (and (and (or-many j 1 ~d (var x i j q)) (or-many j 1 ~d (var x j i q)))
+                                           (and (and-many j 1 ~d (and-many k 1 ~d (or (delta j k)
                                                                                  (or (or (and (var x i j q) (not (var x i k q)))
                                                                                  (and (not (var x i j q)) (var x i k q)))
                                                                                  (and (not (var x i j q)) (not (var x i k q)))))))
-                                                (and-many j 1 ~d (and-many k 1 ~d (or (delta j k)   
+                                                (and-many j 1 ~d (and-many k 1 ~d (or (delta j k)
                                                                                  (or (or (and (var x j i q) (not (var x k i q)))
                                                                                  (and (not (var x j i q)) (var x k i q)))
                                                                                  (and (not (var x j i q)) (not (var x k i q)))))))  )   ) )) )
@@ -409,51 +421,8 @@
     s k s s     s s     s k                  s s s s s s s)
     ))
 
-;; Not a Strong USP
-(define puzzle
-  '( (1 1 2 3)
-     (1 3 2 1)
-     (1 3 3 1)
-     (3 1 1 2)
-     (1 1 1 1)
-     )      )
 
-;; (define puzzle
-;;   '( (1 1 2)
-;;      (2 2 3)
-;;      (3 3 1)
-;;      ))
-
-;; Strong 14-by-6 USP
-;; (define puzzle
-;;   '( (1 2 3 3 1 2)
-;;      (2 3 3 3 1 2)
-;;      (2 1 1 1 2 2)
-;;      (1 3 1 1 2 2)
-;;      (3 2 2 1 2 2)
-;;      (1 1 2 3 2 2)
-;;      (1 3 3 1 3 2)
-;;      (1 1 2 1 1 3)
-;;      (3 1 3 1 1 3)
-;;      (3 2 1 2 1 3)
-;;      (1 3 1 2 1 3)
-;;      (3 3 1 1 2 3)
-;;      (1 2 3 2 2 3)
-;;      (3 3 3 2 2 3)
-;;      ))
-
-;; Strong 8-by-5 USP
-;; (define puzzle
-;;   '( (2 2 1 3 2)
-;;      (1 3 1 3 2)
-;;      (2 1 3 3 2 )
-;;      (1 1 1 1 3 )
-;;      (3 2 1 1 3 )
-;;      (3 3 2 1 3 )
-;;      (1 2 2 3 3 )
-;;      (2 3 2 3 3 )))
-
-
+;; turn a number 1-3 to a list which is a combination of ture false
 (define num->bool
   (lambda (num)
     (cond
@@ -465,9 +434,52 @@
 (define p-simple
   (lambda (puzzle)
     (map (lambda (n) (map num->bool n)) puzzle)))
+    ;; Not a Strong USP
+    ;(define puzzle
+    ;  '( (1 1 2 3)
+    ;     (1 3 2 1)
+    ;     (1 3 3 1)
+    ;     (3 1 1 2)
+    ;     (1 1 1 1)
+    ;     )      )
+
+     ;(define puzzle
+     ;  '( (1 1 2)
+     ;     (2 2 3)
+     ;     (3 3 1)
+     ;     ))
+
+    ;; Strong 14-by-6 USP
+     (define puzzle
+       '( (1 2 3 3 1 2)
+          (2 3 3 3 1 2)
+          (2 1 1 1 2 2)
+          (1 3 1 1 2 2)
+          (3 2 2 1 2 2)
+          (1 1 2 3 2 2)
+          (1 3 3 1 3 2)
+          (1 1 2 1 1 3)
+          (3 1 3 1 1 3)
+          (3 2 1 2 1 3)
+          (1 3 1 2 1 3)
+          (3 3 1 1 2 3)
+      ;;    (1 2 3 2 2 3)
+      ;;    (3 3 3 2 2 3)
+          ))
+
+    ;; Strong 8-by-5 USP
+    ;; (define puzzle
+    ;;   '( (2 2 1 3 2)
+    ;;      (1 3 1 3 2)
+    ;;      (2 1 3 3 2 )
+    ;;      (1 1 1 1 3 )
+    ;;      (3 2 1 1 3 )
+    ;;      (3 3 2 1 3 )
+    ;;      (1 2 2 3 3 )
+    ;;      (2 3 2 3 3 )))
 
 (define display-USP-formula
   (lambda (k s p)
     (process&display (construct-USP-formula k s) p)))
 
-(display-USP-formula 4 5 (p-simple puzzle))
+(display-USP-formula 6 12 (p-simple puzzle))
