@@ -449,6 +449,11 @@
      ;     (3 3 1)
      ;     ))
 
+
+
+    ;; The 8 by 6 takes 125.6 seconds to check (correct), 6 seconds to generate
+    ;; The 12 by 6 takes more than 5 hours
+    ;; The 14 by 6 takes more than 10 hours + 3 mins to generate
     ;; Strong 14-by-6 USP
      (define puzzle
        '( (1 2 3 3 1 2)
@@ -461,8 +466,8 @@
           (1 1 2 1 1 3)
           (3 1 3 1 1 3)
           (3 2 1 2 1 3)
-          (1 3 1 2 1 3)
-          (3 3 1 1 2 3)
+      ;;    (1 3 1 2 1 3)
+      ;;    (3 3 1 1 2 3)
       ;;    (1 2 3 2 2 3)
       ;;    (3 3 3 2 2 3)
           ))
@@ -482,4 +487,4 @@
   (lambda (k s p)
     (process&display (construct-USP-formula k s) p)))
 
-(display-USP-formula 6 12 (p-simple puzzle))
+(display-USP-formula 6 10 (p-simple puzzle))
