@@ -443,6 +443,8 @@
     ;     (1 1 1 1)
     ;     )      )
 
+
+    ;; ((1 1 2) (2 2 3) (3 3 1))
      ;(define puzzle
      ;  '( (1 1 2)
      ;     (2 2 3)
@@ -473,18 +475,23 @@
           ))
 
     ;; Strong 8-by-5 USP
-    ;; (define puzzle
-    ;;   '( (2 2 1 3 2)
-    ;;      (1 3 1 3 2)
-    ;;      (2 1 3 3 2 )
-    ;;      (1 1 1 1 3 )
-    ;;      (3 2 1 1 3 )
-    ;;      (3 3 2 1 3 )
-    ;;      (1 2 2 3 3 )
-    ;;      (2 3 2 3 3 )))
+     ;;(define puzzle
+      ;; '( (2 2 1 3 2)
+      ;;    (1 3 1 3 2)
+      ;;    (2 1 3 3 2 )
+      ;;    (1 1 1 1 3 )
+      ;;    (3 2 1 1 3 )
+      ;;    (3 3 2 1 3 )
+      ;;    (1 2 2 3 3 )
+      ;;    (2 3 2 3 3 )
+      ;;    ))
 
+;; $ echo "#input puzzle" | scheme -q boolean-converter.scm | tail -n+5 > output.cnf
+(define puz
+    (read (open-input-string  (get-input-string)))
+  )
 (define display-USP-formula
   (lambda (k s p)
     (process&display (construct-USP-formula k s) p)))
 
-(display-USP-formula 6 10 (p-simple puzzle))
+(display-USP-formula (length (car puz)) (length puz) (p-simple puz))
