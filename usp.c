@@ -67,11 +67,19 @@ int check_usp_same_col(int max_row, int column){
 
 //give a size of the puzzle check all the puzzles from 1X1 to this size
 // whether they are USPs and
-// will write out in new text file the ones that are USPs.
-int check_all_usp(int row, int column){
+// will write out in new text files for USPs and nonUSPs if returnP is set to 1.
+int check_all_usp(int row, int column, int returnP){
   int i, j, k;
   int max_index;
   int a, tt=0, tf=0, ft = 0, ff = 0;
+  FILE * f, *g;
+  if(returnP == 1){
+    
+    f = fopen("USP.txt", "a");
+    g = fopen("nonUSP.txt", "a");
+    assert(f != NULL);
+    assert(g != NULL);}
+
     //printf("%d\n", max_index);
   for(i=1; i<=row; i++){
     for(j=1; j<=column; j++){
@@ -88,10 +96,26 @@ int check_all_usp(int row, int column){
 
 	if(res_check && res_mult){
 	 tt++;
+         if(returnP ==1){
+	   for(i=0; i<p->row;i++){
+   	     for(j=0;j<p->column;j++){
+   	       fprintf(f, "%d", get_column_from_row(p->puzzle[i], j));  
+ 	       }
+  	     fprintf(f, "\n");
+	     }
+	  }
 	 //write_puzzle(p, k);  
 	}
 	if(!res_check && !res_mult){
 	  ff++;
+         if(returnP ==1){
+	   for(i=0; i<p->row;i++){
+   	     for(j=0;j<p->column;j++){
+   	       fprintf(g, "%d", get_column_from_row(p->puzzle[i], j));  
+ 	       }
+  	     fprintf(g, "\n");
+	     }
+	  }
 	}
 	if(!res_check && res_mult){
 	  ft++;
@@ -106,6 +130,10 @@ int check_all_usp(int row, int column){
       assert(tf == 0 && ft == 0);
     }
   }
+  if(returnP ==1){
+    fclose(f);
+    fclose(g);
+ }
   return 0;
 }
 //get_column_from_row (row index, column index)

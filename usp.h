@@ -14,10 +14,11 @@ using namespace std;
 int check_usp_same_col(int max_row, int column);
 
 //Check if given puzzle is a USP or not
+//Return 1 if p is a USP, else return 0
 int check_usp(puzzle * p);
 
 //Check number of USP's on puzzles from 1*1 to row*column by using two methods
-int check_all_usp(int row, int column);
+int check_all_usp(int row, int column, int returnP);
 
 int check_usp_recursive(puzzle * p);
 
