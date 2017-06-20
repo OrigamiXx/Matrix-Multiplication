@@ -139,7 +139,7 @@ puzzle * create_puzzle_from_index(int row, int column, int index){
   }
   int i;//, j;
   int x;//, y;
-  for(x = 0; x < row; x++){
+  for(x = row -1; x >=0 ; x--){
     i = index % num_type_rows;
     //printf("%d", i);
     //for(y = 0; y < column; y++){
@@ -190,13 +190,14 @@ void write_puzzle(puzzle * p, int index){
   //char a[256];
   //itoa(index, a);
   //string extension = ".puzz";
-  char name[100];
+  char * name[100];
   //string name;
   FILE * f;
-  snprintf(name, sizeof(name), "puzzles/%d_%d_%04d%s", p -> row, p -> column, index, ".puzz");
+  //snprintf(name, sizeof(name), "puzzles/%d_%d_%04d%s", p -> row, p -> column, index, ".txt");
+  //printf(name);
   //string name;
   //name = "puzzles" + to_string(p->row) + "_" + to_string(p->column) + "_" + to_string(index) + extension;
-  f = fopen(name, "w");
+  f = fopen("1", "w");
   assert(f != NULL);
   int i, j;
   for(i=0; i<p->row;i++){
