@@ -15,7 +15,8 @@
 #include <map>
 #include <iostream>
 using namespace std;
-//check the number of the usp of puzzles with same width and different height 
+//check the number of the usp of puzzles with same width and different height
+
 int check_usp_same_col(int max_row, int column){
   std::map<string, puzzle*>M;
   int i, max_poss_row=1, row = 1;

@@ -120,33 +120,25 @@ puzzle * create_puzzle(int rows, int cols){
 
 //give width(column) and height(row) and the index of all the possible puzzle in this size
 //return a puzzle
-//index must be 0-(2^(k*s)-1)
+//index must be 0-(3^(k*s)-1)
 puzzle * create_puzzle_from_index(int row, int column, int index){
   puzzle * p = (puzzle *) (malloc(sizeof(puzzle)));
-  //int r;
+
   p->row = row;
   p->column = column;
   p->pi = create_perm_identity(p->row);
   p->puzzle = (int *) malloc(sizeof(int *)*p->row);
-  //for (r = 0; r < p->row; r++){
-  //  p->puzzle[r] = (int *) malloc(sizeof(int *)*p->column);
-  //}  
-  //int num_type_rows = (int)pow(3, column); power fuction not working!
+
   int num_type_rows = 1;
   int a;
   for (a = 0; a<column; a++){
     num_type_rows = num_type_rows * 3;
   }
-  int i;//, j;
-  int x;//, y;
-  for(x = row -1; x >=0 ; x--){
+
+  int i;
+  int x;
+  for(x = 0; x < row; x++){
     i = index % num_type_rows;
-    //printf("%d", i);
-    //for(y = 0; y < column; y++){
-    //  j = i % num_elements_in_row;
-    //  p->puzzle[x][y] = j+1;
-    //  i = i/num_elements_in_row;
-    //}
     p->puzzle[x] = i;
     index = index/num_type_rows;
   }
