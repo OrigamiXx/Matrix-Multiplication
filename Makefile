@@ -9,7 +9,7 @@ CCFLAGS=-c -Wall -O3 -pg
 LDFLAGS=-lm -pg
 RMFLAGS=-f
 OBJ-SOURCES=usp.c permutation.c puzzle.c set.c usp_bi.c
-EXE-SOURCES=usp_tester.c permutation_tester.c puzzle_tester.c set_tester.c
+EXE-SOURCES=usp_tester.c permutation_tester.c puzzle_tester.c set_tester.c generate_puzzle.c
 PARA-EXE=usp_cluster
 OBJDIR=objs
 OBJECTS=$(addprefix $(OBJDIR)/,$(OBJ-SOURCES:.c=.o))

@@ -67,6 +67,7 @@ int main(int argc, char * argv[]){
 	sample = create_puzzle_from_index(8, 6, 10);
 	
 	print_puzzle(sample);
+	printf("%d", check_usp_recursive(sample));
 	write_puzzle(sample, 10);
 	destroy_puzzle(sample);
   

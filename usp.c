@@ -103,6 +103,7 @@ int check_all_usp(int row, int column, int returnP){
  	       }
   	     fprintf(f, "\n");
 	     }
+	    fprintf(f, "\n");
 	  }
 	 //write_puzzle(p, k);  
 	}
@@ -115,6 +116,7 @@ int check_all_usp(int row, int column, int returnP){
  	       }
   	     fprintf(g, "\n");
 	     }
+	   fprintf(f, "\n");
 	  }
 	}
 	if(!res_check && res_mult){
