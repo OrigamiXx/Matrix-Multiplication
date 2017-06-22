@@ -474,6 +474,8 @@
       ;;    (3 3 3 2 2 3)
           ))
 
+;; ( (2 2 1 3 2) (1 3 1 3 2) (2 1 3 3 2 ) (1 1 1 1 3 ) (3 2 1 1 3 ) (3 3 2 1 3 ) (1 2 2 3 3 ) (2 3 2 3 3 ) )
+
     ;; Strong 8-by-5 USP
      ;;(define puzzle
       ;; '( (2 2 1 3 2)
@@ -485,13 +487,18 @@
       ;;    (1 2 2 3 3 )
       ;;    (2 3 2 3 3 )
       ;;    ))
-
+;; echo "#input puzzle" | scheme -q boolean-converter.scm | tail -n+5 > output.cnf
+;; ( (2 2 1 3 2) (1 3 1 3 2) (2 1 3 3 2 ) (1 1 1 1 3 ) )
 ;; $ echo "#input puzzle" | scheme -q boolean-converter.scm | tail -n+5 > output.cnf
+;; $~/Desktop/matrix-multiplication/minisat ~/Desktop/matrix-multiplication/formula_converter/output.cnf result.txt
+
 (define puz
     (read (open-input-string  (get-input-string)))
   )
 (define display-USP-formula
   (lambda (k s p)
     (process&display (construct-USP-formula k s) p)))
+
+
 
 (display-USP-formula (length (car puz)) (length puz) (p-simple puz))
