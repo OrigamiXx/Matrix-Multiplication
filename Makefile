@@ -22,16 +22,23 @@ SRCDIR=src
 OBJECTS=$(addprefix $(OBJDIR)/,$(OBJ-SOURCES:.c=.o))
 EXES=$(EXE-SOURCES:.c= )
 PARA-EXES=$(PARA-SOURCES:.c= )
-BINS=$(addprefix $(BINDIR)/,$(EXES)) $(addprefix $(BINDIR)/,$(PARA-EXES))
-MRMPI_SRC_PATH=./mrmpi-7Apr14/src/
+SOLVER-EXES=minisat_solver
+BINS=$(addprefix $(BINDIR)/,$(EXES)) $(addprefix $(BINDIR)/,$(PARA-EXES)) $(addprefix $(BINDIR)/,$(SOLVER-EXES))
+MRMPI_SRC_PATH=./MRMPI/src/
 MRMPI_LIB=libmrmpi_mpicc.a
 MRMPI_L=$(MRMPI_SRC_PATH)$(MRMPI_LIB)
+SOLVER_SRC_PATH=./SATSolver/core/
+MROOT= $(shell pwd)/SATSolver/
 
 $(MRMPI_L): 
 	make -C $(MRMPI_SRC_PATH)  mpicc
 
 $(OBJDIR)/%.o : $(SRCDIR)/%.c
 	$(CC) $(CFLAGS) $(CCFLAGS) $< -o $@
+
+$(BINDIR)/%_solver: 
+	make -C $(SOLVER_SRC_PATH) rs
+	cp $(SOLVER_SRC_PATH)/minisat_static $(BINDIR)/minisat_solver
 
 $(BINDIR)/%_para: $(SRCDIR)/%_para.c $(MRMPI_L)
 	echo $(BINS)
@@ -40,12 +47,11 @@ $(BINDIR)/%_para: $(SRCDIR)/%_para.c $(MRMPI_L)
 $(BINDIR)/% : $(SRCDIR)/%.c $(OBJECTS)
 	$(CC) $(OBJECTS) $(LDFLAGS) $< -o $@ 
 
-
 tmp_dirs:
 	mkdir -p $(OBJDIR)
 	mkdir -p $(BINDIR)
 
-all: tmp_dirs $(MRMPI_L) $(OBJECTS) $(BINS)
+all: tmp_dirs $(MRMPI_L) $(OBJECTS) $(BINS) 
 
 .PHONY: clean
 
@@ -53,6 +59,7 @@ clean:
 	rm $(RMFLAGS) $(OBJDIR)/*.o $(EXES) *~ *.out
 	rm -f $(PARA-EXES)
 	make -C $(MRMPI_SRC_PATH) clean-all
+	make -C $(SOLVER_SRC_PATH) clean
 	rm -f $(MRMPI_SRC_PATH)$(MRMPI_LIB)
 	rm -fr $(BINDIR)
 	rm -fr $(OBJDIR)
