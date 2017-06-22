@@ -1,5 +1,11 @@
-//permutation in c
-// author Jerry
+/*
+  This module contains functions and datatypes for representing
+  permutations.  There are functions for creating, copying,
+  destroying, applying, inverting, displaying and comparing
+  permutations.
+
+  Authors: Jerry, Anthony, Matt.
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,115 +15,165 @@
 #include "constants.h"
 #include <math.h>
 
-//create an array A with size of n that A[i] = i
+// Macro for swapping contents of variables with _same_ type.
+#define SWAP(x, y)  do { (x) = (x) ^ (y);  (y) = (x) ^ (y);  (x) = (x) ^ y; } while (0)
+
+/*=================================================================
+
+   Permutation Creation 
+
+   Remember to deallocate!
+
+=================================================================*/
+
+/*
+  Allocates, creates, and returns an permutation of size n.  The array
+  arrow has invalid contents.  Private.
+*/
+perm * __create_empty_perm(int n){
+
+  perm * pi = (perm *) malloc(sizeof(perm));
+  int * arrow = (int *) malloc(sizeof(int) * n);
+  assert(pi != NULL && arrow != NULL);  // Fail hard if out of memory.
+  
+  pi -> n = n;
+  pi -> arrow = arrow;
+
+  return pi;  
+}
+
+/*
+  Allocates, creates, and returns an identity permutation of size
+  n. An identity permutation is a permutation that maps every element
+  of the base set U to itself.  In cycle notation this is
+  (0)(1)(2)...(n-1).
+*/
 perm  * create_perm_identity(int n){
-  perm * tmp = (perm *) malloc(sizeof(perm));
-  assert(tmp != NULL);
-  //tmp -> arrow[n];  // This accesses element n of tmp -> arrow.
-  tmp -> arrow = (int*)malloc(sizeof(int)*n);
-  int i;
-  for (i = 0; i<n; i++){
-    tmp->arrow[i] = i;
-  }
-  tmp -> size = n; 
-  return tmp;
-}
 
-// Returns a newly allocated copy of pi.
-perm * copy_perm(perm * pi){
+  perm * pi = __create_empty_perm(n);
   
-  int size = pi -> size;
-  perm * pi2 = create_perm_identity(size);
-
-  int i;
-  for (i = 0; i < size; i++){
-    pi2 -> arrow[i] = pi -> arrow[i];
-  }
-
-  return pi2;
-
-}
-
-// apply perm, x must be inside the domain of the perm
-//apply-perm takes in x and return the index x of the array in pi
-
-//Return the x element in pi
-int apply_perm(perm * pi, int x){
-  int result;
-  result = pi->arrow[x];
-  return result;
-}
-
-//last perm - Takes a perm and make goes from n-1 to 0
-perm * create_last_perm(int n){
-  perm * tmp = (perm *) malloc(sizeof(perm));
-  tmp -> size = n;
-  tmp -> arrow = (int*)malloc(sizeof(int)*n);
-  int i;
-  for (i = 0; i < tmp->size; i++){
-    tmp->arrow[i] = n - (i + 1);
-  }
-  return tmp;
-}
-
-//next_perm
-// some problems, it won't loop back and the order is a little bit off
-// Assumes that pi is not the last perm.
-//??
-perm * next_perm(perm * pi){
-  int j, l, k, n;
-  n = pi->size-1;
-  j = n -1;
+  for (int i = 0 ; i < n ; i++)
+    pi->arrow[i] = i;
   
-    //j: index of first element that is smaller than it's next element
-  while (pi->arrow[j]>=pi->arrow[j+1] && j!=0){
-    j--;  
-  }
-  l = n;
-    
-    //l: Should usually be the next element of j
-    
-    //May break for 1432
-  while (pi->arrow[j]>=pi->arrow[l]){
-    l--;
-  }
-  int temp;
-  temp = pi->arrow[j];
-  pi->arrow[j] = pi->arrow[l];
-  pi->arrow[l] = temp;
-  k = j + 1;
-  l = n;
-  while (k < l){
-    temp = pi->arrow[k];
-    pi->arrow[k] = pi->arrow[l];
-    pi->arrow[l] = temp;
-    k = k+1;
-    l = l-1;
-  }
   return pi;
 }
 
-// Replaces and returns the inverse of a perm.
-perm * inverse_perm(perm * pi){
+/*
+  Allocates, creates, and returns the last permutation of size n.
+  This permutation has cycle representation (n-1 n-2 n-3 ... 1 0).
+*/
+perm * create_last_perm(int n){
 
-  int s = pi -> size;
+  perm * pi = __create_empty_perm(n);
 
-  int i;
-  for (i = 0; i < s; i++){
+  for (int i = 0 ; i < n ; i++)
+    pi -> arrow[i] = n - (i + 1);
+  
+  return pi;
+}
 
-    if (pi -> arrow[i] < 0)
-      pi -> arrow[i] = - pi -> arrow[i] - 1;
+
+/*
+  Allocates, creates, and returns a copy of the given permutation pi.
+*/
+perm * copy_perm(perm * pi){
+  
+  int n = pi -> n;
+  perm * pi2 = __create_empty_perm(n);
+
+  memcpy(pi2 -> arrow, pi -> arrow, sizeof(int) * n);
+
+  return pi2;
+}
+
+/*
+  Deallocates given permutation.
+*/
+void destroy_perm(perm * pi){
+
+  free(pi -> arrow);
+  free(pi);
+
+}
+
+/*=================================================================
+
+   Permutation Operations
+
+=================================================================*/
+
+/* 
+   Allocates a new permutation which is the result of composing the
+   two given permutations, in particular it produces the permutation
+   rho which maps each x in U to delta(pi(x)).
+*/
+perm * compose_perm(perm * pi, perm * delta){
+
+  int n = pi -> n;
+  perm * rho = __create_empty_perm(n);
+
+  for (int i = 0 ; i < n ; i++)
+    rho -> arrow[i] = delta -> arrow[pi -> arrow[i]];
+
+  return rho;
+} 
+
+/* 
+   Mutates the given permutation into the next permutation in
+   lexicographic order.  Implements Knuth's Algorithm L.  Runtime
+   O(n).
+*/
+perm * next_perm(perm * pi){
+  int i, j, k, n;
+  int * arrow = pi -> arrow;
+  
+  n = pi -> n - 1;
+  j = n - 1;
+
+  while (arrow[j] >= arrow[j + 1] && j != 0)
+    j--;  
+
+  i = n;
+    
+  while (arrow[j] >= arrow[i])
+    i--;
+
+  SWAP(arrow[i], arrow[j]);
+
+  k = j + 1;
+  i = n;
+  while (k < i){
+    SWAP(arrow[k], arrow[i]);
+    k++;
+    i--;
+  }
+
+  return pi;
+}
+
+/* 
+   Mutates the given permutation into its inverse.
+*/
+perm * invert_perm(perm * pi){
+
+  int n = pi -> n;
+  int * arrow = pi -> arrow;
+
+  for (int i = 0; i < n; i++){
+
+    if (arrow[i] < 0)
+      arrow[i] = -arrow[i] - 1;
     else {
       int start = i;
       int prev = i;
-      int curr = pi -> arrow[i];
+      int curr = arrow[i];
       while (curr != start){
-	int next = pi -> arrow[curr]; 
-	pi -> arrow[curr] = -prev - 1;
+	int next = arrow[curr]; 
+	arrow[curr] = -prev - 1;
 	prev = curr;
 	curr = next;
       }
-      pi -> arrow[start] = prev;
+      arrow[start] = prev;
     }
 
   }
@@ -125,116 +181,122 @@ perm * inverse_perm(perm * pi){
   return pi;
 }
 
-// Returns true iff pi is the identity perm.
+
+/*=================================================================
+
+   Permutation Comparisons
+
+=================================================================*/
+
+/*
+  Returns true iff the given permutation pi is the identity perm.
+*/
 int is_identity_perm(perm * pi){
   
-  int s = pi -> size;
+  int n = pi -> n;
+  int * arrow = pi -> arrow;
   
-  int i;
-  for (i = 0; i < s; i++){
-    if (pi -> arrow[i] != i)
+  for (int i = 0; i < n; i++)
+    if (arrow[i] != i)
       return false;
-  }
 
   return true;
-
 }
 
-
-//Deallocates a perm.
-void destroy_perm(perm * pi){
-  free(pi -> arrow);
-  free(pi);
-}
-
-//Tests whether two perms are equal.
+/*
+  Returns true iff the given permutations are identical.
+*/
 int is_equals_perm(perm * pi1, perm * pi2){
 
-  if (pi1 == NULL && pi2 == NULL)
+  if (pi1 == pi2)
     return true;
-  if (pi1 == NULL || pi2 == NULL)
+
+  if (pi1 == NULL || pi2 == NULL || pi1 -> n != pi2 -> n)
     return false;
 
-  if (pi1 -> size != pi2 -> size)
-    return false;
-  
-  int i;
+  if (memcmp(pi1 -> arrow, pi2 -> arrow, pi1 -> n * sizeof(int)) == 0)
+    return true;
 
-  for (i = 0; i < pi1 -> size; i++)
-    if (pi1 -> arrow[i] != pi2 -> arrow[i])
-      return false;
-
-  return true;
+  return false;
 }
 
-//Tests whether perm is the last perm.
+/*
+  Returns true iff the given permutation is the lexicographically last
+  permutation.
+*/
 int is_last_perm(perm * pi){
 
-  perm * last = create_last_perm(pi -> size);
+  int n_minus = pi -> n - 1;
+  int * arrow = pi -> arrow;
+  int i = 0;
 
-  int ret = is_equals_perm(pi,last);
+  while (i <= n_minus && (i + arrow[i]) == n_minus)
+    i++;
 
-  destroy_perm(last);
-
-  return ret;
+  return i > n_minus;
 }
 
 
 
+/*=================================================================
 
-//compose just like fucntion f:A->B g:B->C
-// int this case it's delta(pi(x))
-perm * compose_perm(perm * pi, perm * delta){
-  perm * result = create_perm_identity(pi -> size);
-  int i;
-  for (i=0; i<result->size; i++){
-    result->arrow[i] = delta->arrow[pi->arrow[i]];
-  }
+   Permutation Display
+
+=================================================================*/
+
+/*
+  Displays the given permutation as a function table to the console.
+*/
+void print_perm_tabular(perm * pi){
+
+  int n = pi -> n;
+  int * arrow = pi -> arrow;
   
-  return result;
-} 
-
-
-//Print out the elements in pi in a form (i, arrow[i], arrow[arrow[i]]..).
-int print_perm(perm * pi){
-  int i,n;
-  n = pi->size;
-  for (i= 0; i<n; i++){
-    printf("%d->%d",i,pi->arrow[i]);
-    printf("\n");
-  }
-  return 0;
+  for (int i = 0 ; i < n ; i++)
+    printf("%d -> %d\n", i, arrow[i]);
 }
 
-void print_compact_perm(perm * pi){
+/*
+  Displays the given permutation in cycle notation to the console.
+*/
+void print_perm_cycle(perm * pi){
 
-  int visited[30];
+  int n = pi -> n;
+  int * arrow = pi -> arrow;
+  
+  for (int i = 0 ; i < n ; i++)
 
-  assert(pi -> size <= 30);
+    if (arrow[i] < 0)
+      
+      arrow[i] = -arrow[i] - 1;
 
-  int i, j;
+    else {
+	       
+      int start = i;
+      int curr = start;
+      int next = apply_perm(pi, curr);
 
-  for (i = 0; i < pi -> size; i++){
-    visited[i] = false;
-  }
+      if (curr == next)
+	printf("(%d)", curr);
+      else {
 
-  for (i = 0; i < pi -> size; i++){
-
-    if (!visited[i]){
-      j = i;
-      printf("(");
-      while (!visited[j]){
-	visited[j] = true;
-	printf("%d",j);
-	j = apply_perm(pi,j);
-	if (!visited[j])
-	  printf(" ");
+	printf("(");
+	
+	while (next != start) {
+	  
+	  printf("%d ", curr);
+	  curr = next;
+	  next = apply_perm(pi, curr);
+	  arrow[curr] = -arrow[curr] - 1;
+	}
+	
+	printf("%d)", curr);
+	
       }
-      printf(")");
+	
     }
 
-  }
-
+  printf("\n");
 
 }
 
