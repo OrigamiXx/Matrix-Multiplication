@@ -1,0 +1,11 @@
+*.txt
+*_tester
+*_para
+*.a
+*.cnf
+minisat
+generate_puzzle
+*Obj_mpicc*
+*_old
+*~
+\#*\#
