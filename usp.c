@@ -17,7 +17,11 @@
 using namespace std;
 //check the number of the usp of puzzles with same width and different height
 
-#ifdef Cplusplus11
+#define GCC_VERSION (__GNUC__ * 10000 \
+                     + __GNUC_MINOR__ * 100 \
+                     + __GNUC_PATCHLEVEL__)
+
+#if GCC_VERSION > 40400
 
 int check_usp_same_col(int max_row, int column){
   std::map<string, puzzle*>M;

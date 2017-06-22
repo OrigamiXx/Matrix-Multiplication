@@ -10,7 +10,11 @@
 #define MAX_SET 1<<MAX_ROW
 using namespace std;
 
-#ifdef Cplusplus11
+#define GCC_VERSION (__GNUC__ * 10000 \
+                     + __GNUC_MINOR__ * 100 \
+                     + __GNUC_PATCHLEVEL__)
+
+#if GCC_VERSION > 40400
 //Check number of USP's in puzzles from 1*column to max_row*column
 int check_usp_same_col(int max_row, int column);
 #endif

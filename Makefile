@@ -6,8 +6,8 @@
 MPICC=mpic++
 CC=g++ 
 CCFLAGS=-c -Wall -O3 -pg
-# Comment out below if c++11 not installed.
-CCFLAGS += -std=c++11 -DCplusplus11
+# Comment out line below on cluster.
+CCFLAGS += -std=c++11
 LDFLAGS=-lm -pg
 RMFLAGS=-f
 # Put additional object sources in list below.
