@@ -17,6 +17,8 @@
 using namespace std;
 //check the number of the usp of puzzles with same width and different height
 
+#ifdef Cplusplus11
+
 int check_usp_same_col(int max_row, int column){
   std::map<string, puzzle*>M;
   int i, max_poss_row=1, row = 1;
@@ -27,7 +29,7 @@ int check_usp_same_col(int max_row, int column){
   puzzle * p;
   for(i = 0; i<max_poss_row; i++){
     p = create_puzzle_from_index(row, column, i);
-    //M.insert(pair<string,  puzzle*>(to_string(i), p));  
+    M.insert(pair<string,  puzzle*>(to_string(i), p));  
     tt++;
   }
   //for(map<string, puzzle*>::iterator it = M.begin(); it!=M.end(); ++it){
@@ -44,7 +46,7 @@ int check_usp_same_col(int max_row, int column){
 	p = create_puzzle_from_puzzle(it->second, i);
 	total++;
 	if(check_usp_recursive(p)){
-	  // tmpM.insert(pair<string, puzzle*>(it->first+"_"+ to_string(i), p));
+	  tmpM.insert(pair<string, puzzle*>(it->first+"_"+ to_string(i), p));
 	  t++;
 	  tt++;
 	}
@@ -63,7 +65,7 @@ int check_usp_same_col(int max_row, int column){
   return 0;
 }
 
-
+#endif
 
 
 //give a size of the puzzle check all the puzzles from 1X1 to this size
@@ -259,8 +261,11 @@ std::map<string, bool>m;
 }
 //turn the s2, s3, and same_perm into a string
 string param_to_string(set s2, set s3, bool same_perm){
-  // string result = to_string(s2) + "|" + to_string(s3) + "|" + to_string(same_perm); 
-  string result;
+  #ifdef Cplusplus11
+  string result = to_string(s2) + "|" + to_string(s3) + "|" + to_string(same_perm);
+  #else
+  string result = "INVALID WITHOUT C++11";
+  #endif
   return result;
 
 }

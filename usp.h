@@ -10,8 +10,11 @@
 #define MAX_SET 1<<MAX_ROW
 using namespace std;
 
+#ifdef Cplusplus11
 //Check number of USP's in puzzles from 1*column to max_row*column
 int check_usp_same_col(int max_row, int column);
+#endif
+
 
 //Check if given puzzle is a USP or not
 //Return 1 if p is a USP, else return 0

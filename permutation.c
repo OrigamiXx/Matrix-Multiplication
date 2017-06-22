@@ -152,7 +152,7 @@ perm * next_perm(perm * pi){
 }
 
 /* 
-   Mutates the given permutation into its inverse.
+   Mutates the given permutation into its inverse.  Runtime O(n).
 */
 perm * invert_perm(perm * pi){
 
@@ -261,12 +261,14 @@ void print_perm_tabular(perm * pi){
 */
 void print_perm_cycle(perm * pi){
 
+  // Algorithm very similar to permutation inversion.
+  
   int n = pi -> n;
   int * arrow = pi -> arrow;
   
   for (int i = 0 ; i < n ; i++)
 
-    if (arrow[i] < 0)
+    if (arrow[i] < 0)  // Already printed i.
       
       arrow[i] = -arrow[i] - 1;
 
