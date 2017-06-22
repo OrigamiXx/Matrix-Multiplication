@@ -27,8 +27,8 @@ BINS=$(addprefix $(BINDIR)/,$(EXES)) $(addprefix $(BINDIR)/,$(PARA-EXES)) $(addp
 MRMPI_SRC_PATH=./MRMPI/src/
 MRMPI_LIB=libmrmpi_mpicc.a
 MRMPI_L=$(MRMPI_SRC_PATH)$(MRMPI_LIB)
-SOLVER_SRC_PATH=./SATSolver/core/
-MROOT= $(shell pwd)/SATSolver/
+SOLVER_SRC_PATH=./SAT/core/
+MROOT= $(shell pwd)/SAT/
 
 $(MRMPI_L): 
 	make -C $(MRMPI_SRC_PATH)  mpicc
@@ -56,10 +56,9 @@ all: tmp_dirs $(MRMPI_L) $(OBJECTS) $(BINS)
 .PHONY: clean
 
 clean:
-	rm $(RMFLAGS) $(OBJDIR)/*.o $(EXES) *~ *.out
-	rm -f $(PARA-EXES)
+	rm -f *~ *.out
 	make -C $(MRMPI_SRC_PATH) clean-all
 	make -C $(SOLVER_SRC_PATH) clean
 	rm -f $(MRMPI_SRC_PATH)$(MRMPI_LIB)
-	rm -fr $(BINDIR)
-	rm -fr $(OBJDIR)
+	rm -fr $(BINS)
+	rm -fr $(OBJECTS)

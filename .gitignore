@@ -12,3 +12,5 @@ generate_puzzle
 *.or
 minisat_static
 bin/*
+depend.mk
+*.out
