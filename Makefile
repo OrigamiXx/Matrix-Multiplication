@@ -18,7 +18,7 @@ EXE-SOURCES=usp_tester.c permutation_tester.c puzzle_tester.c set_tester.c gener
 PARA-SOURCES=usp_para.c
 OBJDIR=objs
 BINDIR=bin
-SRCDIR=src
+SRCDIR=csrc
 OBJECTS=$(addprefix $(OBJDIR)/,$(OBJ-SOURCES:.c=.o))
 EXES=$(EXE-SOURCES:.c= )
 PARA-EXES=$(PARA-SOURCES:.c= )
