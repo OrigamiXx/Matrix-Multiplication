@@ -28,20 +28,19 @@ MRMPI_SRC_PATH=./MRMPI/src/
 MRMPI_LIB=libmrmpi_mpicc.a
 MRMPI_L=$(MRMPI_SRC_PATH)$(MRMPI_LIB)
 SOLVER_SRC_PATH=./SAT/core/
-MROOT= $(shell pwd)/SAT/
+export MROOT=$(shell pwd)/SAT/
 
 $(MRMPI_L): 
-	make -C $(MRMPI_SRC_PATH)  mpicc
+	make -e -C $(MRMPI_SRC_PATH)  mpicc
 
 $(OBJDIR)/%.o : $(SRCDIR)/%.c
 	$(CC) $(CFLAGS) $(CCFLAGS) $< -o $@
 
-$(BINDIR)/%_solver: 
+$(BINDIR)/%_solver:
 	make -C $(SOLVER_SRC_PATH) rs
 	cp $(SOLVER_SRC_PATH)/minisat_static $(BINDIR)/minisat_solver
 
 $(BINDIR)/%_para: $(SRCDIR)/%_para.c $(MRMPI_L)
-	echo $(BINS)
 	$(MPICC) -I $(MRMPI_SRC_PATH) $(OBJECTS) $(LDFLAGS) $< $(MRMPI_L) -o $@
 
 $(BINDIR)/% : $(SRCDIR)/%.c $(OBJECTS)
@@ -57,8 +56,8 @@ all: tmp_dirs $(MRMPI_L) $(OBJECTS) $(BINS)
 
 clean:
 	rm -f *~ *.out
-	make -C $(MRMPI_SRC_PATH) clean-all
-	make -C $(SOLVER_SRC_PATH) clean
+	$(MAKE) -C $(MRMPI_SRC_PATH) clean-all
+	$(MAKE) -C $(SOLVER_SRC_PATH) clean
 	rm -f $(MRMPI_SRC_PATH)$(MRMPI_LIB)
 	rm -fr $(BINS)
 	rm -fr $(OBJECTS)

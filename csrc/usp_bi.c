@@ -13,7 +13,15 @@
 
 using namespace std;
 
+
 /*
+ *=============================================================
+ *
+ *  Pair of Sets Implementation
+ *
+ *=============================================================
+ *
+ *
  * Below is an implementation of pairs of sets over universe of size
  * at most 31.  U <= {0, 1, 2, ... ,30}.  Each pair p = (S2, S3), for
  * S2, S3 <= U, is represented as a 64-bit long.  For a given p, i in
@@ -91,6 +99,9 @@ typedef long set_long;
 #define UNSET_ID(s) (DELETE_S3(s,31))
 #define IS_ID(s) (MEMBER_S3(s,31))
 
+/*
+ * Function that displays the contents of a pair of sets to the console.
+ */
 void print_sets(set_long sets){
 
   printf("s2 = { ");
@@ -111,6 +122,14 @@ void print_sets(set_long sets){
 
 }
 
+
+
+/*
+ * Returns true iff a length-k row that permutations map to u_1, u_2,
+ * u_3, respectively, satisfies the inner condition of strong USPs.
+ * It is false if this length-k row this mapping does not witness that
+ * the puzzle is a strong USP.  Runtime is O(k).
+ */
 bool valid_combination(int u_1, int u_2, int u_3, int k){
   
   for (int i = 0; i < k; i++){
@@ -130,19 +149,45 @@ bool valid_combination(int u_1, int u_2, int u_3, int k){
   return false;
 }
 
-
-bool ident(vector<int> p, int s){ 
+/*
+ * Checks whether the given vector pi represents the identity
+ * permutation of length s.  Runtime is O(s).
+ */
+bool ident(vector<int> pi, int s){ 
   for (int i = 0; i < s; i++){
-    if (p[i] != i) return false;
+    if (pi[i] != i) return false;
   }
   return true;
 }
 
+/*
+ * A puzzle U is a set of length-k strings over {1,2,3}.  We say that
+ * U is a strong uniquely solvable puzzle (USP) if for all pi_1, pi_2,
+ * pi_3 in Symmetric(U), either pi_1 = pi_2 = pi_3 or there exists u
+ * in U and i in [k] such that exactly two of (pi_1(u))_i = 1,
+ * (pi_2(u))_i = 2, and (pi_3(u))_i = 3 hold.  
+ *
+ * While checking this condition One can assume without loss of
+ * generality that pi_1 is the identity permutation, because only the
+ * relative difference in the permutations is relevant.  In particular
+ * if the inner condition holds (or doesn't) for pi_1, pi_2, pi_3, and
+ * u, it also holds for 1, pi_1^-1 o pi_2, pi_1^-1 o pi_3, and
+ * pi_1^-1(u).
+ */
+
+/* 
+ * This is an alternative implementation of check_usp from usp.c.  It
+ * uses c++ iterators with the built-in function next_permutation to
+ * loop over all permutations.
+ */
 bool check_usp_uni(puzzle_row U[], int s, int k){
 
-  bool go1 = true;
+  // Build s * s * s memoization table storing the mapping of rows
+  // that witness that a partial mapping is consistent with U being a
+  // strong USP.  For U to not be a strong USP there must a way to
+  // select s false entries from the table whose indexes are row,
+  // column, and slice disjoint.
   bool check_memo[s][s][s];
-  
   for (int i = 0; i < s; i++){
     for (int j = 0; j < s; j++){
       for (int r = 0; r < s; r++){
@@ -151,14 +196,25 @@ bool check_usp_uni(puzzle_row U[], int s, int k){
     }
   }
 
-  int c = 0;
+  // The original statement of the strong USP property checks all 
+  // Create two vectors for storing permutations over the set of s
+  // rows.  The first permutation p_1 is implicitly the identity,
+  // because U is a set.
   vector<int> p_2(s);
   vector<int> p_3(s);
+  
+  // Initialize p_2 to the identity permutation.
   for (int i = 0; i < s; i++) p_2[i] = i;
+
+  // Loop over all permutations p_2.
+  bool go1 = true;
   for (; go1 ; go1 = next_permutation(p_2.begin(),p_2.end())){
-    int go2 = true;
-    c++;
+
+    // Initialize p_3 to the identity permutation.
     for (int i = 0; i < s; i++) p_3[i] = i;
+    int go2 = true;
+
+    // Loop over all permutations p_3.
     for (; go2 ; go2 = next_permutation(p_3.begin(),p_3.end())){
       if (ident(p_2,s) && ident(p_3,s)) continue;
 
