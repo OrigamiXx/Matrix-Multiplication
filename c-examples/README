@@ -1,0 +1,4 @@
+To make the linked list tester use:
+make ll_tester
+Then run:
+./ll_tester

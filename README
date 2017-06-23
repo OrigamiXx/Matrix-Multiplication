@@ -1,9 +1,39 @@
-To make the permutation tester use: 
-make perm-tester
-Then run:
-./perm-tester
+Last updated: 06-22-17
 
-To make the linked list tester use:
-make ll-tester
-Then run:
-./ll-tester
+-- Directory structure --
+
+  csrc/    *.c & *.h files contain c++ source code for our project
+  docs/    Misc documentation
+  bin/     Compiled binary executables + minisat
+  objs/    Compiled binary object files 
+  out/     Output of various runs 
+  MRMPI/   Source code of MapReduceMPI library
+  SAT/     Source code of Minisat
+  formula_converter/   Scheme formula converter and scripts.
+  c-examples/  Several examples of datastructures implemented in c
+
+-- Compilation --
+
+To compile everything run:
+
+  make all
+
+To clean run:
+
+  make clean
+
+-- Add bin/ to your path --
+
+To make our executables runnable from anywhere, add our bin directory
+to your path. Add a line like the following to the end of your
+~/.bashrc file.
+
+export PATH=$PATH:/home/andersm2/remotehome/research/practicum/matmult/bin
+
+Replace the part following the : with the actual path to the bin/
+directory in your file system share.  To get this to work the first
+time either open a new terminal or run source ~/.bashrc
+
+
+
+

@@ -1,0 +1,16 @@
+*.txt
+*_tester
+*_para
+*.a
+*.cnf
+minisat
+generate_puzzle
+*Obj_mpicc*
+*_old
+*~
+\#*\#
+*.or
+minisat_static
+bin/*
+depend.mk
+*.out

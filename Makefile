@@ -17,34 +17,48 @@ EXE-SOURCES=usp_tester.c permutation_tester.c puzzle_tester.c set_tester.c gener
 # Put additional parallel / cluster executable sources in list below, must end with "_para".
 PARA-SOURCES=usp_para.c
 OBJDIR=objs
+BINDIR=bin
+SRCDIR=csrc
 OBJECTS=$(addprefix $(OBJDIR)/,$(OBJ-SOURCES:.c=.o))
 EXES=$(EXE-SOURCES:.c= )
 PARA-EXES=$(PARA-SOURCES:.c= )
-
-MRMPI_SRC_PATH=./mrmpi-7Apr14/src/
+SOLVER-EXES=minisat_solver
+BINS=$(addprefix $(BINDIR)/,$(EXES)) $(addprefix $(BINDIR)/,$(PARA-EXES)) $(addprefix $(BINDIR)/,$(SOLVER-EXES))
+MRMPI_SRC_PATH=./MRMPI/src/
 MRMPI_LIB=libmrmpi_mpicc.a
 MRMPI_L=$(MRMPI_SRC_PATH)$(MRMPI_LIB)
+SOLVER_SRC_PATH=./SAT/core/
+MROOT= $(shell pwd)/SAT/
 
 $(MRMPI_L): 
 	make -C $(MRMPI_SRC_PATH)  mpicc
 
-$(OBJDIR)/%.o : %.c
-	mkdir -p $(OBJDIR)
+$(OBJDIR)/%.o : $(SRCDIR)/%.c
 	$(CC) $(CFLAGS) $(CCFLAGS) $< -o $@
 
-%_para: %_para.c $(MRMPI_L)
+$(BINDIR)/%_solver: 
+	make -C $(SOLVER_SRC_PATH) rs
+	cp $(SOLVER_SRC_PATH)/minisat_static $(BINDIR)/minisat_solver
+
+$(BINDIR)/%_para: $(SRCDIR)/%_para.c $(MRMPI_L)
+	echo $(BINS)
 	$(MPICC) -I $(MRMPI_SRC_PATH) $(OBJECTS) $(LDFLAGS) $< $(MRMPI_L) -o $@
 
-% : %.c $(OBJECTS)
-	$(CC) $(OBJECTS) $(LDFLAGS) $@.c -o $@ 
+$(BINDIR)/% : $(SRCDIR)/%.c $(OBJECTS)
+	$(CC) $(OBJECTS) $(LDFLAGS) $< -o $@ 
 
+tmp_dirs:
+	mkdir -p $(OBJDIR)
+	mkdir -p $(BINDIR)
 
-all: $(MRMPI_L) $(OBJECTS) $(EXES) $(PARA-EXES) 
+all: tmp_dirs $(MRMPI_L) $(OBJECTS) $(BINS) 
 
 .PHONY: clean
 
 clean:
-	rm $(RMFLAGS) $(OBJDIR)/*.o $(EXES) *~ *.out
-	rm -f $(PARA-EXE)
+	rm -f *~ *.out
 	make -C $(MRMPI_SRC_PATH) clean-all
+	make -C $(SOLVER_SRC_PATH) clean
 	rm -f $(MRMPI_SRC_PATH)$(MRMPI_LIB)
+	rm -fr $(BINS)
+	rm -fr $(OBJECTS)
