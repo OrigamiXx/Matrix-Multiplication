@@ -5,17 +5,17 @@ import subprocess
 def data_to_puzzle(data):
 	puzzles = []
 	increment = (data.index("\n"))+1
-	n = (data.index("\n"))
+	n = 0
 	while (n <= len(data)):
     		puzzle = ""
     		#print(data[n-increment:n])
-    		for i in data[:n]:
-        		i = i[:-1]
-        		i = i.replace(""," ")[1:-1]
-        		puzzle += " (" + i + ") "
+    		for line in data[n:n+increment-1]:
+        		line = line[:-1]
+        		line = line.replace(""," ")
+        		puzzle += " (" + line + ") "
     		puzzle = "\"( " + puzzle +" )\""
     		puzzles.append(puzzle)
-    		data = data[n+1:]
+    		n = n + increment
 	#print(puzzles[len(puzzles)-2:])
 	return puzzles
 '''nonusp = open('3by3nonUSP.txt', 'r')
@@ -35,10 +35,11 @@ for p in data_to_puzzle(nonuspdata):
         break
 print("finished for nonusps")'''
 
-usp = open('3by3USP.txt', 'r')
+usp = open('4by4USP.txt', 'r')
 uspdata = usp.readlines()
 outputs = []
-for p in data_to_puzzle(uspdata):
+puzzledata = data_to_puzzle(uspdata)
+for p in puzzledata:
     os.system("echo " + p + " | scheme -q boolean-converter.scm | tail -n+5 > output.cnf")
     #os.system("~/Desktop/matrix-multiplication/minisat ~/Desktop/matrix-multiplication/formula_converter/output.cnf result.txt")
     #test = subprocess.Popen(["echo", puzzle, "| scheme", "| -q", "boolean-converter.scm", "| tail -n+5", "> output.cnf"], stdout=subprocess.PIPE)
