@@ -13,30 +13,80 @@
 
 using namespace std;
 
+/*
+ * Below is an implementation of pairs of sets over universe of size
+ * at most 31.  U <= {0, 1, 2, ... ,30}.  Each pair p = (S2, S3), for
+ * S2, S3 <= U, is represented as a 64-bit long.  For a given p, i in
+ * U is in S2 iff the ith bit (ordered lowest to hight) of p is 1.
+ * For a given p, i in U is in S3 iff the (i+32)th bit of p is 1.
+ * (Note: Bit index 31 stores a flag used by check_usp_bi to determine
+ * whether the sets have been constructed in a way that corresponds to
+ * selecting identical permutations.  Bit index 63 is unused.)
+ */
+
 typedef long set_long;
 
-// Macroed implementation of two sets as an long.
-// Operates on two sets on universe = {0,1,2,...,30}.
+/*  
+ * All operations are implemented as compiler macros so that they are
+ * as fast as possible. (Remark: Considering refactoring as c++ inline
+ * functions instead of macros for robustness.)  All operations are
+ * O(1) and accomplished without using loops.
+ */
 
+/*
+ * Computes bitmask of an element a from {0, 1, ..., 30} into S2 or
+ * S3.  
+ */
 #define TO_S2(a) (1L << (a))
 #define TO_S3(a) (1L << ((a) + 32))
 
+/*
+ * Returns true iff both sets are empty.
+ */
 #define SETS_EMPTY(a) ((a) == 0L)
-#define CREATE_FULL_INT(n) ((n) == 32 ? ~0 : ~((1 << 31) >> (31 - (n))))
+
+/*
+ * Returns a pair of full sets; S2 = S3 = {0, 1, 2, ..., 30}.
+ */
 #define CREATE_FULL(n) ((long)(CREATE_FULL_INT(n)) | (((long)CREATE_FULL_INT(n)) << 32))
+#define CREATE_FULL_INT(n) ((n) == 32 ? ~0 : ~((1 << 31) >> (31 - (n))))
+
+/*
+ * Returns a pair of empty sets; S2 = S3 = {}.
+ */
 #define CREATE_EMPTY() (0L)
 
+/*
+ * Returns the pair that is the complement of the given pair. p = (S2,
+ * S3) -> -p = (-S2, -S3).
+ */
 #define COMPLEMENT(s,n) (CREATE_FULL(n) ^ s)
 
+/*
+ * Accessors that check whether an element from {0, 1, ..., 30} is
+ * part of S2 or S3.
+ */
 #define MEMBER_S2(s,a) (((s) & TO_S2(a)) != 0L)
 #define MEMBER_S3(s,a) (((s) & TO_S3(a)) != 0L)
 
+/*
+ * Mutators that insert an element into S2 or S3, with no effect if
+ * the element is already present.
+ */ 
 #define INSERT_S2(s,a) ((s) | TO_S2(a))
 #define INSERT_S3(s,a) ((s) | TO_S3(a))
 
+/*
+ * Mutators that delete an element into S2 or S3, with no effect if
+ * the element is not present.
+ */ 
 #define DELETE_S2(s,a) ((s) & ~(TO_S2(a)))
 #define DELETE_S3(s,a) ((s) & ~(TO_S3(a)))
 
+/*
+ * Functions that twiddle the bit at index 31 and checks whether it is
+ * set.
+ */
 #define SET_ID(s) (INSERT_S3(s,31))
 #define UNSET_ID(s) (DELETE_S3(s,31))
 #define IS_ID(s) (MEMBER_S3(s,31))
