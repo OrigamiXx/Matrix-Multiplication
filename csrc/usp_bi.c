@@ -1,3 +1,17 @@
+/* 
+ * Module implementing several non-trivial methods for checking
+ * whether a given puzzle is a strong USP.
+ *
+ * 1. Undirectional search for a witness that puzzle is not a strong USP.
+ * 2. Bidirectional search for a witness that puzzle is not a strong USP.
+ * 3. Hybrid search using 1 & 2 with the option to precompute and
+ *    cache small puzzles.
+ *
+ * Uses it's own representation of sets and puzzles.
+ *
+ * Author: Matt.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <vector>
@@ -12,10 +26,6 @@
 #include "usp_bi.h"
 
 using namespace std;
-
-
-
-
 
 /*
  *=============================================================
@@ -307,7 +317,6 @@ bool find_witness_reverse(int w, int k, map<set_long,bool> * memo, int i1, set_l
  * Determines whether the given s-by-k puzzle U is a strong USP.  Uses
  * a bidirectional algorithm.
  */
-
 bool check_usp_bi(puzzle_row U[], int s, int k){
 
   // Precompute s * s * s memoization table storing the mapping of
@@ -563,9 +572,10 @@ bool cache_lookup(puzzle_row U[], int s, int k){
 
 /* 
  * Determines whether the given s-by-k puzzle U is a strong USP.
- * Tries to pick the most efficient method.  Uses cache if present.
- * Uses the bidirectional search if s is large enough, and the
- * unidirectional search otherwise.
+ * Tries to pick the most efficient method.  Uses cache if present;
+ * call init_cache() to use this feature).  Uses the bidirectional
+ * search if s is large enough, and the unidirectional search
+ * otherwise.
  */
 bool check(puzzle_row U[], int s, int k){
   
