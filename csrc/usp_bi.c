@@ -113,16 +113,16 @@ bool ident(vector<int> pi, int s){
  */
 bool check_usp_uni(puzzle_row U[], int s, int k){
 
-  // Build s * s * s memoization table storing the mapping of rows
-  // that witness that a partial mapping is consistent with U being a
-  // strong USP.  For U to not be a strong USP there must a way to
-  // select s false entries from the table whose indexes are row,
-  // column, and slice disjoint.
-  bool check_memo[s][s][s];
+  // Precompute s * s * s memoization table storing the mapping of
+  // rows that witness that a partial mapping is consistent with U
+  // being a strong USP.  For U to not be a strong USP there must a
+  // way to select s false entries from the table whose indexes are
+  // row, column, and slice disjoint.
+  bool row_witness[s][s][s];
   for (int i = 0; i < s; i++){
     for (int j = 0; j < s; j++){
       for (int r = 0; r < s; r++){
-	check_memo[i][j][r] = valid_combination(U[i],U[j],U[r],k);
+	row_witness[i][j][r] = valid_combination(U[i],U[j],U[r],k);
       }
     }
   }
@@ -156,7 +156,7 @@ bool check_usp_uni(puzzle_row U[], int s, int k){
       // Check whether pi_1, pi_2, pi_3 touch only falses.
       bool found = false;
       for (int i = 0; i < s; i++){
-	if (check_memo[i][pi_2[i]][pi_3[i]]) {
+	if (row_witness[i][pi_2[i]][pi_3[i]]) {
 	  found = true;
 	  break;
 	}
@@ -180,11 +180,12 @@ bool check_usp_uni(puzzle_row U[], int s, int k){
  *=============================================================
  *
  * Idea: Perform a bidirectional search for a non-strong USP witness
- * that starts from the first row and the last row of U.  It builds up
- * partial functions for pi_2 and pi_3 and stores the rows which have
- * already been mapped to for each.  This allows the subproblems to be
- * specified by sets rather than by permutations.  We use the fast
- * implementation of sets as 64-bit long below to encode the sets.
+ * in the puzzle U that starts from both the first row and the last
+ * row of U.  It builds up partial functions for pi_2 and pi_3 and
+ * stores the rows which have already been mapped to for each.  This
+ * allows the subproblems to be specified by sets rather than by
+ * permutations.  We use the fast implementation of sets as 64-bit
+ * long below to encode the sets.
  *
  */
 
@@ -295,69 +296,162 @@ void print_sets(set_long sets){
 }
 
 
-// Generates front direction of search.
-void find_witness_forward(int w, int k, map<set_long,bool> * memo, int i1, set_long sets, bool * RR, bool is_id){
+// Function signatures -- so it will compile.
+void find_witness_forward(int w, int k, map<set_long,bool> * memo, int i1, set_long sets,
+			  bool * row_witness, bool is_id);
+bool find_witness_reverse(int w, int k, map<set_long,bool> * memo, int i1, set_long sets,
+			  bool * row_witness, bool is_id, map<set_long,bool> * opposite);
 
-  // Unset identity flag if last choices were distinct.
-   if (!is_id)  
+
+/* 
+ * Determines whether the given s-by-k puzzle U is a strong USP.  Uses
+ * a bidirectional algorithm.
+ */
+
+bool check_usp_bi(puzzle_row U[], int s, int k){
+
+  // Precompute s * s * s memoization table storing the mapping of
+  // rows that witness that a partial mapping is consistent with U
+  // being a strong USP.  For U to not be a strong USP there must a
+  // way to select s false entries from the table whose indexes are
+  // row, column, and slice disjoint.  This is the same first step as
+  // in the unidirectional verison.  (MWA: I'm not sure why we
+  // manually perform array indexing into a 3D array -- maybe it makes
+  // passing the array more efficient?)
+  bool row_witness[s * s * s];
+  for (int i = 0; i < s; i++){
+    for (int j = 0; j < s; j++){
+      for (int r = 0; r < s; r++){
+	row_witness[i * s * s + j * s + r] = valid_combination(U[i],U[j],U[r],k);
+      }
+    }
+  }
+
+  // Create two maps that will store partial witnesses of U not being
+  // a strong USP.  
+  //
+  // The membership of a set pair p = (S2, S3) in forward_memo with t
+  // = |S2| = |S3| means that there exists a 1-1 map from the first t
+  // rows of U to S2 and S3 such that hits only false entries of
+  // row_witness.  The membership of a set pair in reverse_memo is
+  // similar, but for the _last_ t rows of U.
+  //
+  // Note that the value in forward_memo is not used, but the value in
+  // reverse_memo indicates whether a witness has been found for that
+  // subproblem.
+  map<set_long,bool> forward_memo;
+  map<set_long,bool> reverse_memo;
+
+  // Perform the first half of the search by filling in forward_memo
+  // for the first s/2 rows of U.
+  find_witness_forward(s, k, &forward_memo, 0, SET_ID(0L), row_witness, true);
+
+  // Perform the second half of the search by filling in reverse_memo
+  // for the second s/2 rows of U.  These partial mappings are
+  // complemented and then looked up in forward_memo to check whether
+  // they can be combined into a complete witness for U not being a
+  // strong USP.
+  return !find_witness_reverse(s, k, &reverse_memo, s - 1, SET_ID(0L), row_witness, true, &forward_memo);
+  
+}
+
+/*
+ * A memoized recursive function contructs partial witnesses of
+ * non-strong USP for a s-by-k puzzle with given row_witness, from row
+ * i1 to s/2 with sets storing the indexes already used by pi_2 and
+ * pi_3.  is_id indicates whether the partial assignment to this point
+ * is identity for all three permutations.
+ */
+void find_witness_forward(int s, int k, map<set_long,bool> * memo, int i1,
+			  set_long sets, bool * row_witness, bool is_id){
+
+  // Update the identity flag in sets, if the partial map is no longer
+  // consistent with identity on all permutations.
+  if (!is_id)  
     sets = UNSET_ID(sets);
 
+  // Base Case 1: Look to see whether we're already computed and
+  // stored this answer in the memo table.  If so, return.
   map<set_long,bool>::const_iterator iter = memo -> find(sets);
-
   if (iter != memo -> end()){
     return;
   }
 
-  if (i1 == (int)(floorf(w / 2.0))) {
-    //print_sets(sets);
-    memo -> insert(pair<set_long,bool>(sets,false)); // XXX - Value saved is meaningless.
+  // Base Case 2: We have processed enough rows, insert the final sets
+  // of size floor(s/2) into the memo table and return.  Note that
+  // value false stored in the memo table doesn't mean anything.
+  if (i1 == (int)(floorf(s / 2.0))) {
+    memo -> insert(pair<set_long,bool>(sets, false)); 
     return;
   }
 
-  for (int i2 = 0; i2 < w; i2++){
+  // Recursive Case: There is more work to do.  Loop over all pairs
+  // i2, i3 that are not already present in sets and check whether
+  // row_witnesses[i1][i2][i3] is false.  If so, recurse on the
+  // subproblem that results from inserting i2 and i3 into sets,
+  // incrementing i1, and updating the identity flag.
+  for (int i2 = 0; i2 < s; i2++){
     if (MEMBER_S2(sets,i2)) 
       continue;
-    for (int i3 = 0; i3 < w; i3++){
+    for (int i3 = 0; i3 < s; i3++){
       if (MEMBER_S3(sets,i3)) 
 	continue;
-      if (RR[i1 * w * w + i2 * w + i3] == true) 
+      if (row_witness[i1 * s * s + i2 * s + i3] == true) 
 	continue;
 
-      set_long sets2 = INSERT_S3(INSERT_S2(sets,i2),i3);     
+      set_long sets2 = INSERT_S3(INSERT_S2(sets, i2), i3);     
       
-      find_witness_forward(w,k,memo,i1+1,sets2,RR, is_id && i1 == i2 && i2 == i3);
+      find_witness_forward(s, k, memo, i1 + 1, sets2,
+			   row_witness, is_id && i1 == i2 && i2 == i3);
     }
   }
-  
-  memo -> insert(pair<set_long,bool>(sets,false)); // XXX - Value saved is meaningless.
+
+  // Insert the subproblem we just completed into the memo table, so
+  // the computation will not be repeated.
+  memo -> insert(pair<set_long,bool>(sets,false)); 
   return;
-  
 }
 
 
-bool find_witness_reverse(int w, int k, map<set_long,bool> * memo, int i1, set_long sets, bool * RR, bool is_id, map<set_long,bool> * opposite){
-
-  // Unset identity flag if last choices were distinct.
+/*
+ * A memoized recursive function contructs partial witnesses of
+ * non-strong USP for a s-by-k puzzle with given row_witness, from row
+ * i1 to s/2 with sets storing the indexes already used by pi_2 and
+ * pi_3.  is_id indicates whether the partial assignment to this point
+ * is identity for all three permutations.  Takes in a map containing
+ * the memo table opposite from the forward search.  Return true iff
+ * an witness that U is not a strong USP has been found.
+ */
+bool find_witness_reverse(int s, int k, map<set_long,bool> * memo, int i1,
+			  set_long sets, bool * row_witness, bool is_id, map<set_long,bool> * opposite){
+  
+  // Update the identity flag in sets, if the partial map is no longer
+  // consistent with identity on all permutations.
   if (!is_id) 
     sets = UNSET_ID(sets);
   
+  // Base Case 1: Look to see whether we're already computed and
+  // stored this answer in the memo table.  If so, return that answer.
   map<set_long,bool>::const_iterator iter = memo -> find(sets);
-
   if (iter != memo -> end()){
     return iter->second;
   }
 
-  if (i1 < (int)(floorf((w - 1)/2.0))) {
-    //printf("w = %d i1 = %d\n", w,i1);
-    //print_sets(sets);
+  // Base Case 2: We have processed enough rows, look for a complement
+  // in the opposite table to form a complete witness.  If sets was
+  // produced by identities, then the complement cannot be an identity
+  // and still be a witness, because strong USP ignores the case that
+  // all permutations are the same.  
+  if (i1 < (int)(floorf((s - 1) / 2.0))) {
 
-    set_long sets_comp = COMPLEMENT(sets,w);
-    //print_sets(sets_comp);
+    set_long sets_comp = COMPLEMENT(sets,s);
     bool found_pair = false;
 
     if (is_id) {
+      // If sets is identity, it can only pair with non-identities.
       sets_comp = UNSET_ID(sets_comp);
     } else {
+      // If sets is not identity, it pair with either identities or non-identites.
       iter = opposite -> find(sets_comp);      
       if (iter != opposite -> end()){
 	found_pair = true;
@@ -370,64 +464,74 @@ bool find_witness_reverse(int w, int k, map<set_long,bool> * memo, int i1, set_l
       found_pair = true;
     }
 
-    memo -> insert(pair<set_long,bool>(sets,found_pair));
-
-    if (found_pair){
-      //fprintf(stderr,"FOUND MATCH!\n");
-    }
+    // Insert result in memo table.  If we didn't find a witness
+    // looking at this subproblem, make a note of this in the memo
+    // table so the computation is not repeated.  If we did find a
+    // witness the computation will immediately return from each
+    // recursive call in this case (and it wasn't really necessary to
+    // insert it).
+    memo -> insert(pair<set_long,bool>(sets, found_pair));
     return found_pair;
   }
 
-  for (int i2 = 0; i2 < w; i2++){
-    if (MEMBER_S2(sets,i2)) 
+  // Recursive Case: There is more work to do.  Loop over all pairs
+  // i2, i3 that are not already present in sets and check whether
+  // row_witnesses[i1][i2][i3] is false.  If so, recurse on the
+  // subproblem that results from inserting i2 and i3 into sets,
+  // incrementing i1, and updating the identity flag.
+  for (int i2 = 0; i2 < s; i2++){
+    if (MEMBER_S2(sets, i2)) 
       continue;
-    for (int i3 = 0; i3 < w; i3++){
-      if (MEMBER_S3(sets,i3)) 
+    for (int i3 = 0; i3 < s; i3++){
+      if (MEMBER_S3(sets, i3)) 
 	continue;
-      if (RR[i1 * w * w + i2 * w + i3] == true) 
+      if (row_witness[i1 * s * s + i2 * s + i3] == true) 
 	continue;
 
-      set_long sets2 = INSERT_S3(INSERT_S2(sets,i2),i3);     
+      set_long sets2 = INSERT_S3(INSERT_S2(sets, i2), i3);     
 
-      if (find_witness_reverse(w,k,memo,i1-1,sets2,RR,is_id && i1 == i2 && i2 == i3, opposite)){
-	memo -> insert(pair<set_long,bool>(sets,true));
-	
+      if (find_witness_reverse(s, k, memo, i1 - 1, sets2, row_witness,
+			       is_id && i1 == i2 && i2 == i3, opposite)){
+	// We've found a witness that U is not a strong USP.  Note
+	// that we don't actually need to insert it in the memo table
+	// as the computation will immediately return from each
+	// recursive call in this case.
+	memo -> insert(pair<set_long,bool>(sets, true));
 	return true;
+	
       }
-      
     }
   }
 
+  // We didn't find a witness looking at this subproblem, make a note
+  // of this in the memo table so the computation is not repeated.
   memo -> insert(pair<set_long,bool>(sets,false));
   return false;
   
 }
 
-bool check_usp_bi(puzzle_row U[], int w, int k){
-  
-  bool RR[w * w * w];
-  
-  for (int i = 0; i < w; i++){
-    for (int j = 0; j < w; j++){
-      for (int r = 0; r < w; r++){
-	RR[i * w * w + j * w + r] = valid_combination(U[i],U[j],U[r],k);
-      }
-    }
-  }
-  
-  map<set_long,bool> forward_memo;
-  map<set_long,bool> reverse_memo;
-  
-  find_witness_forward(w,k,&forward_memo,0,SET_ID(0L),RR,true);
-  
-  return !find_witness_reverse(w,k,&reverse_memo,w-1,SET_ID(0L),RR,true,&forward_memo);
-  
-}
 
+
+/* 
+ *=============================================================
+ *
+ *  Caching
+ *
+ *=============================================================
+ *
+ * Creates a cache of previously computed puzzles that stores whether
+ * or not they are strong USPs.  Only caches relatively small puzzles
+ * because of memory constraints.
+ */
+
+// Global variables storing cache data.
 map<string,void *> * cache[5];
 int cache_size = -1;
 puzzle_row local_max_row = -1;
 
+/*
+ * Converts a given puzzle U with s rows into a string.
+ */
 string U_to_string(puzzle_row U[], int s){
 
   ostringstream oss;
@@ -438,19 +542,31 @@ string U_to_string(puzzle_row U[], int s){
 
 }
 
+/* 
+ * Returns whether the given s-by-k puzzle U is a strong USP.  The
+ * puzzle must already have been computed and stored in the cache.
+ */
 bool cache_lookup(puzzle_row U[], int s, int k){
 
   assert(s >= 1 && s <= 4);
 
+  // Trivally succeeds.
   if (s == 1)
     return true;
 
+  // Look up and return result.
   map<string,void*>::const_iterator iter = cache[s] -> find(U_to_string(U,s));
 
   return (iter != cache[s] -> end());
 
 }
 
+/* 
+ * Determines whether the given s-by-k puzzle U is a strong USP.
+ * Tries to pick the most efficient method.  Uses cache if present.
+ * Uses the bidirectional search if s is large enough, and the
+ * unidirectional search otherwise.
+ */
 bool check(puzzle_row U[], int s, int k){
   
   if (cache_size >= s)
@@ -462,7 +578,10 @@ bool check(puzzle_row U[], int s, int k){
 
 }
 
-
+/* 
+ * A specialized function that determines whether the given 2-by-k
+ * puzzle U is a strong USP.
+ */
 bool check2(puzzle_row r1, puzzle_row r2, int k){
 
   puzzle_row U[2];
@@ -472,6 +591,10 @@ bool check2(puzzle_row r1, puzzle_row r2, int k){
 
 }
 
+/* 
+ * A specialized function that determines whether the given 3-by-k
+ * puzzle U is a strong USP.
+ */
 bool check3(puzzle_row r1, puzzle_row r2, puzzle_row r3, int k){
 
   puzzle_row U[3];
@@ -482,6 +605,10 @@ bool check3(puzzle_row r1, puzzle_row r2, puzzle_row r3, int k){
   
 }
 
+/* 
+ * A specialized function that determines whether the given 4-by-k
+ * puzzle U is a strong USP.
+ */
 bool check4(puzzle_row r1, puzzle_row r2, puzzle_row r3, puzzle_row r4, int k){
   
   puzzle_row U[4];
@@ -492,6 +619,12 @@ bool check4(puzzle_row r1, puzzle_row r2, puzzle_row r3, puzzle_row r4, int k){
   return check(U,4,k);
 
 }
+
+/*
+ * Initialize the USP cache.  Precomputes whether each s-by-k puzzle
+ * is a strong USP and stores the result in the cache.  Requires s <=
+ * 4.
+ */
 
 void init_cache(int k, int s){
   
