@@ -5,15 +5,15 @@
 
 MPICC=mpic++
 CC=g++ 
-CCFLAGS=-c -Wall -O3 -pg
+CCFLAGS=-c -Wall -O3 -pg 
 # Comment out line below on cluster.
 CCFLAGS += -std=c++11
 LDFLAGS=-lm -pg
 RMFLAGS=-f
 # Put additional object sources in list below.
-OBJ-SOURCES=usp.c permutation.c puzzle.c set.c usp_bi.c
+OBJ-SOURCES=usp.c permutation.c puzzle.c set.c usp_bi.c matching.c
 # Put additional executable sources in list below.
-EXE-SOURCES=usp_tester.c permutation_tester.c puzzle_tester.c set_tester.c generate_puzzle.c
+EXE-SOURCES=usp_tester.c permutation_tester.c puzzle_tester.c set_tester.c generate_puzzle.c usp_exp.c matching_tester.c
 # Put additional parallel / cluster executable sources in list below, must end with "_para".
 PARA-SOURCES=usp_para.c
 OBJDIR=objs

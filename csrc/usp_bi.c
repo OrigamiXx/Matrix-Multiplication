@@ -24,6 +24,7 @@
 #include <math.h>
 #include <assert.h>
 #include "usp_bi.h"
+#include "matching.h"
 
 using namespace std;
 
@@ -84,6 +85,61 @@ bool ident(vector<int> pi, int s){
     if (pi[i] != i) return false;
   }
   return true;
+}
+
+/* 
+ * Polytime checks for row_witness properties that decide whether U is
+ * a strong USP.  Return 1, if U must be a strong USP, -1 if U cannot
+ * be a strong USP, and 0 if it is not determined.  Doesn't appear to
+ * be trigger on the examples I tested.
+*/
+int precheck_row_witness(bool * row_witness, int s){
+
+  bool M[s * s];
+
+  int false_count = 0;
+  
+  for (int i = 0; i < s; i++){
+    for (int j = 0; j < s; j++){
+      M[i * s + j] = false;
+      for (int k = 0; k < s; k++){
+	M[i * s + j] = M[i * s + j] || !row_witness[i * s * s + j * s + k];
+	if (!row_witness[i * s * s + j * s + k])
+	  false_count++;
+      }
+    }
+  }
+
+  //printf("Density = %f\n", ((float)false_count)/(s * s * s));
+
+  if (!has_perfect_bipartite_matching(M, s))
+    return 1;
+
+  for (int i = 0; i < s; i++){
+    for (int j = 0; j < s; j++){
+      M[i * s + j] = false;
+      for (int k = 0; k < s; k++){
+	M[i * s + j] = M[i * s + j] || !row_witness[k * s * s + i * s + j];
+      }
+    }
+  }
+
+  if (!has_perfect_bipartite_matching(M, s))
+    return 1;
+
+  for (int i = 0; i < s; i++){
+    for (int j = 0; j < s; j++){
+      M[i * s + j] = false;
+      for (int k = 0; k < s; k++){
+	M[i * s + j] = M[i * s + j] || !row_witness[j * s * s + k * s + i];
+      }
+    }
+  }
+
+  if (!has_perfect_bipartite_matching(M, s))
+    return 1;
+  
+  return 0;
 }
 
 
@@ -313,6 +369,8 @@ bool find_witness_reverse(int w, int k, map<set_long,bool> * memo, int i1, set_l
 			  bool * row_witness, bool is_id, map<set_long,bool> * opposite);
 
 
+int precheck_decided = 0;
+
 /* 
  * Determines whether the given s-by-k puzzle U is a strong USP.  Uses
  * a bidirectional algorithm.
@@ -336,6 +394,15 @@ bool check_usp_bi(puzzle_row U[], int s, int k){
     }
   }
 
+  /*
+  int precheck_res = precheck_row_witness(row_witness, s);
+  if (precheck_res == 1) {
+    precheck_decided++;
+    printf("precheck_decided = %d\n", precheck_decided);
+    return true;
+  } else if (precheck_res == -1)
+    return false;
+  */
   // Create two maps that will store partial witnesses of U not being
   // a strong USP.  
   //
@@ -360,7 +427,14 @@ bool check_usp_bi(puzzle_row U[], int s, int k){
   // complemented and then looked up in forward_memo to check whether
   // they can be combined into a complete witness for U not being a
   // strong USP.
-  return !find_witness_reverse(s, k, &reverse_memo, s - 1, SET_ID(0L), row_witness, true, &forward_memo);
+  bool res = !find_witness_reverse(s, k, &reverse_memo, s - 1, SET_ID(0L), row_witness, true, &forward_memo);
+
+  //if (precheck_res == 1 && !res)
+  //  printf("Error: precheck and full check disagree!\n"); 
+
+    
+  return res;
+  
   
 }
 

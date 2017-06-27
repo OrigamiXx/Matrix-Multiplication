@@ -41,15 +41,15 @@ puzzle * create_puzzle_from_file(const char * filename){
   assert(bytes_read > 0);
 
   unsigned int width = strlen(buff);
-  printf("width %d\n", width);
+  //printf("width %d\n", width);
   p->column = width;
   int rows = 1;
   //loop until end of file using feof(f).  Build up puzzle DS.
-  printf("line |%s|\n",buff);
+  //printf("line |%s|\n",buff);
   while(!feof(f)){
     bytes_read = fscanf(f,"%s\n",buff);
     assert(bytes_read > 0);
-    printf("line |%s|\n",buff);
+    //printf("line |%s|\n",buff);
     if (width != strlen(buff)){
       printf("this is not a puzzle since the width is not all the same\n");
       return NULL;
@@ -148,6 +148,7 @@ puzzle * create_puzzle_from_index(int row, int column, int index){
 //return the data (1or2or3) of the row - col index
 //row_index must from the puzzle
 //col index must less than the column number of the puzzle(0- col-1)
+// MWA: This could be done without an explicit loop, use the pow function instead.
 int get_column_from_row(int row_index, int col_index){
   int i,result = 1;
   int num_elements_in_row = 3;
@@ -157,6 +158,15 @@ int get_column_from_row(int row_index, int col_index){
     row_index = row_index/num_elements_in_row;
   }
   return result+1;
+}
+
+/*
+ * Returns the result of setting the entry at c of row_index to val.
+ */
+int set_entry_in_row(int row_index, int c, int val) {
+
+  int old_val = get_column_from_row(row_index, c);
+  return row_index + (val - old_val) * (int)pow(3, c);
 }
 
 // print a puzzle
@@ -182,7 +192,7 @@ void write_puzzle(puzzle * p, int index){
   //char a[256];
   //itoa(index, a);
   //string extension = ".puzz";
-  char * name[100];
+  //char * name[100];
   //string name;
   FILE * f;
   //snprintf(name, sizeof(name), "puzzles/%d_%d_%04d%s", p -> row, p -> column, index, ".txt");

@@ -40,6 +40,11 @@ puzzle * create_puzzle_from_index(int row, int column, int index);
 //Return the number at the col_index digit of the row with given row_index.
 int get_column_from_row(int row_index, int col_index);
 
+/*
+ * Returns the result of setting the entry at c of row_index to val.
+ */
+int set_entry_in_row(int row_index, int c, int val);
+
 int print_puzzle(puzzle * p);
 
 //Write puzzle into a file
