@@ -370,11 +370,7 @@ bool find_witness_reverse(int w, int k, map<set_long,bool> * memo, int i1, set_l
 			  bool * row_witness, bool is_id, map<set_long,bool> * opposite);
 
 
-int size_forward = 0;
-int last_layer_forward = 0;
-int size_backward = 0;
-int checks_backward = 0;
-//int precheck_decided = 0;
+
 
 /*
  *  Reorders rows in an attempt to make fewer entries be generated.
@@ -383,6 +379,7 @@ int checks_backward = 0;
  */
 void reorder_witnesses(bool * row_witness, int s, bool increasing, bool sorted){
 
+  // Count the witnesses in each layer.
   int layer_counts[s];
   for (int i = 0; i < s; i++){
     layer_counts[i] = 0;
@@ -392,12 +389,13 @@ void reorder_witnesses(bool * row_witness, int s, bool increasing, bool sorted){
 	  layer_counts[i]++;
       }
     }
-    //printf("layer_count[%d] = %d\n", i, layer_counts[i]);
+    printf("layer_count[%d] = %d\n", i, layer_counts[i]);
   }
 
+  // Controls whether order is increasing or decreasing.
   int increase = (increasing ? 1 : -1);
-  
-  //printf("Reordering\n");
+
+  // Compute a permutate that orders layers as desired.
   int perm[s];
   bool row_witness2[s * s * s];
   for (int i = 0; i < s; i++){
@@ -414,9 +412,10 @@ void reorder_witnesses(bool * row_witness, int s, bool increasing, bool sorted){
     int to_index = i;
 
     if (sorted) {
+      // Layers will appear in a sorted order.
       to_index = i;
     } else {
-      // Outside in
+      // Layers will appear order from outside to inside.
       if (i % 2 == 0)
 	to_index = (int)(i / 2.0);
       else
@@ -430,6 +429,7 @@ void reorder_witnesses(bool * row_witness, int s, bool increasing, bool sorted){
 
   }
 
+  // Reorder the layers in a new matrix.
   for (int i = 0; i < s; i++){
     for (int j = 0; j < s; j++){
       for (int r = 0; r < s; r++){
@@ -439,6 +439,8 @@ void reorder_witnesses(bool * row_witness, int s, bool increasing, bool sorted){
     }
   }
 
+  /*
+  // Check that layers are arranged.
   for (int i = 0; i < s; i++){
     layer_counts[i] = 0;
     for (int j = 0; j < s; j++){
@@ -446,14 +448,130 @@ void reorder_witnesses(bool * row_witness, int s, bool increasing, bool sorted){
 	if (!row_witness2[i * s * s + j * s + r])
 	  layer_counts[i]++;
       }
-      //printf("layer_count[%d] = %d\n", i, layer_counts[i]);
+      printf("layer_count[%d] = %d\n", i, layer_counts[i]);
     }
   }
-  
-  
+  */
+
+  // Copy back to original matrix.
   memcpy(row_witness, row_witness2, s * s * s * sizeof(bool));
 
 }
+
+
+/*
+ * Checks whether 2d matchings occur from each of the three faces.
+ * Returns true iff all of the 2d matchings are possible. 
+ */
+bool has_2d_matchings(bool * row_witness, int s){
+
+  bool M[s * s];
+
+  for (int i = 0; i < s; i++){
+    for (int j = 0; j < s; j++){
+      M[i * s + j] = false;
+      for (int r = 0; r < s; r++){
+	M[i * s + j] = M[i * s + j] || !row_witness[i * s * s + j * s + r];
+      }
+    }
+  }
+
+  if (!has_perfect_bipartite_matching(M, s))
+    return false;
+
+  for (int i = 0; i < s; i++){
+    for (int j = 0; j < s; j++){
+      M[i * s + j] = false;
+      for (int r = 0; r < s; r++){
+	M[i * s + j] = M[i * s + j] || !row_witness[j * s * s + r * s + i];
+      }
+    }
+  }
+
+  if (!has_perfect_bipartite_matching(M, s))
+    return false;
+
+  for (int i = 0; i < s; i++){
+    for (int j = 0; j < s; j++){
+      M[i * s + j] = false;
+      for (int r = 0; r < s; r++){
+	M[i * s + j] = M[i * s + j] || !row_witness[r * s * s + i * s + j];
+      }
+    }
+  }
+
+  if (!has_perfect_bipartite_matching(M, s))
+    return false;  
+    
+  return true;
+}
+
+/*
+ * Returns true iff it finds a witness that puzzle is not a strong USP.
+ * False indicates the search was inconclusive.
+ */
+bool has_greedy_random_witness(bool * row_witnesses, int s, int repeats){
+
+  bool failed = false;
+  for (int n = 0; n < repeats && !failed; n++){
+  
+    set_long curr = CREATE_EMPTY();
+    for (int i = 0 ; i < s && !failed; i++){
+      
+      int startj = lrand48() % s;
+      int startk = lrand48() % s;
+      
+      int j = startj;
+      int k = startk;
+      bool lapped = false;
+      failed = false;
+      while (!failed){
+	
+	k++;
+	while (MEMBER_S3(curr,k)) k++;
+	if (k == s) {
+	  k = 0;
+	  while (MEMBER_S3(curr,k)) k++;
+	  j++;
+	  while (MEMBER_S2(curr,j)) j++; 
+	  if (j == s){
+	    if (lapped) {
+	      // Past start twice, must not have found a valid entry.
+	      failed = true;
+	    }
+	    lapped = true;
+	    j = 0;
+	    while (MEMBER_S2(curr,j)) j++; 
+	  }
+
+	}
+	
+	if (!row_witnesses[i * s * s + j * s + k]){
+	  //assert(!MEMBER_S2(curr, j) && !MEMBER_S3(curr,k));
+	  // Found a new edge to add.
+	  curr = INSERT_S2(INSERT_S3(curr,k),j);
+	  break;
+	}
+      }
+      if (failed){
+	printf("Failed to locate witness in greedy_random. Acheived: %d / %d\n", i, s);
+	break;
+      }
+    }
+    if (!failed)
+      return true;
+    failed = false;
+  }
+  return false;
+}
+
+// Some variables measuring performance.
+int size_forward = 0;
+int last_layer_forward = 0;
+int size_backward = 0;
+int checks_backward = 0;
+int matching_decided = 0;
+int greedy_decided = 0;
 
 /* 
  * Determines whether the given s-by-k puzzle U is a strong USP.  Uses
@@ -477,18 +595,27 @@ bool check_usp_bi(puzzle_row U[], int s, int k){
       }
     }
   }
-
+  
+  // Rearrange row_witness in the hope it makes the search faster.
   //reorder_witnesses(row_witness, s, true, true);
   
   /*
-  int precheck_res = precheck_row_witness(row_witness, s);
-  if (precheck_res == 1) {
-    precheck_decided++;
-    printf("precheck_decided = %d\n", precheck_decided);
+  // Checks that all 2d matchings exist on projected faces, a
+  // necessary condition to not be a strong USP.
+  bool precheck_res = !has_2d_matchings(row_witness, s);
+  if (precheck_res) {
+    matching_decided++;
+    printf("matching_decided = %d\n", matching_decided);
     return true;
-  } else if (precheck_res == -1)
-    return false;
+  }
   */
+
+  if (has_greedy_random_witness(row_witness, s,10)){
+    greedy_decided++;
+    printf("greedy_decided = %d\n", greedy_decided);
+    return false;
+  }
+  
   // Create two maps that will store partial witnesses of U not being
   // a strong USP.  
   //
