@@ -389,7 +389,7 @@ void reorder_witnesses(bool * row_witness, int s, bool increasing, bool sorted){
 	  layer_counts[i]++;
       }
     }
-    printf("layer_count[%d] = %d\n", i, layer_counts[i]);
+    //printf("layer_count[%d] = %d\n", i, layer_counts[i]);
   }
 
   // Controls whether order is increasing or decreasing.
@@ -513,53 +513,51 @@ bool has_2d_matchings(bool * row_witness, int s){
 bool has_greedy_random_witness(bool * row_witnesses, int s, int repeats){
 
   bool failed = false;
+  int best = 0;
+  int total = 0;
   for (int n = 0; n < repeats && !failed; n++){
   
     set_long curr = CREATE_EMPTY();
+    bool is_ident = true;
     for (int i = 0 ; i < s && !failed; i++){
       
-      int startj = lrand48() % s;
-      int startk = lrand48() % s;
+      int offset_j = lrand48() % s;
+      int offset_k = lrand48() % s;
+      bool found = false;
       
-      int j = startj;
-      int k = startk;
-      bool lapped = false;
-      failed = false;
-      while (!failed){
-	
-	k++;
-	while (MEMBER_S3(curr,k)) k++;
-	if (k == s) {
-	  k = 0;
-	  while (MEMBER_S3(curr,k)) k++;
-	  j++;
-	  while (MEMBER_S2(curr,j)) j++; 
-	  if (j == s){
-	    if (lapped) {
-	      // Past start twice, must not have found a valid entry.
-	      failed = true;
-	    }
-	    lapped = true;
-	    j = 0;
-	    while (MEMBER_S2(curr,j)) j++; 
+      for (int j = 0 ; j < s && !found; j++){
+	int shift_j = (j + offset_j) % s;
+	if (MEMBER_S2(curr, shift_j))
+	  continue;
+	for (int k = 0; k < s && !found; k++){
+	  int shift_k = (k + offset_k) % s;
+	  if (MEMBER_S3(curr, shift_k))
+	    continue;
+	  if (!row_witnesses[i * s * s + shift_j * s + shift_k]) {
+	    //assert(!MEMBER_S2(curr, shift_j) && !MEMBER_S3(curr, shift_k));
+	    if (shift_k != shift_j || shift_k != i)
+	      is_ident = false;
+	    curr = INSERT_S2(INSERT_S3(curr, shift_k), shift_j);
+	    found = true;
 	  }
-
-	}
-	
-	if (!row_witnesses[i * s * s + j * s + k]){
-	  //assert(!MEMBER_S2(curr, j) && !MEMBER_S3(curr,k));
-	  // Found a new edge to add.
-	  curr = INSERT_S2(INSERT_S3(curr,k),j);
-	  break;
 	}
       }
-      if (failed){
-	printf("Failed to locate witness in greedy_random. Acheived: %d / %d\n", i, s);
-	break;
+      	  
+      if (!found || is_ident) {
+	best = (best < i ? i : best);
+	total += i;
+	failed = true;
+	//printf("Failed to locate witness in greedy_random. Acheived: %d / %d\n", i, s);
       }
     }
     if (!failed)
       return true;
+
+    // Not sure if this is a good heuristic stopping condition, it is
+    // to prevent a lot of time being waste on small puzzle sizes.  It
+    // makes longer puzzles slower.  XXX - Improve parameters.
+    if ((log(n + 1) / log(2))  > best)
+      return false;
     failed = false;
   }
   return false;
@@ -595,26 +593,52 @@ bool check_usp_bi(puzzle_row U[], int s, int k){
       }
     }
   }
+
+  bool greedy_res = false;
   
-  // Rearrange row_witness in the hope it makes the search faster.
-  //reorder_witnesses(row_witness, s, true, true);
-  
+  // vvvvvvvvvvvvvvvvvv Heuristic Optimizations vvvvvvvvvvvvvvvvvvv
+  // The code in this section can be commented out, without effecting
+  // the correctness of the algorithm.
+  //
+  // 1. Rearrange row_witness in the hope it makes the search faster.
+  // Then randomly attempt to build a witness that U is not a strong
+  // USP.  The number of iterations is a bit ad hoc; s*s*s also seeme
+  // to work well in the domain of parameters I profiled.  XXX -
+  // Improve parameters.  Doing it twice for two different ordering of
+  // the puzzle was the most effective.
+  if (s > 6){
+    // This reorder is aimed to make the randomize search more likely to
+    // succeed.
+    reorder_witnesses(row_witness, s, true, true);
+    if (has_greedy_random_witness(row_witness, s, s * s * s * s)){//(int)pow(2,2*s))){
+      greedy_decided++;
+      greedy_res = true;
+      return false;
+    }
+    
+    // This reorder is aimed to make the forward and backward search
+    // balanced.
+    reorder_witnesses(row_witness, s, true, false);
+    if (has_greedy_random_witness(row_witness, s, s * s * s * s)){//(int)pow(2,2*s))){ 
+      greedy_decided++;
+      greedy_res = true;
+      return false;
+    }
+  }
+
+  // ^^^^^^^^^^^^^^^^^^ Heuristic Optimizations ^^^^^^^^^^^^^^^^^^^^^
+
+
   /*
   // Checks that all 2d matchings exist on projected faces, a
   // necessary condition to not be a strong USP.
-  bool precheck_res = !has_2d_matchings(row_witness, s);
-  if (precheck_res) {
+  bool matching_res = !has_2d_matchings(row_witness, s);
+  if (matching_res) {
     matching_decided++;
     printf("matching_decided = %d\n", matching_decided);
     return true;
   }
   */
-
-  if (has_greedy_random_witness(row_witness, s,10)){
-    greedy_decided++;
-    printf("greedy_decided = %d\n", greedy_decided);
-    return false;
-  }
   
   // Create two maps that will store partial witnesses of U not being
   // a strong USP.  
@@ -648,11 +672,17 @@ bool check_usp_bi(puzzle_row U[], int s, int k){
   
   bool res = !find_witness_reverse(s, k, &reverse_memo, s - 1, SET_ID(0L), row_witness, true, &forward_memo);
 
-  //if (precheck_res == 1 && !res)
-  //  printf("Error: precheck and full check disagree!\n"); 
+  //if (matching_res && !res)
+  //  printf("Error: matching and full check disagree!\n");
 
-  printf("Forward memo table ratio: %d / %d\n", last_layer_forward, size_forward);
-  printf("Backward failed checks: %d / %d\n",checks_backward, size_backward);
+  assert(!(greedy_res && res));
+  if (greedy_res && res)
+    printf("Error: greedy and full check disagree!\n"); 
+
+
+  
+  //printf("Forward memo table ratio: %d / %d\n", last_layer_forward, size_forward);
+  //printf("Backward failed checks: %d / %d\n",checks_backward, size_backward);
   
   return res;
   
