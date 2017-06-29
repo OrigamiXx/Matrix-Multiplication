@@ -378,10 +378,10 @@ int checks_backward = 0;
 
 /*
  *  Reorders rows in an attempt to make fewer entries be generated.
- *
+ *  They can be arranged in increasing or decreasing order, or outside
+ *  -> inside, or inside -> outside.
  */
-
-void reorder_witnesses(bool * row_witness, int s){
+void reorder_witnesses(bool * row_witness, int s, bool increasing, bool sorted){
 
   int layer_counts[s];
   for (int i = 0; i < s; i++){
@@ -389,37 +389,44 @@ void reorder_witnesses(bool * row_witness, int s){
     for (int j = 0; j < s; j++){
       for (int r = 0; r < s; r++){
 	if (!row_witness[i * s * s + j * s + r])
-	  layer_counts[i];
+	  layer_counts[i]++;
       }
     }
     //printf("layer_count[%d] = %d\n", i, layer_counts[i]);
   }
+
+  int increase = (increasing ? 1 : -1);
   
   //printf("Reordering\n");
   int perm[s];
   bool row_witness2[s * s * s];
   for (int i = 0; i < s; i++){
-    int minIndex = -1;
-    int min = s*s + 1;
+    int opt_index = -1;
+    int opt = increase * (s*s + 1);
     
     for (int j = 0; j < s; j++){
-      if (layer_counts[j] < min) {
-	min = layer_counts[j];
-	minIndex = j;
+      if (increase * layer_counts[j] < increase * opt) {
+	opt = layer_counts[j];
+	opt_index = j;
       }
     }
 
     int to_index = i;
-    
-    if (i % 2 == 0)
-      to_index = (int)(i / 2.0);
-    else
-      to_index = s - (int) ((i + 1) / 2.0);
+
+    if (sorted) {
+      to_index = i;
+    } else {
+      // Outside in
+      if (i % 2 == 0)
+	to_index = (int)(i / 2.0);
+      else
+	to_index = s - (int) ((i + 1) / 2.0);
+    }
     
     //printf("to_index = %d, from_index = %d\n", to_index, minIndex);
     
-    layer_counts[minIndex] = s * s + 2;
-    perm[minIndex] = to_index;
+    layer_counts[opt_index] = increase * (s * s + 2);
+    perm[opt_index] = to_index;
 
   }
 
@@ -471,7 +478,7 @@ bool check_usp_bi(puzzle_row U[], int s, int k){
     }
   }
 
-  //reorder_witnesses(row_witness, s);
+  //reorder_witnesses(row_witness, s, true, true);
   
   /*
   int precheck_res = precheck_row_witness(row_witness, s);
