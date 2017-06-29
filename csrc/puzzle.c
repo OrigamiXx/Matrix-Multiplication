@@ -111,7 +111,9 @@ puzzle * create_puzzle(int rows, int cols){
   // Initialize dimensions of puzzle.
   usp -> row = rows;
   usp -> column = cols;
-   
+  usp -> pi = NULL;
+  usp -> puzzle = (int *) (malloc(sizeof(int) * rows));
+  
   return usp;
 }
 
@@ -217,7 +219,8 @@ void write_puzzle(puzzle * p, int index){
 
 // Deallocates a puzzle
 void destroy_puzzle(puzzle * p){
-  destroy_perm(p->pi);
+  if (p -> pi != NULL)
+    destroy_perm(p->pi);
   //int i;
   // for (i = 0; i < p -> row; i++){
   //   free(p -> puzzle[i]);

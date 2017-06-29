@@ -23,6 +23,7 @@
 #include <map>
 #include <math.h>
 #include <assert.h>
+#include <string.h>
 #include "usp_bi.h"
 #include "matching.h"
 
@@ -369,7 +370,83 @@ bool find_witness_reverse(int w, int k, map<set_long,bool> * memo, int i1, set_l
 			  bool * row_witness, bool is_id, map<set_long,bool> * opposite);
 
 
-int precheck_decided = 0;
+int size_forward = 0;
+int last_layer_forward = 0;
+int size_backward = 0;
+int checks_backward = 0;
+//int precheck_decided = 0;
+
+/*
+ *  Reorders rows in an attempt to make fewer entries be generated.
+ *
+ */
+
+void reorder_witnesses(bool * row_witness, int s){
+
+  int layer_counts[s];
+  for (int i = 0; i < s; i++){
+    layer_counts[i] = 0;
+    for (int j = 0; j < s; j++){
+      for (int r = 0; r < s; r++){
+	if (!row_witness[i * s * s + j * s + r])
+	  layer_counts[i];
+      }
+    }
+    //printf("layer_count[%d] = %d\n", i, layer_counts[i]);
+  }
+  
+  //printf("Reordering\n");
+  int perm[s];
+  bool row_witness2[s * s * s];
+  for (int i = 0; i < s; i++){
+    int minIndex = -1;
+    int min = s*s + 1;
+    
+    for (int j = 0; j < s; j++){
+      if (layer_counts[j] < min) {
+	min = layer_counts[j];
+	minIndex = j;
+      }
+    }
+
+    int to_index = i;
+    
+    if (i % 2 == 0)
+      to_index = (int)(i / 2.0);
+    else
+      to_index = s - (int) ((i + 1) / 2.0);
+    
+    //printf("to_index = %d, from_index = %d\n", to_index, minIndex);
+    
+    layer_counts[minIndex] = s * s + 2;
+    perm[minIndex] = to_index;
+
+  }
+
+  for (int i = 0; i < s; i++){
+    for (int j = 0; j < s; j++){
+      for (int r = 0; r < s; r++){
+	int ix = perm[i] * s * s + perm[j] * s + perm[r];
+	row_witness2[ix] = row_witness[i * s * s + j * s + r];
+      }
+    }
+  }
+
+  for (int i = 0; i < s; i++){
+    layer_counts[i] = 0;
+    for (int j = 0; j < s; j++){
+      for (int r = 0; r < s; r++){
+	if (!row_witness2[i * s * s + j * s + r])
+	  layer_counts[i]++;
+      }
+      //printf("layer_count[%d] = %d\n", i, layer_counts[i]);
+    }
+  }
+  
+  
+  memcpy(row_witness, row_witness2, s * s * s * sizeof(bool));
+
+}
 
 /* 
  * Determines whether the given s-by-k puzzle U is a strong USP.  Uses
@@ -394,6 +471,8 @@ bool check_usp_bi(puzzle_row U[], int s, int k){
     }
   }
 
+  //reorder_witnesses(row_witness, s);
+  
   /*
   int precheck_res = precheck_row_witness(row_witness, s);
   if (precheck_res == 1) {
@@ -418,6 +497,11 @@ bool check_usp_bi(puzzle_row U[], int s, int k){
   map<set_long,bool> forward_memo;
   map<set_long,bool> reverse_memo;
 
+  last_layer_forward = 0;
+  size_forward = 0;
+  checks_backward = 0;
+  size_backward = 0;
+  
   // Perform the first half of the search by filling in forward_memo
   // for the first s/2 rows of U.
   find_witness_forward(s, k, &forward_memo, 0, SET_ID(0L), row_witness, true);
@@ -427,12 +511,15 @@ bool check_usp_bi(puzzle_row U[], int s, int k){
   // complemented and then looked up in forward_memo to check whether
   // they can be combined into a complete witness for U not being a
   // strong USP.
+  
   bool res = !find_witness_reverse(s, k, &reverse_memo, s - 1, SET_ID(0L), row_witness, true, &forward_memo);
 
   //if (precheck_res == 1 && !res)
   //  printf("Error: precheck and full check disagree!\n"); 
 
-    
+  printf("Forward memo table ratio: %d / %d\n", last_layer_forward, size_forward);
+  printf("Backward failed checks: %d / %d\n",checks_backward, size_backward);
+  
   return res;
   
   
@@ -464,7 +551,9 @@ void find_witness_forward(int s, int k, map<set_long,bool> * memo, int i1,
   // of size floor(s/2) into the memo table and return.  Note that
   // value false stored in the memo table doesn't mean anything.
   if (i1 == (int)(floorf(s / 2.0))) {
-    memo -> insert(pair<set_long,bool>(sets, false)); 
+    memo -> insert(pair<set_long,bool>(sets, false));
+    last_layer_forward++;
+    size_forward++;
     return;
   }
 
@@ -491,7 +580,8 @@ void find_witness_forward(int s, int k, map<set_long,bool> * memo, int i1,
 
   // Insert the subproblem we just completed into the memo table, so
   // the computation will not be repeated.
-  memo -> insert(pair<set_long,bool>(sets,false)); 
+  memo -> insert(pair<set_long,bool>(sets,false));
+  size_forward++;
   return;
 }
 
@@ -554,6 +644,10 @@ bool find_witness_reverse(int s, int k, map<set_long,bool> * memo, int i1,
     // recursive call in this case (and it wasn't really necessary to
     // insert it).
     memo -> insert(pair<set_long,bool>(sets, found_pair));
+    if (!found_pair)
+      checks_backward++;
+    size_backward++;
+    
     return found_pair;
   }
 
@@ -580,6 +674,7 @@ bool find_witness_reverse(int s, int k, map<set_long,bool> * memo, int i1,
 	// as the computation will immediately return from each
 	// recursive call in this case.
 	memo -> insert(pair<set_long,bool>(sets, true));
+	size_backward++;
 	return true;
 	
       }
@@ -589,6 +684,7 @@ bool find_witness_reverse(int s, int k, map<set_long,bool> * memo, int i1,
   // We didn't find a witness looking at this subproblem, make a note
   // of this in the memo table so the computation is not repeated.
   memo -> insert(pair<set_long,bool>(sets,false));
+  size_backward++;
   return false;
   
 }
