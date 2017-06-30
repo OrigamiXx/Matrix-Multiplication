@@ -510,7 +510,7 @@ bool has_2d_matchings(bool * row_witness, int s){
  * Returns true iff it finds a witness that puzzle is not a strong USP.
  * False indicates the search was inconclusive.
  */
-bool has_greedy_random_witness(bool * row_witnesses, int s, int repeats){
+bool has_random_witness(bool * row_witnesses, int s, int repeats){
 
   bool failed = false;
   int best = 0;
@@ -533,8 +533,8 @@ bool has_greedy_random_witness(bool * row_witnesses, int s, int repeats){
 	  int shift_k = (k + offset_k) % s;
 	  if (MEMBER_S3(curr, shift_k))
 	    continue;
+
 	  if (!row_witnesses[i * s * s + shift_j * s + shift_k]) {
-	    //assert(!MEMBER_S2(curr, shift_j) && !MEMBER_S3(curr, shift_k));
 	    if (shift_k != shift_j || shift_k != i)
 	      is_ident = false;
 	    curr = INSERT_S2(INSERT_S3(curr, shift_k), shift_j);
@@ -543,23 +543,164 @@ bool has_greedy_random_witness(bool * row_witnesses, int s, int repeats){
 	}
       }
       	  
-      if (!found || is_ident) {
+      if (!found) {
 	best = (best < i ? i : best);
 	total += i;
 	failed = true;
-	//printf("Failed to locate witness in greedy_random. Acheived: %d / %d\n", i, s);
+	//printf("Failed to locate witness in random. Acheived: %d / %d, id: %d\n", i, s,is_ident);
       }
     }
-    if (!failed)
+    if (!failed && !is_ident)
       return true;
 
     // Not sure if this is a good heuristic stopping condition, it is
     // to prevent a lot of time being waste on small puzzle sizes.  It
     // makes longer puzzles slower.  XXX - Improve parameters.
-    if ((log(n + 1) / log(2))  > best)
-      return false;
+    if ((log(n + 1) / log(2))  > best) 
+      return false; 
     failed = false;
   }
+  
+  //printf("best = %d\n", best);
+
+  /*
+  if (best == 0){
+    for (int i = 0; i < s; i++){
+      for (int j = 0; j < s; j++){
+	for (int k = 0; k < s; k++){
+	  printf("%d", !row_witnesses[i * s * s + j * s + k]);
+	}
+	printf("\n");
+      }
+      printf("\n\n");
+    }
+  }
+  */
+    
+  return false;
+}
+
+
+/*
+ * Returns true iff it finds a witness that puzzle is not a strong
+ * USP.  False indicates the search was inconclusive.  Attempts to
+ * generate a witness by greedily selecting a layer from among those
+ * with fewest remaining edges and then uniformly selects an edge from
+ * that layer.  This repeats until a witness is found, or no progress
+ * can be made.  This process repeats for some specified number of
+ * iterations.  There is no benefit to reorder_witnesses() be called
+ * before this.
+ */
+bool has_greedy_witness(bool * row_witnesses, int s, int repeats){
+
+  bool failed = false;
+  int best_depth = 0;
+  int total = 0;
+  for (int n = 0; n < repeats && !failed; n++){
+
+    set_long curr_set = CREATE_EMPTY();
+
+    bool is_ident = true;
+
+    int layer_counts[s];
+
+    for (int i = 0 ; i < s ; i++){
+      layer_counts[i] = 0;
+      for (int j = 0 ; j < s ; j++){
+	for (int k = 0 ; k < s ; k++){
+	  if (!row_witnesses[i * s * s + j * s + k])
+	    layer_counts[i]++;
+	}
+      }
+    }
+    int too_big = s * s + 1;
+
+    for (int i = 0 ; i < s ; i++){
+
+      // Randomly select a layer with the least choices.
+      int best = too_big;
+      int num_best = 0;
+      int layer = 0;
+      for (layer = 0 ; layer < s ; layer++){
+	if (layer_counts[layer] < best) {
+	  best = layer_counts[layer];
+	  num_best = 1;
+	} else if (layer_counts[layer] == best){
+	  num_best++;
+	}
+      }
+
+      if (best == 0) {
+	// There is an empty layer.
+	failed = true;
+	best_depth = (best_depth < i ? i : best_depth);
+	total += i;
+	break;
+      }
+
+      assert(best < too_big);
+      assert(num_best >= 1);
+      int choice = lrand48() % num_best;
+      int found = -1;
+      for (layer = 0; layer < s && found < choice ; layer++){
+	if (layer_counts[layer] == best)
+	  found++;
+      }
+
+      layer--;  // This the layer to select something in.
+
+      // Randomly select a choice from this layer uniformly at random.
+      found = -1;
+      choice = lrand48() % layer_counts[layer];
+
+      int j = 0;
+      int k = 0;
+      for (j = 0 ; j < s && found < choice ; j++){
+	if (MEMBER_S2(curr_set, j)) continue;
+	for (k = 0; k < s && found < choice ; k++){
+	  if (MEMBER_S3(curr_set, k)) continue;
+
+	  if (!row_witnesses[layer * s * s + j * s + k]){
+	    found++;
+	    layer_counts[layer] = too_big; // Means layer is already processed.
+	    curr_set = INSERT_S2(curr_set, j);
+	    curr_set = INSERT_S3(curr_set, k);
+	    if (layer != j || layer != k)
+	      is_ident = false;
+	  }
+	}
+      }
+
+      // Update layer_counts.
+      for (int layer2 = 0 ; layer2 < s ; layer2++){
+	if (layer_counts[layer2] == too_big) continue;
+	for (int j2 = 0; j2 < s; j2++){
+	  if (!MEMBER_S2(curr_set, j2) && j != j2 && !row_witnesses[layer2 * s * s + j2 * s + k])
+	    layer_counts[layer2]--;
+	}
+	for (int k2 = 0; k2 < s; k2++){
+	  if (!MEMBER_S3(curr_set, k2) && k != k2 && !row_witnesses[layer2 * s * s + j * s + k2])
+	    layer_counts[layer2]--;
+	}
+	if (!row_witnesses[layer2 * s * s + j * s + k])
+	  layer_counts[layer2]--;
+      }
+
+    }
+
+    if (!failed && !is_ident)
+      return true;
+
+    // Not sure if this is a good heuristic stopping condition, it is
+    // to prevent a lot of time being waste on small puzzle sizes.  It
+    // makes longer puzzles slower.  XXX - Improve parameters.
+    if ((log(n + 1) / log(2)) > best_depth) 
+      return false; 
+    failed = false;
+  }
+  
+  //printf("best_length = %d\n", best_length);
+
   return false;
 }
 
@@ -569,6 +710,7 @@ int last_layer_forward = 0;
 int size_backward = 0;
 int checks_backward = 0;
 int matching_decided = 0;
+int random_decided = 0;
 int greedy_decided = 0;
 
 /* 
@@ -594,7 +736,9 @@ bool check_usp_bi(puzzle_row U[], int s, int k){
     }
   }
 
+  bool matching_res = true;
   bool greedy_res = false;
+  bool random_res = false;
   
   // vvvvvvvvvvvvvvvvvv Heuristic Optimizations vvvvvvvvvvvvvvvvvvv
   // The code in this section can be commented out, without effecting
@@ -606,26 +750,42 @@ bool check_usp_bi(puzzle_row U[], int s, int k){
   // to work well in the domain of parameters I profiled.  XXX -
   // Improve parameters.  Doing it twice for two different ordering of
   // the puzzle was the most effective.
-  if (s > 6){
+  if (s > 0){
     // This reorder is aimed to make the randomize search more likely to
     // succeed.
     reorder_witnesses(row_witness, s, true, true);
-    if (has_greedy_random_witness(row_witness, s, s * s * s * s)){//(int)pow(2,2*s))){
-      greedy_decided++;
-      greedy_res = true;
-      return false;
+    if (has_random_witness(row_witness, s, (int)pow(2,s))){
+      random_decided++;
+      random_res = true;
+      //return false;
     }
+
+    reorder_witnesses(row_witness, s, false, false);
+    if (has_random_witness(row_witness, s, (int)pow(2,s))){
+      random_decided++;
+      random_res = true;
+      //return false;
+    }
+
     
     // This reorder is aimed to make the forward and backward search
     // balanced.
     reorder_witnesses(row_witness, s, true, false);
-    if (has_greedy_random_witness(row_witness, s, s * s * s * s)){//(int)pow(2,2*s))){ 
-      greedy_decided++;
-      greedy_res = true;
-      return false;
+    if (has_random_witness(row_witness, s, (int)pow(2,s))){ 
+      random_decided++;
+      random_res = true;
+      //return false;
     }
   }
 
+  // 2. Greedily select layer from among those with fewest edges and
+  // select an edge to put in the matching from this
+  if (has_greedy_witness(row_witness, s, (int)pow(2,s))){
+    greedy_decided++;
+    greedy_res = true;
+    //return false;
+  }
+  
   // ^^^^^^^^^^^^^^^^^^ Heuristic Optimizations ^^^^^^^^^^^^^^^^^^^^^
 
 
@@ -672,13 +832,18 @@ bool check_usp_bi(puzzle_row U[], int s, int k){
   
   bool res = !find_witness_reverse(s, k, &reverse_memo, s - 1, SET_ID(0L), row_witness, true, &forward_memo);
 
-  //if (matching_res && !res)
-  //  printf("Error: matching and full check disagree!\n");
+  if (matching_res && !res)
+    printf("Error: matching and full check disagree!\n");
+  assert(!(matching_res && !res));  
 
-  assert(!(greedy_res && res));
+  if (random_res && res)
+    printf("Error: random and full check disagree!\n");
+  assert(!(random_res && res));  
+  
+
   if (greedy_res && res)
     printf("Error: greedy and full check disagree!\n"); 
-
+  assert(!(greedy_res && res));
 
   
   //printf("Forward memo table ratio: %d / %d\n", last_layer_forward, size_forward);

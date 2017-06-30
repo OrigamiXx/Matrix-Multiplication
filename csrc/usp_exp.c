@@ -131,9 +131,13 @@ int main(int argc, char * argv[]){
   for (int i = 0; i < iter ; i++){
     randomize_puzzle(p);
     bool is_usp = check_usp_bi(p -> puzzle, r, c); 
-    printf("check_usp_bi (%d-by-%d): %d\n", r, c, is_usp);
-    if (is_usp)
+    //printf("check_usp_bi (%d-by-%d): %d\n", r, c, is_usp);
+    if (is_usp) {
+      print_puzzle(p);
+      printf("\n");
       found++;
+    }
+      
   }
 
   printf("Found a %d USP(s).\n", found);
