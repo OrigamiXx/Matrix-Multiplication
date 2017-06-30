@@ -52,6 +52,18 @@ void printU(puzzle_row U[], int s, int k){
   printf("---\n");
 }
 
+void print_row_witnesses(bool * row_witnesses, int s){
+  for (int i = 0; i < s; i++){
+    for (int j = 0; j < s; j++){
+      for (int k = 0; k < s; k++){
+	printf("%d", !row_witnesses[i * s * s + j * s + k]);
+      }
+      printf("\n");
+    }
+    printf("\n");
+  }
+}
+
 /*
  * Returns true iff a length-k row that permutations map to u_1, u_2,
  * u_3, respectively, satisfies the inner condition of strong USPs.
@@ -565,15 +577,7 @@ bool has_random_witness(bool * row_witnesses, int s, int repeats){
 
   /*
   if (best == 0){
-    for (int i = 0; i < s; i++){
-      for (int j = 0; j < s; j++){
-	for (int k = 0; k < s; k++){
-	  printf("%d", !row_witnesses[i * s * s + j * s + k]);
-	}
-	printf("\n");
-      }
-      printf("\n\n");
-    }
+    print_row_witnesses(row_witnesses, s);
   }
   */
     
@@ -593,6 +597,8 @@ bool has_random_witness(bool * row_witnesses, int s, int repeats){
  */
 bool has_greedy_witness(bool * row_witnesses, int s, int repeats){
 
+  //print_row_witnesses(row_witnesses, s);
+  
   bool failed = false;
   int best_depth = 0;
   int total = 0;
@@ -612,6 +618,7 @@ bool has_greedy_witness(bool * row_witnesses, int s, int repeats){
 	    layer_counts[i]++;
 	}
       }
+      //printf("layer_counts[%d] = %d\n",i, layer_counts[i]);
     }
     int too_big = s * s + 1;
 
@@ -646,12 +653,13 @@ bool has_greedy_witness(bool * row_witnesses, int s, int repeats){
 	if (layer_counts[layer] == best)
 	  found++;
       }
-
+      // Correct for final increment.
       layer--;  // This the layer to select something in.
 
       // Randomly select a choice from this layer uniformly at random.
       found = -1;
       choice = lrand48() % layer_counts[layer];
+      //printf("choice = %d\n", choice);
 
       int j = 0;
       int k = 0;
@@ -662,31 +670,61 @@ bool has_greedy_witness(bool * row_witnesses, int s, int repeats){
 
 	  if (!row_witnesses[layer * s * s + j * s + k]){
 	    found++;
-	    layer_counts[layer] = too_big; // Means layer is already processed.
-	    curr_set = INSERT_S2(curr_set, j);
-	    curr_set = INSERT_S3(curr_set, k);
-	    if (layer != j || layer != k)
-	      is_ident = false;
+	    //printf("found!\n");
+	    if (found == choice) {
+	      layer_counts[layer] = too_big; // Means layer is already processed.
+	      curr_set = INSERT_S2(curr_set, j);
+	      curr_set = INSERT_S3(curr_set, k);
+	      if (layer != j || layer != k)
+		is_ident = false;
+	    }
 	  }
 	}
       }
+      // Correct for final increment.
+      j--;
+      k--;
 
+      //printf("(j, k) = (%d,%d)\n", j, k);
+      
+      //printf("i = %d, layer = %d  %d\n", i, layer, layer_counts[layer]);
+      assert(layer_counts[layer] == too_big);
       // Update layer_counts.
       for (int layer2 = 0 ; layer2 < s ; layer2++){
-	if (layer_counts[layer2] == too_big) continue;
-	for (int j2 = 0; j2 < s; j2++){
-	  if (!MEMBER_S2(curr_set, j2) && j != j2 && !row_witnesses[layer2 * s * s + j2 * s + k])
+	if (layer_counts[layer2] != too_big) {
+	  for (int j2 = 0; j2 < s; j2++){
+	    if (!MEMBER_S2(curr_set, j2) && !row_witnesses[layer2 * s * s + j2 * s + k])
+	      layer_counts[layer2]--;
+	  }
+	  for (int k2 = 0; k2 < s; k2++){
+	    if (!MEMBER_S3(curr_set, k2) && !row_witnesses[layer2 * s * s + j * s + k2])
+	      layer_counts[layer2]--;
+	  }
+	  if (!row_witnesses[layer2 * s * s + j * s + k])
 	    layer_counts[layer2]--;
+	  assert(layer_counts[layer2] >= 0);
 	}
-	for (int k2 = 0; k2 < s; k2++){
-	  if (!MEMBER_S3(curr_set, k2) && k != k2 && !row_witnesses[layer2 * s * s + j * s + k2])
-	    layer_counts[layer2]--;
-	}
-	if (!row_witnesses[layer2 * s * s + j * s + k])
-	  layer_counts[layer2]--;
+	//printf("layer_counts[%d] = %d\n",layer2, layer_counts[layer2]);
       }
-
+      //printf("\n");
     }
+
+    /*
+    int layer_counts_chk[s];
+    for (int ix = 0 ; ix < s ; ix++){
+      layer_counts_chk[ix] = 0;
+      for (int j = 0 ; j < s ; j++){
+	if (MEMBER_S2(curr_set, j)) continue;
+	for (int k = 0 ; k < s ; k++){
+	  if (MEMBER_S3(curr_set, k)) continue;
+	  if (!row_witnesses[ix * s * s + j * s + k])
+	    layer_counts_chk[ix]++;
+	}
+      }
+      //printf("layer_counts_chk[%d] = %d\n",ix, layer_counts_chk[ix]);
+      assert(layer_counts[ix] == layer_counts_chk[ix] || layer_counts[ix] == too_big);
+    }
+    */
 
     if (!failed && !is_ident)
       return true;
@@ -694,8 +732,8 @@ bool has_greedy_witness(bool * row_witnesses, int s, int repeats){
     // Not sure if this is a good heuristic stopping condition, it is
     // to prevent a lot of time being waste on small puzzle sizes.  It
     // makes longer puzzles slower.  XXX - Improve parameters.
-    if ((log(n + 1) / log(2)) > best_depth) 
-      return false; 
+    //if ((log(n + 1) / log(2)) > best_depth) 
+    //  return false; 
     failed = false;
   }
   
@@ -712,6 +750,8 @@ int checks_backward = 0;
 int matching_decided = 0;
 int random_decided = 0;
 int greedy_decided = 0;
+int greedy_better = 0;
+int random_better = 0;
 
 /* 
  * Determines whether the given s-by-k puzzle U is a strong USP.  Uses
@@ -736,7 +776,7 @@ bool check_usp_bi(puzzle_row U[], int s, int k){
     }
   }
 
-  bool matching_res = true;
+  bool matching_res = false;
   bool greedy_res = false;
   bool random_res = false;
   
@@ -750,6 +790,7 @@ bool check_usp_bi(puzzle_row U[], int s, int k){
   // to work well in the domain of parameters I profiled.  XXX -
   // Improve parameters.  Doing it twice for two different ordering of
   // the puzzle was the most effective.
+  
   if (s > 0){
     // This reorder is aimed to make the randomize search more likely to
     // succeed.
@@ -757,14 +798,14 @@ bool check_usp_bi(puzzle_row U[], int s, int k){
     if (has_random_witness(row_witness, s, (int)pow(2,s))){
       random_decided++;
       random_res = true;
-      //return false;
+      return false;
     }
 
     reorder_witnesses(row_witness, s, false, false);
     if (has_random_witness(row_witness, s, (int)pow(2,s))){
       random_decided++;
       random_res = true;
-      //return false;
+      return false;
     }
 
     
@@ -774,17 +815,28 @@ bool check_usp_bi(puzzle_row U[], int s, int k){
     if (has_random_witness(row_witness, s, (int)pow(2,s))){ 
       random_decided++;
       random_res = true;
-      //return false;
+      return false;
     }
   }
-
+  
   // 2. Greedily select layer from among those with fewest edges and
   // select an edge to put in the matching from this
   if (has_greedy_witness(row_witness, s, (int)pow(2,s))){
     greedy_decided++;
     greedy_res = true;
-    //return false;
+    return false;
   }
+
+  if (greedy_res && !random_res)
+    greedy_better++;
+  else if (!greedy_res && random_res)
+    random_better++;
+
+  /*
+  printf("greedy_better = %d\n",greedy_better);
+  printf("random_better = %d\n",random_better);
+  printf("skipped = %d\n", greedy_decided + random_better);
+  */
   
   // ^^^^^^^^^^^^^^^^^^ Heuristic Optimizations ^^^^^^^^^^^^^^^^^^^^^
 
@@ -829,6 +881,8 @@ bool check_usp_bi(puzzle_row U[], int s, int k){
   // complemented and then looked up in forward_memo to check whether
   // they can be combined into a complete witness for U not being a
   // strong USP.
+
+
   
   bool res = !find_witness_reverse(s, k, &reverse_memo, s - 1, SET_ID(0L), row_witness, true, &forward_memo);
 

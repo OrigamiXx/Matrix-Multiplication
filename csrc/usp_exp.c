@@ -133,14 +133,14 @@ int main(int argc, char * argv[]){
     bool is_usp = check_usp_bi(p -> puzzle, r, c); 
     //printf("check_usp_bi (%d-by-%d): %d\n", r, c, is_usp);
     if (is_usp) {
-      print_puzzle(p);
-      printf("\n");
+      //print_puzzle(p);
+      //printf("\n");
       found++;
     }
       
   }
 
-  printf("Found a %d USP(s).\n", found);
+  printf("Found %d USP(s).\n", found);
 
   destroy_puzzle(p);
 
