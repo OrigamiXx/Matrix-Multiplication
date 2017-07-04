@@ -4,8 +4,8 @@
 
 
 MPICC=mpic++
-CC=g++ 
-CCFLAGS=-c -Wall -O3 -pg 
+CC=g++
+CCFLAGS=-c -Wall -O3 -pg
 # Comment out line below on cluster.
 CCFLAGS += -std=c++11
 LDFLAGS=-lm -pg
@@ -13,7 +13,7 @@ RMFLAGS=-f
 # Put additional object sources in list below.
 OBJ-SOURCES=usp.c permutation.c puzzle.c set.c usp_bi.c matching.c
 # Put additional executable sources in list below.
-EXE-SOURCES=usp_tester.c permutation_tester.c puzzle_tester.c set_tester.c generate_puzzle.c usp_exp.c matching_tester.c
+EXE-SOURCES=usp_tester.c permutation_tester.c puzzle_tester.c set_tester.c generate_puzzle.c usp_exp.c matching_tester.c 3DM_to_SAT.c
 # Put additional parallel / cluster executable sources in list below, must end with "_para".
 PARA-SOURCES=usp_para.c
 OBJDIR=objs
@@ -30,7 +30,7 @@ MRMPI_L=$(MRMPI_SRC_PATH)$(MRMPI_LIB)
 SOLVER_SRC_PATH=./SAT/core/
 export MROOT=$(shell pwd)/SAT/
 
-$(MRMPI_L): 
+$(MRMPI_L):
 	make -e -C $(MRMPI_SRC_PATH)  mpicc
 
 $(OBJDIR)/%.o : $(SRCDIR)/%.c
@@ -44,13 +44,13 @@ $(BINDIR)/%_para: $(SRCDIR)/%_para.c $(MRMPI_L)
 	$(MPICC) -I $(MRMPI_SRC_PATH) $(OBJECTS) $(LDFLAGS) $< $(MRMPI_L) -o $@
 
 $(BINDIR)/% : $(SRCDIR)/%.c $(OBJECTS)
-	$(CC) $(OBJECTS) $(LDFLAGS) $< -o $@ 
+	$(CC) $(OBJECTS) $(LDFLAGS) $< -o $@
 
 tmp_dirs:
 	mkdir -p $(OBJDIR)
 	mkdir -p $(BINDIR)
 
-all: tmp_dirs $(MRMPI_L) $(OBJECTS) $(BINS) 
+all: tmp_dirs $(MRMPI_L) $(OBJECTS) $(BINS)
 
 .PHONY: clean
 

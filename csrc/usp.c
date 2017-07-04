@@ -33,11 +33,11 @@ int check_usp_same_col(int max_row, int column){
   puzzle * p;
   for(i = 0; i<max_poss_row; i++){
     p = create_puzzle_from_index(row, column, i);
-    M.insert(pair<string,  puzzle*>(to_string(i), p));  
+    M.insert(pair<string,  puzzle*>(to_string(i), p));
     tt++;
   }
   //for(map<string, puzzle*>::iterator it = M.begin(); it!=M.end(); ++it){
-    
+
   //}
   printf("row %d column %d has %d usps.\n",row,column,tt);
   for(row = 2; row <= max_row; row++){
@@ -54,10 +54,10 @@ int check_usp_same_col(int max_row, int column){
 	  t++;
 	  tt++;
 	}
-	
+
       }
       destroy_puzzle(it->second);
-      if(total%500 == 0){ 
+      if(total%500 == 0){
 	cout << "\r"<<it->first;
 	printf(" has %d usps on the when adds one more row to it.", t);
       }
@@ -79,13 +79,6 @@ int check_all_usp(int row, int column, int returnP){
   int i, j, k;
   int max_index;
   int a, tt=0, tf=0, ft = 0, ff = 0;
-  FILE * f, *g;
-  if(returnP == 1){
-    
-    f = fopen("USP.txt", "a");
-    g = fopen("nonUSP.txt", "a");
-    assert(f != NULL);
-    assert(g != NULL);}
 
     //printf("%d\n", max_index);
   for(i=1; i<=row; i++){
@@ -96,35 +89,17 @@ int check_all_usp(int row, int column, int returnP){
 	max_index = max_index*3;
       }
       for(k=0; k<max_index; k++){
-	
+
 	puzzle * p = create_puzzle_from_index(i, j, k);
 	int res_check = check_usp_recursive(p);//check_usp(p);
 	int res_mult = check_usp(p); //  check_usp_mult(p);
 
 	if(res_check && res_mult){
 	 tt++;
-         if(returnP ==1){
-	   for(i=0; i<p->row;i++){
-   	     for(j=0;j<p->column;j++){
-   	       fprintf(f, "%d", get_column_from_row(p->puzzle[i], j));  
- 	       }
-  	     fprintf(f, "\n");
-	     }
-	    fprintf(f, "\n");
-	  }
-	 //write_puzzle(p, k);  
+	 //write_puzzle(p, k);
 	}
 	if(!res_check && !res_mult){
 	  ff++;
-         if(returnP ==1){
-	   for(i=0; i<p->row;i++){
-   	     for(j=0;j<p->column;j++){
-   	       fprintf(g, "%d", get_column_from_row(p->puzzle[i], j));  
- 	       }
-  	     fprintf(g, "\n");
-	     }
-	   fprintf(f, "\n");
-	  }
 	}
 	if(!res_check && res_mult){
 	  ft++;
@@ -132,17 +107,13 @@ int check_all_usp(int row, int column, int returnP){
 	if(res_check && !res_mult){
 	  tf++;
 	}
-	
+
 	destroy_puzzle(p);
       }
       printf("rows = %d cols = %d tt = %d ff = %d tf = %d ft = %d\n",i,j, tt, ff, tf, ft);
       assert(tf == 0 && ft == 0);
     }
   }
-  if(returnP ==1){
-    fclose(f);
-    fclose(g);
- }
   return 0;
 }
 //get_column_from_row (row index, column index)
@@ -151,7 +122,7 @@ int check_all_usp(int row, int column, int returnP){
 int check_usp_rows(int row1, int row2, int row3, puzzle * p){
   int i;
   for (i = 0;i< p->column;i++ ){
-       
+
     if( (get_column_from_row(p->puzzle[row1], i) == 1) &&
 	(get_column_from_row(p->puzzle[row2], i) == 2) &&
 	(get_column_from_row(p->puzzle[row3], i) != 3) ){
@@ -178,9 +149,9 @@ int check_usp(puzzle * p){
   for(i = 0; i < p->row; i++){
     for(j = 0; j < p->row; j++){
       for(k = 0; k < p->row; k++){
-	row_result[i][j][k] = check_usp_rows(i, j, k, p);	
+	row_result[i][j][k] = check_usp_rows(i, j, k, p);
       }
-    }  
+    }
   }
   //printf("Starting check_usp\n");
   //for (pi_1 = create_perm_identity(p->row); ; pi_1 = next_perm(pi_1)){
@@ -197,9 +168,9 @@ int check_usp(puzzle * p){
       //print_compact_perm(pi_3);
       //printf("\n");
       if (!(is_equals_perm(pi_1,pi_2) && is_equals_perm(pi_2, pi_3))){
-	
+
 	result = false;
-	
+
 	for (u = 0;u<p->row && !result;u++){
 	  int a, b, c;
 	  a= apply_perm(pi_1, u);
@@ -207,12 +178,12 @@ int check_usp(puzzle * p){
 	  c= apply_perm(pi_3, u);
 	  result = row_result[a][b][c];
 	}
-	
+
 	if (!result){
 	  return false;
 	}
       }
-      
+
       if(is_last_perm(pi_3)){
 	break;
 	}
@@ -239,9 +210,9 @@ int check_usp_recursive(puzzle * p){
   for(i = 0; i < p->row; i++){
     for(j = 0; j < p->row; j++){
       for(k = 0; k < p->row; k++){
-	row_result[i][j][k] = check_usp_rows(i, j, k, p);	
+	row_result[i][j][k] = check_usp_rows(i, j, k, p);
       }
-    }  
+    }
   }
   set s2 = create_empty_set();
   set s3 = create_empty_set();
@@ -251,7 +222,7 @@ int check_usp_recursive(puzzle * p){
   for(i = 0; i<MAX_ROW;i++){
     for(j=0; j<MAX_SET;j++){
       for(k=0; k<MAX_SET;k++){
-	
+
 	M[i][j][k][true] = value_not_tf;
 	M[i][j][k][false] = value_not_tf;
       }
@@ -260,7 +231,7 @@ int check_usp_recursive(puzzle * p){
   //memo->M = M;
   //memo->same_perm = true;
 std::map<string, bool>m;
-  
+
   return !find_witness(p,0, s2, s3, row_result, true, m);
 }
 //turn the s2, s3, and same_perm into a string
@@ -305,7 +276,7 @@ m.insert(pair<string, bool>(param_to_string(s2,s3,same_perm), true));
       if (RR[i1][i2][i3]){
 	continue;
       }
-      
+
       if (!(i1 == i2 && i2 == i3)){
 	same_perm_new = false;
       }else{

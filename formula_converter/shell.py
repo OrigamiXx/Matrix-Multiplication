@@ -1,7 +1,12 @@
 import os
 import subprocess
-#puz = "\"( (2 2 1 3 2) (1 3 1 3 2) (2 1 3 3 2 ) (1 1 1 1 2 ) )\""
+puz = "\"( (1 2 3 3 1 2) (2 3 3 3 1 2) (2 1 1 1 2 2) (1 3 1 1 2 2) (3 2 2 1 2 2) (1 1 2 3 2 2) (1 3 3 1 3 2) (1 1 2 1 1 3) (3 1 3 1 1 3) (3 2 1 2 1 3)) \""
+#(1 3 1 2 1 3) (3 3 1 1 2 3) (1 2 3 2 2 3) (3 3 3 2 2 3)) \""
 
+'''
+
+
+'''
 def data_to_puzzle(data):
 	puzzles = []
 	increment = (data.index("\n"))+1
@@ -35,7 +40,7 @@ for p in data_to_puzzle(nonuspdata):
         break
 print("finished for nonusps")'''
 
-usp = open('4by4USP.txt', 'r')
+'''usp = open('4by4USP.txt', 'r')
 uspdata = usp.readlines()
 outputs = []
 puzzledata = data_to_puzzle(uspdata)
@@ -51,14 +56,17 @@ for p in puzzledata:
         print("error occurs for the big string circuit input, should be all UNSAT")
         print(p)
         break
-print("finished for usps")
+print("finished for usps")'''
+os.system("echo " + puz + " | scheme -q boolean-converter.scm | tail -n+5 > output.cnf")
+result = subprocess.Popen(["time", "minisat_solver",
+							"/home/jiz/Desktop/matrix-multiplication/formula_converter/output.cnf", "result.txt"], stdout=subprocess.PIPE)
+output = result.communicate()[0]
+print(output)
 
 
 
 
 
 
-
-
-usp.close()
+#usp.close()
 #nonusp.close()

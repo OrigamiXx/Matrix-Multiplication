@@ -389,37 +389,72 @@
 ;; Second part - Checks whether y's don't satisfy strong USP property.
 ;; Third part - Forces x to be permutations.
 
-(define construct-USP-formula
-  (lambda (k s)
-    (format "(and (and
-                 (and-many i 1 ~d (and-many j 1 ~d (and-many r 1 3 (and-many q 1 3
-                      (or (and (var y i j r q) (or-many l 1 ~d (and (var p l j r) (var x l i q)) ) )
-                           (and (not (var y i j r q)) (not (or-many l 1 ~d (and (var p l j r) (var x l i q))))) )  ))))
+;(define construct-USP-formula
+;  (lambda (k s)
+;    (format "(and (and
+;                 (and-many i 1 ~d (and-many j 1 ~d (and-many r 1 3 (and-many q 1 3
+;                      (or (and (var y i j r q) (or-many l 1 ~d (and (var p l j r) (var x l i q)) ) )
+;                           (and (not (var y i j r q)) (not (or-many l 1 ~d (and (var p l j r) (var x l i q))))) )  ))))
+;
+;     (not (or (and-many i 1 ~d (and-many j 1 ~d (and (or (and-many o 1 2 (var x i j o))
+;                                                      (and-many a 1 2 (not (var x i j a))))
+;                                                 (or (and-many b 2 3 (var x i j b))
+;                                                      (and-many c 2 3 (not (var x i j c)))) ) ))
+;           (or-many i 1 ~d (or-many j 1 ~d (or (or (and (and-many d 1 2 (var y i j d d)) (and-many e 3 3 (not (var y i j e e))))
+;                                               (and (and (and-many f 1 1 (var y i j f f)) (and-many g 2 2 (not (var y i j g g)))) (and-many h 3 3 (var y i j h h))))
+;                                               (and (and-many n 1 1 (not (var y i j n n))) (and-many m  2 3 (var y i j m m))) )        ))) )
+;       )
+;
+;
+;     (and-many q 1 3 (and-many i 1 ~d (and (and (or-many j 1 ~d (var x i j q)) (or-many j 1 ~d (var x j i q)))
+;                                           (and (and-many j 1 ~d (and-many k 1 ~d (or (delta j k)
+;                                                                                 (or (or (and (var x i j q) (not (var x i k q)))
+;                                                                                 (and (not (var x i j q)) (var x i k q)))
+;                                                                                 (and (not (var x i j q)) (not (var x i k q)))))))
+;                                                (and-many j 1 ~d (and-many k 1 ~d (or (delta j k)
+;                                                                                 (or (or (and (var x j i q) (not (var x k i q)))
+;                                                                                 (and (not (var x j i q)) (var x k i q)))
+;                                                                                 (and (not (var x j i q)) (not (var x k i q)))))))  )   ) )) )"
+;
+;
+;
+;    s k s s     s s     s k                  s s s s s s s)
+;    ))
+    (define construct-USP-formula
+      (lambda (k s)
+        (format "(and (and (and
+                     (and-many i 1 ~d (and-many j 1 ~d (and-many r 1 3 (and-many q 2 3
+                          (or (and (var y i j r q) (or-many l 1 ~d (and (var p l j r) (var x l i q)) ) )
+                               (and (not (var y i j r q)) (not (or-many l 1 ~d (and (var p l j r) (var x l i q))))) )  ))))
 
-     (not (or (and-many i 1 ~d (and-many j 1 ~d (and (or (and-many o 1 2 (var x i j o))
-                                                      (and-many a 1 2 (not (var x i j a))))
-                                                 (or (and-many b 2 3 (var x i j b))
-                                                      (and-many c 2 3 (not (var x i j c)))) ) ))
-           (or-many i 1 ~d (or-many j 1 ~d (or (or (and (and-many d 1 2 (var y i j d d)) (and-many e 3 3 (not (var y i j e e))))
-                                               (and (and (and-many f 1 1 (var y i j f f)) (and-many g 2 2 (not (var y i j g g)))) (and-many h 3 3 (var y i j h h))))
-                                               (and (and-many n 1 1 (not (var y i j n n))) (and-many m  2 3 (var y i j m m))) )        ))) )
-       )
+         (not (or (and-many i 1 ~d (and-many j 1 ~d (and (or (and (delta i j) (and-many o 2 2 (var x i j o)))
+                                                          (and (not (delta i j)) (and-many a 2 2 (not (var x i j a))))    )
+                                                     (or (and-many b 2 3 (var x i j b))
+                                                          (and-many c 2 3 (not (var x i j c)))) ) ))
+               (or-many i 1 ~d (or-many j 1 ~d (or (or (and (and-many d 1 2 (var y i j d d)) (and-many e 3 3 (not (var y i j e e))))
+                                                   (and (and (and-many f 1 1 (var y i j f f)) (and-many g 2 2 (not (var y i j g g)))) (and-many h 3 3 (var y i j h h))))
+                                                   (and (and-many n 1 1 (not (var y i j n n))) (and-many m  2 3 (var y i j m m))) )        ))) )
+           )
 
 
-     (and-many q 1 3 (and-many i 1 ~d (and (and (or-many j 1 ~d (var x i j q)) (or-many j 1 ~d (var x j i q)))
-                                           (and (and-many j 1 ~d (and-many k 1 ~d (or (delta j k)
-                                                                                 (or (or (and (var x i j q) (not (var x i k q)))
-                                                                                 (and (not (var x i j q)) (var x i k q)))
-                                                                                 (and (not (var x i j q)) (not (var x i k q)))))))
-                                                (and-many j 1 ~d (and-many k 1 ~d (or (delta j k)
-                                                                                 (or (or (and (var x j i q) (not (var x k i q)))
-                                                                                 (and (not (var x j i q)) (var x k i q)))
-                                                                                 (and (not (var x j i q)) (not (var x k i q)))))))  )   ) )) )
-"
+         (and-many q 2 3 (and-many i 1 ~d (and (and (or-many j 1 ~d (var x i j q)) (or-many j 1 ~d (var x j i q)))
+                                               (and (and-many j 1 ~d (and-many k 1 ~d (or (delta j k)
+                                                                                     (or (or (and (var x i j q) (not (var x i k q)))
+                                                                                     (and (not (var x i j q)) (var x i k q)))
+                                                                                     (and (not (var x i j q)) (not (var x i k q)))))))
+                                                    (and-many j 1 ~d (and-many k 1 ~d (or (delta j k)
+                                                                                     (or (or (and (var x j i q) (not (var x k i q)))
+                                                                                     (and (not (var x j i q)) (var x k i q)))
+                                                                                     (and (not (var x j i q)) (not (var x k i q)))))))  )   ) )) )
+        (and-many i 1 ~d (and-many j 1 ~d (and-many r 1 3 (and-many q 1 1
+          (or (and (var y i j r q) (var p i j r))
+              (and (not (var y i j r q)) (not (var p i j r))))   )))))"
 
 
-    s k s s     s s     s k                  s s s s s s s)
-    ))
+
+        s k s s     s s     s k                  s s s s s s s s k)
+        ))
+
 
 
 ;; turn a number 1-3 to a list which is a combination of ture false

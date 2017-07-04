@@ -6,7 +6,7 @@
 #include "set.h"
 #include <map>
 #include <string>
-#define MAX_ROW 8 
+#define MAX_ROW 8
 #define MAX_SET 1<<MAX_ROW
 using namespace std;
 
@@ -18,6 +18,9 @@ using namespace std;
 //Check number of USP's in puzzles from 1*column to max_row*column
 int check_usp_same_col(int max_row, int column);
 #endif
+
+//check one case of pi1 pi2 pi3 holds the strong usp property
+int check_usp_rows(int row1, int row2, int row3, puzzle * p);
 
 
 //Check if given puzzle is a USP or not
@@ -34,6 +37,3 @@ bool find_witness(puzzle * p, int i1, set s2, set s3, int RR[20][20][20], bool s
 string param_to_string(set s2, set s3, bool same_perm);
 
 #endif
-
-
-
