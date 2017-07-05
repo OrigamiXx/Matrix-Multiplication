@@ -47,7 +47,7 @@ int reduction_to_3cnf(int row, int column, int index, puzzle * p){
     }
   }
   printf("%d\n", num_false_coor);
-  clauses = num_false_coor + row*(row-1)/2 +  3*row*row*(row-1)*(row*row)/2+row;
+  clauses = num_false_coor + row*(row-1)/2 +  3*row*row*(row-1)*(row*row)/2+3*row;
   fprintf(cnf_file, "p cnf %d %d\n", row*row*row, clauses);
   printf("row to the third %d \n", row*row*row);
   printf("row num %d\n", row);
@@ -144,28 +144,49 @@ int reduction_to_3cnf(int row, int column, int index, puzzle * p){
     }
     fprintf(cnf_file, "0\n");
   }
+  for (i=1; i <= row; i++){
+    for (j=1; j <= row; j++){
+      for (k=1; k<= row; k++){
+        fprintf(cnf_file, "%d ", coor_to_index(j,k,i,row));
+      }
+    }
+    fprintf(cnf_file, "0\n");
+  }
+  for (i=1; i <= row; i++){
+    for (j=1; j <= row; j++){
+      for (k=1; k<= row; k++){
+        fprintf(cnf_file, "%d ", coor_to_index(j,i,k,row));
+      }
+    }
+    fprintf(cnf_file, "0\n");
+  }
+
+
+
+
+
   fclose(cnf_file);
 }
 
 
 int main(int argc, char * argv[]){
-  int givenR = 2;
+  int givenR = 14;
   int givenC = 6;
   int * puzzle1 = (int *) malloc(sizeof(int *)*givenR);
   puzzle1[0] = 279;
   puzzle1[1]= 284;
-  //puzzle1[2]= 290;
-  //puzzle1[3]= 297;
-  //puzzle1[4] = 318;
-  //puzzle1[5] = 350;
-  //puzzle1[6] = 389;
-  //puzzle1[7] = 487;
-  //puzzle1[8] = 519;
-  //puzzle1[9] = 586;
-  //puzzle1[10] = 591;
-  //puzzle1[11] = 630;
-  //puzzle1[12] = 637;
-  //puzzle1[13] = 642;
+  puzzle1[2]= 290;
+  puzzle1[3]= 297;
+  puzzle1[4] = 318;
+  puzzle1[5] = 350;
+  puzzle1[6] = 389;
+  puzzle1[7] = 487;
+  puzzle1[8] = 519;
+  puzzle1[9] = 586;
+  puzzle1[10] = 591;
+  puzzle1[11] = 630;
+  puzzle1[12] = 637;
+  puzzle1[13] = 642;
   puzzle * result = (puzzle *) (malloc(sizeof(puzzle)));
   result->row = givenR;
   result->column = givenC;
@@ -173,11 +194,11 @@ int main(int argc, char * argv[]){
   result -> puzzle = puzzle1;
   print_puzzle(result);
   reduction_to_3cnf(givenR, givenC, get_indext_from_puzzle(result), result);
-  if (check(result->puzzle, result->row, result->column)){
+  /*if (check(result->puzzle, result->row, result->column)){
     printf("Yes\n");
   } else{
     printf("%s\n","No" );
-  }
+  }*/
 
 
   destroy_puzzle(result);
