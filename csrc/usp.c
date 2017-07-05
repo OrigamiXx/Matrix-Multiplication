@@ -124,16 +124,16 @@ int check_usp_rows(int row1, int row2, int row3, puzzle * p){
   for (i = 0;i< p->column;i++ ){
 
     if( (get_column_from_row(p->puzzle[row1], i) == 1) &&
-	(get_column_from_row(p->puzzle[row2], i) == 2) &&
-	(get_column_from_row(p->puzzle[row3], i) != 3) ){
+	      (get_column_from_row(p->puzzle[row2], i) == 2) &&
+	      (get_column_from_row(p->puzzle[row3], i) != 3) ){
        return true;
     }else if((get_column_from_row(p->puzzle[row1], i) != 1) &&
-	     (get_column_from_row(p->puzzle[row2], i) == 2) &&
-	     (get_column_from_row(p->puzzle[row3], i) == 3) ){
+	           (get_column_from_row(p->puzzle[row2], i) == 2) &&
+	           (get_column_from_row(p->puzzle[row3], i) == 3) ){
        return true;
     }else if ((get_column_from_row(p->puzzle[row1], i) == 1) &&
-	      (get_column_from_row(p->puzzle[row2], i) != 2) &&
-	      (get_column_from_row(p->puzzle[row3], i) == 3) ){
+	            (get_column_from_row(p->puzzle[row2], i) != 2) &&
+	            (get_column_from_row(p->puzzle[row3], i) == 3) ){
        return true;
      }
    }
@@ -168,25 +168,22 @@ int check_usp(puzzle * p){
       //print_compact_perm(pi_3);
       //printf("\n");
       if (!(is_equals_perm(pi_1,pi_2) && is_equals_perm(pi_2, pi_3))){
-
-	result = false;
-
-	for (u = 0;u<p->row && !result;u++){
-	  int a, b, c;
-	  a= apply_perm(pi_1, u);
-	  b= apply_perm(pi_2, u);
-	  c= apply_perm(pi_3, u);
-	  result = row_result[a][b][c];
-	}
-
-	if (!result){
-	  return false;
-	}
+	         result = false;
+	         for (u = 0;u<p->row && !result;u++){
+	            int a, b, c;
+	            a= apply_perm(pi_1, u);
+	            b= apply_perm(pi_2, u);
+	            c= apply_perm(pi_3, u);
+	            result = row_result[a][b][c];
+	         }
+	         if (!result){
+	            return false;
+	         }
       }
 
       if(is_last_perm(pi_3)){
-	break;
-	}
+	       break;
+	    }
     }
     destroy_perm(pi_3);
     if(is_last_perm(pi_2)){

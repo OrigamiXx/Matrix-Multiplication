@@ -32,7 +32,7 @@ puzzle * create_puzzle_from_file(const char * filename){
   puzzle * p = (puzzle *) (malloc(sizeof(puzzle)));
 
   FILE * f = fopen(filename,"r");
- 
+
   char buff[256];
 
   int element;//,r;
@@ -53,14 +53,14 @@ puzzle * create_puzzle_from_file(const char * filename){
     if (width != strlen(buff)){
       printf("this is not a puzzle since the width is not all the same\n");
       return NULL;
-    } 
+    }
     for(unsigned int i = 0; i <width; i++){
       element = buff[i] -'0';
       if(element != 1 &&  element != 2 && element != 3){
 	//printf("%d", buff[i]);
 	printf("this is not a puzzle since the element are not all 1 or 2 or 3\n");
 	return NULL;
-      }      
+      }
     }
     rows++;
   }
@@ -113,7 +113,7 @@ puzzle * create_puzzle(int rows, int cols){
   usp -> column = cols;
   usp -> pi = NULL;
   usp -> puzzle = (int *) (malloc(sizeof(int) * rows));
-  
+
   return usp;
 }
 
@@ -147,6 +147,19 @@ puzzle * create_puzzle_from_index(int row, int column, int index){
   return p;
 }
 
+// with a given puzzle return the index out of 0-(3^(r*c)-1)
+int get_indext_from_puzzle(puzzle * p){
+  int i;
+  int result = p->puzzle[p->row-1];
+  int max_row_index = pow(3,p->column);
+  for (i= p->row-2; i>=0; i--){
+    result = result * max_row_index + p->puzzle[i];
+  }
+  return result;
+}
+
+
+
 //return the data (1or2or3) of the row - col index
 //row_index must from the puzzle
 //col index must less than the column number of the puzzle(0- col-1)
@@ -177,7 +190,7 @@ int print_puzzle(puzzle * p){
     int r,c;
     for(r = 0; r<p->row; r++){
       for(c = 0; c<p->column; c++){
-	printf("%d", get_column_from_row(p->puzzle[r], c));
+	       printf("%d", get_column_from_row(p->puzzle[r], c));
       }
       printf("\n");
     }
@@ -206,7 +219,7 @@ void write_puzzle(puzzle * p, int index){
   int i, j;
   for(i=0; i<p->row;i++){
     for(j=0;j<p->column;j++){
-      fprintf(f, "%d", get_column_from_row(p->puzzle[i], j));  
+      fprintf(f, "%d", get_column_from_row(p->puzzle[i], j));
     }
     fprintf(f, "\n");
   }
@@ -237,22 +250,22 @@ int count_witnesses(puzzle * p){
 
   for (i = 0; i < p -> row; i++){
     for (j = 0; j < p -> row; j++){
-      
+
       for (k = 0; k < p -> row; k++){
 
 	for (l = 0; l < p -> column; l++){
 
 //Should this be i, j ,k instead of all i for the three? I assume that this is
-//a strong USP check or some kind? 
-	  int num_sat = (get_column_from_row(p -> puzzle[i], l) == 1 ? 1 : 0) 
-	    + (get_column_from_row(p -> puzzle[i], l) == 1 ? 1 : 0) 
+//a strong USP check or some kind?
+	  int num_sat = (get_column_from_row(p -> puzzle[i], l) == 1 ? 1 : 0)
+	    + (get_column_from_row(p -> puzzle[i], l) == 1 ? 1 : 0)
 	    + (get_column_from_row(p -> puzzle[i], l) == 1 ? 1 : 0);
-	  
+
 	  if (num_sat == 2) {
 	    count++;
 	    break;
 	  }
-	  
+
 	}
       }
     }
