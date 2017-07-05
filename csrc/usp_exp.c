@@ -116,8 +116,6 @@ void randomize_puzzle(puzzle * p){
 
 int main(int argc, char * argv[]){
 
-  printf("1/2 + 1/2 = %d\n",1/2 + 1/2);
-  
   if (argc != 4) {
     fprintf(stderr, "usp_exp <rows> <cols> <iter>\n");
     return -1;
