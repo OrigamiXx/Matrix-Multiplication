@@ -43,29 +43,32 @@ int reduction_to_3cnf(int row, int column, int index, puzzle * p){
     }
   }
   printf("%d\n", num_false_coor);
-  clauses = num_false_coor + row*(row-1)/2.0 +  3*row*row*(row-1)*(row*row)/2+3*row; 
+  clauses = num_false_coor + 1 + 3*row*(row*row-1)*(row*row)/2 + 3*row; 
   fprintf(cnf_file, "p cnf %d %d\n", row*row*row, clauses);
   printf("row to the third %d \n", row*row*row);
   printf("row num %d\n", row);
-  printf("num of clauses %d\n", (3*row*row*(row-1)*(row*row))/2);
+  printf("num of clauses %d\n", clauses);
+  
+  // # clauses: num_false_coor
   for (i=1; i <= row; i++){
     for (j=1; j <= row; j++){
       for (k=1; k <= row; k++){
         if (check_usp_rows(i-1, j-1, k-1, p)){ // check_usp_rows returning false indicates an edge is present
-          fprintf(cnf_file, "-%d -%d 0\n", coor_to_index(i, j, k, row), coor_to_index(i, j, k, row));
+          fprintf(cnf_file, "-%d 0\n", coor_to_index(i, j, k, row));  // MWA: No need for extra literal.
         }
       }
     }
   }
+
   // check uniqueness
   // each layer can only have one witness 3s*s(s-1)/2 combinations(comparisons)
   // x direction
-  // s(1+(s^2-1))s(s-1)
+  // # clauses: s * (s^2 choose 2) = (s^2) * (s^2 - 1) / 2
   int b = 0;
   for (i=1; i <= row; i++){
-    for (j=1; j <= row+1; j++){
-      for (k=1; k < row; k++){
-        for (l=j; l <= row; l++){
+    for (j=1; j <= row; j++){  
+      for (k=1; k <= row; k++){
+        for (l=1; l <= row; l++){
           for (m=1; m <= row; m++){
             if (coor_to_index(i,j,k,row) < coor_to_index(i,l,m,row)){
               fprintf(cnf_file, "-%d -%d 0\n", coor_to_index(i,j,k,row), coor_to_index(i,l,m,row));
@@ -79,12 +82,12 @@ int reduction_to_3cnf(int row, int column, int index, puzzle * p){
   printf("uniqueness clauses %d\n", b);
   //fprintf(cnf_file, "finish x direction\n");
   // y direction
-  // s(1+(s^2-1))s(s-1)
+  // # clauses: s * (s^2 choose 2) = (s^2) * (s^2 - 1) / 2
   int a = 0;
   for (i=1; i <= row; i++){
     for (j=1; j<= row; j++){
-      for (k=1; k< row; k++){
-        for (l=j; l<= row; l++){
+      for (k=1; k<= row; k++){
+        for (l=1; l<= row; l++){
           for (m=1; m <= row; m++){
             if (coor_to_index(j,k,i,row) < coor_to_index(l,m,i,row)){
               fprintf(cnf_file, "-%d -%d 0\n", coor_to_index(j,k,i,row), coor_to_index(l,m,i,row));
@@ -98,11 +101,11 @@ int reduction_to_3cnf(int row, int column, int index, puzzle * p){
   printf("uniqueness clauses %d\n", a);
   //fprintf(cnf_file, "finish y direction\n");
   //z direction
-  // s(1+(s^2-1))s(s-1)
+  // # clauses: s * (s^2 choose 2) = (s^2) * (s^2 - 1) / 2
   for (i=1; i <= row; i++){
     for (j=1; j <= row; j++){
-      for (k=1; k < row; k++){
-        for (l=j; l <= row; l++){
+      for (k=1; k <= row; k++){
+        for (l=1; l <= row; l++){
           for (m=1; m <= row; m++){
             if (coor_to_index(j,i,k,row) < coor_to_index(l,i,m,row)){
               fprintf(cnf_file, "-%d -%d 0\n", coor_to_index(j,i,k,row), coor_to_index(l,i,m,row));
@@ -121,19 +124,16 @@ int reduction_to_3cnf(int row, int column, int index, puzzle * p){
   // diagonal can be used.  It's that they can't all be used.  So the
   // contraint !\and_{i=1}^n x_{iii} must be true.
   
-  // s(s-1)/2
-  for (i=1;i<row;i++){
-    for (j=i;j<=row;j++){
-      if (coor_to_index(i,i,i,row) < coor_to_index(j,j,j,row)){
-        fprintf(cnf_file,"-%d -%d 0\n",coor_to_index(i,i,i,row), coor_to_index(j,j,j,row));
-      }
-    }
+  // # clauses: 1
+  for (i=1;i<=row;i++){
+    fprintf(cnf_file,"-%d ",coor_to_index(i,i,i,row));
   }
+  fprintf(cnf_file,"0\n");
   //fprintf(cnf_file, "finish diagonal direction\n");
   // existence
   // remain to complete  dont know how to turn a s-cnf to a 3cnf
 
-  // s clauses
+  // # clauses: 3 * s
   for (i=1; i <= row; i++){
     for (j=1; j <= row; j++){
       for (k=1; k<= row; k++){
@@ -191,7 +191,8 @@ int main(int argc, char * argv[]){
   result->pi = create_perm_identity(result->row);
   result -> puzzle = puzzle1;
   print_puzzle(result);
-  reduction_to_3cnf(givenR, givenC, get_indext_from_puzzle(result), result);
+  for (int r = 1; r <= givenR; r++)
+    reduction_to_3cnf(r, givenC, get_indext_from_puzzle(result), result);
   /*if (check(result->puzzle, result->row, result->column)){
     printf("Yes\n");
   } else{
