@@ -19,6 +19,7 @@ puzzle * join_puzzles(puzzle * p1, puzzle * p2) {
   int c1 = p1 -> column;
   int c2 = p2 -> column;
 
+
   puzzle * res = (puzzle *) (malloc(sizeof(puzzle)));
   res -> row = r1 + r2;
   res -> column = c1 + 1;
@@ -115,7 +116,8 @@ void randomize_puzzle(puzzle * p){
 
 int main(int argc, char * argv[]){
 
-
+  printf("1/2 + 1/2 = %d\n",1/2 + 1/2);
+  
   if (argc != 4) {
     fprintf(stderr, "usp_exp <rows> <cols> <iter>\n");
     return -1;

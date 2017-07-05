@@ -1,30 +1,25 @@
+#include <stdlib.h>
 #include <stdio.h>
 
-#define LOWER -50
-#define UPPER 100
-#define STEP 10
-int main(){
-	printf("Hello, World!\n");
+int main(int argc, char* argv[]){
 
-	//return 0;
-	/* print celsius-fahrenheit table
-	*/
-	int fahr, celsius;
-	int lower, upper, step;
-	lower = -50;
-	upper = 100;
-	step = 10;
 
-	celsius = lower;
-	while (celsius <= upper){
-		fahr = 1.8*celsius + 32;
-		printf(" celsius %d\tfahrenheit %d\n", celsius, fahr);
-		celsius += step;
-	}
+  FILE * cmd_pipe = popen("minisat_solver","w");
 
-	for (celsius = LOWER; celsius <= UPPER; celsius = celsius + STEP)
-		printf("celsius %3d fahrenheit %4.1f\n", celsius, 1.8*celsius + 32);
+  if (cmd_pipe == NULL) {
+    printf("Error, unable to executate minisat_solver\n");
+  }
+  fprintf(cmd_pipe,"p cnf 2 4\n");
+  fprintf(cmd_pipe,"2 2 0\n");
+  fprintf(cmd_pipe,"1 0\n");
+  fprintf(cmd_pipe,"1 0\n");
+  //fprintf(cmd_pipe,"-2 -2 0\n");
+  //fprintf(cmd_pipe,"1 -2 0\n2 -2 0");
+  //fprintf(cmd_pipe,"2 -2 0 ");
 
-	return 0;
+  printf("Executing!\n");
 
+  pclose(cmd_pipe);
+  
+  return 0;
 }

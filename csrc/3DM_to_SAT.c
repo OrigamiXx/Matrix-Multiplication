@@ -19,7 +19,7 @@
 
 
 int coor_to_index(int row1, int row2, int row3, int maxrow){
-  return (row1-1)*pow(maxrow,2) + (row2-1)*maxrow + row3;
+  return (row1-1)*pow(maxrow,2) + (row2-1)*maxrow + (row3-1) + 1;
 }
 // 3dm_to_3cnf
 int reduction_to_3cnf(int row, int column, int index, puzzle * p){
@@ -28,10 +28,6 @@ int reduction_to_3cnf(int row, int column, int index, puzzle * p){
   asprintf(&name, "%dby%dindex%d.cnf",row,column,index);
   cnf_file = fopen(name,"w+");
   free(name);
-  // MWA: You might consider using popen to directly start the execution of the SAT solver here
-  //instead of making an intermediate file.
-  //I think the only caveat is that you'll need to know the number of clauses and variables
-  //before you start because that's the first line of the DIMACS format.
   assert(cnf_file != NULL);
   int i, j, k, m, l;
   int num_false_coor = 0;
@@ -47,11 +43,11 @@ int reduction_to_3cnf(int row, int column, int index, puzzle * p){
     }
   }
   printf("%d\n", num_false_coor);
-  clauses = num_false_coor + row*(row-1)/2 +  3*row*row*(row-1)*(row*row)/2+3*row;
+  clauses = num_false_coor + row*(row-1)/2.0 +  3*row*row*(row-1)*(row*row)/2+3*row; 
   fprintf(cnf_file, "p cnf %d %d\n", row*row*row, clauses);
   printf("row to the third %d \n", row*row*row);
   printf("row num %d\n", row);
-  printf("num of clauses %d\n", 3*row*row*(row-1)*(row*row)/2);
+  printf("num of clauses %d\n", (3*row*row*(row-1)*(row*row))/2);
   for (i=1; i <= row; i++){
     for (j=1; j <= row; j++){
       for (k=1; k <= row; k++){
@@ -120,7 +116,11 @@ int reduction_to_3cnf(int row, int column, int index, puzzle * p){
   // MWA: I think you also need to exclude the diagonal (1,1,1),
   // (2,2,2), ... (row,row,row) from being a witness, because it
   // corresponds to setting pi1 = pi2 = pi3.
-
+  
+  // MWA2: This isn't quite right.  It is not that no entry on the
+  // diagonal can be used.  It's that they can't all be used.  So the
+  // contraint !\and_{i=1}^n x_{iii} must be true.
+  
   // s(s-1)/2
   for (i=1;i<row;i++){
     for (j=i;j<=row;j++){
@@ -132,8 +132,6 @@ int reduction_to_3cnf(int row, int column, int index, puzzle * p){
   //fprintf(cnf_file, "finish diagonal direction\n");
   // existence
   // remain to complete  dont know how to turn a s-cnf to a 3cnf
-  // MWA: You shouldn't need to turn it into a 3cnf, doesn't the
-  // solver allow arbitrarily long clauses?
 
   // s clauses
   for (i=1; i <= row; i++){
