@@ -87,7 +87,7 @@ int reduction_to_3cnf(int row, int column, int index, puzzle * p){
   for (i=1; i <= row; i++){
     for (j=1; j<= row; j++){
       for (k=1; k<= row; k++){
-        for (l=1; l<= row; l++){
+        for (l=1; l<= row; l++){  // MWA: I think optimization with l wasn't correct.
           for (m=1; m <= row; m++){
             if (coor_to_index(j,k,i,row) < coor_to_index(l,m,i,row)){
               fprintf(cnf_file, "-%d -%d 0\n", coor_to_index(j,k,i,row), coor_to_index(l,m,i,row));
@@ -120,7 +120,7 @@ int reduction_to_3cnf(int row, int column, int index, puzzle * p){
   // (2,2,2), ... (row,row,row) from being a witness, because it
   // corresponds to setting pi1 = pi2 = pi3.
   
-  // MWA2: This isn't quite right.  It is not that no entry on the
+  // MWA2: This wasn't quite right.  It is not that no entry on the
   // diagonal can be used.  It's that they can't all be used.  So the
   // contraint !\and_{i=1}^n x_{iii} must be true.
   
