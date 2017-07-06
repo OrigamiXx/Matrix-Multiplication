@@ -157,7 +157,7 @@ int reduction_to_3cnf(FILE * file, int row, int column, int index, puzzle * p){
 }
 
 bool popen_method(int row, int column, int index, puzzle * p){
-  FILE * reduction = popen("minisat_solver","w");
+  FILE * reduction = popen("minisat_solver > /dev/null 2>&1","w");
 
   if (reduction == NULL) {
     printf("Error, unable to executate minisat_solver\n");
