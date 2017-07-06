@@ -38,7 +38,7 @@ puzzle * create_puzzle_from_file(const char * filename);
 puzzle * create_puzzle_from_index(int row, int column, int index);
 
 // with a given puzzle return the index out of 0-(3^(r*c)-1)
-int get_indext_from_puzzle(puzzle * p);
+int get_index_from_puzzle(puzzle * p);
 
 //Return the number at the col_index digit of the row with given row_index.
 int get_column_from_row(int row_index, int col_index);

@@ -148,7 +148,7 @@ puzzle * create_puzzle_from_index(int row, int column, int index){
 }
 
 // with a given puzzle return the index out of 0-(3^(r*c)-1)
-int get_indext_from_puzzle(puzzle * p){
+int get_index_from_puzzle(puzzle * p){
   int i;
   int result = p->puzzle[p->row-1];
   int max_row_index = pow(3,p->column);

@@ -20,6 +20,6 @@ int main(int argc, char* argv[]){
   printf("Executing!\n");
 
   pclose(cmd_pipe);
-  
+
   return 0;
 }
