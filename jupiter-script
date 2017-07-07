@@ -1,7 +1,7 @@
-#PBS -l nodes=10:ppn=12
+#PBS -l nodes=1:ppn=12
 #PBS -l walltime=168:00:00
 #PBS -j oe
-#PBS -N jerry_out
+#PBS -N para_out
 #PBS -m ae
 
 if [ "$PBS_ENVIRONMENT" != "PBS_INTERACTIVE" ] ; then
@@ -14,7 +14,7 @@ echo $NPROCS
 
 ##to use TCP
 mpirun --mca btl tcp,self --mca btl_tcp_if_include eth0 \
-       -hostfile $PBS_NODEFILE -np $NPROCS usp_cluster 6
+       -hostfile $PBS_NODEFILE -np $NPROCS usp_para 4
 
 ## Interactive command.
 ##mpirun --mca btl openib,self --mca btl_tcp_if_include eth0 --mca btl_openib_cpc_include rdmacm -np 120 usp_cluster 4

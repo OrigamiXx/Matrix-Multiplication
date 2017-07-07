@@ -831,7 +831,7 @@ bool check_usp_bi(puzzle_row U[], int s, int k){
     greedy_better++;
   else if (!greedy_res && random_res)
     random_better++;
-
+  
   /*
   printf("greedy_better = %d\n",greedy_better);
   printf("random_better = %d\n",random_better);

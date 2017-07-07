@@ -6,6 +6,7 @@
 #include "constants.h"
 #include <map>
 #include "usp_bi.h"
+#include "3DM_to_SAT.h"
 
 /*
  * Join two puzzles to form a new puzzle with one more column.
@@ -130,9 +131,12 @@ int main(int argc, char * argv[]){
   int found = 0;
   for (int i = 0; i < iter ; i++){
     randomize_puzzle(p);
-    bool is_usp = check_usp_bi(p -> puzzle, r, c); 
+    bool is_usp_bi = check_usp_bi(p -> puzzle, r, c);
+    bool is_usp_sat_method = popen_method(r, c, -1, p);
+    bool is_usp_sat_simple = popen_simple(r, c, -1, p);
+
     //printf("check_usp_bi (%d-by-%d): %d\n", r, c, is_usp);
-    if (is_usp) {
+    if (is_usp_bi) {
       //print_puzzle(p);
       //printf("\n");
       found++;
