@@ -17,9 +17,16 @@
 #include "usp_bi.h"
 
 
+long power(int base, int exponent){
+  long result = 1;
+  for (int i = 0; i < exponent; i++){
+    result = result * base;
+  }
+  return result;
+}
 
 int coor_to_index(int row1, int row2, int row3, int maxrow){
-  return (row1-1)*pow(maxrow,2) + (row2-1)*maxrow + (row3-1) + 1;
+  return (row1-1)*power(maxrow,2) + (row2-1)*maxrow + (row3-1) + 1;
 }
 
 
@@ -43,7 +50,7 @@ int reduction_to_3cnf(FILE * file, int row, int column, int index, puzzle * p){
   fprintf(file, "p cnf %d %d\n", row*row*row, clauses);
   //printf("row to the third %d \n", row*row*row);
   //printf("row num %d\n", row);
-  printf("num of clauses %d\n", clauses);
+  //printf("num of clauses %d\n", clauses);
 
   // # clauses: num_false_coor
   for (i=1; i <= row; i++){
@@ -156,7 +163,109 @@ int reduction_to_3cnf(FILE * file, int row, int column, int index, puzzle * p){
   }
 }
 
-bool popen_method(int row, int column, int index, puzzle * p){
+// reduction from 3dm to 3cnf but with only O(s^3) clauses
+// reduce the demension by using x y coordinates
+int coor_converter(int type, int index1, int index2, int maxrow){
+  if (type == 1){
+    return (index1-1)*maxrow + (index2-1) + 1;
+  }else if(type == 2){
+    return maxrow*maxrow + (index1-1)*maxrow + (index2-1) + 1;
+  }else{
+    return 0;
+  }
+}
+
+
+int reduction_simple(FILE * file, int row, int column, long index, puzzle * p){
+  int i, j, k;
+  int num_false_coor=0;
+  int x = 1;
+  int y = 2;
+  for (i = 1; i<=row; i++){
+    for (j = 1; j<=row; j++){
+      for (k = 1; k<=row; k++){
+        if (check_usp_rows(i-1,j-1,k-1,p)){
+          num_false_coor++;
+        }
+      }
+    }
+  }
+
+  int clauses;
+  clauses = num_false_coor + 4*row*row*(row-1)/2.0 + 2*row + 1;
+  fprintf(file, "p cnf %d %d\n", 2*row*row, clauses);
+
+  //constraint
+  for (i = 1; i<=row; i++){
+    for (j = 1; j<=row; j++){
+      for (k = 1; k<=row; k++){
+        if (check_usp_rows(i-1,j-1,k-1,p)){
+          fprintf(file, "-%d -%d 0\n", coor_converter(x, i, j, row), coor_converter(y, i, k, row));
+        }
+      }
+    }
+  }
+
+  //uniqueness
+  for (i=1; i<=row; i++){
+    for (j=1; j<=row; j++){
+      for (k=1; k<=row; k++){
+        if(coor_converter(x, i, j, row) < coor_converter(x, i, k, row)){
+          fprintf(file, "-%d -%d 0\n",coor_converter(x, i, j, row),coor_converter(x, i, k, row));
+        }
+      }
+    }
+  }
+  for (i=1; i<=row; i++){
+    for (j=1; j<=row; j++){
+      for (k=1; k<=row; k++){
+        if(coor_converter(x, j, i, row) < coor_converter(x, k, i, row)){
+          fprintf(file, "-%d -%d 0\n",coor_converter(x, j, i, row),coor_converter(x, k, i, row));
+        }
+      }
+    }
+  }
+
+  for (i=1; i<=row; i++){
+    for (j=1; j<=row; j++){
+      for (k=1; k<=row; k++){
+        if(coor_converter(y, i, j, row) < coor_converter(y, i, k, row)){
+          fprintf(file, "-%d -%d 0\n",coor_converter(y, i, j, row),coor_converter(y, i, k, row));
+        }
+      }
+    }
+  }
+  for (i=1; i<=row; i++){
+    for (j=1; j<=row; j++){
+      for (k=1; k<=row; k++){
+        if(coor_converter(y, j, i, row) < coor_converter(y, k, i, row)){
+          fprintf(file, "-%d -%d 0\n",coor_converter(y, j, i, row),coor_converter(y, k, i, row));
+        }
+      }
+    }
+  }
+  //existence
+  for (i=1; i <= row; i++){
+    for (j=1; j <= row; j++){
+      fprintf(file, "%d ", coor_converter(x, i, j, row));
+    }
+    fprintf(file, "0\n");
+  }
+
+  for (i=1; i <= row; i++){
+    for (k=1; k <= row; k++){
+      fprintf(file, "%d ", coor_converter(y, i, k, row));
+    }
+    fprintf(file, "0\n");
+  }
+  //diagonal 1c
+  for (i = 1; i<= row; i++){
+    fprintf(file, "-%d -%d ", coor_converter(x, i, i, row), coor_converter(y, i, i, row));
+  }
+  fprintf(file, "0\n");
+}
+
+bool popen_method(int row, int column, long index, puzzle * p){
   FILE * reduction = popen("minisat_solver > /dev/null 2>&1","w");
 
   if (reduction == NULL) {
@@ -167,16 +276,38 @@ bool popen_method(int row, int column, int index, puzzle * p){
   if (result == 5120){
 
     return true;
+  }else if (result== 2560){
+    return false;
   }else{
-    printf("%d/n",result);
+    printf("wrong inputs!!!!!!\n");
+    printf("%d\n",result);
     return false;
   }
   //return false;
 }
-int file_making_methond(int row, int column, int index, puzzle * p){
+bool popen_simple(int row, int column, long index, puzzle * p){
+  FILE * reduction = popen("minisat_solver > /dev/null 2>&1","w");
+  if (reduction == NULL) {
+    printf("Error, unable to executate minisat_solver\n");
+  }
+  reduction_simple(reduction, row, column, index, p);
+  int result = pclose(reduction);
+  if (result == 5120){
+
+    return true;
+  }else if (result== 2560){
+    return false;
+  }else{
+    printf("wrong inputs!!!!!!\n");
+    printf("%d\n",result);
+    return false;
+  }
+  //return false;
+}
+int file_making_methond(int row, int column, long index, puzzle * p){
   FILE * cnf_file;
   char *name;
-  asprintf(&name, "%dby%dindex%d.cnf",row,column,index);
+  asprintf(&name, "%dby%dindex%ld.cnf",row,column,index);
   cnf_file = fopen(name,"w+");
   free(name);
   assert(cnf_file != NULL);
@@ -185,39 +316,74 @@ int file_making_methond(int row, int column, int index, puzzle * p){
   return 0;
 }
 
+int file_simple(int row, int column, long index, puzzle * p){
+  FILE * cnf_file;
+  char *name;
+  asprintf(&name, "%dby%dindex%ld.cnf",row,column,index);
+  cnf_file = fopen(name,"w+");
+  free(name);
+  assert(cnf_file != NULL);
+  reduction_simple(cnf_file, row, column, index, p);
+  fclose(cnf_file);
+  return 0;
+}
+
 
 int main(int argc, char * argv[]){
-  int givenR = 14;
-  int givenC = 6;
-  int * puzzle1 = (int *) malloc(sizeof(int *)*givenR);
-  puzzle1[0] = 279;
-  puzzle1[1]= 284;
-  puzzle1[2]= 290;
-  puzzle1[3]= 297;
-  puzzle1[4] = 318;
-  puzzle1[5] = 350;
-  puzzle1[6] = 389;
-  puzzle1[7] = 487;
-  puzzle1[8] = 519;
-  puzzle1[9] = 586;
-  puzzle1[10] = 591;
-  puzzle1[11] = 630;
-  puzzle1[12] = 637;
-  puzzle1[13] = 642;
-  puzzle * result = (puzzle *) (malloc(sizeof(puzzle)));
-  result->row = givenR;
-  result->column = givenC;
-  result->pi = create_perm_identity(result->row);
-  result -> puzzle = puzzle1;
-  //print_puzzle(result);
-  //file_making_methond(givenR,givenC, get_index_from_puzzle(result),result);
-  FILE * f;
-  for (int r = 1; r <= givenR; r++)
-    if(popen_method(r, givenC, get_index_from_puzzle(result),result)){
-      printf("UNSAT\n");
-    }else{
-      printf("SAT\n");
+  int givenR = 3;
+  int givenC = 3;
+  // int * puzzle1 = (int *) malloc(sizeof(int *)*givenR);
+  // puzzle1[0] = 279;
+  // puzzle1[1]= 284;
+  // puzzle1[2]= 290;
+  // puzzle1[3]= 297;
+  // puzzle1[4] = 318;
+  // puzzle1[5] = 350;
+  // puzzle1[6] = 389;
+  // puzzle1[7] = 487;
+  // puzzle1[8] = 519;
+  // puzzle1[9] = 586;
+  // puzzle1[10] = 591;
+  // puzzle1[11] = 630;
+  // puzzle1[12] = 637;
+  // puzzle1[13] = 642;
+  // puzzle * result = (puzzle *) (malloc(sizeof(puzzle)));
+  // result->row = givenR;
+  // result->column = givenC;
+  // result->pi = create_perm_identity(result->row);
+  // result -> puzzle = puzzle1;
+  // print_puzzle(result);
+  // file_simple(givenR,givenC, get_index_from_puzzle(result),result);
+
+  int i, j;
+  long index;
+  i = givenC;
+  j = givenR;
+  //for (i = 1; i<=givenC; i++){
+  //  for (int r = 1; r <= givenR; j++){
+  long checked = 0;
+  for (index; index < power(3, i*j) -1; index+=10){
+    puzzle *p;
+    p = create_puzzle_from_index(j,i,index);
+    if (popen_simple(p->row, p->column,index,p) != popen_method(p->row, p->column,index,p)
+        || check_usp_bi(p->puzzle, p->row, p->column)!= popen_simple(p->row, p->column,index,p)){
+      printf("doesn't match for this case.\n");
+      print_puzzle(p);
+      break;
     }
+    checked++;
+    destroy_puzzle(p);
+  }
+  printf("%ld\n",checked);
+  printf("finish checking%d by %d\n", j, i);
+  //  }
+  //}
+
+  // if(popen_simple(givenR, givenC, get_index_from_puzzle(result),result)){
+  //     printf("UNSAT\n");
+  //   }else{
+  //     printf("SAT\n");
+  // }
 
 
 
@@ -229,6 +395,6 @@ int main(int argc, char * argv[]){
   }*/
 
 
-  destroy_puzzle(result);
+  //destroy_puzzle(result);
   return 0;
 }
