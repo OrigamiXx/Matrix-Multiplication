@@ -100,7 +100,7 @@ bool has_perfect_bipartite_matching(bool *M, int n){
   }
     
 
-  printf("maximum matching = %d\n", matching_size);
+  //printf("maximum matching = %d\n", matching_size);
   // 4. No path exists, return
   return matching_size == n;
 }

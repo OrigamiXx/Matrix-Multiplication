@@ -26,6 +26,7 @@
 #include <string.h>
 #include "usp_bi.h"
 #include "matching.h"
+#include "3DM_to_SAT.h"
 
 using namespace std;
 
@@ -376,9 +377,9 @@ void print_sets(set_long sets){
 
 
 // Function signatures -- so it will compile.
-void find_witness_forward(int w, int k, map<set_long,bool> * memo, int i1, set_long sets,
+void find_witness_forward(int w, map<set_long,bool> * memo, int i1, set_long sets,
 			  bool * row_witness, bool is_id);
-bool find_witness_reverse(int w, int k, map<set_long,bool> * memo, int i1, set_long sets,
+bool find_witness_reverse(int w, map<set_long,bool> * memo, int i1, set_long sets,
 			  bool * row_witness, bool is_id, map<set_long,bool> * opposite);
 
 
@@ -470,7 +471,6 @@ void reorder_witnesses(bool * row_witness, int s, bool increasing, bool sorted){
 
 }
 
-
 /*
  * Checks whether 2d matchings occur from each of the three faces.
  * Returns true iff all of the 2d matchings are possible. 
@@ -517,6 +517,7 @@ bool has_2d_matchings(bool * row_witness, int s){
     
   return true;
 }
+
 
 /*
  * Returns true iff it finds a witness that puzzle is not a strong USP.
@@ -595,7 +596,7 @@ bool has_random_witness(bool * row_witnesses, int s, int repeats){
  * iterations.  There is no benefit to reorder_witnesses() be called
  * before this.
  */
-bool has_greedy_witness(bool * row_witnesses, int s, int repeats){
+bool greedy_precheck(bool * row_witnesses, int s, int repeats){
 
   //print_row_witnesses(row_witnesses, s);
   
@@ -727,7 +728,7 @@ bool has_greedy_witness(bool * row_witnesses, int s, int repeats){
     */
 
     if (!failed && !is_ident)
-      return true;
+      return -1;
 
     // Not sure if this is a good heuristic stopping condition, it is
     // to prevent a lot of time being waste on small puzzle sizes.  It
@@ -739,7 +740,7 @@ bool has_greedy_witness(bool * row_witnesses, int s, int repeats){
   
   //printf("best_length = %d\n", best_length);
 
-  return false;
+  return 0;
 }
 
 // Some variables measuring performance.
@@ -747,11 +748,83 @@ int size_forward = 0;
 int last_layer_forward = 0;
 int size_backward = 0;
 int checks_backward = 0;
-int matching_decided = 0;
-int random_decided = 0;
-int greedy_decided = 0;
-int greedy_better = 0;
-int random_better = 0;
+
+/*
+ * Heuristically precheck puzzle via random and greedy approaches
+ * Returns 1 if puzzle is a strong USP.  Returns -1 if puzzle is not a
+ * strong USP.  Returns 0 if the function has not determined the
+ * puzzle is a strong USP.
+ */
+int random_precheck(bool * row_witness, int s, int k, int iter){
+
+  // Rearrange row_witness in the hope it makes the search faster.
+  // Then randomly attempt to build a witness that U is not a strong
+  // USP.  The number of iterations is a bit ad hoc; s*s*s also seeme
+  // to work well in the domain of parameters I profiled.  XXX -
+  // Improve parameters.  Doing it twice for two different ordering of
+  // the puzzle was the most effective.
+
+  // This reorder is aimed to make the randomize search more likely to
+  // succeed.
+  reorder_witnesses(row_witness, s, true, true);
+  if (has_random_witness(row_witness, s, iter)){
+    return -1;
+  }
+  
+  reorder_witnesses(row_witness, s, false, false);
+  if (has_random_witness(row_witness, s, iter)){
+    return -1;
+  }
+   
+  // This reorder is aimed to make the forward and backward search
+  // balanced.
+  reorder_witnesses(row_witness, s, true, false);
+  if (has_random_witness(row_witness, s, iter)){ 
+    return -1;
+  }
+
+  return 0;
+}
+
+
+bool check_usp_bi_inner(bool * row_witness, int s){
+
+ // Create two maps that will store partial witnesses of U not being
+  // a strong USP.  
+  //
+  // The membership of a set pair p = (S2, S3) in forward_memo with t
+  // = |S2| = |S3| means that there exists a 1-1 map from the first t
+  // rows of U to S2 and S3 such that hits only false entries of
+  // row_witness.  The membership of a set pair in reverse_memo is
+  // similar, but for the _last_ t rows of U.
+  //
+  // Note that the value in forward_memo is not used, but the value in
+  // reverse_memo indicates whether a witness has been found for that
+  // subproblem.
+
+  map<set_long,bool> forward_memo;
+  map<set_long,bool> reverse_memo;
+
+  last_layer_forward = 0;
+  size_forward = 0;
+  checks_backward = 0;
+  size_backward = 0;
+  
+  // Perform the first half of the search by filling in forward_memo
+  // for the first s/2 rows of U.
+  find_witness_forward(s, &forward_memo, 0, SET_ID(0L), row_witness, true);
+
+  // Perform the second half of the search by filling in reverse_memo
+  // for the second s/2 rows of U.  These partial mappings are
+  // complemented and then looked up in forward_memo to check whether
+  // they can be combined into a complete witness for U not being a
+  // strong USP.
+  
+  bool res = !find_witness_reverse(s, &reverse_memo, s - 1, SET_ID(0L), row_witness, true, &forward_memo);
+  
+  return res;
+  
+}
 
 /* 
  * Determines whether the given s-by-k puzzle U is a strong USP.  Uses
@@ -776,135 +849,7 @@ bool check_usp_bi(puzzle_row U[], int s, int k){
     }
   }
 
-  bool matching_res = false;
-  bool greedy_res = false;
-  bool random_res = false;
-  
-  // vvvvvvvvvvvvvvvvvv Heuristic Optimizations vvvvvvvvvvvvvvvvvvv
-  // The code in this section can be commented out, without effecting
-  // the correctness of the algorithm.
-  //
-  // 1. Rearrange row_witness in the hope it makes the search faster.
-  // Then randomly attempt to build a witness that U is not a strong
-  // USP.  The number of iterations is a bit ad hoc; s*s*s also seeme
-  // to work well in the domain of parameters I profiled.  XXX -
-  // Improve parameters.  Doing it twice for two different ordering of
-  // the puzzle was the most effective.
-  
-  if (s > 0){
-    // This reorder is aimed to make the randomize search more likely to
-    // succeed.
-    reorder_witnesses(row_witness, s, true, true);
-    if (has_random_witness(row_witness, s, (int)pow(2,s))){
-      random_decided++;
-      random_res = true;
-      return false;
-    }
-
-    reorder_witnesses(row_witness, s, false, false);
-    if (has_random_witness(row_witness, s, (int)pow(2,s))){
-      random_decided++;
-      random_res = true;
-      return false;
-    }
-
-    
-    // This reorder is aimed to make the forward and backward search
-    // balanced.
-    reorder_witnesses(row_witness, s, true, false);
-    if (has_random_witness(row_witness, s, (int)pow(2,s))){ 
-      random_decided++;
-      random_res = true;
-      return false;
-    }
-  }
-  
-  // 2. Greedily select layer from among those with fewest edges and
-  // select an edge to put in the matching from this
-  if (has_greedy_witness(row_witness, s, (int)pow(2,s))){
-    greedy_decided++;
-    greedy_res = true;
-    return false;
-  }
-
-  if (greedy_res && !random_res)
-    greedy_better++;
-  else if (!greedy_res && random_res)
-    random_better++;
-  
-  /*
-  printf("greedy_better = %d\n",greedy_better);
-  printf("random_better = %d\n",random_better);
-  printf("skipped = %d\n", greedy_decided + random_better);
-  */
-  
-  // ^^^^^^^^^^^^^^^^^^ Heuristic Optimizations ^^^^^^^^^^^^^^^^^^^^^
-
-
-  /*
-  // Checks that all 2d matchings exist on projected faces, a
-  // necessary condition to not be a strong USP.
-  bool matching_res = !has_2d_matchings(row_witness, s);
-  if (matching_res) {
-    matching_decided++;
-    printf("matching_decided = %d\n", matching_decided);
-    return true;
-  }
-  */
-  
-  // Create two maps that will store partial witnesses of U not being
-  // a strong USP.  
-  //
-  // The membership of a set pair p = (S2, S3) in forward_memo with t
-  // = |S2| = |S3| means that there exists a 1-1 map from the first t
-  // rows of U to S2 and S3 such that hits only false entries of
-  // row_witness.  The membership of a set pair in reverse_memo is
-  // similar, but for the _last_ t rows of U.
-  //
-  // Note that the value in forward_memo is not used, but the value in
-  // reverse_memo indicates whether a witness has been found for that
-  // subproblem.
-  map<set_long,bool> forward_memo;
-  map<set_long,bool> reverse_memo;
-
-  last_layer_forward = 0;
-  size_forward = 0;
-  checks_backward = 0;
-  size_backward = 0;
-  
-  // Perform the first half of the search by filling in forward_memo
-  // for the first s/2 rows of U.
-  find_witness_forward(s, k, &forward_memo, 0, SET_ID(0L), row_witness, true);
-
-  // Perform the second half of the search by filling in reverse_memo
-  // for the second s/2 rows of U.  These partial mappings are
-  // complemented and then looked up in forward_memo to check whether
-  // they can be combined into a complete witness for U not being a
-  // strong USP.
-
-
-  
-  bool res = !find_witness_reverse(s, k, &reverse_memo, s - 1, SET_ID(0L), row_witness, true, &forward_memo);
-
-  if (matching_res && !res)
-    printf("Error: matching and full check disagree!\n");
-  assert(!(matching_res && !res));  
-
-  if (random_res && res)
-    printf("Error: random and full check disagree!\n");
-  assert(!(random_res && res));  
-  
-
-  if (greedy_res && res)
-    printf("Error: greedy and full check disagree!\n"); 
-  assert(!(greedy_res && res));
-
-  
-  //printf("Forward memo table ratio: %d / %d\n", last_layer_forward, size_forward);
-  //printf("Backward failed checks: %d / %d\n",checks_backward, size_backward);
-  
-  return res;
-  
+  return check_usp_bi_inner(row_witness, s);
   
 }
 
@@ -915,7 +860,7 @@ bool check_usp_bi(puzzle_row U[], int s, int k){
  * pi_3.  is_id indicates whether the partial assignment to this point
  * is identity for all three permutations.
  */
-void find_witness_forward(int s, int k, map<set_long,bool> * memo, int i1,
+void find_witness_forward(int s, map<set_long,bool> * memo, int i1,
 			  set_long sets, bool * row_witness, bool is_id){
 
   // Update the identity flag in sets, if the partial map is no longer
@@ -956,7 +901,7 @@ void find_witness_forward(int s, int k, map<set_long,bool> * memo, int i1,
 
       set_long sets2 = INSERT_S3(INSERT_S2(sets, i2), i3);     
       
-      find_witness_forward(s, k, memo, i1 + 1, sets2,
+      find_witness_forward(s, memo, i1 + 1, sets2,
 			   row_witness, is_id && i1 == i2 && i2 == i3);
     }
   }
@@ -978,7 +923,7 @@ void find_witness_forward(int s, int k, map<set_long,bool> * memo, int i1,
  * the memo table opposite from the forward search.  Return true iff
  * an witness that U is not a strong USP has been found.
  */
-bool find_witness_reverse(int s, int k, map<set_long,bool> * memo, int i1,
+bool find_witness_reverse(int s, map<set_long,bool> * memo, int i1,
 			  set_long sets, bool * row_witness, bool is_id, map<set_long,bool> * opposite){
   
   // Update the identity flag in sets, if the partial map is no longer
@@ -1050,7 +995,7 @@ bool find_witness_reverse(int s, int k, map<set_long,bool> * memo, int i1,
 
       set_long sets2 = INSERT_S3(INSERT_S2(sets, i2), i3);     
 
-      if (find_witness_reverse(s, k, memo, i1 - 1, sets2, row_witness,
+      if (find_witness_reverse(s, memo, i1 - 1, sets2, row_witness,
 			       is_id && i1 == i2 && i2 == i3, opposite)){
 	// We've found a witness that U is not a strong USP.  Note
 	// that we don't actually need to insert it in the memo table
@@ -1134,10 +1079,40 @@ bool check(puzzle_row U[], int s, int k){
   
   if (cache_size >= s)
     return cache_lookup(U,s,k);
-  else if (s >= 3)
-    return check_usp_bi(U,s,k);
-  else
+  else if (s < 3)
     return check_usp_uni(U,s,k);
+  else if (s < 8)
+    return check_usp_bi(U,s,k);
+  else {
+
+    int iter = s * s * s;
+    
+    bool row_witness[s * s * s];
+    for (int i = 0; i < s; i++){
+      for (int j = 0; j < s; j++){
+	for (int r = 0; r < s; r++){
+	  row_witness[i * s * s + j * s + r] = valid_combination(U[i],U[j],U[r],k);
+	}
+      }
+    }
+
+    int res = random_precheck(row_witness, s, k, iter);
+    if (res != 0)
+      return res == 1;
+
+    if (s < 10){
+      return check_usp_bi_inner(row_witness, s);
+    } else {
+
+      res = greedy_precheck(row_witness, s, iter);
+      if (res != 0)
+	return res == 1;
+
+      puzzle p;
+      p.puzzle = U;
+      return popen_simple(s, k, -1, &p);
+    }
+  }
 
 }
 

@@ -26,7 +26,7 @@ long power(int base, int exponent){
 }
 
 int coor_to_index(int row1, int row2, int row3, int maxrow){
-  return (row1-1)*power(maxrow,2) + (row2-1)*maxrow + (row3-1) + 1;
+  return (row1-1)*maxrow * maxrow + (row2-1)*maxrow + (row3-1) + 1;
 }
 
 

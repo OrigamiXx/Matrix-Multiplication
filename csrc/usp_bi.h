@@ -82,7 +82,21 @@ bool check3(puzzle_row r1, puzzle_row r2, puzzle_row r3, int k);
 bool check4(puzzle_row r1, puzzle_row r2, puzzle_row r3, puzzle_row r4, int k);
 
 
+/*
+ * Returns true iff a length-k row that permutations map to u_1, u_2,
+ * u_3, respectively, satisfies the inner condition of strong USPs.
+ * It is false if this length-k row this mapping does not witness that
+ * the puzzle is a strong USP.  Runtime is O(k).
+ */
+bool valid_combination(int u_1, int u_2, int u_3, int k);
 
+/*
+ * Heuristically precheck puzzle via random and greedy approaches
+ * Returns 1 if puzzle is a strong USP.  Returns -1 if puzzle is not a
+ * strong USP.  Returns 0 if the function has not determined the
+ * puzzle is a strong USP.
+ */
+int random_precheck(bool * row_witness, int s, int k, int iter);
 
 
 #endif

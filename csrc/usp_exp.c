@@ -131,17 +131,47 @@ int main(int argc, char * argv[]){
   int found = 0;
   for (int i = 0; i < iter ; i++){
     randomize_puzzle(p);
-    bool is_usp_bi = check_usp_bi(p -> puzzle, r, c);
-    bool is_usp_sat_method = popen_method(r, c, -1, p);
-    bool is_usp_sat_simple = popen_simple(r, c, -1, p);
-
+    bool is_usp = false;
+    //bool is_usp_sat_simple = false;
+    bool curr_found = false;
+    
+    is_usp = check(p -> puzzle, r, c);
+    curr_found = curr_found || is_usp;
+    
+    /*
+    int s = r;
+    int k = c;
+    bool row_witness[s * s * s];
+    for (int i = 0; i < s; i++){
+      for (int j = 0; j < s; j++){
+	for (int r = 0; r < s; r++){
+	  row_witness[i * s * s + j * s + r] = valid_combination(p->puzzle[i],p->puzzle[j],p->puzzle[r],k);
+	}
+      }
+    }
+    
+    int precheck_res = heuristic_precheck(row_witness,s,k, s*s*s);//(int)pow(2,s/2.0));
+    if (precheck_res != 0) {
+      curr_found = precheck_res == 1;
+      is_usp_sat_simple = curr_found;
+    } else {
+      is_usp_sat_simple = popen_simple(r, c, -1, p);
+      curr_found = curr_found || is_usp_sat_simple;
+    }
+    */
+    /*
+    if (is_usp_bi != is_usp_sat_simple){
+      printf("usp_bi() disagrees with popen_simple\n");
+    }
+    */
+    
     //printf("check_usp_bi (%d-by-%d): %d\n", r, c, is_usp);
-    if (is_usp_bi) {
+    if (curr_found) {
       //print_puzzle(p);
       //printf("\n");
       found++;
     }
-      
+    
   }
 
   printf("Found %d USP(s).\n", found);
