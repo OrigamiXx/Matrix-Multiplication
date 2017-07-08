@@ -137,6 +137,9 @@ int main(int argc, char * argv[]){
     
     is_usp = check(p -> puzzle, r, c);
     curr_found = curr_found || is_usp;
+    //assert(is_usp == check_usp_bi(p->puzzle,r,c));
+      
+    
     
     /*
     int s = r;

@@ -596,7 +596,7 @@ bool has_random_witness(bool * row_witnesses, int s, int repeats){
  * iterations.  There is no benefit to reorder_witnesses() be called
  * before this.
  */
-bool greedy_precheck(bool * row_witnesses, int s, int repeats){
+int greedy_precheck(bool * row_witnesses, int s, int repeats){
 
   //print_row_witnesses(row_witnesses, s);
   
@@ -1085,7 +1085,7 @@ bool check(puzzle_row U[], int s, int k){
     return check_usp_bi(U,s,k);
   else {
 
-    int iter = s * s * s;
+    int iter = s * s;
     
     bool row_witness[s * s * s];
     for (int i = 0; i < s; i++){
