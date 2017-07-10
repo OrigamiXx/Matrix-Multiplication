@@ -16,6 +16,7 @@
 #include <math.h>
 #include "usp_bi.h"
 #include "3DM_to_SAT.h"
+#include <time.h>
 
 
 int main(int argc, char * argv[]){
@@ -51,20 +52,34 @@ int main(int argc, char * argv[]){
   //for (i = 1; i<=givenC; i++){
   //  for (int r = 1; r <= givenR; j++){
   long checked = 0;
+  float usp_total = 0;
+  float nonusp_total = 0;
+  long usps = 0;
+  long nonusps = 0;
+  float total = 0;
+  clock_t t;
   for (index; index < power(3, i*j) -1; index+=10){
     puzzle *p;
     p = create_puzzle_from_index(j,i,index);
-    if (popen_simple(p->row, p->column,index,p) != popen_method(p->row, p->column,index,p)
-        || check_usp_bi(p->puzzle, p->row, p->column)!= popen_simple(p->row, p->column,index,p)){
-      printf("doesn't match for this case.\n");
-      print_puzzle(p);
-      break;
+    t = clock();
+    if (popen_simple(p->row, p->column,index,p)){
+      t = clock()-t;
+      usp_total = usp_total + t;
+      usps++;
+    }else {
+      t = clock() -t;
+      nonusp_total = nonusp_total + t;
+      nonusps++;
     }
     checked++;
+    total = nonusp_total + usp_total;
     destroy_puzzle(p);
   }
-  printf("%ld\n",checked);
+  printf("checked: %ld usps: %ld nonusps: %ld\n",checked, usps, nonusps);
   printf("finish checking%d by %d\n", j, i);
+  printf("usp average time: %.2f nonusps average time: %.2f \n",
+        usp_total/usps, nonusp_total/nonusps);
+  printf("total average time: %.2f\n", total/checked);
   //  }
   //}
 
