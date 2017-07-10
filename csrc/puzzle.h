@@ -1,7 +1,6 @@
 #ifndef __PUZZLE_H__
 #define __PUZZLE_H__
 
-#include "permutation.h"
 #include <string.h>
 
 //In this structure puzzle is stored in a 1D int array. In each cell,
@@ -11,7 +10,6 @@
 //data, then all the digits that are not covered will be replaced
 //with 1. So for a 4 digit row a 22 would be 1322.
 typedef struct puzzle {
-  perm * pi;
   int * puzzle;
   int row;
   int column;

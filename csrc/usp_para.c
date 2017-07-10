@@ -85,7 +85,6 @@ void extend_puzzle(uint64_t itask, char * key, int keybytes, char *value, int va
     p.row = row;
     p.column = column;
     p.puzzle = new_puz;
-    p.pi = create_perm_identity(row);
     
     percent = rand() % 100;
     //percent = 0;
@@ -98,7 +97,6 @@ void extend_puzzle(uint64_t itask, char * key, int keybytes, char *value, int va
       kv->add((char*)new_puz, row*sizeof(int), NULL, 0);
       //}
     }
-    destroy_perm(p.pi);
   }
 }
 /* ---------------------------------------------------------------------- */

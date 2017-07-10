@@ -16,7 +16,6 @@ puzzle * create_puzzle_from_puzzle(puzzle * p, int row_index){
   //int r;
   result->row = p->row+1;
   result->column = p->column;
-  result->pi = create_perm_identity(result->row);
   result->puzzle = (int *) malloc(sizeof(int *)*result->row);
   int i;
   for(i = 0; i<p->row; i++){
@@ -67,7 +66,6 @@ puzzle * create_puzzle_from_file(const char * filename){
 
   //turn the file into a puzzle
   p->row = rows;
-  p->pi = create_perm_identity(p->row);
   p->puzzle = (int *) malloc(sizeof(int *)*p->row);
   //for (r = 0; r < p->row; r++){
   //  p->puzzle[r] = (int *) malloc(sizeof(int *)*p->column);
@@ -111,7 +109,6 @@ puzzle * create_puzzle(int rows, int cols){
   // Initialize dimensions of puzzle.
   usp -> row = rows;
   usp -> column = cols;
-  usp -> pi = NULL;
   usp -> puzzle = (int *) (malloc(sizeof(int) * rows));
 
   return usp;
@@ -128,7 +125,6 @@ puzzle * create_puzzle_from_index(int row, int column, int index){
 
   p->row = row;
   p->column = column;
-  p->pi = create_perm_identity(p->row);
   p->puzzle = (int *) malloc(sizeof(int *)*p->row);
 
   int num_type_rows = 1;
@@ -249,8 +245,6 @@ void write_puzzle(puzzle * p, int index){
 
 // Deallocates a puzzle
 void destroy_puzzle(puzzle * p){
-  if (p -> pi != NULL)
-    destroy_perm(p->pi);
   //int i;
   // for (i = 0; i < p -> row; i++){
   //   free(p -> puzzle[i]);

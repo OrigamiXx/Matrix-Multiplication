@@ -24,7 +24,6 @@ puzzle * join_puzzles(puzzle * p1, puzzle * p2) {
   puzzle * res = (puzzle *) (malloc(sizeof(puzzle)));
   res -> row = r1 + r2;
   res -> column = c1 + 1;
-  res -> pi = create_perm_identity(res -> row); 
   res -> puzzle = (int *) malloc(sizeof(int *) * res -> row);
 
   for (int i = 0; i < res -> row; i++){
