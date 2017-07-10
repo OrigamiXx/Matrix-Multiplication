@@ -48,6 +48,10 @@ int get_column_from_row(int row_index, int col_index);
  */
 int set_entry_in_row(int row_index, int c, int val);
 
+// Replaces data in puzzle with an random puzzle of the same
+// dimensions.
+void randomize_puzzle(puzzle * p);
+
 int print_puzzle(puzzle * p);
 
 //Write puzzle into a file

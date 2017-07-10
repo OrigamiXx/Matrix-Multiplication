@@ -184,6 +184,23 @@ int set_entry_in_row(int row_index, int c, int val) {
   return row_index + (val - old_val) * (int)pow(3, c);
 }
 
+// Replaces data in puzzle with an random puzzle of the same
+// dimensions.
+void randomize_puzzle(puzzle * p){
+
+  int r = p -> row;
+  int c = p -> column;
+  int * puz = p -> puzzle;
+  
+  int max_row = 1;
+  for(int i = 0 ; i < c ; i++)
+    max_row = max_row * 3;
+
+  for (int i = 0 ; i < r; i++)
+    puz[i] = lrand48() % max_row;
+  
+}
+
 // print a puzzle
 int print_puzzle(puzzle * p){
   if (p != NULL){

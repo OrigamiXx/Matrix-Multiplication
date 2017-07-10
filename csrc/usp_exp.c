@@ -100,20 +100,6 @@ void explore_joint(puzzle * p1, puzzle * p2){
   
 }
 
-void randomize_puzzle(puzzle * p){
-
-  int r = p -> row;
-  int c = p -> column;
-  int * puz = p -> puzzle;
-  
-  int max_row = 1;
-  for(int i = 0 ; i < c ; i++)
-    max_row = max_row * 3;
-
-  for (int i = 0 ; i < r; i++)
-    puz[i] = lrand48() % max_row;
-  
-}
 
 int main(int argc, char * argv[]){
 

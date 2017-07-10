@@ -1076,7 +1076,7 @@ bool cache_lookup(puzzle_row U[], int s, int k){
  * otherwise.
  */
 bool check(puzzle_row U[], int s, int k){
-  
+
   if (cache_size >= s)
     return cache_lookup(U,s,k);
   else if (s < 3)
@@ -1100,6 +1100,7 @@ bool check(puzzle_row U[], int s, int k){
     if (res != 0)
       return res == 1;
 
+    
     if (s < 10){
       return check_usp_bi_inner(row_witness, s);
     } else {
@@ -1110,6 +1111,8 @@ bool check(puzzle_row U[], int s, int k){
 
       puzzle p;
       p.puzzle = U;
+      p.column = k;
+      p.row = s;
       return popen_simple(s, k, -1, &p);
     }
   }

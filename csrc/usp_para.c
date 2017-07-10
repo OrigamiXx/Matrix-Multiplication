@@ -40,6 +40,14 @@ int column;
 int row;
 int max_poss_row =1;
 
+
+void rand_usps(int itask, KeyValue *kv, void *ptr){
+
+
+
+}
+
+
 void row_one_keys(int itask, KeyValue *kv, void *ptr){
    int i, row = 1;
    /*//insert one specific puzzle
