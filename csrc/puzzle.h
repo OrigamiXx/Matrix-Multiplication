@@ -50,6 +50,9 @@ int set_entry_in_row(int row_index, int c, int val);
 // dimensions.
 void randomize_puzzle(puzzle * p);
 
+// Sorts the rows of the puzzle in increasing order.
+void sort_puzzle(puzzle * p);
+
 int print_puzzle(puzzle * p);
 
 //Write puzzle into a file

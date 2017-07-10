@@ -8,6 +8,7 @@
 #include <math.h>
 #include "matrix.h"
 #include "puzzle.h"
+#include <algorithm>
 
 //create a puzzle that has one more row and same width as the input puzzle
 // according to the given row_index
@@ -194,6 +195,13 @@ void randomize_puzzle(puzzle * p){
 
   for (int i = 0 ; i < r; i++)
     puz[i] = lrand48() % max_row;
+  
+}
+
+// Sorts the rows of the puzzle in increasing order.
+void sort_puzzle(puzzle * p){
+
+  sort(p -> puzzle, p -> puzzle + p -> row);
   
 }
 
