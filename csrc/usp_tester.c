@@ -5,16 +5,27 @@
 #include <math.h>
 #include "constants.h"
 #include <map>
-//#include "usp_bi.h"
+#include "usp_bi.h"
 
 int main(int argc, char * argv[]){
   
   //puzzle * p = create_puzzle(8,6); //6,3); // correct one (8,6)
 
-  
+  puzzle * p = create_puzzle_from_file("puzzles/test2.puz");
+  if (p == NULL) {
+    printf("File does not exist or is not properly formated.\n");
+    return -1;
+  }
+  print_puzzle(p);
 
-  //puzzle * p = create_puzzle_from_file("puzzles/test.puz");
-  //print_puzzle(p);
+  if (check(p->puzzle, p->row, p->column)){
+    printf("Strong USP.\n");
+  } else {
+    printf("Not a Strong USP.\n");
+  }
+    
+
+  
   //if(check_usp_recursive(p)){
   //int i = check_usp(p);
   //printf("hello%d\n", i);
@@ -63,13 +74,13 @@ int main(int argc, char * argv[]){
     
   //  printf("%d", check(puzzle1, givenR, givenC));
 
-  puzzle * sample;
-	sample = create_puzzle_from_index(8, 6, 10);
+  /* puzzle * sample; */
+  /* 	sample = create_puzzle_from_index(8, 6, 10); */
 	
-	print_puzzle(sample);
-	printf("%d", check_usp_recursive(sample));
-	write_puzzle(sample, 10);
-	destroy_puzzle(sample);
+  /* 	print_puzzle(sample); */
+  /* 	printf("%d", check_usp_recursive(sample)); */
+  /* 	write_puzzle(sample, 10); */
+  /* 	destroy_puzzle(sample); */
   
   return 0;
 
