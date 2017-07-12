@@ -6,8 +6,8 @@
 #include "constants.h"
 #include <map>
 #include "usp_bi.h"
+#include <time.h>
 #include "3DM_to_SAT.h"
-
 
 /*
  * Join two puzzles to form a new puzzle with one more column.
@@ -101,72 +101,222 @@ void explore_joint(puzzle * p1, puzzle * p2){
 }
 
 
-int main(int argc, char * argv[]){
+bool explore_twist(puzzle * p1, puzzle * p2) {
 
-  if (argc != 4) {
-    fprintf(stderr, "usp_exp <rows> <cols> <iter>\n");
-    return -1;
+  /*
+    +-----+x
+    |     |x
+    | p1  |x
+    |     |x
+    +-----+x
+    +----+*y
+    | p2 |*y
+    +----+*y
+
+    Assumes p2 is not wider than p1.  Try all alignments of the
+    columns of p2 with p1.  Fill in missing short column arbitrarily.
+    Add new column that distinguishes original puzzles.
+  */
+
+  puzzle * p = create_puzzle(p1 -> row + p2 -> row, p1 -> column + 1);
+  int * puz = p -> puzzle;
+  
+  int k = p1 -> column;
+  int dk = k - p2 -> column;
+  long num_arb = (long)pow(3, p2 -> row * dk);
+  assert((long)(p2 -> row) * (long)dk <= (long)19);
+  bool stop = false;
+  int count = 0;
+
+  // Copy p1 into p.
+  for (int c = 0; c < k; c++){
+    for (int r = 0; r < p1 -> row; r++){
+      puz[r] = set_entry_in_row(puz[r], c , get_column_from_row(p1 -> puzzle[r], c));      
+    }
   }
 
-  int r = atoi(argv[1]);
-  int c = atoi(argv[2]);
-  int iter = atoi(argv[3]);
-  
-  puzzle * p = create_puzzle(r, c);
+  int iter = 0;
+  for (perm * pi = create_perm_identity(k); !stop ; next_perm(pi)){
 
-  int found = 0;
-  for (int i = 0; i < iter ; i++){
-    randomize_puzzle(p);
-    bool is_usp = false;
-    //bool is_usp_sat_simple = false;
-    bool curr_found = false;
+    iter++;
+    //printf("\n%d: ", iter);
+    //print_perm_cycle(pi);
+
+    //print_puzzle(p);
     
-    is_usp = check(p -> puzzle, r, c);
-    curr_found = curr_found || is_usp;
-    //assert(is_usp == check_usp_bi(p->puzzle,r,c));
-      
-    
-    
-    /*
-    int s = r;
-    int k = c;
-    bool row_witness[s * s * s];
-    for (int i = 0; i < s; i++){
-      for (int j = 0; j < s; j++){
-	for (int r = 0; r < s; r++){
-	  row_witness[i * s * s + j * s + r] = valid_combination(p->puzzle[i],p->puzzle[j],p->puzzle[r],k);
-	}
+    // Copy p2 into p according to pi.
+    for (int c = 0; c < p2 -> column; c++){
+      for (int r = 0; r < p2 -> row; r++){
+	puz[r + p1 -> row] =
+	  set_entry_in_row(puz[r + p1 -> row], apply_perm(pi,c), get_column_from_row(p2 -> puzzle[r], c)); 
       }
     }
     
-    int precheck_res = heuristic_precheck(row_witness,s,k, s*s*s);//(int)pow(2,s/2.0));
-    if (precheck_res != 0) {
-      curr_found = precheck_res == 1;
-      is_usp_sat_simple = curr_found;
-    } else {
-      is_usp_sat_simple = popen_simple(r, c, -1, p);
-      curr_found = curr_found || is_usp_sat_simple;
+    for (int arb = 0; arb < num_arb; arb++){
+      //printf("\rarb = %d / %ld",arb, num_arb);
+      //fflush(stdout);
+
+      int i = 0;
+      for (int c = p2 -> column; c < k; c++){
+	for (int r = 0; r < p2 -> row; r++){
+	  puz[r + p1 -> row] = 
+	    set_entry_in_row(puz[r + p1 -> row], apply_perm(pi,c), get_column_from_row(arb, i));
+	  i++;
+	}
+      }
+      
+      for (int x = 1; x <= 3; x++){
+
+	for (int r = 0; r < p1 -> row; r++){
+	  puz[r] = set_entry_in_row(puz[r], k, x);
+	}
+	
+	for (int y = 1; y <= 3; y++){
+
+	  if (x == y) continue;
+	  
+	  for (int r = 0; r < p2 -> row; r++){
+	    puz[p1 -> row + r] = set_entry_in_row(puz[p1 -> row + r], k, y);
+	  }
+
+	  //if (check_row_triples(puz, p -> row, p -> column));
+	  
+	  // Puzzle p is filled.
+	  if (check(puz, p -> row, p -> column)) {
+	    //printf("Constructed a strong USP!\n");
+	    count++;
+	  }
+
+	  //print_puzzle(p);
+	  //printf("\n");
+	  
+	}
+      }
     }
-    */
-    /*
-    if (is_usp_bi != is_usp_sat_simple){
-      printf("usp_bi() disagrees with popen_simple\n");
-    }
-    */
+
+    if (is_last_perm(pi))
+      stop = true;
+  }
     
-    //printf("check_usp_bi (%d-by-%d): %d\n", r, c, is_usp);
-    if (curr_found) {
-      //print_puzzle(p);
-      //printf("\n");
-      found++;
-    }
-    
+  //printf("Constructed %d strong USPs (%d, %d)\n", count, p1 -> row + p2 -> row, k + 1);
+
+  return (count > 0);
+  
+}
+
+
+void random_usp(puzzle * p, int s, int k){
+  
+  randomize_puzzle(p);
+  while (true) {
+
+    //if (check_row_pairs(p -> puzzle, s, k)){
+    //  if (check_row_triples(p -> puzzle, s, k)){
+    if (check(p -> puzzle, s, k))
+      return;
+    //   }
+    //}
+    randomize_puzzle(p);
   }
 
-  printf("Found %d USP(s).\n", found);
+}
+  
+int main(int argc, char * argv[]){
 
-  destroy_puzzle(p);
+  if (argc != 6 && argc != 3) {
+    fprintf(stderr, "usp_construct <file1> <file2> | <s1> <k1> <s2> <k2> <iter>\n");
+    return -1;
+  }
 
+  if (argc == 3){
+    puzzle * p1 = create_puzzle_from_file(argv[1]);
+    if (p1 == NULL) {
+      fprintf(stderr, "Error: Puzzle One does not exist or is incorrectly formated.\n");
+      return -1;
+    }
+    
+    puzzle * p2 = create_puzzle_from_file(argv[2]);
+    if (p1 == NULL) {
+      fprintf(stderr, "Error: Puzzle Two does not exist or is incorrectly formated.\n");
+      return -1;
+    }
+    
+    if (!check(p1 -> puzzle, p1 -> row, p1 -> column)){
+      fprintf(stderr, "Warning: Puzzle One is not a strong USP.\n");
+    }
+    
+    if (!check(p2 -> puzzle, p2 -> row, p2 -> column)){
+      fprintf(stderr, "Warning: Puzzle Two is not a strong USP.\n");
+    }
+    
+    // Make p1 the wider of the two.
+    if (p1 -> column < p2 -> column){
+      puzzle * tmp = p1;
+      p1 = p2;
+      p2 = tmp;
+    }
+    
+    printf("Initialized.\n");
+    
+    explore_twist(p1,p2);
+    
+    printf("Completed.\n");
+    
+    destroy_puzzle(p1);
+    destroy_puzzle(p2);
+  } else if (argc == 6){
+
+    int s1 = atoi(argv[1]);
+    int k1 = atoi(argv[2]);
+    int s2 = atoi(argv[3]);
+    int k2 = atoi(argv[4]);
+    int iter = atoi(argv[5]);
+
+    if (k1 < k2){
+      int tmpk = k1;
+      int tmps = s1;
+      k1 = k2;
+      s1 = s2;
+      k2 = tmpk;
+      s2 = tmps;
+    }
+    
+    puzzle * p1 = create_puzzle(s1,k1);
+    puzzle * p2 = create_puzzle(s2,k2);
+
+    int found = 0;
+
+    /*
+    for (int r = 1; r <= 4 && r <= s1; r++)
+      init_cache(r, k1);
+    for (int r = 1; r <= 4 && r <= s2; r++)
+      init_cache(r, k2);
+    for (int r = 1; r <= 4 && r <= s1+s2; r++)
+      init_cache(r, k1+1);
+    */
+
+    srand48(time(NULL)* 997);
+    
+    for (int i = 0; i < iter; i++){
+
+      random_usp(p1, s1, k1);
+      random_usp(p2, s2, k2);
+
+      if (explore_twist(p1,p2))
+	found++;
+
+    }
+
+    printf("Found = %d / %d\n",found, iter);
+
+    destroy_puzzle(p1);
+    destroy_puzzle(p2);    
+  }
+
+  
+
+
+    
   return 0;
 
 }

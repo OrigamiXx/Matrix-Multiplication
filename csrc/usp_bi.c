@@ -1032,9 +1032,10 @@ bool find_witness_reverse(int s, map<set_long,bool> * memo, int i1,
  */
 
 // Global variables storing cache data.
-map<string,void *> * cache[5];
-int cache_size = -1;
-puzzle_row local_max_row = -1;
+int const MAX_CACHE_S = 4;
+int const MAX_CACHE_K = 20;
+map<string,void *> * cache[MAX_CACHE_S+1][MAX_CACHE_K+1];
+bool cache_valid[MAX_CACHE_S+1][MAX_CACHE_K+1];
 
 /*
  * Converts a given puzzle U with s rows into a string.
@@ -1049,22 +1050,41 @@ string U_to_string(puzzle_row U[], int s){
 
 }
 
+/*
+ * Returns whether s-by-k puzzles can be cached.
+ */
+bool can_cache(int s, int k){
+  return  (s >= 1 && s <= MAX_CACHE_S) && (k >= 1 && k <= MAX_CACHE_K);
+}
+
+/*
+ * Returns whether the cache for s-by-k has been created.
+ */
+bool is_cached(int s, int k){
+
+  if (!can_cache(s,k))
+    return false;
+
+  return (cache_valid[s][k]);
+  
+}
+
 /* 
  * Returns whether the given s-by-k puzzle U is a strong USP.  The
  * puzzle must already have been computed and stored in the cache.
  */
 bool cache_lookup(puzzle_row U[], int s, int k){
 
-  assert(s >= 1 && s <= 4);
+  assert(is_cached(s,k));
 
   // Trivally succeeds.
   if (s == 1)
     return true;
 
   // Look up and return result.
-  map<string,void*>::const_iterator iter = cache[s] -> find(U_to_string(U,s));
+  map<string,void*>::const_iterator iter = cache[s][k] -> find(U_to_string(U,s));
 
-  return (iter != cache[s] -> end());
+  return (iter != cache[s][k] -> end());
 
 }
 
@@ -1077,7 +1097,7 @@ bool cache_lookup(puzzle_row U[], int s, int k){
  */
 bool check(puzzle_row U[], int s, int k){
 
-  if (cache_size >= s)
+  if (is_cached(s,k))
     return cache_lookup(U,s,k);
   else if (s < 3)
     return check_usp_uni(U,s,k);
@@ -1100,7 +1120,6 @@ bool check(puzzle_row U[], int s, int k){
     if (res != 0)
       return res == 1;
 
-    
     if (s < 10){
       return check_usp_bi_inner(row_witness, s);
     } else {
@@ -1118,6 +1137,8 @@ bool check(puzzle_row U[], int s, int k){
   }
 
 }
+
+
 
 /* 
  * A specialized function that determines whether the given 2-by-k
@@ -1161,37 +1182,72 @@ bool check4(puzzle_row r1, puzzle_row r2, puzzle_row r3, puzzle_row r4, int k){
 
 }
 
+/* 
+ * A specialized function that determines whether any pair of rows
+ * prevent an s-by-k from being a strong USP.  Return true iff all
+ * pairs of rows are valid.
+ */
+bool check_row_pairs(puzzle_row U[], int s, int k){
+
+  for (int r1 = 0; r1 < s-1; r1++){
+    for (int r2 = r1+1; r2 < s; r2++){
+      if (!check2(U[r1],U[r2],k))
+	return false;
+    }
+  }
+  return true;
+}
+
+/* 
+ * A specialized function that determines whether any triple of rows
+ * prevent an s-by-k from being a strong USP.  Return true iff all
+ * pairs of rows are valid.
+ */
+bool check_row_triples(puzzle_row U[], int s, int k){
+
+  for (int r1 = 0; r1 < s-2; r1++){
+    for (int r2 = r1+1; r2 < s-1; r2++){
+      for (int r3 = r2+1; r3 < s; r3++){
+	if (!check3(U[r1],U[r2],U[r3],k))
+	  return false;
+      }
+    }
+  }
+  return true;
+}
+
 /*
  * Initialize the USP cache.  Precomputes whether each s-by-k puzzle
  * is a strong USP and stores the result in the cache.  Requires s <=
- * 4.
+ * 4.  Idempotent.
  */
 
-void init_cache(int k, int s){
-  
-  assert(s <= 4);
+void init_cache(int s, int k){
 
-  //printf("Creating USP cache.\n");
-
-  local_max_row = (puzzle_row)pow(3,k);
-
-  int curr_size = cache_size;
-  cache_size = -1;
-  for (int x = 2; x <= curr_size; x++){
-    delete cache[x];
+  if (!can_cache(s, k)) {
+    fprintf(stderr,"Error: Unable to make a cache of this size.\n");
+    return;
   }
 
-  puzzle_row U[4];
+  if (is_cached(s,k)) {
+    return;
+  }
+    
+  printf("Creating %d-by-%d USP cache.\n", s, k);
+
+  int max_row = (puzzle_row)pow(3,k);
+
+  puzzle_row U[MAX_CACHE_S];
 
   if (s >= 2){
     
-    cache[2] = new map<string,void *>();
+    cache[2][k] = new map<string,void *>();
     
-    for (U[0] = 0; U[0] < local_max_row; U[0]++){
-      for (U[1] = U[0]+1; U[1] < local_max_row; U[1]++){
+    for (U[0] = 0; U[0] < max_row; U[0]++){
+      for (U[1] = U[0]+1; U[1] < max_row; U[1]++){
 	if (check(U,2,k)) {
 	  //cout << "Cached USP: " << U_to_string(U,2) << endl;
-	  cache[2] -> insert(pair<string,void *>(U_to_string(U,2),NULL));
+	  cache[2][k] -> insert(pair<string,void *>(U_to_string(U,2),NULL));
 	}
       }
     }
@@ -1200,13 +1256,13 @@ void init_cache(int k, int s){
 
   if (s >= 3) {
     
-    cache[3] = new map<string,void *>();
+    cache[3][k] = new map<string,void *>();
     
-    for (U[0] = 0; U[0] < local_max_row; U[0]++){
-      for (U[1] = U[0]+1; U[1] < local_max_row; U[1]++){
-	for (U[2] = U[1]+1; U[2] < local_max_row; U[2]++){
+    for (U[0] = 0; U[0] < max_row; U[0]++){
+      for (U[1] = U[0]+1; U[1] < max_row; U[1]++){
+	for (U[2] = U[1]+1; U[2] < max_row; U[2]++){
 	  if (check(U,3,k)) {
-	    cache[3] -> insert(pair<string,void *>(U_to_string(U,3),NULL));
+	    cache[3][k] -> insert(pair<string,void *>(U_to_string(U,3),NULL));
 	  }
 	}
       }	
@@ -1215,14 +1271,14 @@ void init_cache(int k, int s){
   
   if (s >= 4){
     
-    cache[4] = new map<string,void *>();
+    cache[4][k] = new map<string,void *>();
     
-    for (U[0] = 0; U[0] < local_max_row; U[0]++){
-      for (U[1] = U[0]+1; U[1] < local_max_row; U[1]++){
-	for (U[2] = U[1]+1; U[2] < local_max_row; U[2]++){
-	  for (U[3] = U[2]+1; U[3] < local_max_row; U[3]++){
+    for (U[0] = 0; U[0] < max_row; U[0]++){
+      for (U[1] = U[0]+1; U[1] < max_row; U[1]++){
+	for (U[2] = U[1]+1; U[2] < max_row; U[2]++){
+	  for (U[3] = U[2]+1; U[3] < max_row; U[3]++){
 	    if (check(U,4,k)) {
-	      cache[4] -> insert(pair<string,void *>(U_to_string(U,4),NULL));
+	      cache[4][k] -> insert(pair<string,void *>(U_to_string(U,4),NULL));
 	    }
 	  }
 	}
@@ -1230,10 +1286,10 @@ void init_cache(int k, int s){
     }	
     
   }
-  
-  cache_size = s;
 
-  //printf("Created USP cache up to size = %d\n",cache_size);
+  cache_valid[s][k] = true;
+  printf("Created %d-by-%d USP cache.\n", s, k);
+  
   
 }
   
