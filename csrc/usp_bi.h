@@ -71,7 +71,7 @@ bool check(puzzle_row U[], int s, int k);
  * is a strong USP and stores the result in the cache.  Requires s <=
  * 4.
  */
-void init_cache(int k, int s);
+void init_cache(int s, int k);
 
 /* 
  * Several specialized functions that determine whether a puzzle U is
@@ -81,6 +81,19 @@ bool check2(puzzle_row r1, puzzle_row r2, int k);
 bool check3(puzzle_row r1, puzzle_row r2, puzzle_row r3, int k);
 bool check4(puzzle_row r1, puzzle_row r2, puzzle_row r3, puzzle_row r4, int k);
 
+/* 
+ * A specialized function that determines whether any pair of rows
+ * prevent an s-by-k from being a strong USP.  Return true iff all
+ * pairs of rows are valid.
+ */
+bool check_row_pairs(puzzle_row U[], int s, int k);
+
+/* 
+ * A specialized function that determines whether any triple of rows
+ * prevent an s-by-k from being a strong USP.  Return true iff all
+ * pairs of rows are valid.
+ */
+bool check_row_triples(puzzle_row U[], int s, int k);
 
 /*
  * Returns true iff a length-k row that permutations map to u_1, u_2,

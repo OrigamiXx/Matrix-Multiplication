@@ -33,6 +33,9 @@ puzzle * create_puzzle_from_file(const char * filename){
 
   FILE * f = fopen(filename,"r");
 
+  if (f == NULL)
+    return NULL;
+  
   char buff[256];
 
   int element;//,r;

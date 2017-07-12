@@ -45,21 +45,36 @@ void random_usps(int itask, KeyValue *kv, void *ptr){
 
   int * data = (int *)ptr;
   int count = 0;
-  int target_rows = data[0];
-  int random_rows = data[1]; // Number of rows in each random puzzle
-  int random_tries = data[2]; // Number of random puzzles to to generate
+  int target_rows = data[0];  // Number of rows in the search is targeting.
+  int random_rows = data[1];  // Number of rows in each random puzzle.
+  int random_tries = data[2]; // Number of random puzzles to to generate.
+  int me = data[3];           // Process rank.
 
+  /*
+   * Generates a number of random target_rows-by-column puzzles.
+   * Repeats until the number of puzzles where the first random_rows
+   * of the puzzle is a strong USP is random_tries.  The resulting
+   * puzzles are inserted in the KeyValue map kv for further
+   * processing.  This is _not_ a uniform distribution over all
+   * random_rows-by-column strong USPs, as it favors puzzles that are
+   * more "compact".
+   */
+  long seed = time(NULL) + me * 997;
+  printf("seed(%d) = %ld\n", me, seed);
+  srand48(seed);
   puzzle * p = create_puzzle(target_rows, column);
   while (count < random_tries){
+    
     randomize_puzzle(p);
     sort_puzzle(p);
-    //print_puzzle(p);
-    //printf("\n");
+
     if (check(p -> puzzle, random_rows, column)) {
       count++;
       kv->add((char*)p -> puzzle, random_rows*sizeof(int), NULL, 0);      
     }
+    
   }
+
   destroy_puzzle(p);
 }
 
@@ -96,7 +111,7 @@ void extend_puzzle(uint64_t itask, char * key, int keybytes, char *value, int va
   int seed = 1;
   srand(time(NULL));
   for(i = puz[row-2]; i < max_poss_row;i++){
-    new_puz[row-1] = i;
+    new_puz[row-1] = i + 1;
     //puzzle p;
     p.row = row;
     p.column = column;
@@ -160,8 +175,8 @@ int main(int narg, char **args)
     int target_rows = atoi(args[2]);
     int random_rows = atoi(args[3]);
     int random_tries = atoi(args[4]);
-    int data[3] = {target_rows, random_rows, random_tries};
-    count = mr->map(1, &random_usps, data);
+    int data[4] = {target_rows, random_rows, random_tries / nprocs, me};
+    count = mr->map(nprocs, &random_usps, data);
     if (me == 0) {
       printf("Starting with %d random (%d,%d) strong USPs.\n",count,random_rows,column);
     }

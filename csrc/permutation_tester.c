@@ -35,11 +35,11 @@ int main(){
   printf("\nThe compose of g and f is:\n");
   print_perm_tabular(compose_perm(f,g));
   printf("\nNext permutation of f:\n");
-  perm * f1 = next_perm(f);
-  print_perm_tabular(f1);
+  next_perm(f);
+  print_perm_tabular(f);
   printf("\nNext of next permutation of f:\n");
-  perm * f2 = next_perm(f1);
-  print_perm_tabular(f2);
+  next_perm(f);
+  print_perm_tabular(f);
 
   int success = true;
   if (verbose) {
@@ -53,7 +53,7 @@ int main(){
     print_perm_tabular(pi);
   }
   while (!is_last_perm(pi)){
-    pi = next_perm(pi);
+    next_perm(pi);
     i++;
     if (verbose) {
       printf("Perm #%d\n",i);

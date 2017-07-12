@@ -14,6 +14,7 @@
 #include "permutation.h"
 #include "constants.h"
 #include <math.h>
+//#include <malloc.h>
 
 // Macro for swapping contents of variables with _same_ type.
 #define SWAP(x, y)  do { (x) = (x) ^ (y);  (y) = (x) ^ (y);  (x) = (x) ^ y; } while (0)
@@ -91,6 +92,8 @@ perm * copy_perm(perm * pi){
 */
 void destroy_perm(perm * pi){
 
+  assert(pi != NULL);
+  assert(pi -> arrow != NULL);
   free(pi -> arrow);
   free(pi);
 
@@ -121,9 +124,9 @@ perm * compose_perm(perm * pi, perm * delta){
 /* 
    Mutates the given permutation into the next permutation in
    lexicographic order.  Implements Knuth's Algorithm L.  Runtime
-   O(n).
+   O(n).  Return false if pi is already the last permutation.
 */
-perm * next_perm(perm * pi){
+bool next_perm(perm * pi){
   int i, j, k, n;
   int * arrow = pi -> arrow;
   
@@ -135,20 +138,25 @@ perm * next_perm(perm * pi){
 
   i = n;
     
-  while (arrow[j] >= arrow[i])
+  while (i >= 0 && arrow[j] >= arrow[i])
     i--;
 
+  if (i < 0)
+    return false;
+
+  assert(i >= 0 && i < pi -> n && j >= 0 && j < pi -> n);
   SWAP(arrow[i], arrow[j]);
 
   k = j + 1;
   i = n;
   while (k < i){
+    assert(k >= 0 && k < pi -> n && i >= 0 && i < pi -> n);
     SWAP(arrow[k], arrow[i]);
     k++;
     i--;
   }
 
-  return pi;
+  return true;
 }
 
 /* 
