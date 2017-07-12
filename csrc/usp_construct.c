@@ -101,7 +101,7 @@ void explore_joint(puzzle * p1, puzzle * p2){
 }
 
 
-bool explore_twist(puzzle * p1, puzzle * p2) {
+int explore_twist(puzzle * p1, puzzle * p2) {
 
   /*
     +-----+x
@@ -118,104 +118,137 @@ bool explore_twist(puzzle * p1, puzzle * p2) {
     Add new column that distinguishes original puzzles.
   */
 
-  puzzle * p = create_puzzle(p1 -> row + p2 -> row, p1 -> column + 1);
-  int * puz = p -> puzzle;
+
   
-  int k = p1 -> column;
-  int dk = k - p2 -> column;
-  long num_arb = (long)pow(3, p2 -> row * dk);
-  assert((long)(p2 -> row) * (long)dk <= (long)19);
-  bool stop = false;
+  int k1 = p1 -> column;
+  int s1 = p1 -> row;
+  int k2 = p2 -> column;
+  int s2 = p2 -> row;
+  int dk = k1 - p2 -> column;
+  long num_arb = (long)pow(3, s2 * dk);
+  assert((long)s2 * (long)dk <= (long)19);
+
   int count = 0;
+  
+  puzzle * p = create_puzzle(s1 + s2, k1 + 1);
+  int * puz = p -> puzzle;
 
   // Copy p1 into p.
-  for (int c = 0; c < k; c++){
-    for (int r = 0; r < p1 -> row; r++){
-      puz[r] = set_entry_in_row(puz[r], c , get_column_from_row(p1 -> puzzle[r], c));      
+  for (int c = 0; c < k1; c++){
+    for (int r = 0; r < s1; r++){
+      puz[r] = set_entry_in_row(puz[r], c, get_column_from_row(p1 -> puzzle[r], c));      
     }
   }
 
   int iter = 0;
-  for (perm * pi = create_perm_identity(k); !stop ; next_perm(pi)){
+  perm * pi = create_perm_identity(k1);
+
+  bool stop = false;
+  for ( ; !stop ; stop = !next_perm(pi)){
 
     iter++;
     //printf("\n%d: ", iter);
     //print_perm_cycle(pi);
-
+    
     //print_puzzle(p);
     
     // Copy p2 into p according to pi.
-    for (int c = 0; c < p2 -> column; c++){
-      for (int r = 0; r < p2 -> row; r++){
-	puz[r + p1 -> row] =
-	  set_entry_in_row(puz[r + p1 -> row], apply_perm(pi,c), get_column_from_row(p2 -> puzzle[r], c)); 
+    for (int c = 0; c < k2; c++){
+      for (int r = 0; r < s2; r++){
+	puz[r + s1] =
+	  set_entry_in_row(puz[r + s1], apply_perm(pi, c), get_column_from_row(p2 -> puzzle[r], c)); 
       }
     }
     
-    for (int arb = 0; arb < num_arb; arb++){
+    //for (int arb = 0; arb < num_arb; arb++) {
+    for (int arb = 1; arb <= 3; arb++) {
+      
       //printf("\rarb = %d / %ld",arb, num_arb);
       //fflush(stdout);
-
+      
       int i = 0;
-      for (int c = p2 -> column; c < k; c++){
-	for (int r = 0; r < p2 -> row; r++){
-	  puz[r + p1 -> row] = 
-	    set_entry_in_row(puz[r + p1 -> row], apply_perm(pi,c), get_column_from_row(arb, i));
+      for (int c = k2; c < k1; c++){
+	for (int r = 0; r < s2; r++){
+	  puz[r + s1] =
+	    set_entry_in_row(puz[r + s1], apply_perm(pi,c),
+			     //			     get_column_from_row(arb, i)
+			     arb
+			     );
 	  i++;
 	}
       }
       
       for (int x = 1; x <= 3; x++){
-
-	for (int r = 0; r < p1 -> row; r++){
-	  puz[r] = set_entry_in_row(puz[r], k, x);
+	
+	for (int r = 0; r < s1; r++){
+	  puz[r] = set_entry_in_row(puz[r], k1, x);
 	}
 	
+	
 	for (int y = 1; y <= 3; y++){
-
+	  
 	  if (x == y) continue;
 	  
-	  for (int r = 0; r < p2 -> row; r++){
-	    puz[p1 -> row + r] = set_entry_in_row(puz[p1 -> row + r], k, y);
+	  for (int r = 0; r < s2; r++){
+	    puz[r + s1] = set_entry_in_row(puz[r + s1], k1, y);
 	  }
-
+	  
 	  //if (check_row_triples(puz, p -> row, p -> column));
 	  
 	  // Puzzle p is filled.
 	  if (check(puz, p -> row, p -> column)) {
 	    //printf("Constructed a strong USP!\n");
 	    count++;
+	    //print_puzzle(p);
+	    //printf("\n");
+	    destroy_perm(pi);
+	    destroy_puzzle(p);
+	    return count;
 	  }
-
-	  //print_puzzle(p);
-	  //printf("\n");
-	  
 	}
       }
     }
-
-    if (is_last_perm(pi))
-      stop = true;
   }
-    
-  //printf("Constructed %d strong USPs (%d, %d)\n", count, p1 -> row + p2 -> row, k + 1);
-
-  return (count > 0);
+  
+  //printf("Constructed %d strong USPs (%d, %d)\n", count, s1 + s2, k1 + 1);
+  destroy_perm(pi);
+  destroy_puzzle(p);
+  return count;
   
 }
 
+
+bool puzzle_has_two_column(puzzle * p){
+
+  bool found = false;
+  for (int c = 0; c < p -> column; c++){
+    int counts[3] = {0,0,0};
+    for (int r = 0; r < p -> row; r++){
+      counts[get_column_from_row(p -> puzzle[r], c) - 1]++;
+    }
+
+    int missing = (counts[0] == 0) + (counts[1] == 0) + (counts[2] == 0);
+    if (missing == 2)
+      return false;
+    if (missing == 1)
+      found = true;
+  }
+
+  return found;
+  
+}
 
 void random_usp(puzzle * p, int s, int k){
   
   randomize_puzzle(p);
   while (true) {
-
-    //if (check_row_pairs(p -> puzzle, s, k)){
-    //  if (check_row_triples(p -> puzzle, s, k)){
-    if (check(p -> puzzle, s, k))
+    
+    if (puzzle_has_two_column(p) &&
+	check(p -> puzzle, s, k)) {
+      //printf("Found %d-by-%d strong.\n", s, k);
       return;
-    //   }
-    //}
+    }
+
     randomize_puzzle(p);
   }
 
@@ -284,7 +317,7 @@ int main(int argc, char * argv[]){
     puzzle * p1 = create_puzzle(s1,k1);
     puzzle * p2 = create_puzzle(s2,k2);
 
-    int found = 0;
+
 
     /*
     for (int r = 1; r <= 4 && r <= s1; r++)
@@ -297,20 +330,27 @@ int main(int argc, char * argv[]){
 
     srand48(time(NULL)* 997);
     
+    int found = 0;
+    int total = 0;
+
     for (int i = 0; i < iter; i++){
 
       random_usp(p1, s1, k1);
       random_usp(p2, s2, k2);
 
-      if (explore_twist(p1,p2))
+      int ret = explore_twist(p1,p2);
+      total += ret;
+      if (ret > 0)
 	found++;
-
+      printf("Found = %d / %d\n", found, i+1);
+      
     }
 
-    printf("Found = %d / %d\n",found, iter);
-
-    destroy_puzzle(p1);
-    destroy_puzzle(p2);    
+    printf("Found = %d / %d\n", found, iter);
+    printf("Average count = %f \n", total / (double)iter);
+    
+    //destroy_puzzle(p1);
+    //destroy_puzzle(p2);    
   }
 
   

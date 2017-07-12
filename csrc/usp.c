@@ -154,16 +154,16 @@ int check_usp(puzzle * p){
     }
   }
   //printf("Starting check_usp\n");
-  //for (pi_1 = create_perm_identity(p->row); ; pi_1 = next_perm(pi_1)){
+  //for (pi_1 = create_perm_identity(p->row); ; next_perm(pi_1)){
   pi_1 = create_perm_identity(p->row);
   //printf("pi_1 = \n");
   //print_compact_perm(pi_1);
   //printf("\n");
-  for (pi_2 = create_perm_identity(p->row); ; pi_2 = next_perm(pi_2)){
+  for (pi_2 = create_perm_identity(p->row); ; next_perm(pi_2)){
     //printf("pi_2 = \n");
     //print_compact_perm(pi_2);
     //printf("\n");
-    for (pi_3 = create_perm_identity(p->row); ; pi_3 = next_perm(pi_3)){
+    for (pi_3 = create_perm_identity(p->row); ; next_perm(pi_3)){
       //printf("pi_3 = \n");
       //print_compact_perm(pi_3);
       //printf("\n");

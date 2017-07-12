@@ -1054,7 +1054,7 @@ string U_to_string(puzzle_row U[], int s){
  * Returns whether s-by-k puzzles can be cached.
  */
 bool can_cache(int s, int k){
-  return  (s >= 1 && s <= MAX_CACHE_S) && (k >= 1 && k <= MAX_CACHE_K);
+  return (s >= 1 && s <= MAX_CACHE_S) && (k >= 1 && k <= MAX_CACHE_K);
 }
 
 /*
@@ -1065,6 +1065,8 @@ bool is_cached(int s, int k){
   if (!can_cache(s,k))
     return false;
 
+  assert(!cache_valid[s][k]); // Triggers if cache is being accessed (which is it suppose to).
+  
   return (cache_valid[s][k]);
   
 }

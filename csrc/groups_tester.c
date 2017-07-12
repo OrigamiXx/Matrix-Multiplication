@@ -35,7 +35,7 @@ int main(int argc, char * argv[]) {
 
   print_compact_elt_H(h4);
 
-  p = next_perm(p);
+  next_perm(p);
 
 
   elt_H * h5 = apply_elt_H_new(h1,p);
@@ -75,7 +75,7 @@ int main(int argc, char * argv[]) {
 
   h1 = create_elt_H_random(U,k,m);
   p = create_perm_identity(U);
-  p = next_perm(p);
+  next_perm(p);
 
   elt_G * g1 = create_elt_G(h1,p);
   

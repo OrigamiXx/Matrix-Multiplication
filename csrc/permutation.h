@@ -84,9 +84,9 @@ perm * compose_perm(perm * pi, perm * delta);
 /* 
    Mutates the given permutation into the next permutation in
    lexicographic order.  Implements Knuth's Algorithm L.  Runtime
-   O(n).
+   O(n).  Return false if pi is already the last permutation.
 */
-perm * next_perm(perm * pi);
+bool next_perm(perm * pi);
 
 /* 
    Mutates the given permutation into its inverse.  Runtime O(n).
