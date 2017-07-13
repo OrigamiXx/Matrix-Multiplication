@@ -197,7 +197,7 @@ void randomize_puzzle(puzzle * p){
     max_row = max_row * 3;
 
   for (int i = 0 ; i < r; i++)
-    puz[i] = lrand48() % max_row;
+    puz[i] = (lrand48() * 997) % max_row;
   
 }
 
