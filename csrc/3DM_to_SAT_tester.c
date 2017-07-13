@@ -20,7 +20,7 @@
 #include <sys/time.h>
 
 int main(int argc, char * argv[]){
-  int givenR = 6;
+  int givenR = 15;
   int givenC = 6;
   // int * puzzle1 = (int *) malloc(sizeof(int *)*givenR);
   // puzzle1[0] = 279;
@@ -50,7 +50,7 @@ int main(int argc, char * argv[]){
   i = givenC;
   //j = givenR;
   //for (i = 1; i<=givenC; i++){
-    for (j = 1; j <= givenR; j++){
+    for (j = 13; j <= givenR; j++){
       long checked = 0;
       double usp_total = 0;
       double nonusp_total = 0;
@@ -77,7 +77,7 @@ int main(int argc, char * argv[]){
         //puzzle *p;
         //p = create_puzzle_from_index(j,i,index);
         clock_gettime(CLOCK_MONOTONIC, &begin);
-        if (popen_simple(p->row, p->column,index,p)){
+        if (check_usp_bi(p->puzzle,p->row,p->column)){//popen_simple(p->row, p->column,index,p)){
           clock_gettime(CLOCK_MONOTONIC, &end);
           usp_total = usp_total + ((double)end.tv_sec + 1.0e-9*end.tv_nsec) - ((double)begin.tv_sec + 1.0e-9*begin.tv_nsec);
           usps++;
@@ -93,10 +93,10 @@ int main(int argc, char * argv[]){
       }
       destroy_puzzle(p);
       printf("checked: %ld usps: %ld nonusps: %ld\n",checked, usps, nonusps);
-      printf("finish checking%d by %d\n", j, i);
-      printf("usp average time: %.4f nonusps average time: %.4f \n",
+      printf("usp average time: %.6f nonusps average time: %.6f \n",
             usp_total/usps, nonusp_total/nonusps);
-      printf("total average time: %.4f\n", total/checked);
+      printf("total average time: %.6f\n", total/checked);
+      printf("finish checking%d by %d\n", j, i);
     }
   //}
 
