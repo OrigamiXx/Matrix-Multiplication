@@ -205,7 +205,6 @@ void reduction_simple(FILE * file, int row, int column, long index, puzzle * p){
   int clauses;
   clauses = num_false_coor + 4*row*row*(row-1)/2.0 + 2*row + 1;
   fprintf(file, "p cnf %d %d\n", 2*row*row, clauses);
-
   //constraint
   for (i = 1; i<=row; i++){
     for (j = 1; j<=row; j++){
@@ -347,30 +346,19 @@ bool solver_simple(int row, int column, long index, puzzle * p){
   int x = 1;
   int y = 2;
   Solver S;
+  S.verbosity = 0;
+
   solver = &S;
   vec<Lit> lits;
   int var, lit;
   lits.clear();
-  /*for (i = 1; i<=row; i++){
-    for (j = 1; j<=row; j++){
-      for (k = 1; k<=row; k++){
-        if (check_usp_rows(i-1,j-1,k-1,p)){
-          num_false_coor++;
-        }
-      }
-    }
-  }
-
-  int clauses;
-  clauses = num_false_coor + 4*row*row*(row-1)/2.0 + 2*row + 1;
-  fprintf(file, "p cnf %d %d\n", 2*row*row, clauses);*/
-
   //constraint
   for (i = 1; i<=row; i++){
     for (j = 1; j<=row; j++){
       for (k = 1; k<=row; k++){
         if (check_usp_rows(i-1,j-1,k-1,p)){
           //fprintf(file, "-%d -%d 0\n", coor_converter(x, i, j, row), coor_converter(y, i, k, row));
+          lits.clear();
           lit = -coor_converter(x, i, j, row);
           var = coor_converter(x, i, j, row)-1;
           while (var >= S.nVars()) S.newVar();
@@ -391,6 +379,7 @@ bool solver_simple(int row, int column, long index, puzzle * p){
       for (k=1; k<=row; k++){
         if(coor_converter(x, i, j, row) < coor_converter(x, i, k, row)){
           //fprintf(file, "-%d -%d 0\n",coor_converter(x, i, j, row),coor_converter(x, i, k, row));
+          lits.clear();
           lit = -coor_converter(x, i, j, row);
           var = coor_converter(x, i, j, row)-1;
           while (var >= S.nVars()) S.newVar();
@@ -409,6 +398,7 @@ bool solver_simple(int row, int column, long index, puzzle * p){
       for (k=1; k<=row; k++){
         if(coor_converter(x, j, i, row) < coor_converter(x, k, i, row)){
           //fprintf(file, "-%d -%d 0\n",coor_converter(x, j, i, row),coor_converter(x, k, i, row));
+          lits.clear();
           lit = -coor_converter(x, j, i, row);
           var = coor_converter(x, j, i, row)-1;
           while (var >= S.nVars()) S.newVar();
@@ -428,6 +418,7 @@ bool solver_simple(int row, int column, long index, puzzle * p){
       for (k=1; k<=row; k++){
         if(coor_converter(y, i, j, row) < coor_converter(y, i, k, row)){
           //fprintf(file, "-%d -%d 0\n",coor_converter(y, i, j, row),coor_converter(y, i, k, row));
+          lits.clear();
           lit = -coor_converter(y, i, j, row);
           var = coor_converter(y, i, j, row)-1;
           while (var >= S.nVars()) S.newVar();
@@ -446,6 +437,7 @@ bool solver_simple(int row, int column, long index, puzzle * p){
       for (k=1; k<=row; k++){
         if(coor_converter(y, j, i, row) < coor_converter(y, k, i, row)){
           //fprintf(file, "-%d -%d 0\n",coor_converter(y, j, i, row),coor_converter(y, k, i, row));
+          lits.clear();
           lit = -coor_converter(y, j, i, row);
           var = coor_converter(y, j, i, row)-1;
           while (var >= S.nVars()) S.newVar();
@@ -460,6 +452,7 @@ bool solver_simple(int row, int column, long index, puzzle * p){
     }
   }
   //existence
+  lits.clear();
   for (i=1; i <= row; i++){
     for (j=1; j <= row; j++){
       //fprintf(file, "%d ", coor_converter(x, i, j, row));
@@ -470,8 +463,9 @@ bool solver_simple(int row, int column, long index, puzzle * p){
     }
     //fprintf(file, "0\n");
     S.addClause_(lits);
+    lits.clear();
   }
-
+  lits.clear();
   for (i=1; i <= row; i++){
     for (k=1; k <= row; k++){
       //fprintf(file, "%d ", coor_converter(y, i, k, row));
@@ -482,8 +476,10 @@ bool solver_simple(int row, int column, long index, puzzle * p){
     }
     //fprintf(file, "0\n");
     S.addClause_(lits);
+    lits.clear();
   }
   //diagonal 1c
+  lits.clear();
   for (i = 1; i<= row; i++){
     //fprintf(file, "-%d -%d ", coor_converter(x, i, i, row), coor_converter(y, i, i, row));
     lit = -coor_converter(x, i, i, row);
@@ -497,11 +493,18 @@ bool solver_simple(int row, int column, long index, puzzle * p){
   }
   //fprintf(file, "0\n");
   S.addClause_(lits);
+  lits.clear();
 
   if (!S.simplify()){
     return true;
   }else{
-    return false;
+    vec<Lit> dummy;
+    lbool ret = S.solveLimited(dummy);
+    if (ret == l_True){
+      return false;
+    }else if(ret == l_False){
+      return true;
+    }
   }
 
 

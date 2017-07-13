@@ -44,17 +44,21 @@ int main(int argc, char * argv[]){
   // result -> puzzle = puzzle1;
   // print_puzzle(result);
   // file_simple(givenR,givenC, get_index_from_puzzle(result),result);
-  
+
   int i, j;
+  int checked = 0;
   long index;
-  for (index=0; index<power(3,givenC*givenR-1); index++){
+  for (index=0; index<power(3,givenC*givenR)-1; index+=10){
     puzzle * p;
     p = create_puzzle_from_index(givenR,givenC, index);
-    if (check(p->puzzle,p->row,p->column)!= solver_simple(givenR, givenC, index, p)){
+    if (popen_simple(givenR,givenC,index,p)!= solver_simple(givenR, givenC, index, p)){
+      print_puzzle(p);
       printf("existing a wrong case\n");
       break;}
+    checked++;
   }
-  /*    
+  printf("checked: %d\n", checked);
+  /*
     i = givenC;
   //j = givenR;
   //for (i = 1; i<=givenC; i++){
@@ -76,7 +80,7 @@ int main(int argc, char * argv[]){
   clock_gettime(CLOCK_MONOTONIC, &end);
   printf("%.5f\n", ((double)end.tv_sec + 1.0e-9*end.tv_nsec) - ((double)start.tv_sec + 1.0e-9*start.tv_nsec));
   printf("%.5f\n", ((double) (stop-begin))/ CLOCKS_PER_SEC);*/
-      
+
   /*
   //for (index = 0; index < power(3, i*j) -1; index+=100000000000000){
       puzzle * p;
