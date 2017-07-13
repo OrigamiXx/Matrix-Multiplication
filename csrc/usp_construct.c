@@ -269,6 +269,7 @@ bool random_twist(puzzle * p, puzzle * p1, puzzle * p2, int iter){
   int dk = k1 - p2 -> column;
 
   long num_last = 6;
+  //long num_arb = 3;
   long num_arb = 3 + k2;
   //long num_arb = k2;
   //long num_arb = (long)pow(3, s2 * dk);
@@ -292,11 +293,13 @@ bool random_twist(puzzle * p, puzzle * p1, puzzle * p2, int iter){
       x = 3;
       y = (last == 4 ? 1 : 2);
     }
-
+    
     perm * pi = create_perm_identity(k1);
+    
     for (int j = 0; j < perm_id; j++)
       next_perm(pi);
-
+    
+    
     // Copy p1 into p.
     for (int c = 0; c < k1; c++){
       for (int r = 0; r < s1; r++){
@@ -316,9 +319,12 @@ bool random_twist(puzzle * p, puzzle * p1, puzzle * p2, int iter){
     for (int c = k2; c < k1; c++){
       for (int r = 0; r < s2; r++){
 	puz[r + s1] =
-	  set_entry_in_row(puz[r + s1], apply_perm(pi,c),
+	  set_entry_in_row(puz[r + s1],
+			   //k1,
+			   apply_perm(pi,c),
 			   //get_column_from_row(arb, id)
 			   (arb < 3 ? arb + 1 : get_column_from_row(p2 -> puzzle[r], arb - k2))
+			   //arb+1
 			   //get_column_from_row(p2 -> puzzle[r], arb)
 			   );
 	id++;
@@ -335,8 +341,10 @@ bool random_twist(puzzle * p, puzzle * p1, puzzle * p2, int iter){
 
     destroy_perm(pi);
 
-    if (check(puz, s, k))
-      return true;
+    if (check_row_triples(puz, s, k)){
+      if (check(puz, s, k))
+	return true;
+    }
   }
 
   return false;
@@ -388,13 +396,20 @@ void random_constructed_usp(puzzle * p, int iter){
       random_constructed_usp(p1, iter);
       random_constructed_usp(p2, iter);
 
+      if (k == 6) {
+	printf("\rstart twist: %d ",tries);
+	fflush(stdout);
+      }
+	
       found = random_twist(p, p1, p2, iter);
       tries++;
+	
     }
     if (k >= 5) {
       total += tries;
       num_done++;
-      printf("%d-by-%d: %d  average: %f\n", s, k, tries, total / (double)num_done);
+      printf("%d-by-%d: %d  average: %f ", s, k, tries, total / (double)num_done);
+      fflush(stdout);
     }
       
     destroy_puzzle(p1);
@@ -459,10 +474,11 @@ int main(int argc, char * argv[]){
 
     for (int i = 0; i < 100; i++) {
       random_constructed_usp(p, iter);
+      printf("\niteration: %d\n",i);
       print_puzzle(p);
       printf("\n");
     }
-    
+
   } else if (argc == 6){
 
     int s1 = atoi(argv[1]);
@@ -514,7 +530,7 @@ int main(int argc, char * argv[]){
 
     printf("Found = %d / %d\n", found, iter);
     printf("Average count = %f \n", total / (double)iter);
-    
+
     //destroy_puzzle(p1);
     //destroy_puzzle(p2);    
   }

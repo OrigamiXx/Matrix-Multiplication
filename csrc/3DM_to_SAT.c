@@ -24,6 +24,8 @@
 #include "core/Solver.h"
 #include "core/SolverTypes.h"
 
+using namespace Minisat;
+
 static Solver* solver;
 
 long power(int base, int exponent){

@@ -20,8 +20,8 @@
 #include <sys/time.h>
 
 int main(int argc, char * argv[]){
-  int givenR = 15;
-  int givenC = 6;
+  int givenR = 3;
+  int givenC = 3;
   // int * puzzle1 = (int *) malloc(sizeof(int *)*givenR);
   // puzzle1[0] = 279;
   // puzzle1[1]= 284;
@@ -44,10 +44,18 @@ int main(int argc, char * argv[]){
   // result -> puzzle = puzzle1;
   // print_puzzle(result);
   // file_simple(givenR,givenC, get_index_from_puzzle(result),result);
-
+  
   int i, j;
   long index;
-  i = givenC;
+  for (index=0; index<power(3,givenC*givenR-1); index++){
+    puzzle * p;
+    p = create_puzzle_from_index(givenR,givenC, index);
+    if (check(p->puzzle,p->row,p->column)!= solver_simple(givenR, givenC, index, p)){
+      printf("existing a wrong case\n");
+      break;}
+  }
+  /*    
+    i = givenC;
   //j = givenR;
   //for (i = 1; i<=givenC; i++){
     for (j = 13; j <= givenR; j++){
@@ -68,8 +76,8 @@ int main(int argc, char * argv[]){
   clock_gettime(CLOCK_MONOTONIC, &end);
   printf("%.5f\n", ((double)end.tv_sec + 1.0e-9*end.tv_nsec) - ((double)start.tv_sec + 1.0e-9*start.tv_nsec));
   printf("%.5f\n", ((double) (stop-begin))/ CLOCKS_PER_SEC);*/
-
-
+      
+  /*
   //for (index = 0; index < power(3, i*j) -1; index+=100000000000000){
       puzzle * p;
       p = create_puzzle_from_index(j,i,0);
@@ -97,7 +105,8 @@ int main(int argc, char * argv[]){
             usp_total/usps, nonusp_total/nonusps);
       printf("total average time: %.6f\n", total/checked);
       printf("finish checking%d by %d\n", j, i);
-    }
+      }
+  */
   //}
 
   // if(popen_simple(givenR, givenC, get_index_from_puzzle(result),result)){

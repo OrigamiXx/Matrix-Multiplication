@@ -16,7 +16,7 @@
 #include <iostream>
 using namespace std;
 //check the number of the usp of puzzles with same width and different height
-
+/*
 #define GCC_VERSION (__GNUC__ * 10000 \
                      + __GNUC_MINOR__ * 100 \
                      + __GNUC_PATCHLEVEL__)
@@ -70,7 +70,7 @@ int check_usp_same_col(int max_row, int column){
 }
 
 #endif
-
+*/
 
 //give a size of the puzzle check all the puzzles from 1X1 to this size
 // whether they are USPs and
