@@ -16,6 +16,17 @@
 #include <math.h>
 #include "usp_bi.h"
 
+#include <errno.h>
+#include <signal.h>
+#include "utils/System.h"
+#include "utils/ParseUtils.h"
+#include "core/Dimacs.h"
+#include "core/Solver.h"
+#include "core/SolverTypes.h"
+
+using namespace Minisat;
+
+static Solver* solver;
 
 long power(int base, int exponent){
   long result = 1;
@@ -31,7 +42,7 @@ int coor_to_index(int row1, int row2, int row3, int maxrow){
 
 
 // 3dm_to_3cnf  O(s^5) clauses
-int reduction_to_3cnf(FILE * file, int row, int column, int index, puzzle * p){
+void reduction_to_3cnf(FILE * file, int row, int column, int index, puzzle * p){
   int i, j, k, m, l;
   int num_false_coor = 0;
   int clauses;
@@ -176,7 +187,7 @@ int coor_converter(int type, int index1, int index2, int maxrow){
 }
 
 
-int reduction_simple(FILE * file, int row, int column, long index, puzzle * p){
+void reduction_simple(FILE * file, int row, int column, long index, puzzle * p){
   int i, j, k;
   int num_false_coor=0;
   int x = 1;
@@ -194,7 +205,6 @@ int reduction_simple(FILE * file, int row, int column, long index, puzzle * p){
   int clauses;
   clauses = num_false_coor + 4*row*row*(row-1)/2.0 + 2*row + 1;
   fprintf(file, "p cnf %d %d\n", 2*row*row, clauses);
-
   //constraint
   for (i = 1; i<=row; i++){
     for (j = 1; j<=row; j++){
@@ -328,4 +338,174 @@ int file_simple(int row, int column, long index, puzzle * p){
   return 0;
 }
 
+// direct interface with the solver
+// true if is UNSAT which is a USP; false OW;
+bool solver_simple(int row, int column, long index, puzzle * p){
+  int i, j, k;
+  int num_false_coor=0;
+  int x = 1;
+  int y = 2;
+  Solver S;
+  S.verbosity = 0;
 
+  solver = &S;
+  vec<Lit> lits;
+  int var, lit;
+  lits.clear();
+  //constraint
+  for (i = 1; i<=row; i++){
+    for (j = 1; j<=row; j++){
+      for (k = 1; k<=row; k++){
+        if (check_usp_rows(i-1,j-1,k-1,p)){
+          //fprintf(file, "-%d -%d 0\n", coor_converter(x, i, j, row), coor_converter(y, i, k, row));
+          lits.clear();
+          lit = -coor_converter(x, i, j, row);
+          var = coor_converter(x, i, j, row)-1;
+          while (var >= S.nVars()) S.newVar();
+          lits.push( (lit > 0) ? mkLit(var) : ~mkLit(var) );
+          lit = -coor_converter(y, i, k, row);
+          var = coor_converter(y, i, k, row)-1;
+          while (var >= S.nVars()) S.newVar();
+          lits.push( (lit > 0) ? mkLit(var) : ~mkLit(var) );
+          S.addClause_(lits);
+        }
+      }
+    }
+  }
+
+  //uniqueness
+  for (i=1; i<=row; i++){
+    for (j=1; j<=row; j++){
+      for (k=1; k<=row; k++){
+        if(coor_converter(x, i, j, row) < coor_converter(x, i, k, row)){
+          //fprintf(file, "-%d -%d 0\n",coor_converter(x, i, j, row),coor_converter(x, i, k, row));
+          lits.clear();
+          lit = -coor_converter(x, i, j, row);
+          var = coor_converter(x, i, j, row)-1;
+          while (var >= S.nVars()) S.newVar();
+          lits.push( (lit > 0) ? mkLit(var) : ~mkLit(var) );
+          lit = -coor_converter(x, i, k, row);
+          var = coor_converter(x, i, k, row)-1;
+          while (var >= S.nVars()) S.newVar();
+          lits.push( (lit > 0) ? mkLit(var) : ~mkLit(var) );
+          S.addClause_(lits);
+        }
+      }
+    }
+  }
+  for (i=1; i<=row; i++){
+    for (j=1; j<=row; j++){
+      for (k=1; k<=row; k++){
+        if(coor_converter(x, j, i, row) < coor_converter(x, k, i, row)){
+          //fprintf(file, "-%d -%d 0\n",coor_converter(x, j, i, row),coor_converter(x, k, i, row));
+          lits.clear();
+          lit = -coor_converter(x, j, i, row);
+          var = coor_converter(x, j, i, row)-1;
+          while (var >= S.nVars()) S.newVar();
+          lits.push( (lit > 0) ? mkLit(var) : ~mkLit(var) );
+          lit = -coor_converter(x, k, i, row);
+          var = coor_converter(x, k, i, row)-1;
+          while (var >= S.nVars()) S.newVar();
+          lits.push( (lit > 0) ? mkLit(var) : ~mkLit(var) );
+          S.addClause_(lits);
+        }
+      }
+    }
+  }
+
+  for (i=1; i<=row; i++){
+    for (j=1; j<=row; j++){
+      for (k=1; k<=row; k++){
+        if(coor_converter(y, i, j, row) < coor_converter(y, i, k, row)){
+          //fprintf(file, "-%d -%d 0\n",coor_converter(y, i, j, row),coor_converter(y, i, k, row));
+          lits.clear();
+          lit = -coor_converter(y, i, j, row);
+          var = coor_converter(y, i, j, row)-1;
+          while (var >= S.nVars()) S.newVar();
+          lits.push( (lit > 0) ? mkLit(var) : ~mkLit(var) );
+          lit = -coor_converter(y, i, k, row);
+          var = coor_converter(y, i, k, row)-1;
+          while (var >= S.nVars()) S.newVar();
+          lits.push( (lit > 0) ? mkLit(var) : ~mkLit(var) );
+          S.addClause_(lits);
+        }
+      }
+    }
+  }
+  for (i=1; i<=row; i++){
+    for (j=1; j<=row; j++){
+      for (k=1; k<=row; k++){
+        if(coor_converter(y, j, i, row) < coor_converter(y, k, i, row)){
+          //fprintf(file, "-%d -%d 0\n",coor_converter(y, j, i, row),coor_converter(y, k, i, row));
+          lits.clear();
+          lit = -coor_converter(y, j, i, row);
+          var = coor_converter(y, j, i, row)-1;
+          while (var >= S.nVars()) S.newVar();
+          lits.push( (lit > 0) ? mkLit(var) : ~mkLit(var) );
+          lit = -coor_converter(y, k, i, row);
+          var = coor_converter(y, k, i, row)-1;
+          while (var >= S.nVars()) S.newVar();
+          lits.push( (lit > 0) ? mkLit(var) : ~mkLit(var) );
+          S.addClause_(lits);
+        }
+      }
+    }
+  }
+  //existence
+  lits.clear();
+  for (i=1; i <= row; i++){
+    for (j=1; j <= row; j++){
+      //fprintf(file, "%d ", coor_converter(x, i, j, row));
+      lit = coor_converter(x, i, j, row);
+      var = coor_converter(x, i, j, row)-1;
+      while (var >= S.nVars()) S.newVar();
+      lits.push( (lit > 0) ? mkLit(var) : ~mkLit(var) );
+    }
+    //fprintf(file, "0\n");
+    S.addClause_(lits);
+    lits.clear();
+  }
+  lits.clear();
+  for (i=1; i <= row; i++){
+    for (k=1; k <= row; k++){
+      //fprintf(file, "%d ", coor_converter(y, i, k, row));
+      lit = coor_converter(y, i, k, row);
+      var = coor_converter(y, i, k, row)-1;
+      while (var >= S.nVars()) S.newVar();
+      lits.push( (lit > 0) ? mkLit(var) : ~mkLit(var) );
+    }
+    //fprintf(file, "0\n");
+    S.addClause_(lits);
+    lits.clear();
+  }
+  //diagonal 1c
+  lits.clear();
+  for (i = 1; i<= row; i++){
+    //fprintf(file, "-%d -%d ", coor_converter(x, i, i, row), coor_converter(y, i, i, row));
+    lit = -coor_converter(x, i, i, row);
+    var = coor_converter(x, i, i, row)-1;
+    while (var >= S.nVars()) S.newVar();
+    lits.push( (lit > 0) ? mkLit(var) : ~mkLit(var) );
+    lit = -coor_converter(y, i, i, row);
+    var = coor_converter(y, i, i, row)-1;
+    while (var >= S.nVars()) S.newVar();
+    lits.push( (lit > 0) ? mkLit(var) : ~mkLit(var) );
+  }
+  //fprintf(file, "0\n");
+  S.addClause_(lits);
+  lits.clear();
+
+  if (!S.simplify()){
+    return true;
+  }else{
+    vec<Lit> dummy;
+    lbool ret = S.solveLimited(dummy);
+    if (ret == l_True){
+      return false;
+    }else if(ret == l_False){
+      return true;
+    }
+  }
+
+
+}

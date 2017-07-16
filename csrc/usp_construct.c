@@ -147,8 +147,8 @@ int explore_twist(puzzle * p1, puzzle * p2) {
   for ( ; !stop ; stop = !next_perm(pi)){
 
     iter++;
-    //printf("\n%d: ", iter);
-    //print_perm_cycle(pi);
+    printf("\n%d: ", iter);
+    print_perm_cycle(pi);
     
     //print_puzzle(p);
     
@@ -160,19 +160,19 @@ int explore_twist(puzzle * p1, puzzle * p2) {
       }
     }
     
-    //for (int arb = 0; arb < num_arb; arb++) {
-    for (int arb = 1; arb <= 3; arb++) {
+    for (int arb = 0; arb < num_arb; arb++) {
+      //for (int arb = 1; arb <= 3; arb++) {
       
-      //printf("\rarb = %d / %ld",arb, num_arb);
-      //fflush(stdout);
+      printf("\rarb = %d / %ld",arb, num_arb);
+      fflush(stdout);
       
       int i = 0;
       for (int c = k2; c < k1; c++){
 	for (int r = 0; r < s2; r++){
 	  puz[r + s1] =
 	    set_entry_in_row(puz[r + s1], apply_perm(pi,c),
-			     //			     get_column_from_row(arb, i)
-			     arb
+			     get_column_from_row(arb, i)
+			     //arb
 			     );
 	  i++;
 	}
@@ -238,12 +238,15 @@ bool puzzle_has_two_column(puzzle * p){
   
 }
 
-void random_usp(puzzle * p, int s, int k){
+void random_usp(puzzle * p){
+
+  int s = p -> row;
+  int k = p -> column;
   
   randomize_puzzle(p);
   while (true) {
     
-    if (puzzle_has_two_column(p) &&
+    if (//puzzle_has_two_column(p) &&
 	check(p -> puzzle, s, k)) {
       //printf("Found %d-by-%d strong.\n", s, k);
       return;
@@ -253,11 +256,173 @@ void random_usp(puzzle * p, int s, int k){
   }
 
 }
+
+bool random_twist(puzzle * p, puzzle * p1, puzzle * p2, int iter){
+
+  int s = p -> row;
+  int k = p -> column;
+  int * puz = p -> puzzle;
+  int k1 = p1 -> column;
+  int s1 = p1 -> row;
+  int k2 = p2 -> column;
+  int s2 = p2 -> row;
+  int dk = k1 - p2 -> column;
+
+  long num_last = 6;
+  //long num_arb = 3;
+  long num_arb = 3 + k2;
+  //long num_arb = k2;
+  //long num_arb = (long)pow(3, s2 * dk);
+  long num_perm = 1;
+  for (int i = 1; i <= k; i++) num_perm *= i;
   
+  for (int i = 0; i < iter; i++){
+
+    long last = lrand48() % num_last;
+    long arb = lrand48() % num_arb;
+    long perm_id = lrand48() % num_perm;
+
+    int x, y;
+    if (last < 2) {
+      x = 1;
+      y = (last == 0 ? 2 : 3);
+    } else if (last < 4){
+      x = 2;
+      y = (last == 2 ? 1 : 3);
+    } else {
+      x = 3;
+      y = (last == 4 ? 1 : 2);
+    }
+    
+    perm * pi = create_perm_identity(k1);
+    
+    for (int j = 0; j < perm_id; j++)
+      next_perm(pi);
+    
+    
+    // Copy p1 into p.
+    for (int c = 0; c < k1; c++){
+      for (int r = 0; r < s1; r++){
+	puz[r] = set_entry_in_row(puz[r], c, get_column_from_row(p1 -> puzzle[r], c));      
+      }
+    }
+
+    // Copy p2 into p according to pi.
+    for (int c = 0; c < k2; c++){
+      for (int r = 0; r < s2; r++){
+	puz[r + s1] =
+	  set_entry_in_row(puz[r + s1], apply_perm(pi, c), get_column_from_row(p2 -> puzzle[r], c)); 
+      }
+    }
+
+    int id = 0;
+    for (int c = k2; c < k1; c++){
+      for (int r = 0; r < s2; r++){
+	puz[r + s1] =
+	  set_entry_in_row(puz[r + s1],
+			   //k1,
+			   apply_perm(pi,c),
+			   //get_column_from_row(arb, id)
+			   (arb < 3 ? arb + 1 : get_column_from_row(p2 -> puzzle[r], arb - k2))
+			   //arb+1
+			   //get_column_from_row(p2 -> puzzle[r], arb)
+			   );
+	id++;
+      }
+    }
+
+    for (int r = 0; r < s1; r++){
+      puz[r] = set_entry_in_row(puz[r], k1, x);
+    }
+
+    for (int r = 0; r < s2; r++){
+      puz[r + s1] = set_entry_in_row(puz[r + s1], k1, y);
+    }
+
+    destroy_perm(pi);
+
+    if (check_row_triples(puz, s, k)){
+      if (check(puz, s, k))
+	return true;
+    }
+  }
+
+  return false;
+}
+
+int total = 0;
+int num_done = 0;
+
+void random_constructed_usp(puzzle * p, int iter){
+
+  int s = p -> row;
+  int k = p -> column;
+  
+  if (s <= 2) {
+    random_usp(p);
+  } else {
+    puzzle * p1;
+    puzzle * p2;
+    int s1, s2, k1, k2;
+    if (k == 3) {
+      s1 = 2;
+      k1 = 2;
+      s2 = 1;
+      k2 = 1;
+    } else if (k == 4){
+      s1 = 3;
+      k1 = 3;
+      s2 = s - s1;
+      k2 = 2;
+    } else if (k == 5){
+      s1 = 5;
+      k1 = 4;
+      s2 = s - s1;
+      k2 = 3;
+    } else if (k == 6){
+      s1 = 8;
+      k1 = 5;
+      s2 = s - s1;
+      k2 = 4;
+    }
+    p1 = create_puzzle(s1, k1);
+    p2 = create_puzzle(s2, k2);
+    //printf("%dx%d %dx%d\n",s1,k1,s2,k2);
+    assert(p->row == p1->row + p2->row);
+
+    bool found = false;
+    int tries = 0;
+    while (!found) {
+      random_constructed_usp(p1, iter);
+      random_constructed_usp(p2, iter);
+
+      if (k == 6) {
+	printf("\rstart twist: %d ",tries);
+	fflush(stdout);
+      }
+	
+      found = random_twist(p, p1, p2, iter);
+      tries++;
+	
+    }
+    if (k >= 5) {
+      total += tries;
+      num_done++;
+      printf("%d-by-%d: %d  average: %f ", s, k, tries, total / (double)num_done);
+      fflush(stdout);
+    }
+      
+    destroy_puzzle(p1);
+    destroy_puzzle(p2);
+  }
+  
+
+}
+
 int main(int argc, char * argv[]){
 
-  if (argc != 6 && argc != 3) {
-    fprintf(stderr, "usp_construct <file1> <file2> | <s1> <k1> <s2> <k2> <iter>\n");
+  if (argc != 6 && argc != 4 && argc != 3) {
+    fprintf(stderr, "usp_construct <file1> <file2> | <s> <k> <iter> | <s1> <k1> <s2> <k2> <iter>\n");
     return -1;
   }
 
@@ -297,6 +462,23 @@ int main(int argc, char * argv[]){
     
     destroy_puzzle(p1);
     destroy_puzzle(p2);
+  } else if (argc == 4) {
+
+    int s = atoi(argv[1]);
+    int k = atoi(argv[2]);
+    int iter = atoi(argv[3]);
+
+    puzzle * p = create_puzzle(s, k);
+
+    srand48(time(NULL));
+
+    for (int i = 0; i < 100; i++) {
+      random_constructed_usp(p, iter);
+      printf("\niteration: %d\n",i);
+      print_puzzle(p);
+      printf("\n");
+    }
+
   } else if (argc == 6){
 
     int s1 = atoi(argv[1]);
@@ -328,17 +510,17 @@ int main(int argc, char * argv[]){
       init_cache(r, k1+1);
     */
 
-    srand48(time(NULL)* 997);
+    srand48(time(NULL));
     
     int found = 0;
     int total = 0;
 
     for (int i = 0; i < iter; i++){
 
-      random_usp(p1, s1, k1);
-      random_usp(p2, s2, k2);
+      random_usp(p1);
+      random_usp(p2);
 
-      int ret = explore_twist(p1,p2);
+      int ret = explore_twist(p1, p2);
       total += ret;
       if (ret > 0)
 	found++;
@@ -348,7 +530,7 @@ int main(int argc, char * argv[]){
 
     printf("Found = %d / %d\n", found, iter);
     printf("Average count = %f \n", total / (double)iter);
-    
+
     //destroy_puzzle(p1);
     //destroy_puzzle(p2);    
   }
