@@ -5,7 +5,7 @@
 
 MPICC=mpic++
 CC=g++
-CCFLAGS=-c -Wall -O3 -pg
+CCFLAGS=-c -Wall -O3 -pg -ggdb
 # Comment out line below on cluster.
 #CCFLAGS+= -std=c++11
 LDFLAGS=-lm -pg

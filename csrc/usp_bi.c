@@ -1103,9 +1103,9 @@ bool check(puzzle_row U[], int s, int k){
     return cache_lookup(U,s,k);
   else if (s < 3)
     return check_usp_uni(U,s,k);
-  else if (s < 8)
+  else if (s < 8) {
     return check_usp_bi(U,s,k);
-  else {
+  } else {
 
     int iter = s * s * s;
     
@@ -1134,7 +1134,7 @@ bool check(puzzle_row U[], int s, int k){
       p.puzzle = U;
       p.column = k;
       p.row = s;
-      return popen_simple(s, k, -1, &p);
+      return solver_simple(s, k, -1, &p);
     }
   }
 

@@ -167,11 +167,27 @@ int get_index_from_puzzle(puzzle * p){
 int get_column_from_row(int row_index, int col_index){
   int i,result = 1;
   int num_elements_in_row = 3;
+  int r = row_index;
   for(i=0; i<col_index+1; i++){
   //Seemed to me that the result isn't used in the loop. Maybe move it out?
-    result = row_index % num_elements_in_row;
-    row_index = row_index/num_elements_in_row;
+    result = r % num_elements_in_row;
+    r = r / num_elements_in_row;
   }
+  if (result < 0 || result > 2){
+    fprintf(stderr,"result = %d\n", result);
+
+    fprintf(stderr,"row_index = %d\n",row_index);
+    int i,result = 1;
+    int num_elements_in_row = 3;
+    for(i=0; i<col_index+1; i++){
+      //Seemed to me that the result isn't used in the loop. Maybe move it out?
+      result = row_index % num_elements_in_row;
+      row_index = row_index/num_elements_in_row;
+      fprintf(stderr,"%d, %d, %d\n",row_index, result, row_index);
+    }
+  }
+
+  assert(result >= 0 && result <= 2);
   return result+1;
 }
 
@@ -180,8 +196,15 @@ int get_column_from_row(int row_index, int col_index){
  */
 int set_entry_in_row(int row_index, int c, int val) {
 
+  assert(val >= 1 && val <= 3);
+  
   int old_val = get_column_from_row(row_index, c);
-  return row_index + (val - old_val) * (int)pow(3, c);
+  int ret = row_index + (val - old_val) * (int)pow(3, c);
+  if (ret < 0){
+    fprintf(stderr,"row_index = %d, val = %d, old_val = %d, c = %d, ret = %d\n",row_index, val, old_val, c, ret);
+  }
+  assert(ret >= 0);
+  return ret;
 }
 
 // Replaces data in puzzle with an random puzzle of the same
@@ -196,8 +219,10 @@ void randomize_puzzle(puzzle * p){
   for(int i = 0 ; i < c ; i++)
     max_row = max_row * 3;
 
-  for (int i = 0 ; i < r; i++)
-    puz[i] = (lrand48() * 997) % max_row;
+  for (int i = 0 ; i < r; i++) {
+    puz[i] = lrand48() % max_row;
+    assert(puz[i] >= 0);
+  }
   
 }
 
