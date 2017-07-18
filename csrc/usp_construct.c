@@ -425,10 +425,74 @@ void random_constructed_usp(puzzle * p, int iter){
 
 int const MAX_K = 10;
 
-vector<pair<puzzle *,pair<int,int> > *> * table[MAX_K+1];
+
+string puzzle_to_string(puzzle * p){
+
+  int s = p -> row;
+  
+  ostringstream oss;
+  oss << p -> puzzle[0];
+  for (int i = 1; i < s; i++)
+    oss << " " << p -> puzzle[i];
+  return oss.str();
+
+}
+
+void string_to_puzzle(puzzle * p, string str){
+
+  int s = p -> row;
+  stringstream ss(str);
+  string buf;
+  
+  for (int i = 0; i < s; i++){
+    ss >> buf;
+    p -> puzzle[i] = stoi(buf);
+  }
+
+}
 
 
-pair<puzzle *, pair<int,int> > * random_table_usp(int s, int k){
+typedef struct _puzzle_meta{
+
+  int big_fail;
+  int big_success;
+  int small_fail;
+  int small_success;
+  
+} puzzle_meta;
+
+typedef struct _puzzle_p {
+
+  int p[3]
+
+} puzzle_p;
+
+vector<puzzle_meta *> * table[MAX_K+1];
+
+puzzle_meta * create_puzzle_meta(puzzle * p){
+
+  puzzle_meta * pm = (puzzle_meta *)malloc(sizeof(puzzle_meta));
+
+  pm -> p = p;
+  pm -> big_fail = 0;
+  pm -> big_success = 0;
+  pm -> small_fail = 0;
+  pm -> small_success = 0;
+
+  return pm;
+}
+
+void destroy_puzzle_meta(puzzle_meta * pm){
+
+  if (pm != NULL) {
+    destroy_puzzle(pm -> p);
+    pm -> p = NULL;
+    free(pm);
+  }
+
+}
+
+puzzle_meta * random_table_usp(int s, int k){
 
   int ix = lrand48() % (table[k] -> size());
   return (table[k] -> at(ix));
@@ -473,19 +537,19 @@ void construct_table_usp(puzzle * p, int iter){
     while (!found) {
       tries++;
 
-      pair<puzzle *, pair<int,int> > * pair1 = random_table_usp(s1, k1);
-      pair<puzzle *, pair<int,int> > * pair2 = random_table_usp(s2, k2);
-      puzzle * p1 = pair1 -> first;
-      puzzle * p2 = pair2 -> first;
+      puzzle_meta * pm1 = random_table_usp(s1, k1);
+      puzzle_meta * pm2 = random_table_usp(s2, k2);
+      puzzle * p1 = pm1 -> p;
+      puzzle * p2 = pm2 -> p;
 
       found = random_twist(p, p1, p2, iter);
       
       if (found){
-	pair1 -> second.first++;
-	pair2 -> second.first++;
+	pm1 -> big_success++;
+	pm2 -> small_success++;
       } else {
-	pair1 -> second.second++;
-	pair2 -> second.second++;
+	pm1 -> big_fail++;
+	pm2 -> small_fail++;
       }
 
       /*
@@ -504,13 +568,14 @@ void construct_table_usp(puzzle * p, int iter){
 void populate_table(int s, int k, int count, int iter){
 
   if (table[k] == NULL)
-    table[k] = new vector<pair<puzzle *, pair<int,int> > *>();
+    table[k] = new vector<puzzle_meta *>();
 
   for (int i = 0; i < count; i++){
     puzzle * p = create_puzzle(s, k);
-    randomize_puzzle(p); 
+    randomize_puzzle(p);
+    puzzle_meta * pm = create_puzzle_meta(p);
     construct_table_usp(p, iter);
-    table[k] -> push_back(new pair<puzzle *,pair<int,int> >(p, pair<int,int>(0,0)));
+    table[k] -> push_back(pm);
     fprintf(stderr,"\r%d / %d",i,count);
     fflush(stdout);
     if (k > 5) {
@@ -523,27 +588,42 @@ void populate_table(int s, int k, int count, int iter){
 
 void print_outliers(int k){
 
+  double sig_factor = 2.0;
+  
   printf("--- k = %d ---\n",k);
 
-  double total = 0;
+  double big_total = 0;
+  double small_total = 0;
   for (int i = 0; i < table[k] -> size(); i++){
-    pair<int, int> p = (table[k] -> at(i) -> second);
-    if (p.first + p.second > 0)
-      total += p.first / (double) (p.first + p.second);
+    puzzle_meta * pm = table[k] -> at(i);
+    if (pm -> big_fail + pm -> big_success > 0)
+      big_total += pm -> big_success / (double) (pm -> big_success + pm -> big_fail);
+    if (pm -> small_fail + pm -> small_success > 0)
+      small_total += pm -> small_success / (double) (pm -> small_success + pm -> small_fail);
   }
 
-  double avg = total / (double)(table[k] -> size());
-  printf("avg = %f\n",avg);
+  int n = table[k] -> size();
+  
+  double big_avg = big_total / (double)n;
+  double small_avg = small_total / (double)n;
+  
+  printf("big_avg = %f\n",big_avg);
+  printf("small_avg = %f\n",small_avg);
   
   for (int i = 0; i < table[k] -> size(); i++){
-    puzzle * puz = table[k] -> at(i) -> first;
-    pair<int, int> p = (table[k] -> at(i) -> second);
-    if (p.first + p.second > 0) {
-      double curr_avg = p.first / (double)(p.first + p.second);
-      if (curr_avg >= 2 * avg){
-	print_puzzle(puz);
-	printf("Success: %d  Fails: %d  Avg: %f\n\n", p.first, p.second, curr_avg);
-      }
+    puzzle_meta * pm = table[k] -> at(i);
+    double curr_big_avg = -999;
+    double curr_small_avg = -999;
+    if (pm -> big_fail + pm -> big_success > 0)
+      curr_big_avg = pm -> big_success / (double)(pm -> big_success + pm -> big_fail);
+
+    if (pm -> small_fail + pm -> small_success > 0) 
+      curr_small_avg = pm -> small_success / (double)(pm -> small_success + pm -> small_fail);
+
+    if (curr_big_avg >= sig_factor * big_avg || curr_small_avg >= sig_factor * small_avg){
+      print_puzzle(pm -> p);
+      printf("^^Big Success: %6d  Fails: %6d  Avg: %8.5f\n\n", pm -> big_success, pm -> big_fail,     curr_big_avg);
+      printf("Small Success: %6d  Fails: %6d  Avg: %8.5f\n\n", pm -> small_success, pm -> small_fail, curr_small_avg);
     }
   }
   
@@ -551,8 +631,12 @@ void print_outliers(int k){
 
 void populate(int iter){
 
+  puzzle_p a;
+  map<puzzle_p,int> m;
+  m.insert(pair<puzzle_p,int>(a,7));
+  
   int ss[7] = {0, 1, 2, 3, 5, 8, 13};
-  int ns[7] = {0, 100, 400, 1200, 4000, 16000, 4000};
+  int ns[7] = {0, 100, 500, 1500, 3500, 10500, 1};
 
   for (int k = 1; k <= 6; k++){
     int n = k*k*k * 10;//100*(int) pow(3,(k+1));
