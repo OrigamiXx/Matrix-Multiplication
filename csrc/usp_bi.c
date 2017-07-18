@@ -1,4 +1,4 @@
-/* 
+/*
  * Module implementing several non-trivial methods for checking
  * whether a given puzzle is a strong USP.
  *
@@ -72,7 +72,7 @@ void print_row_witnesses(bool * row_witnesses, int s){
  * the puzzle is a strong USP.  Runtime is O(k).
  */
 bool valid_combination(int u_1, int u_2, int u_3, int k){
-  
+
   for (int i = 0; i < k; i++){
     int count = 0;
     int d1 = u_1 % 3;
@@ -81,7 +81,7 @@ bool valid_combination(int u_1, int u_2, int u_3, int k){
     u_1 = (u_1 - d1) / 3;
     u_2 = (u_2 - d2) / 3;
     u_3 = (u_3 - d3) / 3;
-    
+
     if (d1 == 0) count++;
     if (d2 == 1) count++;
     if (d3 == 2) count++;
@@ -94,14 +94,14 @@ bool valid_combination(int u_1, int u_2, int u_3, int k){
  * Checks whether the given vector pi represents the identity
  * permutation of length s.  Runtime is O(s).
  */
-bool ident(vector<int> pi, int s){ 
+bool ident(vector<int> pi, int s){
   for (int i = 0; i < s; i++){
     if (pi[i] != i) return false;
   }
   return true;
 }
 
-/* 
+/*
  * Polytime checks for row_witness properties that decide whether U is
  * a strong USP.  Return 1, if U must be a strong USP, -1 if U cannot
  * be a strong USP, and 0 if it is not determined.  Doesn't appear to
@@ -112,7 +112,7 @@ int precheck_row_witness(bool * row_witness, int s){
   bool M[s * s];
 
   int false_count = 0;
-  
+
   for (int i = 0; i < s; i++){
     for (int j = 0; j < s; j++){
       M[i * s + j] = false;
@@ -152,7 +152,7 @@ int precheck_row_witness(bool * row_witness, int s){
 
   if (!has_perfect_bipartite_matching(M, s))
     return 1;
-  
+
   return 0;
 }
 
@@ -168,7 +168,7 @@ int precheck_row_witness(bool * row_witness, int s){
  * U is a strong uniquely solvable puzzle (USP) if for all pi_1, pi_2,
  * pi_3 in Symmetric(U), either pi_1 = pi_2 = pi_3 or there exists u
  * in U and i in [k] such that exactly two of (pi_1(u))_i = 1,
- * (pi_2(u))_i = 2, and (pi_3(u))_i = 3 hold.  
+ * (pi_2(u))_i = 2, and (pi_3(u))_i = 3 hold.
  *
  * While checking this condition One can assume without loss of
  * generality that pi_1 is the identity permutation, because only the
@@ -178,7 +178,7 @@ int precheck_row_witness(bool * row_witness, int s){
  * pi_3, pi_1^-1(u), and i.
  */
 
-/* 
+/*
  *-------------------------------------------------------------
  *  Unidirectional Test
  *-------------------------------------------------------------
@@ -186,7 +186,7 @@ int precheck_row_witness(bool * row_witness, int s){
  * Determines whether the given s-by-k puzzle U is a strong USP.  Uses
  * a unidirectional algorithm that tests all permutations pi_2 and
  * pi_3 to see whether they witness that U is not a strong USP.
- *  
+ *
  * This is an alternative implementation of check_usp from usp.c.  It
  * uses c++ iterators with the built-in function next_permutation to
  * loop over all permutations.
@@ -209,13 +209,13 @@ bool check_usp_uni(puzzle_row U[], int s, int k){
 
   // Create two vectors for storing permutations over the set of s
   // rows.  pi_1 is not explicitly represented, because it will always
-  // be the identity. 
+  // be the identity.
   vector<int> pi_2(s);
   vector<int> pi_3(s);
 
   // We look for pi_2 and pi_3 that witness that U is not a strong
   // USP.
-  
+
   // Initialize pi_2 to the identity permutation.
   for (int i = 0; i < s; i++) pi_2[i] = i;
 
@@ -245,14 +245,14 @@ bool check_usp_uni(puzzle_row U[], int s, int k){
       if (!found)
 	// pi_2 and pi_3 are a witness that U is not a strong USP.
 	return false;
-    }     
+    }
   }
 
   return true;
 }
 
 
-/* 
+/*
  *=============================================================
  *
  *  Bidirectional Test
@@ -287,7 +287,7 @@ bool check_usp_uni(puzzle_row U[], int s, int k){
 
 typedef long set_long;
 
-/*  
+/*
  * All operations are implemented as compiler macros so that they are
  * as fast as possible. (Remark: Considering refactoring as c++ inline
  * functions instead of macros for robustness.)  All operations are
@@ -296,7 +296,7 @@ typedef long set_long;
 
 /*
  * Computes bitmask of an element a from {0, 1, ..., 30} into S2 or
- * S3.  
+ * S3.
  */
 #define TO_S2(a) (1L << (a))
 #define TO_S3(a) (1L << ((a) + 32))
@@ -333,14 +333,14 @@ typedef long set_long;
 /*
  * Mutators that insert an element into S2 or S3, with no effect if
  * the element is already present.
- */ 
+ */
 #define INSERT_S2(s,a) ((s) | TO_S2(a))
 #define INSERT_S3(s,a) ((s) | TO_S3(a))
 
 /*
  * Mutators that delete an element into S2 or S3, with no effect if
  * the element is not present.
- */ 
+ */
 #define DELETE_S2(s,a) ((s) & ~(TO_S2(a)))
 #define DELETE_S3(s,a) ((s) & ~(TO_S3(a)))
 
@@ -414,7 +414,7 @@ void reorder_witnesses(bool * row_witness, int s, bool increasing, bool sorted){
   for (int i = 0; i < s; i++){
     int opt_index = -1;
     int opt = increase * (s*s + 1);
-    
+
     for (int j = 0; j < s; j++){
       if (increase * layer_counts[j] < increase * opt) {
 	opt = layer_counts[j];
@@ -434,9 +434,9 @@ void reorder_witnesses(bool * row_witness, int s, bool increasing, bool sorted){
       else
 	to_index = s - (int) ((i + 1) / 2.0);
     }
-    
+
     //printf("to_index = %d, from_index = %d\n", to_index, minIndex);
-    
+
     layer_counts[opt_index] = increase * (s * s + 2);
     perm[opt_index] = to_index;
 
@@ -473,7 +473,7 @@ void reorder_witnesses(bool * row_witness, int s, bool increasing, bool sorted){
 
 /*
  * Checks whether 2d matchings occur from each of the three faces.
- * Returns true iff all of the 2d matchings are possible. 
+ * Returns true iff all of the 2d matchings are possible.
  */
 bool has_2d_matchings(bool * row_witness, int s){
 
@@ -513,8 +513,8 @@ bool has_2d_matchings(bool * row_witness, int s){
   }
 
   if (!has_perfect_bipartite_matching(M, s))
-    return false;  
-    
+    return false;
+
   return true;
 }
 
@@ -529,15 +529,15 @@ bool has_random_witness(bool * row_witnesses, int s, int repeats){
   int best = 0;
   int total = 0;
   for (int n = 0; n < repeats && !failed; n++){
-  
+
     set_long curr = CREATE_EMPTY();
     bool is_ident = true;
     for (int i = 0 ; i < s && !failed; i++){
-      
+
       int offset_j = lrand48() % s;
       int offset_k = lrand48() % s;
       bool found = false;
-      
+
       for (int j = 0 ; j < s && !found; j++){
 	int shift_j = (j + offset_j) % s;
 	if (MEMBER_S2(curr, shift_j))
@@ -555,7 +555,7 @@ bool has_random_witness(bool * row_witnesses, int s, int repeats){
 	  }
 	}
       }
-      	  
+
       if (!found) {
 	best = (best < i ? i : best);
 	total += i;
@@ -569,11 +569,11 @@ bool has_random_witness(bool * row_witnesses, int s, int repeats){
     // Not sure if this is a good heuristic stopping condition, it is
     // to prevent a lot of time being waste on small puzzle sizes.  It
     // makes longer puzzles slower.  XXX - Improve parameters.
-    if ((log(n + 1) / log(2))  > best) 
-      return false; 
+    if ((log(n + 1) / log(2))  > best)
+      return false;
     failed = false;
   }
-  
+
   //printf("best = %d\n", best);
 
   /*
@@ -581,7 +581,7 @@ bool has_random_witness(bool * row_witnesses, int s, int repeats){
     print_row_witnesses(row_witnesses, s);
   }
   */
-    
+
   return false;
 }
 
@@ -599,7 +599,7 @@ bool has_random_witness(bool * row_witnesses, int s, int repeats){
 int greedy_precheck(bool * row_witnesses, int s, int repeats){
 
   //print_row_witnesses(row_witnesses, s);
-  
+
   bool failed = false;
   int best_depth = 0;
   int total = 0;
@@ -687,7 +687,7 @@ int greedy_precheck(bool * row_witnesses, int s, int repeats){
       k--;
 
       //printf("(j, k) = (%d,%d)\n", j, k);
-      
+
       //printf("i = %d, layer = %d  %d\n", i, layer, layer_counts[layer]);
       assert(layer_counts[layer] == too_big);
       // Update layer_counts.
@@ -733,11 +733,11 @@ int greedy_precheck(bool * row_witnesses, int s, int repeats){
     // Not sure if this is a good heuristic stopping condition, it is
     // to prevent a lot of time being waste on small puzzle sizes.  It
     // makes longer puzzles slower.  XXX - Improve parameters.
-    //if ((log(n + 1) / log(2)) > best_depth) 
-    //  return false; 
+    //if ((log(n + 1) / log(2)) > best_depth)
+    //  return false;
     failed = false;
   }
-  
+
   //printf("best_length = %d\n", best_length);
 
   return 0;
@@ -770,16 +770,16 @@ int random_precheck(bool * row_witness, int s, int k, int iter){
   if (has_random_witness(row_witness, s, iter)){
     return -1;
   }
-  
+
   reorder_witnesses(row_witness, s, false, false);
   if (has_random_witness(row_witness, s, iter)){
     return -1;
   }
-   
+
   // This reorder is aimed to make the forward and backward search
   // balanced.
   reorder_witnesses(row_witness, s, true, false);
-  if (has_random_witness(row_witness, s, iter)){ 
+  if (has_random_witness(row_witness, s, iter)){
     return -1;
   }
 
@@ -790,7 +790,7 @@ int random_precheck(bool * row_witness, int s, int k, int iter){
 bool check_usp_bi_inner(bool * row_witness, int s){
 
  // Create two maps that will store partial witnesses of U not being
-  // a strong USP.  
+  // a strong USP.
   //
   // The membership of a set pair p = (S2, S3) in forward_memo with t
   // = |S2| = |S3| means that there exists a 1-1 map from the first t
@@ -809,7 +809,7 @@ bool check_usp_bi_inner(bool * row_witness, int s){
   size_forward = 0;
   checks_backward = 0;
   size_backward = 0;
-  
+
   // Perform the first half of the search by filling in forward_memo
   // for the first s/2 rows of U.
   find_witness_forward(s, &forward_memo, 0, SET_ID(0L), row_witness, true);
@@ -819,14 +819,14 @@ bool check_usp_bi_inner(bool * row_witness, int s){
   // complemented and then looked up in forward_memo to check whether
   // they can be combined into a complete witness for U not being a
   // strong USP.
-  
+
   bool res = !find_witness_reverse(s, &reverse_memo, s - 1, SET_ID(0L), row_witness, true, &forward_memo);
-  
+
   return res;
-  
+
 }
 
-/* 
+/*
  * Determines whether the given s-by-k puzzle U is a strong USP.  Uses
  * a bidirectional algorithm.
  */
@@ -850,7 +850,7 @@ bool check_usp_bi(puzzle_row U[], int s, int k){
   }
 
   return check_usp_bi_inner(row_witness, s);
-  
+
 }
 
 /*
@@ -865,7 +865,7 @@ void find_witness_forward(int s, map<set_long,bool> * memo, int i1,
 
   // Update the identity flag in sets, if the partial map is no longer
   // consistent with identity on all permutations.
-  if (!is_id)  
+  if (!is_id)
     sets = UNSET_ID(sets);
 
   // Base Case 1: Look to see whether we're already computed and
@@ -891,16 +891,16 @@ void find_witness_forward(int s, map<set_long,bool> * memo, int i1,
   // subproblem that results from inserting i2 and i3 into sets,
   // incrementing i1, and updating the identity flag.
   for (int i2 = 0; i2 < s; i2++){
-    if (MEMBER_S2(sets,i2)) 
+    if (MEMBER_S2(sets,i2))
       continue;
     for (int i3 = 0; i3 < s; i3++){
-      if (MEMBER_S3(sets,i3)) 
+      if (MEMBER_S3(sets,i3))
 	continue;
-      if (row_witness[i1 * s * s + i2 * s + i3] == true) 
+      if (row_witness[i1 * s * s + i2 * s + i3] == true)
 	continue;
 
-      set_long sets2 = INSERT_S3(INSERT_S2(sets, i2), i3);     
-      
+      set_long sets2 = INSERT_S3(INSERT_S2(sets, i2), i3);
+
       find_witness_forward(s, memo, i1 + 1, sets2,
 			   row_witness, is_id && i1 == i2 && i2 == i3);
     }
@@ -925,12 +925,12 @@ void find_witness_forward(int s, map<set_long,bool> * memo, int i1,
  */
 bool find_witness_reverse(int s, map<set_long,bool> * memo, int i1,
 			  set_long sets, bool * row_witness, bool is_id, map<set_long,bool> * opposite){
-  
+
   // Update the identity flag in sets, if the partial map is no longer
   // consistent with identity on all permutations.
-  if (!is_id) 
+  if (!is_id)
     sets = UNSET_ID(sets);
-  
+
   // Base Case 1: Look to see whether we're already computed and
   // stored this answer in the memo table.  If so, return that answer.
   map<set_long,bool>::const_iterator iter = memo -> find(sets);
@@ -942,7 +942,7 @@ bool find_witness_reverse(int s, map<set_long,bool> * memo, int i1,
   // in the opposite table to form a complete witness.  If sets was
   // produced by identities, then the complement cannot be an identity
   // and still be a witness, because strong USP ignores the case that
-  // all permutations are the same.  
+  // all permutations are the same.
   if (i1 < (int)(floorf((s - 1) / 2.0))) {
 
     set_long sets_comp = COMPLEMENT(sets,s);
@@ -953,10 +953,10 @@ bool find_witness_reverse(int s, map<set_long,bool> * memo, int i1,
       sets_comp = UNSET_ID(sets_comp);
     } else {
       // If sets is not identity, it pair with either identities or non-identites.
-      iter = opposite -> find(sets_comp);      
+      iter = opposite -> find(sets_comp);
       if (iter != opposite -> end()){
 	found_pair = true;
-      }     
+      }
       sets_comp = SET_ID(sets_comp);
     }
 
@@ -975,7 +975,7 @@ bool find_witness_reverse(int s, map<set_long,bool> * memo, int i1,
     if (!found_pair)
       checks_backward++;
     size_backward++;
-    
+
     return found_pair;
   }
 
@@ -985,15 +985,15 @@ bool find_witness_reverse(int s, map<set_long,bool> * memo, int i1,
   // subproblem that results from inserting i2 and i3 into sets,
   // incrementing i1, and updating the identity flag.
   for (int i2 = 0; i2 < s; i2++){
-    if (MEMBER_S2(sets, i2)) 
+    if (MEMBER_S2(sets, i2))
       continue;
     for (int i3 = 0; i3 < s; i3++){
-      if (MEMBER_S3(sets, i3)) 
+      if (MEMBER_S3(sets, i3))
 	continue;
-      if (row_witness[i1 * s * s + i2 * s + i3] == true) 
+      if (row_witness[i1 * s * s + i2 * s + i3] == true)
 	continue;
 
-      set_long sets2 = INSERT_S3(INSERT_S2(sets, i2), i3);     
+      set_long sets2 = INSERT_S3(INSERT_S2(sets, i2), i3);
 
       if (find_witness_reverse(s, memo, i1 - 1, sets2, row_witness,
 			       is_id && i1 == i2 && i2 == i3, opposite)){
@@ -1004,7 +1004,7 @@ bool find_witness_reverse(int s, map<set_long,bool> * memo, int i1,
 	memo -> insert(pair<set_long,bool>(sets, true));
 	size_backward++;
 	return true;
-	
+
       }
     }
   }
@@ -1014,12 +1014,12 @@ bool find_witness_reverse(int s, map<set_long,bool> * memo, int i1,
   memo -> insert(pair<set_long,bool>(sets,false));
   size_backward++;
   return false;
-  
+
 }
 
 
 
-/* 
+/*
  *=============================================================
  *
  *  Caching
@@ -1066,12 +1066,12 @@ bool is_cached(int s, int k){
     return false;
 
   assert(!cache_valid[s][k]); // Triggers if cache is being accessed (which is it suppose to).
-  
+
   return (cache_valid[s][k]);
-  
+
 }
 
-/* 
+/*
  * Returns whether the given s-by-k puzzle U is a strong USP.  The
  * puzzle must already have been computed and stored in the cache.
  */
@@ -1090,7 +1090,7 @@ bool cache_lookup(puzzle_row U[], int s, int k){
 
 }
 
-/* 
+/*
  * Determines whether the given s-by-k puzzle U is a strong USP.
  * Tries to pick the most efficient method.  Uses cache if present;
  * call init_cache() to use this feature).  Uses the bidirectional
@@ -1108,13 +1108,13 @@ bool check(puzzle_row U[], int s, int k){
   else {
 
     int iter = s * s * s;
-    
+
     bool row_witness[s * s * s];
     for (int i = 0; i < s; i++){
       for (int j = 0; j < s; j++){
-	for (int r = 0; r < s; r++){
-	  row_witness[i * s * s + j * s + r] = valid_combination(U[i],U[j],U[r],k);
-	}
+	       for (int r = 0; r < s; r++){
+	          row_witness[i * s * s + j * s + r] = valid_combination(U[i],U[j],U[r],k);
+	       }
       }
     }
 
@@ -1142,7 +1142,7 @@ bool check(puzzle_row U[], int s, int k){
 
 
 
-/* 
+/*
  * A specialized function that determines whether the given 2-by-k
  * puzzle U is a strong USP.
  */
@@ -1155,7 +1155,7 @@ bool check2(puzzle_row r1, puzzle_row r2, int k){
 
 }
 
-/* 
+/*
  * A specialized function that determines whether the given 3-by-k
  * puzzle U is a strong USP.
  */
@@ -1166,15 +1166,15 @@ bool check3(puzzle_row r1, puzzle_row r2, puzzle_row r3, int k){
   U[1] = r2;
   U[2] = r3;
   return check(U,3,k);
-  
+
 }
 
-/* 
+/*
  * A specialized function that determines whether the given 4-by-k
  * puzzle U is a strong USP.
  */
 bool check4(puzzle_row r1, puzzle_row r2, puzzle_row r3, puzzle_row r4, int k){
-  
+
   puzzle_row U[4];
   U[0] = r1;
   U[1] = r2;
@@ -1184,7 +1184,7 @@ bool check4(puzzle_row r1, puzzle_row r2, puzzle_row r3, puzzle_row r4, int k){
 
 }
 
-/* 
+/*
  * A specialized function that determines whether any pair of rows
  * prevent an s-by-k from being a strong USP.  Return true iff all
  * pairs of rows are valid.
@@ -1200,7 +1200,7 @@ bool check_row_pairs(puzzle_row U[], int s, int k){
   return true;
 }
 
-/* 
+/*
  * A specialized function that determines whether any triple of rows
  * prevent an s-by-k from being a strong USP.  Return true iff all
  * pairs of rows are valid.
@@ -1234,7 +1234,7 @@ void init_cache(int s, int k){
   if (is_cached(s,k)) {
     return;
   }
-    
+
   printf("Creating %d-by-%d USP cache.\n", s, k);
 
   int max_row = (puzzle_row)pow(3,k);
@@ -1242,9 +1242,9 @@ void init_cache(int s, int k){
   puzzle_row U[MAX_CACHE_S];
 
   if (s >= 2){
-    
+
     cache[2][k] = new map<string,void *>();
-    
+
     for (U[0] = 0; U[0] < max_row; U[0]++){
       for (U[1] = U[0]+1; U[1] < max_row; U[1]++){
 	if (check(U,2,k)) {
@@ -1253,13 +1253,13 @@ void init_cache(int s, int k){
 	}
       }
     }
-    
-  } 
+
+  }
 
   if (s >= 3) {
-    
+
     cache[3][k] = new map<string,void *>();
-    
+
     for (U[0] = 0; U[0] < max_row; U[0]++){
       for (U[1] = U[0]+1; U[1] < max_row; U[1]++){
 	for (U[2] = U[1]+1; U[2] < max_row; U[2]++){
@@ -1267,14 +1267,14 @@ void init_cache(int s, int k){
 	    cache[3][k] -> insert(pair<string,void *>(U_to_string(U,3),NULL));
 	  }
 	}
-      }	
+      }
     }
   }
-  
+
   if (s >= 4){
-    
+
     cache[4][k] = new map<string,void *>();
-    
+
     for (U[0] = 0; U[0] < max_row; U[0]++){
       for (U[1] = U[0]+1; U[1] < max_row; U[1]++){
 	for (U[2] = U[1]+1; U[2] < max_row; U[2]++){
@@ -1285,13 +1285,12 @@ void init_cache(int s, int k){
 	  }
 	}
       }
-    }	
-    
+    }
+
   }
 
   cache_valid[s][k] = true;
   printf("Created %d-by-%d USP cache.\n", s, k);
-  
-  
+
+
 }
-  
