@@ -8,6 +8,9 @@
 #include "usp_bi.h"
 #include <time.h>
 #include "3DM_to_SAT.h"
+#include <vector>
+
+using namespace std;
 
 /*
  * Join two puzzles to form a new puzzle with one more column.
@@ -258,7 +261,7 @@ void random_usp(puzzle * p){
 }
 
 bool random_twist(puzzle * p, puzzle * p1, puzzle * p2, int iter){
-
+  
   int s = p -> row;
   int k = p -> column;
   int * puz = p -> puzzle;
@@ -268,19 +271,19 @@ bool random_twist(puzzle * p, puzzle * p1, puzzle * p2, int iter){
   int s2 = p2 -> row;
   int dk = k1 - p2 -> column;
 
-  long num_last = 6;
-  //long num_arb = 3;
-  long num_arb = 3 + k2;
-  //long num_arb = k2;
-  //long num_arb = (long)pow(3, s2 * dk);
-  long num_perm = 1;
+  int num_last = 6;
+  //int num_arb = 3;
+  int num_arb = 3 + k2;
+  //int num_arb = k2;
+  //int num_arb = (long)pow(3, s2 * dk);
+  int num_perm = 1;
   for (int i = 1; i <= k; i++) num_perm *= i;
   
   for (int i = 0; i < iter; i++){
 
-    long last = lrand48() % num_last;
-    long arb = lrand48() % num_arb;
-    long perm_id = lrand48() % num_perm;
+    int last = lrand48() % num_last;
+    int arb = lrand48() % num_arb;
+    int perm_id = lrand48() % num_perm;
 
     int x, y;
     if (last < 2) {
@@ -295,15 +298,15 @@ bool random_twist(puzzle * p, puzzle * p1, puzzle * p2, int iter){
     }
     
     perm * pi = create_perm_identity(k1);
-    
+
     for (int j = 0; j < perm_id; j++)
       next_perm(pi);
-    
+
     
     // Copy p1 into p.
     for (int c = 0; c < k1; c++){
       for (int r = 0; r < s1; r++){
-	puz[r] = set_entry_in_row(puz[r], c, get_column_from_row(p1 -> puzzle[r], c));      
+	puz[r] = set_entry_in_row(puz[r], c, get_column_from_row(p1 -> puzzle[r], c));
       }
     }
 
@@ -311,7 +314,7 @@ bool random_twist(puzzle * p, puzzle * p1, puzzle * p2, int iter){
     for (int c = 0; c < k2; c++){
       for (int r = 0; r < s2; r++){
 	puz[r + s1] =
-	  set_entry_in_row(puz[r + s1], apply_perm(pi, c), get_column_from_row(p2 -> puzzle[r], c)); 
+	  set_entry_in_row(puz[r + s1], apply_perm(pi, c), get_column_from_row(p2 -> puzzle[r], c));
       }
     }
 
@@ -346,7 +349,7 @@ bool random_twist(puzzle * p, puzzle * p1, puzzle * p2, int iter){
 	return true;
     }
   }
-
+  
   return false;
 }
 
@@ -390,9 +393,11 @@ void random_constructed_usp(puzzle * p, int iter){
     //printf("%dx%d %dx%d\n",s1,k1,s2,k2);
     assert(p->row == p1->row + p2->row);
 
+    
     bool found = false;
     int tries = 0;
     while (!found) {
+      
       random_constructed_usp(p1, iter);
       random_constructed_usp(p2, iter);
 
@@ -416,17 +421,165 @@ void random_constructed_usp(puzzle * p, int iter){
     destroy_puzzle(p2);
   }
   
+}
 
+int const MAX_K = 10;
+
+vector<pair<puzzle *,pair<int,int> > *> * table[MAX_K+1];
+
+
+pair<puzzle *, pair<int,int> > * random_table_usp(int s, int k){
+
+  int ix = lrand48() % (table[k] -> size());
+  return (table[k] -> at(ix));
+  
+}
+
+void construct_table_usp(puzzle * p, int iter){
+
+  int s = p -> row;
+  int k = p -> column;
+  
+  if (s <= 2) {
+    random_usp(p);
+  } else {
+    puzzle * p1;
+    puzzle * p2;
+    int s1, s2, k1, k2;
+    if (k == 3) {
+      s1 = 2;
+      k1 = 2;
+      s2 = 1;
+      k2 = 1;
+    } else if (k == 4){
+      s1 = 3;
+      k1 = 3;
+      s2 = s - s1;
+      k2 = 2;
+    } else if (k == 5){
+      s1 = 5;
+      k1 = 4;
+      s2 = s - s1;
+      k2 = 3;
+    } else if (k == 6){
+      s1 = 8;
+      k1 = 5;
+      s2 = s - s1;
+      k2 = 4;
+    }
+
+    bool found = false;
+    int tries = 0;
+    while (!found) {
+      tries++;
+
+      pair<puzzle *, pair<int,int> > * pair1 = random_table_usp(s1, k1);
+      pair<puzzle *, pair<int,int> > * pair2 = random_table_usp(s2, k2);
+      puzzle * p1 = pair1 -> first;
+      puzzle * p2 = pair2 -> first;
+
+      found = random_twist(p, p1, p2, iter);
+      
+      if (found){
+	pair1 -> second.first++;
+	pair2 -> second.first++;
+      } else {
+	pair1 -> second.second++;
+	pair2 -> second.second++;
+      }
+
+      /*
+      if (k >= 6) {
+	fprintf(stderr,"\rtries: %d", tries);
+	fflush(stdout);
+      }
+      */
+    }
+
+  }
+  
+}
+
+
+void populate_table(int s, int k, int count, int iter){
+
+  if (table[k] == NULL)
+    table[k] = new vector<pair<puzzle *, pair<int,int> > *>();
+
+  for (int i = 0; i < count; i++){
+    puzzle * p = create_puzzle(s, k);
+    randomize_puzzle(p); 
+    construct_table_usp(p, iter);
+    table[k] -> push_back(new pair<puzzle *,pair<int,int> >(p, pair<int,int>(0,0)));
+    fprintf(stderr,"\r%d / %d",i,count);
+    fflush(stdout);
+    if (k > 5) {
+      print_puzzle(p);
+      printf("\n");
+    }
+  }
+
+}
+
+void print_outliers(int k){
+
+  printf("--- k = %d ---\n",k);
+
+  double total = 0;
+  for (int i = 0; i < table[k] -> size(); i++){
+    pair<int, int> p = (table[k] -> at(i) -> second);
+    if (p.first + p.second > 0)
+      total += p.first / (double) (p.first + p.second);
+  }
+
+  double avg = total / (double)(table[k] -> size());
+  printf("avg = %f\n",avg);
+  
+  for (int i = 0; i < table[k] -> size(); i++){
+    puzzle * puz = table[k] -> at(i) -> first;
+    pair<int, int> p = (table[k] -> at(i) -> second);
+    if (p.first + p.second > 0) {
+      double curr_avg = p.first / (double)(p.first + p.second);
+      if (curr_avg >= 2 * avg){
+	print_puzzle(puz);
+	printf("Success: %d  Fails: %d  Avg: %f\n\n", p.first, p.second, curr_avg);
+      }
+    }
+  }
+  
+}
+
+void populate(int iter){
+
+  int ss[7] = {0, 1, 2, 3, 5, 8, 13};
+  int ns[7] = {0, 100, 400, 1200, 4000, 16000, 4000};
+
+  for (int k = 1; k <= 6; k++){
+    int n = k*k*k * 10;//100*(int) pow(3,(k+1));
+    populate_table(ss[k], k, ns[k], iter);
+    fprintf(stderr,"\rCreated ss[%d] = %d USPs\n",k, ns[k]);
+  }
 }
 
 int main(int argc, char * argv[]){
 
-  if (argc != 6 && argc != 4 && argc != 3) {
-    fprintf(stderr, "usp_construct <file1> <file2> | <s> <k> <iter> | <s1> <k1> <s2> <k2> <iter>\n");
+  if (argc != 6 && argc != 4 && argc != 3 && argc != 1) {
+    fprintf(stderr, "usp_construct [<file1> <file2> | <s> <k> <iter> | <s1> <k1> <s2> <k2> <iter>]\n");
     return -1;
   }
 
-  if (argc == 3){
+  if (argc == 1){
+
+    //srand48(time(NULL));
+    populate(50);
+
+    print_outliers(1);
+    print_outliers(2);
+    print_outliers(3);
+    print_outliers(4);
+    print_outliers(5);
+
+  } else if (argc == 3){
     puzzle * p1 = create_puzzle_from_file(argv[1]);
     if (p1 == NULL) {
       fprintf(stderr, "Error: Puzzle One does not exist or is incorrectly formated.\n");
