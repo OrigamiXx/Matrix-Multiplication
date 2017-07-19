@@ -50,6 +50,11 @@ int set_entry_in_row(int row_index, int c, int val);
 // dimensions.
 void randomize_puzzle(puzzle * p);
 
+// Sets the given puzzle p to a random strong USP of the same size.
+// May not return if a strong USP of the given size does not exist.
+// Is likely very slow except for small puzzle sizes.
+void random_usp(puzzle * p);
+
 // Sorts the rows of the puzzle in increasing order.
 void sort_puzzle(puzzle * p);
 

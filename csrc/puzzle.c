@@ -9,6 +9,7 @@
 #include "matrix.h"
 #include "puzzle.h"
 #include <algorithm>
+#include "usp_bi.h"
 
 //create a puzzle that has one more row and same width as the input puzzle
 // according to the given row_index
@@ -115,6 +116,8 @@ puzzle * create_puzzle(int rows, int cols){
   usp -> column = cols;
   usp -> puzzle = (int *) (malloc(sizeof(int) * rows));
 
+  bzero(usp->puzzle, sizeof(int) * rows);
+  
   return usp;
 }
 
@@ -224,6 +227,25 @@ void randomize_puzzle(puzzle * p){
     assert(puz[i] >= 0);
   }
   
+}
+
+// Sets the given puzzle p to a random strong USP of the same size.
+// May not return if a strong USP of the given size does not exist.
+// Is likely very slow except for small puzzle sizes.
+void random_usp(puzzle * p){
+
+  int s = p -> row;
+  int k = p -> column;
+  
+  randomize_puzzle(p);
+  while (true) {
+    
+    if (check(p -> puzzle, s, k)) {
+      return;
+    }
+    randomize_puzzle(p);
+  }
+
 }
 
 // Sorts the rows of the puzzle in increasing order.
