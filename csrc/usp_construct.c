@@ -225,9 +225,9 @@ int explore_twist(puzzle * p1, puzzle * p2) {
 }
 
 
-bool puzzle_has_two_column(puzzle * p){
+bool puzzle_has_at_least_n_two_columns(puzzle * p, int n){
 
-  bool found = false;
+  int found = 0;
   for (int c = 0; c < p -> column; c++){
     int counts[3] = {0,0,0};
     for (int r = 0; r < p -> row; r++){
@@ -235,13 +235,11 @@ bool puzzle_has_two_column(puzzle * p){
     }
 
     int missing = (counts[0] == 0) + (counts[1] == 0) + (counts[2] == 0);
-    if (missing == 2)
-      return false;
     if (missing == 1)
-      found = true;
+      found++;
   }
 
-  return found;
+  return found >= n;
   
 }
 
@@ -266,14 +264,17 @@ void random_usp(puzzle * p){
 
 
 int const PERM_MODE =
-  //   0; // No permutation of p2.
-  1; // Permutes p2.
+  //  0; // Tries only identity permutation of p2 + extra -- not very effective.
+  1; // Tries all permutations of p2 + extra.
+  //2; // Tries only (0 1 2 ... k-1) of p2 + extra -- not very effective.
 
 int const ARB_MODE =
-  //  0; // Constant col
+  //0; // Constant col
   //1; // Duplicate col
   2; // Constant col or duplicate col
-//3; // Arbitrary
+  //3; // Arbitrary
+
+int const N_SPECIAL_COLS = 3;  // Any number <= 3 should be ok, > 3 will fail.
 
 
 void compute_twist_params(puzzle * p, puzzle *p1, puzzle *p2, int *num_last, int *num_arb, int *num_perm){
@@ -340,7 +341,9 @@ bool apply_twist(puzzle * p, puzzle * p1, puzzle * p2, int last, int arb, int pe
   for (int c = 0; c < k2; c++){
     for (int r = 0; r < s2; r++){
       puz[r + s1] =
-	set_entry_in_row(puz[r + s1], apply_perm(pi, c), get_column_from_row(p2 -> puzzle[r], c));
+	set_entry_in_row(puz[r + s1],
+			 (PERM_MODE != 2 ? apply_perm(pi, c) : (c + 1) % k1),
+			 get_column_from_row(p2 -> puzzle[r], c));
     }
   }
   
@@ -348,7 +351,8 @@ bool apply_twist(puzzle * p, puzzle * p1, puzzle * p2, int last, int arb, int pe
   for (int c = k2; c < k1; c++){
     for (int r = 0; r < s2; r++){
       puz[r + s1] =
-	set_entry_in_row(puz[r + s1], apply_perm(pi,c),
+	set_entry_in_row(puz[r + s1],
+			 (PERM_MODE != 2 ? apply_perm(pi,c) : (c + 1) % k1),
 			 (ARB_MODE == 0 ? arb + 1 :
 			  (ARB_MODE == 1 ? get_column_from_row(p2 -> puzzle[r], arb) :
 			   (ARB_MODE == 2 ? (arb < 3 ? arb + 1 : get_column_from_row(p2 -> puzzle[r], arb - k2)) :
@@ -367,6 +371,9 @@ bool apply_twist(puzzle * p, puzzle * p1, puzzle * p2, int last, int arb, int pe
   }
   
   destroy_perm(pi);
+
+  if (!puzzle_has_at_least_n_two_columns(p, N_SPECIAL_COLS))
+    return false;
   
   if (check_row_triples(puz, s, k)){
     if (check(puz, s, k))
@@ -446,7 +453,15 @@ void random_constructed_usp(puzzle * p, int iter){
       k1 = 5;
       s2 = s - s1;
       k2 = 4;
+    } else if (k == 7){
+      s1 = 13;
+      k1 = 6;
+      s2 = s - s1;
+      k2 = 5;
+    } else {
+      assert(k <= 7);
     }
+    
     p1 = create_puzzle(s1, k1);
     p2 = create_puzzle(s2, k2);
     assert(p->row == p1->row + p2->row);
@@ -566,7 +581,15 @@ void construct_table_usp(puzzle * p, int iter){
       k1 = 5;
       s2 = s - s1;
       k2 = 4;
+    } else if (k == 7){
+      s1 = 13;
+      k1 = 6;
+      s2 = s - s1;
+      k2 = 5;
+    } else {
+      assert(k <= 7);
     }
+    
 
     bool found = false;
     int tries = 0;
@@ -608,13 +631,17 @@ void populate_table(int s, int k, int count, int iter){
   if (table[k] == NULL)
     table[k] = new map<string, puzzle_meta *>();
 
+  fprintf(stderr,"\r%d / %d",0,count);
+  fflush(stderr);
+  
   for (int i = 0; i < count; i++){
     puzzle * p = create_puzzle(s, k);
     randomize_puzzle(p);
     construct_table_usp(p, iter);
     puzzle_meta * pm = create_puzzle_meta(p);
     string p_str = puzzle_to_string(p);
-    //cout << "  $ " << p_str << endl;
+    if (k >= 7)
+      cerr << "  $ " << p_str << endl;
     map<string, puzzle_meta *>::const_iterator it = table[k] -> find(p_str);
     if (it == table[k] -> end()){
       // Not in table.
@@ -623,8 +650,8 @@ void populate_table(int s, int k, int count, int iter){
       destroy_puzzle_meta(pm);
     }
 
-    fprintf(stderr,"\r%d / %d",i,count);
-    fflush(stdout);
+    fprintf(stderr,"\r%d / %d",i+1,count);
+    fflush(stderr);
     if (k > 5) {
       print_puzzle(p);
       printf("\n");
@@ -633,53 +660,28 @@ void populate_table(int s, int k, int count, int iter){
 
 }
 
-void print_graph(map<string, puzzle_meta *> * t1, map<string, puzzle_meta *> * t2, int k, int s){
+void print_graph(map<string, puzzle_meta *> * t1, map<string, puzzle_meta *> * t2, int k, int s, int init_n){
 
   int n1 = t1 -> size();
   int n2 = t2 -> size();
   puzzle * p = create_puzzle(s, k);
-  
-  for (int i = 0; i < n1 + n2; i++){
-    printf(";%d", i);
-  }
-  printf("\n");
-  
+  randomize_puzzle(p);
+
   map<string, puzzle_meta *>::const_iterator it1;
   map<string, puzzle_meta *>::const_iterator it2;
-  int ix1 = 0;
-  for (it1 = t1 -> begin(); it1 != t1 -> end(); it1++){
-    fprintf(stderr,"\r%4d / %4d", ix1, n1+n2);
-    int ix2 = n1;
-    printf("%d;", ix1);
-
-    for (int i = 0; i < n1; i++)
-      printf("0;");
-
-    for (it2 = t2 -> begin(); it2 != t2 -> end(); it2++)
-      if (full_twist(p, it1 -> second -> p, it2 -> second -> p))
-	printf("1;");
-      else
-	printf("0;");
-
-    ix1++;
-    printf("\n");
-  }
-
+  int ix2 = init_n + n1;
   for (it2 = t2 -> begin(); it2 != t2 -> end(); it2++){
-    fprintf(stderr,"\r%4d / %4d", ix1, n1+n2);
-    printf("%d;", ix1);
+    fprintf(stderr,"\r%4d / %4d", ix2 - n1 - init_n, n2);
+    int ix1 = init_n + 0;
 
-    for (it1 = t1 -> begin(); it1 != t1 -> end(); it1++)
-      if (full_twist(p, it1 -> second -> p, it2 -> second -> p))
-	printf("1;");
-      else
-	printf("0;");
-
-    for (int i = 0; i < n2; i++)
-      printf("0;");
-
-    ix1++;
-    printf("\n");
+    for (it1 = t1 -> begin(); it1 != t1 -> end(); it1++){
+      if (full_twist(p, it2 -> second -> p, it1 -> second -> p)) {
+	printf("%d;%d\n",ix1,ix2);
+      }
+      ix1++;
+    }
+    
+    ix2++;
   }
 
   fprintf(stderr,"\rGraph print completed.\n");
@@ -731,15 +733,16 @@ void print_outliers(int k){
   
 }
 
-int ss[7] = {0, 1, 2, 3, 5, 8, 13};
+int ss[8] = {0,   1,   2,     3,     5,     8,    13,    21};
+int ns[8] = {0, 100, 500, 10000,   2500,   5000,  4000,    1};
 
-void populate(int iter, int max_k){
+void populate(int iter, int max_k, bool display){
 
-  int ns[7] = {0, 100, 300, 600, 1200, 2400, 1};
-
-  for (int k = 1; k <= 6 && k <= max_k; k++){
+  for (int k = 1; k <= 7 && k <= max_k; k++){
     populate_table(ss[k], k, ns[k], iter);
     fprintf(stderr,"\rCreated ss[%d] = %lu USPs (tried: %d)\n", k, table[k] -> size(), ns[k]);
+    if (display)
+      print_outliers(k);
   }
 }
 
@@ -755,21 +758,17 @@ int main(int argc, char * argv[]){
   if (argc == 1){
 
     //srand48(time(NULL));
-    populate(POP_ITER, 6);
+    populate(POP_ITER, 6, true);
 
-    print_outliers(1);
-    print_outliers(2);
-    print_outliers(3);
-    print_outliers(4);
-    print_outliers(5);
 
   } else if (argc == 2){
 
     int k = atoi(argv[1]);
-    assert(3 <= k && k <= 6);
-    populate(POP_ITER, k);
+    assert(4 <= k && k <= 6);
+    populate(POP_ITER, k-1, false);
 
-    print_graph(table[k-1], table[k-2], k, ss[k]);
+    print_graph(table[k-3], table[k-2], k-1, ss[k-1], 0);
+    print_graph(table[k-2], table[k-1], k, ss[k], table[k-3] -> size());
     
   } else if (argc == 3){
     puzzle * p1 = create_puzzle_from_file(argv[1]);
