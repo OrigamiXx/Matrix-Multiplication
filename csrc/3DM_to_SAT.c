@@ -499,11 +499,17 @@ bool solver_simple(int row, int column, long index, puzzle * p){
     return true;
   }else{
     vec<Lit> dummy;
-    lbool ret = S.solveLimited(dummy);
+    /*lbool ret = S.solveLimited(dummy);
     if (ret == l_True){
       return false;
     }else if(ret == l_False){
       return true;
+    }*/
+    bool ret = S.solve();
+    if (!ret){
+      return true;
+    }else if(ret){
+      return false;
     }
   }
 

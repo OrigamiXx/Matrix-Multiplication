@@ -36,7 +36,7 @@ puzzle * create_puzzle_from_file(const char * filename){
 
   if (f == NULL)
     return NULL;
-  
+
   char buff[256];
 
   int element;//,r;
@@ -61,9 +61,9 @@ puzzle * create_puzzle_from_file(const char * filename){
     for(unsigned int i = 0; i <width; i++){
       element = buff[i] -'0';
       if(element != 1 &&  element != 2 && element != 3){
-	//printf("%d", buff[i]);
-	printf("this is not a puzzle since the element are not all 1 or 2 or 3\n");
-	return NULL;
+	       //printf("%d", buff[i]);
+	        printf("this is not a puzzle since the element are not all 1 or 2 or 3\n");
+	         return NULL;
       }
     }
     rows++;
@@ -88,13 +88,13 @@ puzzle * create_puzzle_from_file(const char * filename){
       next_element = buff[p->column-2] - '0';
       next_element = next_element-1;
       row_index = element*3 + next_element;
-	for(int i = p->column-2; i>0; i--){
-	  next_element = buff[i-1] - '0';
-	  next_element = next_element - 1;
-	  // printf("%d",element);
-	  row_index = row_index*3 + next_element;
-	  //p->puzzle[rows][i] = element;
-	}
+	    for(int i = p->column-2; i>0; i--){
+	       next_element = buff[i-1] - '0';
+	       next_element = next_element - 1;
+	       // printf("%d",element);
+	       row_index = row_index*3 + next_element;
+	       //p->puzzle[rows][i] = element;
+	    }
     }else if(p->column == 1){
       row_index = buff[p->column-1] - '0';
       row_index = row_index - 1;
@@ -117,7 +117,7 @@ puzzle * create_puzzle(int rows, int cols){
   usp -> puzzle = (int *) (malloc(sizeof(int) * rows));
 
   bzero(usp->puzzle, sizeof(int) * rows);
-  
+
   return usp;
 }
 
@@ -200,7 +200,7 @@ int get_column_from_row(int row_index, int col_index){
 int set_entry_in_row(int row_index, int c, int val) {
 
   assert(val >= 1 && val <= 3);
-  
+
   int old_val = get_column_from_row(row_index, c);
   int ret = row_index + (val - old_val) * (int)pow(3, c);
   if (ret < 0){
@@ -217,7 +217,7 @@ void randomize_puzzle(puzzle * p){
   int r = p -> row;
   int c = p -> column;
   int * puz = p -> puzzle;
-  
+
   int max_row = 1;
   for(int i = 0 ; i < c ; i++)
     max_row = max_row * 3;
@@ -226,7 +226,7 @@ void randomize_puzzle(puzzle * p){
     puz[i] = lrand48() % max_row;
     assert(puz[i] >= 0);
   }
-  
+
 }
 
 // Sets the given puzzle p to a random strong USP of the same size.
@@ -236,10 +236,10 @@ void random_usp(puzzle * p){
 
   int s = p -> row;
   int k = p -> column;
-  
+
   randomize_puzzle(p);
   while (true) {
-    
+
     if (check(p -> puzzle, s, k)) {
       return;
     }
@@ -252,7 +252,7 @@ void random_usp(puzzle * p){
 void sort_puzzle(puzzle * p){
 
   sort(p -> puzzle, p -> puzzle + p -> row);
-  
+
 }
 
 // print a puzzle
