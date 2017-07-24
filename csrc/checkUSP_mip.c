@@ -20,24 +20,24 @@ int corr_to_index(int s, int i, int j, int k){
   return index;
 }
 
-int DM_to_MIP(puzzle *p){
+int DM_to_MIP(puzzle *p, GRBenv * env){
 
 
   int s, i, j, k, index, max_index, counter;
   s = p -> row;
   max_index = s * s *s  -1;
 
-  GRBenv   *env   = NULL;
+  // GRBenv   *env   = environment;
   GRBmodel *model = NULL;
   int       ind[max_index];
   double    val[max_index];
   char      vtype[max_index];
   int       optimstatus;
-  double    objval;
+  //double    objval;
   GRBenv *menv;
 
   //Set up environment and an empty model
-  GRBloadenv(&env, "3DM_to_MIP.log");
+  //GRBloadenv(&env, NULL);
   GRBnewmodel(env, &model, "3DM_to_MIP", 0, NULL, NULL, NULL, NULL, NULL);
   menv = GRBgetenv(model);
 
@@ -122,7 +122,7 @@ int DM_to_MIP(puzzle *p){
   GRBaddconstr(model, counter, ind, val, GRB_LESS_EQUAL, limit, NULL);
 
   GRBoptimize(model);
-  GRBwrite(model, "3DM_to_MIP.lp");
+  //GRBwrite(model, "3DM_to_MIP.lp");
 
   /* Capture solution information */
   GRBgetintattr(model, GRB_INT_ATTR_STATUS, &optimstatus);
@@ -135,7 +135,7 @@ int DM_to_MIP(puzzle *p){
 
   /* Free environment */
 
-  GRBfreeenv(env);
+  // GRBfreeenv(env);
   //printf("The optimastatus is %d", optimstatus);
   // printf("%d", optimstatus);
   // printf("%d", GRB_OPTIMAL);
