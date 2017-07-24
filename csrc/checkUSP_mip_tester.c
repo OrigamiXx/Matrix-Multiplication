@@ -79,7 +79,11 @@ int main(int argc, char * argv[]){
 
       puzzle * p;
       p = create_puzzle_from_index(j,i,0);
+<<<<<<< HEAD
       for (index = 0; index < 2500; index++){
+=======
+      for (index = 0; index < 10; index++){
+>>>>>>> af9a8ffcac457f16946ae9d8387f71c977919d77
         //puzzle *p;
         //p = create_puzzle_from_index(j,i,index);
         clock_gettime(CLOCK_MONOTONIC, &begin);
