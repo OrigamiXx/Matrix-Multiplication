@@ -105,6 +105,60 @@ puzzle * create_puzzle_from_file(const char * filename){
   return p;
 }
 
+//Return the next available puzzle from the open file f
+puzzle * next_file(FILE * f, int max_row){
+  puzzle * p = (puzzle *) (malloc(sizeof(puzzle)));
+
+  if (f == NULL)
+    return NULL;
+
+  char buff[256];
+  char * result;
+
+  int element;//,r;
+  //first check whether this file is able to turn into a puzzle
+  result = fgets(buff, 30, f);
+  assert(result != NULL);
+
+  int width = strlen(buff);
+  //printf("width %d\n", width);
+  p->column = width;
+  p->puzzle = (int *) malloc(sizeof(int *)*max_row);
+  int rows = 0;
+
+  //Loop until encountered an empty line
+  while(buff[0] != '\n'){
+    p->puzzle[rows] = line_to_index(buff);
+    rows++;
+    result = fgets(buff, 30, f);
+    assert(result != NULL);
+    //printf("line |%s|\n",buff);
+
+    }
+    p->row = rows;
+    return p;
+  }
+
+
+
+//Takes in one line of puzzle and return the index of the line. Return -1 if line is an empty line.
+int line_to_index(char * line){
+  // if (line[0] =='\n'){
+  //   return -1;
+  // }
+  // else{
+    int digit = 0;
+    int index = 0;
+    int element;
+    while(line[digit] != '\n'){
+      element = line[digit] - '0';
+      index += (element -1) * pow(3, digit);
+      digit++;
+    }
+  // }
+  return index;
+}
+
 
 
 puzzle * create_puzzle(int rows, int cols){

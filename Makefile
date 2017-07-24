@@ -10,15 +10,16 @@ LDFLAGS=-lm -pg
 RMFLAGS=-f
 # Put additional object sources in list below.
 OBJ-SOURCES=usp.c permutation.c puzzle.c set.c usp_bi.c matching.c 3DM_to_SAT.c
-ifdef GUROBI_HOME
-OBJ-SOURCES+=checkUSP_mip.c
-EXE-SOURCE+=checkUSP_mip_tester.c
-LDFLAGS+=-lgurobi_c++ -lgurobi70
-endif
+
 # Put additional executable sources in list below.
 EXE-SOURCES=usp_tester.c permutation_tester.c puzzle_tester.c set_tester.c generate_puzzle.c usp_exp.c matching_tester.c 3DM_to_SAT_tester.c test.c usp_construct.c
 # Put additional parallel / cluster executable sources in list below, must end with "_para".
 PARA-SOURCES=usp_para.c
+ifdef GUROBI_HOME
+OBJ-SOURCES+=checkUSP_mip.c
+EXE-SOURCES+=checkUSP_mip_tester.c
+LDFLAGS+=-lgurobi_c++ -lgurobi70
+endif
 OBJDIR=objs
 BINDIR=bin
 SRCDIR=csrc

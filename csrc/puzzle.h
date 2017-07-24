@@ -68,4 +68,10 @@ void destroy_puzzle(puzzle * p);
 
 int count_witnesses(puzzle * p);
 
+//Return the next available puzzle from the open file f
+puzzle * next_file(FILE * f, int max_row);
+
+//Takes in one line of puzzle and return the index of the line. Return -1 if line is an empty line.
+int line_to_index(char * line);
+
 #endif

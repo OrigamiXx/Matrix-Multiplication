@@ -34,11 +34,16 @@ int DM_to_MIP(puzzle *p){
   char      vtype[max_index];
   int       optimstatus;
   double    objval;
-
+  GRBenv *menv;
 
   //Set up environment and an empty model
   GRBloadenv(&env, "3DM_to_MIP.log");
   GRBnewmodel(env, &model, "3DM_to_MIP", 0, NULL, NULL, NULL, NULL, NULL);
+  menv = GRBgetenv(model);
+
+  GRBsetintparam(menv, "OutputFlag", 0);
+  //printf("\n\nThe error is %d\n\n", error);
+  //GRBsetdblparam(env, GRB_DBL_PAR_HEURISTICS, 0.0);
 
   //Set all variable to binary and add all variable to the model.
   for (index = 0; index <= max_index; index++){
@@ -51,10 +56,12 @@ int DM_to_MIP(puzzle *p){
   for(i = 0; i < s; i++){
     for(j = 0; j < s; j++){
       for(k = 0; k <s; k++){
+        index = corr_to_index(s, i, j, k);
+        //Initialize all constant to each variable.
+        val[index] = 1;
         if (check_usp_rows(i, j, k, p)){
-          index = corr_to_index(s, i, j, k);
+
           ind[0] = index;
-          val[0] = 1;
 
           GRBaddconstr(model, 1, ind, val, GRB_EQUAL, 0.0, NULL);
         }
@@ -120,7 +127,7 @@ int DM_to_MIP(puzzle *p){
   /* Capture solution information */
   GRBgetintattr(model, GRB_INT_ATTR_STATUS, &optimstatus);
 
-  GRBgetdblattr(model, GRB_DBL_ATTR_OBJVAL, &objval);
+  //GRBgetdblattr(model, GRB_DBL_ATTR_OBJVAL, &objval);
 
   /* Free model */
 
@@ -129,19 +136,20 @@ int DM_to_MIP(puzzle *p){
   /* Free environment */
 
   GRBfreeenv(env);
-  printf("%d", optimstatus);
-  printf("%d", GRB_OPTIMAL);
-
-  printf("\nOptimization complete\n");
-  if (optimstatus == GRB_OPTIMAL) {
-    printf("Not USP");
+  //printf("The optimastatus is %d", optimstatus);
+  // printf("%d", optimstatus);
+  // printf("%d", GRB_OPTIMAL);
+  //
+  // printf("\nOptimization complete\n");
+  if (optimstatus == GRB_INFEASIBLE) {
+    return 1;
 
   //  printf("  x=%.0f, y=%.0f, z=%.0f\n", sol[0], sol[1], sol[2]);
-  } else if (optimstatus == GRB_INF_OR_UNBD) {
-    printf("Error\n");
+} else if (optimstatus == GRB_OPTIMAL) {
+    return 0;
   } else {
-    printf("Is USP\n");
+    return -1;
   }
 
-  return 0;
+
 }
