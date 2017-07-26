@@ -83,7 +83,7 @@ int main(int argc, char * argv[]){
 
   //for (index = 0; index < power(3, i*j) -1; index+=100000000000000){
       puzzle * p;
-      p = create_puzzle_from_index(j,i,0);
+      p = create_puzzle_from_index(j,i,244);
       for (index = 0; index < 10000; index++){
         //puzzle *p;
         //p = create_puzzle_from_index(j,i,index);

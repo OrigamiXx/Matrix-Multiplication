@@ -12,8 +12,8 @@
 
 int main(int argc, char * argv[]){
 
-  int givenR = 5;
-  int givenC = 4;
+  int givenR = 15;
+  int givenC = 6;
 
   // int * puzzle1 = (int *) malloc(sizeof(int *)*givenR);
   // puzzle1[0] = 279;
@@ -62,6 +62,8 @@ int main(int argc, char * argv[]){
   int i, j;
   //int checked = 0;
   long index;
+  GRBenv   *env   = NULL;
+  GRBloadenv(&env, NULL);
 
     i = givenC;
   //j = givenR;
@@ -77,14 +79,27 @@ int main(int argc, char * argv[]){
 
       puzzle * p;
       p = create_puzzle_from_index(j,i,0);
-      for (index = 0; index < 10000; index++){
+<<<<<<< HEAD
+      for (index = 0; index < 2500; index++){
+=======
+      for (index = 0; index < 10; index++){
+>>>>>>> af9a8ffcac457f16946ae9d8387f71c977919d77
         //puzzle *p;
         //p = create_puzzle_from_index(j,i,index);
         clock_gettime(CLOCK_MONOTONIC, &begin);
+        int result1 = DM_to_MIP(p, env);
+        clock_gettime(CLOCK_MONOTONIC, &end);
+        //int result2 = check(p -> puzzle, p->row, p -> column);
+        // if (result1 != result2){
+        //   printf("There are disagreement, 3DM is %d and check is %d", result1, result2);
+        //   print_puzzle(p);
+        //   return -1;
+        // }
+
         if //(check(p->puzzle, p->row, p->column)){
-          (DM_to_MIP(p)){
+          (result1){
           //(popen_simple(p->row, p->column,-1,p)){
-          clock_gettime(CLOCK_MONOTONIC, &end);
+
           usp_total = usp_total + ((double)end.tv_sec + 1.0e-9*end.tv_nsec) - ((double)begin.tv_sec + 1.0e-9*begin.tv_nsec);
           usps++;
         }else {
@@ -104,4 +119,5 @@ int main(int argc, char * argv[]){
       printf("total average time: %.6f\n", total/checked);
       printf("finish checking%d by %d\n", j, i);
       }
+  GRBfreeenv(env);
   }

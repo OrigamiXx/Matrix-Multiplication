@@ -18,7 +18,7 @@ PARA-SOURCES=usp_para.c
 ifdef GUROBI_HOME
 OBJ-SOURCES+=checkUSP_mip.c
 EXE-SOURCES+=checkUSP_mip_tester.c
-LDFLAGS+=-lgurobi_c++ -lgurobi70
+LDFLAGS+=-lgurobi_c++ -lgurobi75
 endif
 OBJDIR=objs
 BINDIR=bin

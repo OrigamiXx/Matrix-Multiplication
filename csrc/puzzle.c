@@ -61,9 +61,9 @@ puzzle * create_puzzle_from_file(const char * filename){
     for(unsigned int i = 0; i <width; i++){
       element = buff[i] -'0';
       if(element != 1 &&  element != 2 && element != 3){
-	//printf("%d", buff[i]);
-	printf("this is not a puzzle since the element are not all 1 or 2 or 3\n");
-	return NULL;
+	       //printf("%d", buff[i]);
+	        printf("this is not a puzzle since the element are not all 1 or 2 or 3\n");
+	         return NULL;
       }
     }
     rows++;
@@ -88,13 +88,13 @@ puzzle * create_puzzle_from_file(const char * filename){
       next_element = buff[p->column-2] - '0';
       next_element = next_element-1;
       row_index = element*3 + next_element;
-	for(int i = p->column-2; i>0; i--){
-	  next_element = buff[i-1] - '0';
-	  next_element = next_element - 1;
-	  // printf("%d",element);
-	  row_index = row_index*3 + next_element;
-	  //p->puzzle[rows][i] = element;
-	}
+	    for(int i = p->column-2; i>0; i--){
+	       next_element = buff[i-1] - '0';
+	       next_element = next_element - 1;
+	       // printf("%d",element);
+	       row_index = row_index*3 + next_element;
+	       //p->puzzle[rows][i] = element;
+	    }
     }else if(p->column == 1){
       row_index = buff[p->column-1] - '0';
       row_index = row_index - 1;
