@@ -35,7 +35,8 @@ using namespace std;
 
   The last column has a, b in {1,2,3} with a != b.  The entries
   labeled with * may take any value.  The entries in columns of p2 + *
-  are permuted arbitrarily relative to the columns of p1.
+  are permuted arbitrarily relative to the columns of p1.  The
+  elements {1,2,3} may be permuted in p2.
 
   The are two versions of the twisting algorithm, one which tests all
   possible twists until a valid one is found, and one that uniformly
@@ -45,29 +46,32 @@ using namespace std;
   What twists attempted are determine by the parameters below.  
 */
 // The column permutations considered. 
-int const PERM_MODE =
-  //0; // Tries only identity permutation of p2 + * -- not very effective.
-  1;   // Tries all permutations of p2 + *.
-  //2; // Tries only (0 1 2 ... k-1) of p2 + extra -- not very effective.
+bool const PERM_MODE =
+  //false; // Tries only identity permutation of p2 + * -- not very effective.
+  true;   // Tries all permutations of p2 + *.
+
+bool const EL_PERM_MODE =
+  //false; // Tries only identity permutation of the elements {1,2,3} in p2.
+  true; // Tries all permutations of the elements {1,2,3} in p2.
 
 // Restrictions on what go in *.  
 int const ARB_MODE =
   //0; // A constant 1, 2, or 3.
   //1; // A duplicate of a column in p2. (If * is more than one column the same duplicate will be used.)
-  2;   // A constant 1, 2, or 3, or a duplicate of a column in p2.  
-  //3; // No restriction. 
+  //2;   // A constant 1, 2, or 3, or a duplicate of a column in p2.  
+  3; // No restriction. 
 
 // How many columns that strong USPs constructed by twisting must have with only two elements of {1,2,3}.
 // Only <= 1 is guaranteed by construction, but 2 and 3 may work.  4 won't work.
-int const N_SPECIAL_COLS = 3;
+int const N_SPECIAL_COLS = 2;
 
 // Number of iterations to perform randomized twisting before giving up.
-int const POP_ITER = 50;
+int const POP_ITER = 1000;
 
 // Sizes vs. k of strong USPs that exists (except for 21-by-7 that is just conjectured);
 int ss[8] = {0,   1,   2,     3,      5,      8,    13,    21};
 // Number of strong USPs to generate for each k
-int ns[8] = {0, 100, 500, 10000,   5000,  10000,   100,     1};
+int ns[8] = {0, 100, 500, 10000,     500,   100,   10,     1};
 
 
 bool puzzle_has_at_least_n_two_columns(puzzle * p, int n){
@@ -88,7 +92,8 @@ bool puzzle_has_at_least_n_two_columns(puzzle * p, int n){
   
 }
 
-void compute_twist_params(puzzle * p, puzzle *p1, puzzle *p2, int *num_last, int *num_arb, int *num_perm){
+void compute_twist_params(puzzle * p, puzzle *p1, puzzle *p2, int *num_last,
+			  int *num_arb, int *num_perm, int *num_el_perm){
 
   int s = p -> row;
   int k = p -> column;
@@ -107,13 +112,22 @@ void compute_twist_params(puzzle * p, puzzle *p1, puzzle *p2, int *num_last, int
       (ARB_MODE == 2 ? k2 + 3 :
        (long)pow(3, s2 * dk))));
 
-  *num_perm = 1;
-  if (PERM_MODE == 1)
-    for (int i = 1; i <= k; i++) *num_perm *= i;
 
+  if (PERM_MODE) {
+    *num_perm = 1;
+    for (int i = 1; i <= k1; i++) *num_perm *= i;
+  } else {
+    *num_perm = 1;
+  }
+
+  if (EL_PERM_MODE)
+    *num_el_perm = 6;
+  else
+    *num_el_perm = 1;
+  
 }
 
-bool apply_twist(puzzle * p, puzzle * p1, puzzle * p2, int last, int arb, int perm_id) {
+bool apply_twist(puzzle * p, puzzle * p1, puzzle * p2, int last, int arb, int perm_id, int el_perm_id) {
   
   int s = p -> row;
   int k = p -> column;
@@ -140,6 +154,11 @@ bool apply_twist(puzzle * p, puzzle * p1, puzzle * p2, int last, int arb, int pe
   
   for (int j = 0; j < perm_id; j++)
     next_perm(pi);
+
+  perm * rho = create_perm_identity(3);
+  
+  for (int j = 0; j < el_perm_id; j++)
+    next_perm(rho);
   
   // Copy p1 into p.
   for (int c = 0; c < k1; c++){
@@ -153,8 +172,8 @@ bool apply_twist(puzzle * p, puzzle * p1, puzzle * p2, int last, int arb, int pe
     for (int r = 0; r < s2; r++){
       puz[r + s1] =
 	set_entry_in_row(puz[r + s1],
-			 (PERM_MODE != 2 ? apply_perm(pi, c) : (c + 1) % k1),
-			 get_column_from_row(p2 -> puzzle[r], c));
+			 apply_perm(pi, c),
+			 apply_perm(rho, get_column_from_row(p2 -> puzzle[r], c) - 1) + 1);
     }
   }
   
@@ -163,10 +182,11 @@ bool apply_twist(puzzle * p, puzzle * p1, puzzle * p2, int last, int arb, int pe
     for (int r = 0; r < s2; r++){
       puz[r + s1] =
 	set_entry_in_row(puz[r + s1],
-			 (PERM_MODE != 2 ? apply_perm(pi,c) : (c + 1) % k1),
+			 apply_perm(pi,c),
 			 (ARB_MODE == 0 ? arb + 1 :
-			  (ARB_MODE == 1 ? get_column_from_row(p2 -> puzzle[r], arb) :
-			   (ARB_MODE == 2 ? (arb < 3 ? arb + 1 : get_column_from_row(p2 -> puzzle[r], arb - k2)) :
+			  (ARB_MODE == 1 ? apply_perm(rho, get_column_from_row(p2 -> puzzle[r], arb)-1)+1 :
+			   (ARB_MODE == 2 ? (arb < 3 ? arb + 1 :
+					     apply_perm(rho, get_column_from_row(p2 -> puzzle[r], arb - k2)-1)+1) :
 			    get_column_from_row(arb, id)))));
 
       id++;
@@ -182,13 +202,16 @@ bool apply_twist(puzzle * p, puzzle * p1, puzzle * p2, int last, int arb, int pe
   }
   
   destroy_perm(pi);
+  destroy_perm(rho);
 
   if (!puzzle_has_at_least_n_two_columns(p, N_SPECIAL_COLS))
     return false;
-  
+
+
   if (check_row_triples(puz, s, k)){
-    if (check(puz, s, k))
+    if (check(puz, s, k)) {
       return true;
+    }
   }
 
   return false;
@@ -197,17 +220,18 @@ bool apply_twist(puzzle * p, puzzle * p1, puzzle * p2, int last, int arb, int pe
 
 bool random_twist(puzzle * p, puzzle * p1, puzzle * p2, int iter){
 
-  int num_last, num_arb, num_perm;
+  int num_last, num_arb, num_perm, num_el_perm;
   
-  compute_twist_params(p, p1, p2, &num_last, &num_arb, &num_perm);
-  
+  compute_twist_params(p, p1, p2, &num_last, &num_arb, &num_perm, &num_el_perm);
+
   for (int i = 0; i < iter; i++){
 
     int last = lrand48() % num_last;
     int arb = lrand48() % num_arb;
     int perm_id = lrand48() % num_perm;
+    int el_perm_id = lrand48() % num_el_perm;
 
-    if (apply_twist(p, p1, p2, last, arb, perm_id)){
+    if (apply_twist(p, p1, p2, last, arb, perm_id, el_perm_id)){
       return true;
     }
     
@@ -219,16 +243,21 @@ bool random_twist(puzzle * p, puzzle * p1, puzzle * p2, int iter){
 
 bool full_twist(puzzle * p, puzzle * p1, puzzle * p2){
 
-  int num_last, num_arb, num_perm;
-  
-  compute_twist_params(p, p1, p2, &num_last, &num_arb, &num_perm);
+  int num_last, num_arb, num_perm, num_el_perm;
+ 
+  compute_twist_params(p, p1, p2, &num_last, &num_arb, &num_perm, &num_el_perm);
 
-  for (int i = 0; i < num_last; i++)
-    for (int j = 0; j < num_arb; j++)
-      for (int k = 0; k < num_perm; k++)
-	if (apply_twist(p, p1, p2, i, j, k))
-	  return true;
-
+  for (int last = 0; last < num_last; last++) {
+    for (int arb = 0; arb < num_arb; arb++) {
+      for (int perm_id = 0; perm_id < num_perm; perm_id++) {
+	for (int el_perm_id = 0; el_perm_id < num_el_perm; el_perm_id++) {
+	  if (apply_twist(p, p1, p2, last, arb, perm_id, el_perm_id)){
+	    return true;
+	  }
+	}
+      }
+    }
+  }
   return false;
 
 }
@@ -283,7 +312,7 @@ void destroy_puzzle_meta(puzzle_meta * pm){
 
 }
 
-puzzle_meta * random_table_usp(int s, int k){
+puzzle_meta * random_table_usp(int k){
 
   int ix = lrand48() % (table[k] -> size());
   // XXX - Not very efficient random lookup.
@@ -303,8 +332,6 @@ void construct_table_usp(puzzle * p, int iter){
   if (s <= 2) {
     random_usp(p);
   } else {
-    puzzle * p1;
-    puzzle * p2;
     int s1, s2, k1, k2;
     if (k == 3) {
       s1 = 2;
@@ -341,13 +368,17 @@ void construct_table_usp(puzzle * p, int iter){
     while (!found) {
       tries++;
 
-      puzzle_meta * pm1 = random_table_usp(s1, k1);
-      puzzle_meta * pm2 = random_table_usp(s2, k2);
+      puzzle_meta * pm1 = random_table_usp(k1);
+      puzzle_meta * pm2 = random_table_usp(k2);
       puzzle * p1 = pm1 -> p;
       puzzle * p2 = pm2 -> p;
 
+      // XXX - Full twist and random twist with many iterations do not
+      // produce the same results because because full twist stops
+      // when it finds the first working element.
+      // found = full_twist(p, p1, p2);
       found = random_twist(p, p1, p2, iter);
-      
+
       if (found){
 	pm1 -> big_success++;
 	pm2 -> small_success++;
@@ -356,11 +387,12 @@ void construct_table_usp(puzzle * p, int iter){
 	pm2 -> small_fail++;
       }
 
+
     }
+    
   }
+
 }
-
-
 
 
 void populate_table(int s, int k, int count, int iter){
@@ -402,7 +434,6 @@ void print_graph(map<string, puzzle_meta *> * t1, map<string, puzzle_meta *> * t
   int n1 = t1 -> size();
   int n2 = t2 -> size();
   puzzle * p = create_puzzle(s, k);
-  randomize_puzzle(p);
 
   map<string, puzzle_meta *>::const_iterator it1;
   map<string, puzzle_meta *>::const_iterator it2;
@@ -412,7 +443,11 @@ void print_graph(map<string, puzzle_meta *> * t1, map<string, puzzle_meta *> * t
     int ix1 = init_n + 0;
 
     for (it1 = t1 -> begin(); it1 != t1 -> end(); it1++){
-      if (full_twist(p, it2 -> second -> p, it1 -> second -> p)) {
+      //if (random_twist(p, it2 -> second -> p, it1 -> second -> p, POP_ITER)) {
+      //      bool r_res = random_twist(p, it2 -> second -> p, it1 -> second -> p, POP_ITER);
+      bool f_res = full_twist(p, it2 -> second -> p, it1 -> second -> p);
+      //      assert(r_res <= f_res);
+      if (f_res){
 	printf("%d;%d\n",ix1,ix2);
       }
       ix1++;
@@ -421,6 +456,11 @@ void print_graph(map<string, puzzle_meta *> * t1, map<string, puzzle_meta *> * t
     ix2++;
   }
 
+  for (int i = init_n; i <= init_n + n1 + n2; i++){
+    printf("%d;%d\n",i,i); // XXX - will duplicate sometimes.
+  }
+  
+  destroy_puzzle(p);
   fprintf(stderr,"\rGraph print completed.\n");
 }
 
@@ -455,18 +495,24 @@ void print_outliers(int k){
     puzzle_meta * pm = it -> second;
     double curr_big_avg = -999;
     double curr_small_avg = -999;
-    if (pm -> big_fail + pm -> big_success > 0)
-      curr_big_avg = pm -> big_success / (double)(pm -> big_success + pm -> big_fail);
-
-    if (pm -> small_fail + pm -> small_success > 0) 
-      curr_small_avg = pm -> small_success / (double)(pm -> small_success + pm -> small_fail);
-
-    if (curr_big_avg >= sig_factor * big_avg || curr_small_avg >= sig_factor * small_avg || k <= 3){
+    if (big_total == 0.0) {
       print_puzzle(pm -> p);
-      printf("^^Big Success: %6d  Fails: %6d  Avg: %8.5f\n", pm -> big_success, pm -> big_fail,     curr_big_avg);
-      printf("Small Success: %6d  Fails: %6d  Avg: %8.5f\n\n", pm -> small_success, pm -> small_fail, curr_small_avg);
+      printf("\n");
+    } else {
+      if (pm -> big_fail + pm -> big_success > 0)
+	curr_big_avg = pm -> big_success / (double)(pm -> big_success + pm -> big_fail);
+      
+      if (pm -> small_fail + pm -> small_success > 0) 
+	curr_small_avg = pm -> small_success / (double)(pm -> small_success + pm -> small_fail);
+      
+      if (curr_big_avg >= sig_factor * big_avg || curr_small_avg >= sig_factor * small_avg || k <= 3){
+	print_puzzle(pm -> p);
+	printf("^^Big Success: %6d  Fails: %6d  Avg: %8.5f\n", pm -> big_success, pm -> big_fail,     curr_big_avg);
+	printf("Small Success: %6d  Fails: %6d  Avg: %8.5f\n\n", pm -> small_success, pm -> small_fail, curr_small_avg);
+      }
     }
   }
+  fflush(stdout);
   
 }
 
@@ -477,8 +523,13 @@ void populate(int iter, int max_k, bool display){
   for (int k = 1; k <= 7 && k <= max_k; k++){
     populate_table(ss[k], k, ns[k], iter);
     fprintf(stderr,"\rCreated ss[%d] = %lu USPs (tried: %d)\n", k, table[k] -> size(), ns[k]);
-    if (display)
+    if (display && k >= 3)
+      print_outliers(k - 2);
+    if (display && (k == max_k || k == 7)){
+      print_outliers(k - 1);
       print_outliers(k);
+    }
+    
   }
 }
 
@@ -496,7 +547,7 @@ int main(int argc, char * argv[]){
     // puzzles which are "useful" to stdout with some statistics.
     // Uses randomized twisting.
     
-    //srand48(time(NULL));
+    srand48(time(NULL));
     populate(POP_ITER, 6, true);
 
 
@@ -509,11 +560,14 @@ int main(int argc, char * argv[]){
     // (deterministically) twisted together.
     
     int k = atoi(argv[1]);
-    assert(4 <= k && k <= 6);
+    assert(3 <= k && k <= 6);
     populate(POP_ITER, k-1, false);
 
-    print_graph(table[k-3], table[k-2], k-1, ss[k-1], 0);
-    print_graph(table[k-2], table[k-1], k, ss[k], table[k-3] -> size());
+    int offset = 0;
+    for (int i = 1; i <= k-2; i++){
+      print_graph(table[i], table[i+1], i+2, ss[i+2], offset);
+      offset += table[i] -> size();
+    }
     
   } else if (argc == 3){
 
@@ -611,5 +665,5 @@ int main(int argc, char * argv[]){
   }
 
   return 0;
-
+ 
 }
