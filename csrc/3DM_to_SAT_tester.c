@@ -19,11 +19,10 @@
 #include <time.h>
 #include <sys/time.h>
 #include <iostream>
-#include "gurobi_c++.h"
+//#include "gurobi_c++.h"
 #include "checkUSP_mip.h"
 
 int main(int argc, char * argv[]){
-
   int givenR = 15;
   int givenC = 6;
   // int * puzzle1 = (int *) malloc(sizeof(int *)*givenR);
@@ -119,7 +118,6 @@ int main(int argc, char * argv[]){
       printf("total average time: %.6f\n", total/checked);
       printf("finish checking%d by %d\n", j, i);
     }
-
   finalize_check_MIP();
   //}
 

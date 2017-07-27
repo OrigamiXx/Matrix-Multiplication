@@ -13,18 +13,17 @@ int corr_to_index(int s, int i, int j, int k){
 }
 
 
+
 GRBenv *env = NULL;
 
-// Frees statically allocated data. 
+// Frees statically allocated data.
 void finalize_check_MIP(){
 
   if (env != NULL) {
     GRBfreeenv(env);
     env = NULL;
   }
-  
 }
-
 
 int check_MIP(puzzle *p){
 
@@ -35,8 +34,8 @@ int check_MIP(puzzle *p){
       return -1;
     }
   }
-    
-    
+
+
   int s, i, j, k, index, max_index, counter;
   s = p -> row;
   max_index = s * s *s  -1;
@@ -157,7 +156,7 @@ int check_MIP(puzzle *p){
   // printf("\nOptimization complete\n");
   if (optimstatus == GRB_INFEASIBLE) {
     return 1;
-    
+
     //  printf("  x=%.0f, y=%.0f, z=%.0f\n", sol[0], sol[1], sol[2]);
   } else if (optimstatus == GRB_OPTIMAL) {
     return 0;

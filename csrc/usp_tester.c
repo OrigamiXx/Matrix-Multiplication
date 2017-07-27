@@ -13,7 +13,6 @@
 #include "checkUSP_mip.h"
 
 int main(int argc, char * argv[]){
-
   // distribution
   int one = 0, two=0, three=0, four=0;
   int five=0, six=0, seven=0, eight = 0;
@@ -103,9 +102,7 @@ int main(int argc, char * argv[]){
     //printf("rua%d\n",checked);
 
   }
-
   finalize_check_MIP();
-
   printf("checked 13by6 %d\n", checked);
   printf("checked 14by6 %d\n", checked2);
   printf("found %d\n", usps);

@@ -17,5 +17,5 @@ int corr_to_index(int s, int i, int j, int k);
 //Return 0 if p is a nonUSP, 1 if p is a USP, -1 if error occurs.
 int check_MIP(puzzle *p);
 
-// Frees statically allocated data. 
+// Frees statically allocated data.
 void finalize_check_MIP();

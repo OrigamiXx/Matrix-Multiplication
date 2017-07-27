@@ -69,9 +69,9 @@ void random_usps(int itask, KeyValue *kv, void *ptr){
     randomize_puzzle(p);
     sort_puzzle(p);
 
-    if (check(p -> puzzle, random_rows, column)) {
+    if //(check(p -> puzzle, random_rows, column)) {
 			// solver_simple(p->row, p->column,-1,p)){
-			//(check_MIP(p)){
+			(check_MIP(p)){
       count++;
       kv->add((char*)p -> puzzle, random_rows*sizeof(int), NULL, 0);
     }
@@ -137,7 +137,6 @@ void extend_puzzle(uint64_t itask, char * key, int keybytes, char *value, int va
 
 int main(int narg, char **args)
 {
-
   MPI_Init(&narg,&args);
 
   int me,nprocs;
@@ -208,7 +207,6 @@ int main(int narg, char **args)
 
   // stats to screen
   // include stats on number of nonzeroes per row
-
   finalize_check_MIP();
 
   if (me == 0)
