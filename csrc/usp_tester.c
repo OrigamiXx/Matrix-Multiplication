@@ -10,7 +10,7 @@
 #include <time.h>
 #include <sys/time.h>
 #include "3DM_to_SAT.h"
-#include "gurobi_c++.h"
+//#include "gurobi_c++.h"
 #include "checkUSP_mip.h"
 
 int main(int argc, char * argv[]){
@@ -29,8 +29,7 @@ int main(int argc, char * argv[]){
   } else {
     printf("Not a Strong USP.\n");
   }*/
-  GRBenv *env = NULL;
-  printf("%d\n", GRBloadenv(&env,NULL));
+  GRBenv env = initialize();
   // distribution
   int one = 0, two=0, three=0, four=0;
   int five=0, six=0, seven=0, eight = 0;
@@ -81,8 +80,8 @@ int main(int argc, char * argv[]){
       clock_gettime(CLOCK_MONOTONIC, &begin);
       if //(check(p->puzzle,p->row,p->column)){
         //(check_usp_bi(p->puzzle,p->row,p->column)){
-        //(DM_to_MIP(p, env)){
-        (solver_simple(p->row, p->column,-1,p)){
+        (DM_to_MIP(p, env)){
+        //(solver_simple(p->row, p->column,-1,p)){
         printf("this puzzle is a new 14 by 6y usp it's rua %d and index %d\n", checked+1, i);
         //write_puzzle(p, -1);
         //print_puzzle(p);
@@ -120,7 +119,7 @@ int main(int argc, char * argv[]){
     //printf("rua%d\n",checked);
 
   }
-  GRBfreeenv(env);
+  finialize();
   printf("checked 13by6 %d\n", checked);
   printf("checked 14by6 %d\n", checked2);
   printf("found %d\n", usps);

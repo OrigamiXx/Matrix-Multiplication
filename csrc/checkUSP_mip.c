@@ -20,6 +20,17 @@ int corr_to_index(int s, int i, int j, int k){
   return index;
 }
 
+GRBenv initialize(){
+  GRBenv *env = NULL;
+  GRBloadenv(&env,NULL);
+  return env;
+}
+
+void finialize(GRBenv *env){
+  GRBfreeenv(env);
+}
+
+
 int DM_to_MIP(puzzle *p, GRBenv * env){
 
 
