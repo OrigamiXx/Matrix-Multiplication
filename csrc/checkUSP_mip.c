@@ -18,9 +18,9 @@ GRBenv *env = NULL;
 // Frees statically allocated data. 
 void finalize_check_MIP(){
 
-  if (genv != NULL) {
+  if (env != NULL) {
     GRBfreeenv(env);
-    genv = NULL;
+    env = NULL;
   }
   
 }
