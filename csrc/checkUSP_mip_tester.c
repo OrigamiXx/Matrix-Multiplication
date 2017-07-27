@@ -79,16 +79,12 @@ int main(int argc, char * argv[]){
 
       puzzle * p;
       p = create_puzzle_from_index(j,i,0);
-<<<<<<< HEAD
-      for (index = 0; index < 2500; index++){
-=======
-      for (index = 0; index < 10; index++){
->>>>>>> af9a8ffcac457f16946ae9d8387f71c977919d77
+      for (index = 0; index < 100000; index++){
         //puzzle *p;
         //p = create_puzzle_from_index(j,i,index);
         clock_gettime(CLOCK_MONOTONIC, &begin);
-        int result1 = DM_to_MIP(p, env);
-        clock_gettime(CLOCK_MONOTONIC, &end);
+        //int result1 = DM_to_MIP(p, env);
+
         //int result2 = check(p -> puzzle, p->row, p -> column);
         // if (result1 != result2){
         //   printf("There are disagreement, 3DM is %d and check is %d", result1, result2);
@@ -97,9 +93,9 @@ int main(int argc, char * argv[]){
         // }
 
         if //(check(p->puzzle, p->row, p->column)){
-          (result1){
+          (DM_to_MIP(p, env)){
           //(popen_simple(p->row, p->column,-1,p)){
-
+          clock_gettime(CLOCK_MONOTONIC, &end);
           usp_total = usp_total + ((double)end.tv_sec + 1.0e-9*end.tv_nsec) - ((double)begin.tv_sec + 1.0e-9*begin.tv_nsec);
           usps++;
         }else {

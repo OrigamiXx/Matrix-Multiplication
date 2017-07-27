@@ -20,13 +20,15 @@
 #include "puzzle.h"
 #include "usp_bi.h"
 #include  <time.h>
+#include "gurobi_c++.h"
+#include "checkUSP_mip.h"
 using namespace MAPREDUCE_NS;
 
 
 void cull(char *, int, char *, int, int *, KeyValue *, void *);
 
 void cull(char *key, int keybytes, char *multivalue,
-	  int nvalues, int *valuebytes, KeyValue *kv, void *ptr) 
+	  int nvalues, int *valuebytes, KeyValue *kv, void *ptr)
 {
   kv->add(key,keybytes,NULL,0);
 }
@@ -64,15 +66,17 @@ void random_usps(int itask, KeyValue *kv, void *ptr){
   srand48(seed);
   puzzle * p = create_puzzle(target_rows, column);
   while (count < random_tries){
-    
+
     randomize_puzzle(p);
     sort_puzzle(p);
 
     if (check(p -> puzzle, random_rows, column)) {
+			// solver_simple(p->row, p->column,-1,p)){
+			//(DM_to_MIP(p, env)){
       count++;
-      kv->add((char*)p -> puzzle, random_rows*sizeof(int), NULL, 0);      
+      kv->add((char*)p -> puzzle, random_rows*sizeof(int), NULL, 0);
     }
-    
+
   }
 
   destroy_puzzle(p);
@@ -86,7 +90,7 @@ void row_one_keys(int itask, KeyValue *kv, void *ptr){
    const char * input = raw_input.c_str();
    puzzle * p = create_puzzle_from_file(input);
    if (check_usp_recursive(p)){
-     kv->add((char*)p->puzzle,p->row*sizeof(int),NULL,0);	
+     kv->add((char*)p->puzzle,p->row*sizeof(int),NULL,0);
    }
      destroy_puzzle(p);*/
    //insert all row one puzzle in the column size
@@ -98,7 +102,7 @@ void row_one_keys(int itask, KeyValue *kv, void *ptr){
 void extend_puzzle(uint64_t itask, char * key, int keybytes, char *value, int valuebytes, KeyValue *kv, void *ptr){
   int* puz = (int*)key;
   int new_puz[row];
-  
+
   int i;
   for(i=0; i<row-1; i++){
     new_puz[i] = puz[i];
@@ -116,7 +120,7 @@ void extend_puzzle(uint64_t itask, char * key, int keybytes, char *value, int va
     p.row = row;
     p.column = column;
     p.puzzle = new_puz;
-    
+
     percent = rand() % 100;
     //percent = 0;
     int percentage = 100;
@@ -124,7 +128,7 @@ void extend_puzzle(uint64_t itask, char * key, int keybytes, char *value, int va
     if (percent < percentage && check(p.puzzle, p.row, p.column)){//check_usp(&p)){//check_usp_recursive(&p)){
       //index++;
       //if(index<2){
-      
+
       kv->add((char*)new_puz, row*sizeof(int), NULL, 0);
       //}
     }
@@ -134,12 +138,14 @@ void extend_puzzle(uint64_t itask, char * key, int keybytes, char *value, int va
 
 int main(int narg, char **args)
 {
+	GRBenv *env = NULL;
+  printf("%d\n", GRBloadenv(&env,NULL));
   MPI_Init(&narg,&args);
 
   int me,nprocs;
   MPI_Comm_rank(MPI_COMM_WORLD,&me);
   MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
-  
+
   // parse command-line args
   //int column;
   if (narg != 2 && narg != 5){//&& narg != 10) {
@@ -200,12 +206,12 @@ int main(int narg, char **args)
   MPI_Barrier(MPI_COMM_WORLD);
   double tstop = MPI_Wtime();
 
-  
+
 
   // stats to screen
   // include stats on number of nonzeroes per row
 
-  
+	GRBfreeenv(env);
 
   if (me == 0)
     printf("time: %g secs\n", tstop-tstart);
@@ -216,4 +222,3 @@ int main(int narg, char **args)
   //delete [] rmat.outfile;
   MPI_Finalize();
 }
-

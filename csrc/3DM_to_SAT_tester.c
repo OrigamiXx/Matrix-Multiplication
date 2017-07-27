@@ -18,8 +18,13 @@
 #include "3DM_to_SAT.h"
 #include <time.h>
 #include <sys/time.h>
+#include <iostream>
+#include "gurobi_c++.h"
+#include "checkUSP_mip.h"
 
 int main(int argc, char * argv[]){
+  GRBenv *env = NULL;
+  GRBloadenv(&env,NULL);
   int givenR = 15;
   int givenC = 6;
   // int * puzzle1 = (int *) malloc(sizeof(int *)*givenR);
@@ -58,10 +63,10 @@ int main(int argc, char * argv[]){
     checked++;
   }
   printf("checked: %d\n", checked);*/
-    i = givenC;
+  i = givenC;
   //j = givenR;
   //for (i = 1; i<=givenC; i++){
-    for (j = 1; j <= givenR; j++){
+  for (j = 1; j <= givenR; j++){
       long checked = 0;
       double usp_total = 0;
       double nonusp_total = 0;
@@ -82,14 +87,17 @@ int main(int argc, char * argv[]){
 
 
   //for (index = 0; index < power(3, i*j) -1; index+=100000000000000){
-      puzzle * p;
-      p = create_puzzle_from_index(j,i,244);
-      for (index = 0; index < 10000; index++){
+      //puzzle * p;
+      puzzle * p = create_puzzle(j, i);
+      randomize_puzzle(p);
+      srand48(time(NULL));
+      for (index = 0; index < 100000; index++){
         //puzzle *p;
         //p = create_puzzle_from_index(j,i,index);
         clock_gettime(CLOCK_MONOTONIC, &begin);
         if //(check(p->puzzle, p->row, p->column)){
-          (solver_simple(p->row, p->column,-1,p)){
+          (DM_to_MIP(p, env)){
+          //(solver_simple(p->row, p->column,-1,p)){
           //(popen_simple(p->row, p->column,-1,p)){
           clock_gettime(CLOCK_MONOTONIC, &end);
           usp_total = usp_total + ((double)end.tv_sec + 1.0e-9*end.tv_nsec) - ((double)begin.tv_sec + 1.0e-9*begin.tv_nsec);
@@ -102,6 +110,7 @@ int main(int argc, char * argv[]){
         checked++;
         total = nonusp_total + usp_total;
         randomize_puzzle(p);
+        srand48(time(NULL));
         //destroy_puzzle(p);
       }
       destroy_puzzle(p);
@@ -110,7 +119,8 @@ int main(int argc, char * argv[]){
             usp_total/usps, nonusp_total/nonusps);
       printf("total average time: %.6f\n", total/checked);
       printf("finish checking%d by %d\n", j, i);
-      }
+    }
+    GRBfreeenv(env);
   //}
 
   // if(popen_simple(givenR, givenC, get_index_from_puzzle(result),result)){

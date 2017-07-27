@@ -339,7 +339,7 @@ void write_puzzle(puzzle * p, int index){
   //printf(name);
   //string name;
   //name = "puzzles" + to_string(p->row) + "_" + to_string(p->column) + "_" + to_string(index) + extension;
-  f = fopen("1", "w");
+  f = fopen("1", "a");
   assert(f != NULL);
   int i, j;
   for(i=0; i<p->row;i++){

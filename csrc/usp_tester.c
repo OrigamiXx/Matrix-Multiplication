@@ -10,6 +10,9 @@
 #include <time.h>
 #include <sys/time.h>
 #include "3DM_to_SAT.h"
+#include "gurobi_c++.h"
+#include "checkUSP_mip.h"
+
 int main(int argc, char * argv[]){
 
   //puzzle * p = create_puzzle(8,6); //6,3); // correct one (8,6)
@@ -26,16 +29,26 @@ int main(int argc, char * argv[]){
   } else {
     printf("Not a Strong USP.\n");
   }*/
+  GRBenv *env = NULL;
+  printf("%d\n", GRBloadenv(&env,NULL));
+  // distribution
+  int one = 0, two=0, three=0, four=0;
+  int five=0, six=0, seven=0, eight = 0;
   int checked = 0;
   int checked2 = 0;
+  double total = 0;
+  double individual = 0;
   int usps = 0;
   char buff[256];
   int element;
   int next_element;
   int row;
   int row_index;
+  int time = 46800;
+
   struct timespec begin={0,0}, end={0,0};
-  FILE * puzzles = fopen("data/13-by-6-big.txt", "r");
+  FILE * puzzles = fopen("data/13-by-6-data.txt", "r");
+  //FILE * puzzles = fopen("1", "r");
   while(!feof(puzzles)){
     puzzle * p = create_puzzle(14,6);
     row = 0;
@@ -58,28 +71,69 @@ int main(int argc, char * argv[]){
       //printf("got here \n");
     }
     //print_puzzle(p);
+    if (total>time) {
+      break;
+    }
     for (int i = 0; i < 729; i++){
       p->puzzle[row] = i;
       //print_puzzle(p);
       //printf("got here \n");
       clock_gettime(CLOCK_MONOTONIC, &begin);
       if //(check(p->puzzle,p->row,p->column)){
-        (check_usp_bi(p->puzzle,p->row,p->column)){
-        //(solver_simple(p->row, p->column,-1,p)){
-        printf("this puzzle is a new 14 by 6y usp\n");
-        print_puzzle(p);
+        //(check_usp_bi(p->puzzle,p->row,p->column)){
+        //(DM_to_MIP(p, env)){
+        (solver_simple(p->row, p->column,-1,p)){
+        printf("this puzzle is a new 14 by 6y usp it's rua %d and index %d\n", checked+1, i);
+        //write_puzzle(p, -1);
+        //print_puzzle(p);
         usps++;
       }
       clock_gettime(CLOCK_MONOTONIC, &end);
-      printf("this one %d takes %.5f\n", i, ((double)end.tv_sec + 1.0e-9*end.tv_nsec) - ((double)begin.tv_sec + 1.0e-9*begin.tv_nsec));
+      checked2++;
+      individual = ((double)end.tv_sec + 1.0e-9*end.tv_nsec) - ((double)begin.tv_sec + 1.0e-9*begin.tv_nsec);
+
+      total += individual;
+      //printf("this one %d takes %.5f\n", i, ((double)end.tv_sec + 1.0e-9*end.tv_nsec) - ((double)begin.tv_sec + 1.0e-9*begin.tv_nsec));
+      if (individual>=0 && individual < 0.01){
+        one++;
+      } else if(individual >= 0.01 && individual < 0.1){
+        two++;
+      } else if (individual >= 0.1 && individual < 1){
+        three++;
+      } else if (individual >= 1 && individual < 10){
+        four++;
+      } else if (individual >= 10 && individual < 50){
+        five++;
+      } else if (individual >= 50 && individual < 100){
+        six++;
+      } else if (individual >= 100 && individual < 300){
+        seven++;
+      } else {
+        eight++;
+      }
+      if (total>time) {
+        break;
+      }
     }
     destroy_puzzle(p);
     checked++;
-    printf("rua%d\n",checked);
+    //printf("rua%d\n",checked);
+
   }
+  GRBfreeenv(env);
   printf("checked 13by6 %d\n", checked);
   printf("checked 14by6 %d\n", checked2);
   printf("found %d\n", usps);
+  printf("total time %.5f and avg checking time %.5f\n",total, total/checked2);
+  printf("there are: \n");
+  printf("%d of 0-0.01 \n", (int) one);
+  printf("%d of 0.01-0.1 \n", (int) two);
+  printf("%d of 0.1-1 \n", three);
+  printf("%d of 1-10 \n", four);
+  printf("%d of 10-50 \n", five);
+  printf("%d of 50-100 \n", six);
+  printf("%d of 100-300 \n", seven);
+  printf("%d of 300+ \n", eight);
 
 
 
