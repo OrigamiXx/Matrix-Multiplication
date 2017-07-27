@@ -5,14 +5,6 @@
 #include "usp.h"
 #include "checkUSP_mip.h"
 
-// int power(int base, int exponent){
-//   int result = 1;
-//   for (int i = 0; i < exponent; i++){
-//     result = result * base;
-//   }
-//   return result;
-// }
-
 //Conver the corrdiate for 3D matching into one index in the format of ijk
 int corr_to_index(int s, int i, int j, int k){
   int index;
@@ -20,14 +12,36 @@ int corr_to_index(int s, int i, int j, int k){
   return index;
 }
 
-int DM_to_MIP(puzzle *p, GRBenv * env){
+
+GRBenv *env = NULL;
+
+// Frees statically allocated data. 
+void finalize_check_MIP(){
+
+  if (genv != NULL) {
+    GRBfreeenv(env);
+    genv = NULL;
+  }
+  
+}
 
 
+int check_MIP(puzzle *p){
+
+  if (env == NULL) {
+    int res = GRBloadenv(&env, NULL);
+    if (res != 0) {
+      env = NULL;
+      return -1;
+    }
+  }
+    
+    
   int s, i, j, k, index, max_index, counter;
   s = p -> row;
   max_index = s * s *s  -1;
 
-  // GRBenv   *env   = environment;
+
   GRBmodel *model = NULL;
   int       ind[max_index];
   double    val[max_index];
@@ -143,9 +157,9 @@ int DM_to_MIP(puzzle *p, GRBenv * env){
   // printf("\nOptimization complete\n");
   if (optimstatus == GRB_INFEASIBLE) {
     return 1;
-
-  //  printf("  x=%.0f, y=%.0f, z=%.0f\n", sol[0], sol[1], sol[2]);
-} else if (optimstatus == GRB_OPTIMAL) {
+    
+    //  printf("  x=%.0f, y=%.0f, z=%.0f\n", sol[0], sol[1], sol[2]);
+  } else if (optimstatus == GRB_OPTIMAL) {
     return 0;
   } else {
     return -1;

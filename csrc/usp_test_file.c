@@ -12,7 +12,7 @@ int main(int argc, char * argv[]){
   
   puzzle * p = create_puzzle_from_file(argv[1]);
   if (p == NULL) {
-    fprintf("Error: File does not exist or is not properly formated.\n");
+    fprintf(stderr,"Error: File does not exist or is not properly formated.\n");
     return -1;
   }
   

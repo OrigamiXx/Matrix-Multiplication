@@ -23,8 +23,7 @@
 #include "checkUSP_mip.h"
 
 int main(int argc, char * argv[]){
-  GRBenv *env = NULL;
-  GRBloadenv(&env,NULL);
+
   int givenR = 15;
   int givenC = 6;
   // int * puzzle1 = (int *) malloc(sizeof(int *)*givenR);
@@ -96,7 +95,7 @@ int main(int argc, char * argv[]){
         //p = create_puzzle_from_index(j,i,index);
         clock_gettime(CLOCK_MONOTONIC, &begin);
         if //(check(p->puzzle, p->row, p->column)){
-          (DM_to_MIP(p, env)){
+          (check_MIP(p)){
           //(solver_simple(p->row, p->column,-1,p)){
           //(popen_simple(p->row, p->column,-1,p)){
           clock_gettime(CLOCK_MONOTONIC, &end);
@@ -120,7 +119,8 @@ int main(int argc, char * argv[]){
       printf("total average time: %.6f\n", total/checked);
       printf("finish checking%d by %d\n", j, i);
     }
-    GRBfreeenv(env);
+
+  finalize_check_MIP();
   //}
 
   // if(popen_simple(givenR, givenC, get_index_from_puzzle(result),result)){

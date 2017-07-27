@@ -20,7 +20,6 @@
 #include "puzzle.h"
 #include "usp_bi.h"
 #include  <time.h>
-#include "gurobi_c++.h"
 #include "checkUSP_mip.h"
 using namespace MAPREDUCE_NS;
 
@@ -72,7 +71,7 @@ void random_usps(int itask, KeyValue *kv, void *ptr){
 
     if (check(p -> puzzle, random_rows, column)) {
 			// solver_simple(p->row, p->column,-1,p)){
-			//(DM_to_MIP(p, env)){
+			//(check_MIP(p)){
       count++;
       kv->add((char*)p -> puzzle, random_rows*sizeof(int), NULL, 0);
     }
@@ -138,8 +137,7 @@ void extend_puzzle(uint64_t itask, char * key, int keybytes, char *value, int va
 
 int main(int narg, char **args)
 {
-	GRBenv *env = NULL;
-  printf("%d\n", GRBloadenv(&env,NULL));
+
   MPI_Init(&narg,&args);
 
   int me,nprocs;
@@ -211,7 +209,7 @@ int main(int narg, char **args)
   // stats to screen
   // include stats on number of nonzeroes per row
 
-	GRBfreeenv(env);
+  finalize_check_MIP();
 
   if (me == 0)
     printf("time: %g secs\n", tstop-tstart);
