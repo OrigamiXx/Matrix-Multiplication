@@ -21,6 +21,7 @@
 #include "usp_bi.h"
 #include  <time.h>
 #include "checkUSP_mip.h"
+#include "3DM_to_SAT.h"
 using namespace MAPREDUCE_NS;
 
 
@@ -70,7 +71,7 @@ void random_usps(int itask, KeyValue *kv, void *ptr){
     sort_puzzle(p);
 
     if //(check(p -> puzzle, random_rows, column)) {
-			// solver_simple(p->row, p->column,-1,p)){
+			// (check_SAT(p)){
 			(check_MIP(p)){
       count++;
       kv->add((char*)p -> puzzle, random_rows*sizeof(int), NULL, 0);

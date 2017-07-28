@@ -340,9 +340,11 @@ int file_simple(int row, int column, long index, puzzle * p){
 
 // direct interface with the solver
 // true if is UNSAT which is a USP; false OW;
-bool solver_simple(int row, int column, long index, puzzle * p){
+bool check_SAT(puzzle * p){
+  int row = p->row;
+  //int column = p->column;
   int i, j, k;
-  int num_false_coor=0;
+  //int num_false_coor=0;
   int x = 1;
   int y = 2;
   Solver S;
@@ -512,6 +514,4 @@ bool solver_simple(int row, int column, long index, puzzle * p){
       return false;
     }
   }
-
-
 }

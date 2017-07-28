@@ -30,5 +30,5 @@ long power(int base, int exponent);
 
 // direct interface with the solver
 // true if is UNSAT which is a USP; false OW;
-bool solver_simple(int row, int column, long index, puzzle * p);
+bool check_SAT(puzzle * p);
 #endif

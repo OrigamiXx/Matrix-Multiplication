@@ -64,7 +64,7 @@ int main(int argc, char * argv[]){
       if //(check(p->puzzle,p->row,p->column)){
         //(check_usp_bi(p->puzzle,p->row,p->column)){
         //(check_MIP(p)){
-        (solver_simple(p->row, p->column,-1,p)){
+        (check_SAT(p)){
         printf("this puzzle is a new 14 by 6y usp it's rua %d and index %d\n", checked+1, i);
         //write_puzzle(p, -1);
         //print_puzzle(p);

@@ -1100,7 +1100,7 @@ void witness_simplify(bool * row_witness, puzzle_row U[], int s, int k){
 
     int missing = (counts[0] == 0) + (counts[1] == 0) + (counts[2] == 0);
     if (missing == 1) {
-      
+
       for (int i = 0; i < s; i++){
 	for (int j = 0; j < s; j++){
 	  if (get_column_from_row(U[i], c) != get_column_from_row(U[j], c)) {
@@ -1120,11 +1120,11 @@ void witness_simplify(bool * row_witness, puzzle_row U[], int s, int k){
 	}
       }
     }
-    
+
   }
-  
+
 }
-  
+
 
 /*
  * Determines whether the given s-by-k puzzle U is a strong USP.
@@ -1153,7 +1153,7 @@ bool check(puzzle_row U[], int s, int k){
 	}
       }
     }
-    
+
     int res = random_precheck(row_witness, s, k, iter);
     if (res != 0)
       return res == 1;
@@ -1164,7 +1164,7 @@ bool check(puzzle_row U[], int s, int k){
 
       // XXX - Not sure this is a good idea.
       witness_simplify(row_witness, U, s, k);
-      
+
       res = greedy_precheck(row_witness, s, iter);
       if (res != 0)
 	return res == 1;
@@ -1173,7 +1173,7 @@ bool check(puzzle_row U[], int s, int k){
       p.puzzle = U;
       p.column = k;
       p.row = s;
-      return solver_simple(s, k, -1, &p);
+      return check_SAT(&p);
     }
   }
 

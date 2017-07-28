@@ -95,7 +95,7 @@ int main(int argc, char * argv[]){
         clock_gettime(CLOCK_MONOTONIC, &begin);
         if //(check(p->puzzle, p->row, p->column)){
           (check_MIP(p)){
-          //(solver_simple(p->row, p->column,-1,p)){
+          //(check_SAT(p)){
           //(popen_simple(p->row, p->column,-1,p)){
           clock_gettime(CLOCK_MONOTONIC, &end);
           usp_total = usp_total + ((double)end.tv_sec + 1.0e-9*end.tv_nsec) - ((double)begin.tv_sec + 1.0e-9*begin.tv_nsec);
