@@ -527,10 +527,13 @@ bool has_2d_matchings(bool * row_witness, int s){
 
 /*
  * Returns true iff it finds a witness that puzzle is not a strong USP.
- * False indicates the search was inconclusive.
+ * False indicates the search was inconclusive.  Requires s <= 31.
  */
 bool has_random_witness(bool * row_witnesses, int s, int repeats){
 
+  if (s > 31)
+    return false;
+  
   bool failed = false;
   int best = 0;
   int total = 0;
@@ -600,10 +603,13 @@ bool has_random_witness(bool * row_witnesses, int s, int repeats){
  * that layer.  This repeats until a witness is found, or no progress
  * can be made.  This process repeats for some specified number of
  * iterations.  There is no benefit to reorder_witnesses() be called
- * before this.
+ * before this.  Requires s <= 31.
  */
 int greedy_precheck(bool * row_witnesses, int s, int repeats){
 
+  if (s > 31)
+    return false;
+  
   //print_row_witnesses(row_witnesses, s);
 
   bool failed = false;
@@ -808,6 +814,8 @@ bool check_usp_bi_inner(bool * row_witness, int s){
   // reverse_memo indicates whether a witness has been found for that
   // subproblem.
 
+  assert(s <= 31);
+  
   map<set_long,bool> forward_memo;
   map<set_long,bool> reverse_memo;
 
@@ -1170,7 +1178,7 @@ bool check(puzzle_row U[], int s, int k){
 
       // XXX - This won't do anything for the SAT solver because it
       //doesn't take in row_witness.
-      witness_simplify(row_witness, U, s, k);
+      //witness_simplify(row_witness, U, s, k);
 
       res = greedy_precheck(row_witness, s, iter);
       if (res != 0)
