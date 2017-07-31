@@ -89,7 +89,7 @@ set up correctly.
 Go to http://www.gurobi.com/products/supported-platforms to check the special
 requirement. Look for the note section.
 
-Since the machine in Crochet lib are in Ubuntu 16.04, this is an instruction
+Since the machine in Crochet lab are in Ubuntu 16.04, this is an instruction
 for Ubuntu 16.04:
 
   Get to directory ".../gurobi751/linux64/lib" on command line. Type in "ls -la".

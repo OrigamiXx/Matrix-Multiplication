@@ -15,6 +15,8 @@
 #include "puzzle.h"
 #include <math.h>
 #include "usp_bi.h"
+#include <pthread.h>
+#include <syscall.h>
 
 #include <errno.h>
 #include <signal.h>
@@ -23,10 +25,7 @@
 #include "core/Dimacs.h"
 #include "core/Solver.h"
 #include "core/SolverTypes.h"
-#include "pthread.h"
 using namespace Minisat;
-
-static Solver* solver;
 
 long power(int base, int exponent){
   long result = 1;
@@ -340,18 +339,19 @@ int file_simple(int row, int column, long index, puzzle * p){
 
 // direct interface with the solver
 // true if is UNSAT which is a USP; false OW;
-Solver S;
-bool check_SAT(puzzle * p){
+
+
+
+bool check_SAT(puzzle * p, Solver * S){
   int row = p->row;
   //int column = p->column;
   int i, j, k;
   //int num_false_coor=0;
   int x = 1;
   int y = 2;
-  //Solver S;
-  S.verbosity = 0;
 
-  solver = &S;
+  S -> verbosity = 0;
+  
   vec<Lit> lits;
   int var, lit;
   lits.clear();
@@ -364,13 +364,13 @@ bool check_SAT(puzzle * p){
           lits.clear();
           lit = -coor_converter(x, i, j, row);
           var = coor_converter(x, i, j, row)-1;
-          while (var >= S.nVars()) S.newVar();
+          while (var >= S -> nVars()) S -> newVar();
           lits.push( (lit > 0) ? mkLit(var) : ~mkLit(var) );
           lit = -coor_converter(y, i, k, row);
           var = coor_converter(y, i, k, row)-1;
-          while (var >= S.nVars()) S.newVar();
+          while (var >= S -> nVars()) S -> newVar();
           lits.push( (lit > 0) ? mkLit(var) : ~mkLit(var) );
-          S.addClause_(lits);
+          S -> addClause_(lits);
         }
       }
     }
@@ -385,13 +385,13 @@ bool check_SAT(puzzle * p){
           lits.clear();
           lit = -coor_converter(x, i, j, row);
           var = coor_converter(x, i, j, row)-1;
-          while (var >= S.nVars()) S.newVar();
+          while (var >= S -> nVars()) S -> newVar();
           lits.push( (lit > 0) ? mkLit(var) : ~mkLit(var) );
           lit = -coor_converter(x, i, k, row);
           var = coor_converter(x, i, k, row)-1;
-          while (var >= S.nVars()) S.newVar();
+          while (var >= S -> nVars()) S -> newVar();
           lits.push( (lit > 0) ? mkLit(var) : ~mkLit(var) );
-          S.addClause_(lits);
+          S -> addClause_(lits);
         }
       }
     }
@@ -404,13 +404,13 @@ bool check_SAT(puzzle * p){
           lits.clear();
           lit = -coor_converter(x, j, i, row);
           var = coor_converter(x, j, i, row)-1;
-          while (var >= S.nVars()) S.newVar();
+          while (var >= S -> nVars()) S -> newVar();
           lits.push( (lit > 0) ? mkLit(var) : ~mkLit(var) );
           lit = -coor_converter(x, k, i, row);
           var = coor_converter(x, k, i, row)-1;
-          while (var >= S.nVars()) S.newVar();
+          while (var >= S -> nVars()) S -> newVar();
           lits.push( (lit > 0) ? mkLit(var) : ~mkLit(var) );
-          S.addClause_(lits);
+          S -> addClause_(lits);
         }
       }
     }
@@ -424,13 +424,13 @@ bool check_SAT(puzzle * p){
           lits.clear();
           lit = -coor_converter(y, i, j, row);
           var = coor_converter(y, i, j, row)-1;
-          while (var >= S.nVars()) S.newVar();
+          while (var >= S -> nVars()) S -> newVar();
           lits.push( (lit > 0) ? mkLit(var) : ~mkLit(var) );
           lit = -coor_converter(y, i, k, row);
           var = coor_converter(y, i, k, row)-1;
-          while (var >= S.nVars()) S.newVar();
+          while (var >= S -> nVars()) S -> newVar();
           lits.push( (lit > 0) ? mkLit(var) : ~mkLit(var) );
-          S.addClause_(lits);
+          S -> addClause_(lits);
         }
       }
     }
@@ -443,13 +443,13 @@ bool check_SAT(puzzle * p){
           lits.clear();
           lit = -coor_converter(y, j, i, row);
           var = coor_converter(y, j, i, row)-1;
-          while (var >= S.nVars()) S.newVar();
+          while (var >= S -> nVars()) S -> newVar();
           lits.push( (lit > 0) ? mkLit(var) : ~mkLit(var) );
           lit = -coor_converter(y, k, i, row);
           var = coor_converter(y, k, i, row)-1;
-          while (var >= S.nVars()) S.newVar();
+          while (var >= S -> nVars()) S -> newVar();
           lits.push( (lit > 0) ? mkLit(var) : ~mkLit(var) );
-          S.addClause_(lits);
+          S -> addClause_(lits);
         }
       }
     }
@@ -461,11 +461,11 @@ bool check_SAT(puzzle * p){
       //fprintf(file, "%d ", coor_converter(x, i, j, row));
       lit = coor_converter(x, i, j, row);
       var = coor_converter(x, i, j, row)-1;
-      while (var >= S.nVars()) S.newVar();
+      while (var >= S -> nVars()) S -> newVar();
       lits.push( (lit > 0) ? mkLit(var) : ~mkLit(var) );
     }
     //fprintf(file, "0\n");
-    S.addClause_(lits);
+    S -> addClause_(lits);
     lits.clear();
   }
   lits.clear();
@@ -474,11 +474,11 @@ bool check_SAT(puzzle * p){
       //fprintf(file, "%d ", coor_converter(y, i, k, row));
       lit = coor_converter(y, i, k, row);
       var = coor_converter(y, i, k, row)-1;
-      while (var >= S.nVars()) S.newVar();
+      while (var >= S -> nVars()) S -> newVar();
       lits.push( (lit > 0) ? mkLit(var) : ~mkLit(var) );
     }
     //fprintf(file, "0\n");
-    S.addClause_(lits);
+    S -> addClause_(lits);
     lits.clear();
   }
   //diagonal 1c
@@ -487,28 +487,28 @@ bool check_SAT(puzzle * p){
     //fprintf(file, "-%d -%d ", coor_converter(x, i, i, row), coor_converter(y, i, i, row));
     lit = -coor_converter(x, i, i, row);
     var = coor_converter(x, i, i, row)-1;
-    while (var >= S.nVars()) S.newVar();
+    while (var >= S -> nVars()) S -> newVar();
     lits.push( (lit > 0) ? mkLit(var) : ~mkLit(var) );
     lit = -coor_converter(y, i, i, row);
     var = coor_converter(y, i, i, row)-1;
-    while (var >= S.nVars()) S.newVar();
+    while (var >= S -> nVars()) S -> newVar();
     lits.push( (lit > 0) ? mkLit(var) : ~mkLit(var) );
   }
   //fprintf(file, "0\n");
-  S.addClause_(lits);
+  S -> addClause_(lits);
   lits.clear();
-
-  if (!S.simplify()){
+  
+  if (!(S -> simplify())){
     return true;
   }else{
     vec<Lit> dummy;
-    /*lbool ret = S.solveLimited(dummy);
-    if (ret == l_True){
+    /*lbool ret = S -> solveLimited(dummy);
+      if (ret == l_True){
       return false;
-    }else if(ret == l_False){
+      }else if(ret == l_False){
       return true;
-    }*/
-    bool ret = S.solve();
+      }*/
+    bool ret = S -> solve();
     if (!ret){
       return true;
     }else if(ret){
@@ -518,16 +518,39 @@ bool check_SAT(puzzle * p){
 }
 
 
+bool check_SAT(puzzle * p){
+
+  Solver * S = new Solver();
+  bool res = check_SAT(p, S);
+  delete S;
+  return res;
+  
+}
+
 void *SAT(void *arguments){
   struct thread *args = (struct thread *)arguments;
-  args->x = &S;
-  pthread_mutex_unlock(args->ms);
-  int res = check_SAT(args->p);
-  pthread_mutex_unlock(args->mm);
+
+  Solver * S = new Solver();
+  args -> solver_handle = S;
+  pthread_mutex_unlock(&(args->init_lock));
+  
+  int res = check_SAT(args->p, S);
+
+  pthread_mutex_lock(args -> cleanup_lock);
+  args -> solver_handle = NULL;
+  delete S;
+
+  pthread_mutex_unlock(&(args->complete_lock));
+
   pthread_exit((void*)res);
 }
 
-void sat_interupt(void * x){
-  S.interrupt();
-  S.clearInterrupt();
+void sat_interrupt(void * solver_handle){
+
+  if (solver_handle != NULL) {
+    //printf("Interrupting\n");
+    ((Solver *)solver_handle) -> interrupt();
+    //printf("Done Interrupting\n");
+  }
+
 }

@@ -28,11 +28,14 @@
 #include "pthread.h"
 #include "puzzle.h"
 using namespace std;
+
 typedef struct thread {
   puzzle * p;
-  pthread_mutex_t *mm;    //main mutex
-  pthread_mutex_t *ms;    //stop mutex
-  void * x;
+  pthread_mutex_t complete_lock;
+  pthread_mutex_t init_lock;
+  pthread_mutex_t * cleanup_lock;
+  
+  void * solver_handle;
 }thread;
 
 /*

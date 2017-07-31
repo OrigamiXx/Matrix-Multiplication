@@ -21,4 +21,4 @@ int check_MIP(puzzle *p);
 void finalize_check_MIP();
 
 void * MIP(void * arguements);
-void  mip_abort(void * x);
+void  mip_interrupt(void * solver_handle);

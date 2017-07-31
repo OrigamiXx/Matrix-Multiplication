@@ -3,7 +3,10 @@
 #include "gurobi_c++.h"
 #include "puzzle.h"
 #include "usp.h"
+#include "usp_bi.h"
 #include "checkUSP_mip.h"
+#include <unistd.h>
+
 
 //Conver the corrdiate for 3D matching into one index in the format of ijk
 int corr_to_index(int s, int i, int j, int k){
@@ -165,13 +168,32 @@ int check_MIP(puzzle *p){
   }
 }
 
-void * MIP(void * arguements){
-  int a;
-  while (true){
-    a = 0;
-  }
+// Dummy code for MIP thread.
+void * MIP(void * arguments){
+  pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS,NULL);
+ 
+  struct thread *args = (struct thread *)arguments;
+
+  // XXX - Allocate here.
+  args -> solver_handle = NULL;
+  pthread_mutex_unlock(&(args->init_lock));
+
+  //printf("Sleeping\n");
+  
+  sleep(10000);
+
+  //printf("Awake\n");
+
+
+  pthread_mutex_lock(args -> cleanup_lock);
+
+  // XXX - Deallocate here.
+  
+  pthread_mutex_unlock(&(args->complete_lock));
+  
+  pthread_exit((void*)false);
 }
 
-void mip_abort(void * x){
+void mip_interrupt(void * solver_handle){
   int a =0;
 }

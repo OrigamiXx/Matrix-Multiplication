@@ -6,21 +6,15 @@
 MPICC=mpic++
 CC=g++
 CCFLAGS=-c -Wall -O3 -pg -ggdb
-LDFLAGS=-lm -pg
+LDFLAGS=-lm -pg -pthread -lgurobi_c++ -lgurobi75
 RMFLAGS=-f
 # Put additional object sources in list below.
-OBJ-SOURCES=usp.c permutation.c puzzle.c set.c usp_bi.c matching.c 3DM_to_SAT.c
-
+OBJ-SOURCES=usp.c permutation.c puzzle.c set.c usp_bi.c matching.c 3DM_to_SAT.c checkUSP_mip.c
 # Put additional executable sources in list below.
-EXE-SOURCES=permutation_tester.c puzzle_tester.c set_tester.c generate_puzzle.c usp_exp.c matching_tester.c test.c usp_construct.c usp_test_file.c usp_greedy.c
+EXE-SOURCES=permutation_tester.c puzzle_tester.c set_tester.c generate_puzzle.c usp_exp.c matching_tester.c test.c usp_construct.c usp_test_file.c usp_greedy.c checkUSP_mip_tester.c usp_tester.c 3DM_to_SAT_tester.c
 # Put additional parallel / cluster executable sources in list below, must end with "_para".
-PARA-SOURCES=
-ifdef GUROBI_HOME
-OBJ-SOURCES+=checkUSP_mip.c
-EXE-SOURCES+=checkUSP_mip_tester.c usp_tester.c 3DM_to_SAT_tester.c
-PARA-SOURCES+=usp_para.c
-LDFLAGS+=-lgurobi_c++ -lgurobi75
-endif
+PARA-SOURCES=usp_para.c
+
 OBJDIR=objs
 BINDIR=bin
 SRCDIR=csrc
@@ -51,7 +45,7 @@ $(BINDIR)/%_para: $(SRCDIR)/%_para.c $(MRMPI_L)
 	$(MPICC) -I $(MRMPI_SRC_PATH) $(OBJECTS) $(SOLVER_OBJECTS) $(LDFLAGS) -L $(GUROBI_HOME)/lib $< $(MRMPI_L) -o $@
 
 $(BINDIR)/% : $(SRCDIR)/%.c $(OBJECTS)
-	$(CC) -I $(GUROBI_HOME)/include $(OBJECTS) $(SOLVER_OBJECTS) -L $(GUROBI_HOME)/lib $(LDFLAGS) $< -o $@
+	$(CC) -I $(GUROBI_HOME)/include $(OBJECTS) $(SOLVER_OBJECTS) -L /home/andersm2/gurobi751/linux64/lib $(LDFLAGS) $< -o $@
 
 tmp_dirs:
 	mkdir -p $(OBJDIR)

@@ -33,6 +33,7 @@
 #include "time.h"
 #include <unistd.h>
 #include "puzzle.h"
+#include <syscall.h>
 using namespace std;
 
 /*
@@ -1168,7 +1169,7 @@ bool check(puzzle_row U[], int s, int k){
     } else {
 
       // XXX - Not sure this is a good idea.
-      witness_simplify(row_witness, U, s, k);
+      //witness_simplify(row_witness, U, s, k);
 
       res = greedy_precheck(row_witness, s, iter);
       if (res != 0)
@@ -1178,46 +1179,64 @@ bool check(puzzle_row U[], int s, int k){
       p.puzzle = U;
       p.column = k;
       p.row = s;
-      pthread_mutex_t m1 = PTHREAD_MUTEX_INITIALIZER;
-      pthread_mutex_t m2 = PTHREAD_MUTEX_INITIALIZER;
-      pthread_mutex_t m11 = PTHREAD_MUTEX_INITIALIZER;
-      pthread_mutex_t m21 = PTHREAD_MUTEX_INITIALIZER;
-      pthread_mutex_lock(&m1);
-      pthread_mutex_lock(&m2);
-      pthread_t th1, th2;
-      struct thread input1;
-      input1.p = &p;
-      input1.mm = &m1;
-      input1.ms = &m11;
 
-      struct thread input2;
-      input2.p = &p;
-      input2.mm = &m2;
-      input2.ms = &m21;
-      void *res;
-      *((int*)res) = -1;
-      //int res = -1;
-      pthread_create(&th1, NULL, MIP, (void *)&input1);
-      pthread_create(&th2, NULL, SAT, (void *)&input2);
-      while (*((int*)res)==-1){
+      pthread_mutex_t cleanup_lock = PTHREAD_MUTEX_INITIALIZER;
+      
+      pthread_t th_MIP;
+      pthread_t th_SAT;
+      struct thread input_MIP;
+      input_MIP.p = &p;
+      input_MIP.complete_lock = PTHREAD_MUTEX_INITIALIZER;
+      input_MIP.init_lock = PTHREAD_MUTEX_INITIALIZER;
+      input_MIP.cleanup_lock = &cleanup_lock;
+
+      pthread_mutex_lock(&input_MIP.complete_lock);
+      pthread_mutex_lock(&input_MIP.init_lock);
+      
+      struct thread input_SAT;
+      input_SAT.p = &p;
+      input_SAT.complete_lock = PTHREAD_MUTEX_INITIALIZER;
+      input_SAT.init_lock = PTHREAD_MUTEX_INITIALIZER;
+      input_SAT.cleanup_lock = &cleanup_lock;
+
+      pthread_mutex_lock(&input_SAT.complete_lock);
+      pthread_mutex_lock(&input_SAT.init_lock);
+      
+      long res = -1; // This must be a long, because of sizeof(long) = sizeof(void *)
+
+      pthread_create(&th_SAT, NULL, SAT, (void *)&input_SAT);
+      pthread_create(&th_MIP, NULL, MIP, (void *)&input_MIP);
+
+      while (res == -1){
         usleep(1000);
-        if(pthread_mutex_trylock(&m1)==0){
-          pthread_join(th1, &res);
-          //printf("debug MIP: %d", res);
-          pthread_cancel(th2);
-          pthread_mutex_lock(&m21);
-          sat_interupt(input2.x);
+
+        if(pthread_mutex_trylock(&input_MIP.complete_lock)==0){
+	  // printf("MIP completed first\n");	  
+          pthread_join(th_MIP, (void **)&res);
+          pthread_mutex_lock(&input_SAT.init_lock);
+          sat_interrupt(input_SAT.solver_handle);
+	  pthread_mutex_unlock(&cleanup_lock);
+	  pthread_join(th_SAT, NULL);
           return res;
-        } else if (pthread_mutex_trylock(&m2)==0){
-          pthread_join(th2, &res);
-          printf("debug SAT: %d", res);
-          pthread_cancel(th1);
-          pthread_mutex_lock(&m11);
-          //mip_abort(input1.x);
+	  
+        }
+	
+	if (pthread_mutex_trylock(&input_SAT.complete_lock)==0){
+
+	  //printf("SAT completed first\n");
+          pthread_join(th_SAT, (void **)&res);
+          pthread_mutex_lock(&input_MIP.init_lock);
+
+	  // Placeholder.
+	  pthread_cancel(th_MIP);
+	  //mip_interrupt(input_MIP.solver_handle);
+
+	  pthread_mutex_unlock(&cleanup_lock);
+	  //pthread_join(th_MIP, NULL);
           return res;
         }
       }
-      return res;//check_SAT(&p);
+      return res;
     }
   }
 }
