@@ -517,7 +517,6 @@ bool check_SAT(puzzle * p, Solver * S){
   }
 }
 
-
 bool check_SAT(puzzle * p){
 
   Solver * S = new Solver();

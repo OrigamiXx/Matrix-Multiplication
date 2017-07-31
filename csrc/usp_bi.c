@@ -1168,8 +1168,9 @@ bool check(puzzle_row U[], int s, int k){
       return check_usp_bi_inner(row_witness, s);
     } else {
 
-      // XXX - Not sure this is a good idea.
-      //witness_simplify(row_witness, U, s, k);
+      // XXX - This won't do anything for the SAT solver because it
+      //doesn't take in row_witness.
+      witness_simplify(row_witness, U, s, k);
 
       res = greedy_precheck(row_witness, s, iter);
       if (res != 0)
