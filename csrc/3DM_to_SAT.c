@@ -23,7 +23,7 @@
 #include "core/Dimacs.h"
 #include "core/Solver.h"
 #include "core/SolverTypes.h"
-
+#include "pthread.h"
 using namespace Minisat;
 
 static Solver* solver;
@@ -340,6 +340,7 @@ int file_simple(int row, int column, long index, puzzle * p){
 
 // direct interface with the solver
 // true if is UNSAT which is a USP; false OW;
+Solver S;
 bool check_SAT(puzzle * p){
   int row = p->row;
   //int column = p->column;
@@ -347,7 +348,7 @@ bool check_SAT(puzzle * p){
   //int num_false_coor=0;
   int x = 1;
   int y = 2;
-  Solver S;
+  //Solver S;
   S.verbosity = 0;
 
   solver = &S;
@@ -514,4 +515,19 @@ bool check_SAT(puzzle * p){
       return false;
     }
   }
+}
+
+
+void *SAT(void *arguments){
+  struct thread *args = (struct thread *)arguments;
+  args->x = &S;
+  pthread_mutex_unlock(args->ms);
+  int res = check_SAT(args->p);
+  pthread_mutex_unlock(args->mm);
+  pthread_exit((void*)res);
+}
+
+void sat_interupt(void * x){
+  S.interrupt();
+  S.clearInterrupt();
 }

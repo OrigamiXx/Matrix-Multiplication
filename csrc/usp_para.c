@@ -70,9 +70,9 @@ void random_usps(int itask, KeyValue *kv, void *ptr){
     randomize_puzzle(p);
     sort_puzzle(p);
 
-    if //(check(p -> puzzle, random_rows, column)) {
-			// (check_SAT(p)){
-			(check_MIP(p)){
+    if (check(p -> puzzle, random_rows, column)) {
+			 //(check_SAT(p)){
+			//(check_MIP(p)){
       count++;
       kv->add((char*)p -> puzzle, random_rows*sizeof(int), NULL, 0);
     }

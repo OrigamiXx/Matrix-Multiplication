@@ -1,4 +1,4 @@
-/* 
+/*
  * Module implementing several non-trivial methods for checking
  * whether a given puzzle is a strong USP.
  *
@@ -25,8 +25,15 @@
 #include <map>
 #include <math.h>
 #include <assert.h>
-
+#include "pthread.h"
+#include "puzzle.h"
 using namespace std;
+typedef struct thread {
+  puzzle * p;
+  pthread_mutex_t *mm;    //main mutex
+  pthread_mutex_t *ms;    //stop mutex
+  void * x;
+}thread;
 
 /*
  * Uses an integer to store a puzzle row, capable of representing rows
@@ -44,20 +51,20 @@ void printU(puzzle_row U[], int s, int k);
  * Determines whether the given s-by-k puzzle U is a strong USP.  Uses
  * a unidirectional algorithm that tests all permutations pi_2 and
  * pi_3 to see whether they witness that U is not a strong USP.
- *  
+ *
  * This is an alternative implementation of check_usp from usp.c.  It
  * uses c++ iterators with the built-in function next_permutation to
  * loop over all permutations.
  */
 bool check_usp_uni(puzzle_row U[], int s, int k);
 
-/* 
+/*
  * Determines whether the given s-by-k puzzle U is a strong USP.  Uses
  * a bidirectional algorithm.
  */
 bool check_usp_bi(puzzle_row U[], int s, int k);
 
-/* 
+/*
  * Determines whether the given s-by-k puzzle U is a strong USP.
  * Tries to pick the most efficient method.  Uses cache if it has been
  * initialized -- call init_cache() to use this feature.  Uses the
@@ -73,7 +80,7 @@ bool check(puzzle_row U[], int s, int k);
  */
 void init_cache(int s, int k);
 
-/* 
+/*
  * Several specialized functions that determine whether a puzzle U is
  * a strong USP for a given constant number of rows.
  */
@@ -81,14 +88,14 @@ bool check2(puzzle_row r1, puzzle_row r2, int k);
 bool check3(puzzle_row r1, puzzle_row r2, puzzle_row r3, int k);
 bool check4(puzzle_row r1, puzzle_row r2, puzzle_row r3, puzzle_row r4, int k);
 
-/* 
+/*
  * A specialized function that determines whether any pair of rows
  * prevent an s-by-k from being a strong USP.  Return true iff all
  * pairs of rows are valid.
  */
 bool check_row_pairs(puzzle_row U[], int s, int k);
 
-/* 
+/*
  * A specialized function that determines whether any triple of rows
  * prevent an s-by-k from being a strong USP.  Return true iff all
  * pairs of rows are valid.

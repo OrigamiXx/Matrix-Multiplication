@@ -163,6 +163,15 @@ int check_MIP(puzzle *p){
   } else {
     return -1;
   }
+}
 
+void * MIP(void * arguements){
+  int a;
+  while (true){
+    a = 0;
+  }
+}
 
+void mip_abort(void * x){
+  int a =0;
 }

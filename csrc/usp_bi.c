@@ -27,7 +27,12 @@
 #include "usp_bi.h"
 #include "matching.h"
 #include "3DM_to_SAT.h"
-
+#include "checkUSP_mip.h"
+#include "pthread.h"
+#include "usp_bi.h"
+#include "time.h"
+#include <unistd.h>
+#include "puzzle.h"
 using namespace std;
 
 /*
@@ -1173,10 +1178,48 @@ bool check(puzzle_row U[], int s, int k){
       p.puzzle = U;
       p.column = k;
       p.row = s;
-      return check_SAT(&p);
+      pthread_mutex_t m1 = PTHREAD_MUTEX_INITIALIZER;
+      pthread_mutex_t m2 = PTHREAD_MUTEX_INITIALIZER;
+      pthread_mutex_t m11 = PTHREAD_MUTEX_INITIALIZER;
+      pthread_mutex_t m21 = PTHREAD_MUTEX_INITIALIZER;
+      pthread_mutex_lock(&m1);
+      pthread_mutex_lock(&m2);
+      pthread_t th1, th2;
+      struct thread input1;
+      input1.p = &p;
+      input1.mm = &m1;
+      input1.ms = &m11;
+
+      struct thread input2;
+      input2.p = &p;
+      input2.mm = &m2;
+      input2.ms = &m21;
+      void *res;
+      *((int*)res) = -1;
+      //int res = -1;
+      pthread_create(&th1, NULL, MIP, (void *)&input1);
+      pthread_create(&th2, NULL, SAT, (void *)&input2);
+      while (*((int*)res)==-1){
+        usleep(1000);
+        if(pthread_mutex_trylock(&m1)==0){
+          pthread_join(th1, &res);
+          //printf("debug MIP: %d", res);
+          pthread_cancel(th2);
+          pthread_mutex_lock(&m21);
+          sat_interupt(input2.x);
+          return res;
+        } else if (pthread_mutex_trylock(&m2)==0){
+          pthread_join(th2, &res);
+          printf("debug SAT: %d", res);
+          pthread_cancel(th1);
+          pthread_mutex_lock(&m11);
+          //mip_abort(input1.x);
+          return res;
+        }
+      }
+      return res;//check_SAT(&p);
     }
   }
-
 }
 
 
