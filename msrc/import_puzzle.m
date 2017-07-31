@@ -6,7 +6,7 @@ function p = import_puzzle(fname)
     
     s = 1;
     while (~feof(fid))
-        line = fgetl(fid);
+        line = strtrim(fgetl(fid));
         if length(line) == 0
             continue;
         end

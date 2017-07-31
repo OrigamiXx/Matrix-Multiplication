@@ -45,12 +45,12 @@ void printU(puzzle_row U[], int s, int k){
   for (int i =0; i < s; i++){
     int x = U[i];
     for (int j = 0; j < k; j++){
-      printf("%d ",x % 3 + 1);
+      printf("%d",x % 3 + 1);
       x = (x - (x % 3)) / 3;
     }
     printf("\n");
   }
-  printf("---\n");
+  
 }
 
 void print_row_witnesses(bool * row_witnesses, int s){
