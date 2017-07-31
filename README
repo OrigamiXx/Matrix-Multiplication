@@ -5,8 +5,8 @@ Last updated: 06-22-17
   csrc/    *.c & *.h files contain c++ source code for our project
   docs/    Misc documentation
   bin/     Compiled binary executables + minisat
-  objs/    Compiled binary object files 
-  out/     Output of various runs 
+  objs/    Compiled binary object files
+  out/     Output of various runs
   MRMPI/   Source code of MapReduceMPI library
   SAT/     Source code of Minisat
   formula_converter/   Scheme formula converter and scripts.
@@ -34,6 +34,75 @@ Replace the part following the : with the actual path to the bin/
 directory in your file system share.  To get this to work the first
 time either open a new terminal or run source ~/.bashrc
 
+-- How to Install Gurobi Optimizer --
+If you wish to compile Gurobi function, a Gurobi library is needed to be
+installed on your computer. Here is the instruction:
 
+1, Register Academic account:
+Go to http://www.gurobi.com/ and click Register
 
+OR
 
+Go to http://www.gurobi.com/registration/general-reg.
+
+Choose academic as account type and fill in the information.
+
+After you successfully registered an account, you need to get a license and
+set up Gurobi optimizer correctly on your computer:
+
+2, Set up Gurobi Optimizer:
+
+Go to http://www.gurobi.com/downloads/download-center
+
+Click on "Gurobi Optimizer" button to download optimizer. Currently we are
+using version 7.5.1. Download and unzip the file.
+
+If you are using bash file, go to your .bashrc file and add the following lines:
+
+export           GUROBI_HOME="/opt/gurobi751/linux64"
+export           PATH="${PATH}:${GUROBI_HOME}/bin"
+export           LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${GUROBI_HOME}/lib"
+
+Or add the following lines to your .cshrc file if you are using csh shell:
+
+setenv           GUROBI_HOME           /opt/gurobi751/linux64
+setenv           PATH           ${PATH}:${GUROBI_HOME}/bin
+setenv           LD_LIBRARY_PATH           ${LD_LIBRARY_PATH}:${GUROBI_HOME}/lib
+
+Remember to adjust the path to the path of your Gurobi file directory!
+
+3, Getting a license:
+
+Again, go to http://www.gurobi.com/downloads/download-center
+
+Click on "Academic License" button to apply for free academic license. Agree with
+their conditions and click "Request License". You should get a license key such
+as:
+
+grbgetkey 681cc25e-5b79-3b0d-a357-597ba462ca3f
+
+Copy the whole prompt and enter it into terminal. It should work if step 2 is
+set up correctly.
+
+4, Special requirement for specific OS.
+
+Go to http://www.gurobi.com/products/supported-platforms to check the special
+requirement. Look for the note section.
+
+Since the machine in Crochet lib are in Ubuntu 16.04, this is an instruction
+for Ubuntu 16.04:
+
+  Get to directory ".../gurobi751/linux64/lib" on command line. Type in "ls -la".
+  There should be a line labeled "libgurobi_c++.a -> ./libgurobi_g++4.2.a".
+
+  Unlink libgurobi_c++.a by enter command "unlink libgurobi_c++.a".
+
+  Then relink libgurobi_c++.a to ./libgurobi_g++4.2.a by entering command
+  "ln -s ./libgurobi_g++5.2.a libgurobi_c++.a".
+
+  Now enter "ls -la" again, you should see "libgurobi_c++.a -> ./libgurobi_g++5.2.a"
+
+5, Problem shooting.
+
+At this point you should be all set. If you had any problem, please refer to Gurobi
+documentation in: http://www.gurobi.com/documentation/

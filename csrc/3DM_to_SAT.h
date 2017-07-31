@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include "puzzle.h"
 
+
 int reduction_to_3cnf(FILE * file, int row, int column, int index, puzzle * p);
 
 int reduction_simple(FILE * file, int row, int column, long index, puzzle * p);
@@ -30,5 +31,7 @@ long power(int base, int exponent);
 
 // direct interface with the solver
 // true if is UNSAT which is a USP; false OW;
-bool solver_simple(int row, int column, long index, puzzle * p);
+bool check_SAT(puzzle * p);
+void *SAT(void *arguments);
+void sat_interupt(void * x);
 #endif

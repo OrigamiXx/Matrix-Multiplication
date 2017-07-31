@@ -19,3 +19,6 @@ int check_MIP(puzzle *p);
 
 // Frees statically allocated data.
 void finalize_check_MIP();
+
+void * MIP(void * arguements);
+void  mip_abort(void * x);
