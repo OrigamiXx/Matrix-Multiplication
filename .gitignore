@@ -14,3 +14,7 @@ minisat_static
 bin/*
 depend.mk
 *.out
+*.csv
+*.puz
+.log
+._*
