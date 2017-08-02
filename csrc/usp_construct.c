@@ -58,12 +58,12 @@ bool const EL_PERM_MODE =
 int const ARB_MODE =
   //0; // A constant 1, 2, or 3.
   //1; // A duplicate of a column in p2. (If * is more than one column the same duplicate will be used.)
-  //2;   // A constant 1, 2, or 3, or a duplicate of a column in p2.  
-  3; // No restriction. 
+  2;   // A constant 1, 2, or 3, or a duplicate of a column in p2.  
+  //3; // No restriction. 
 
 // How many columns that strong USPs constructed by twisting must have with only two elements of {1,2,3}.
 // Only <= 1 is guaranteed by construction, but 2 and 3 may work.  4 won't work.
-int const N_SPECIAL_COLS = 2;
+int const N_SPECIAL_COLS = 4;
 
 // Number of iterations to perform randomized twisting before giving up.
 int const POP_ITER = 1000;
@@ -203,10 +203,9 @@ bool apply_twist(puzzle * p, puzzle * p1, puzzle * p2, int last, int arb, int pe
   
   destroy_perm(pi);
   destroy_perm(rho);
-
-  if (!puzzle_has_at_least_n_two_columns(p, N_SPECIAL_COLS))
+  
+  if (!puzzle_has_at_least_n_two_columns(p, (k < N_SPECIAL_COLS ? k : N_SPECIAL_COLS)))
     return false;
-
 
   if (check_row_triples(puz, s, k)){
     if (check(puz, s, k)) {

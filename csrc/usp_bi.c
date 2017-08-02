@@ -1168,6 +1168,7 @@ bool check(puzzle_row U[], int s, int k){
       }
     }
 
+
     int res = random_precheck(row_witness, s, k, iter);
     if (res != 0)
       return res == 1;
