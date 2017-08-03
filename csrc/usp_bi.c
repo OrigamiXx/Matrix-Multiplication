@@ -56,7 +56,7 @@ void printU(puzzle_row U[], int s, int k){
     }
     printf("\n");
   }
-  
+
 }
 
 void print_row_witnesses(bool * row_witnesses, int s){
@@ -533,7 +533,7 @@ bool has_random_witness(bool * row_witnesses, int s, int repeats){
 
   if (s > 31)
     return false;
-  
+
   bool failed = false;
   int best = 0;
   int total = 0;
@@ -609,7 +609,7 @@ int greedy_precheck(bool * row_witnesses, int s, int repeats){
 
   if (s > 31)
     return false;
-  
+
   //print_row_witnesses(row_witnesses, s);
 
   bool failed = false;
@@ -815,7 +815,7 @@ bool check_usp_bi_inner(bool * row_witness, int s){
   // subproblem.
 
   assert(s <= 31);
-  
+
   map<set_long,bool> forward_memo;
   map<set_long,bool> reverse_memo;
 
@@ -1168,7 +1168,6 @@ bool check(puzzle_row U[], int s, int k){
       }
     }
 
-
     int res = random_precheck(row_witness, s, k, iter);
     if (res != 0)
       return res == 1;
@@ -1191,7 +1190,7 @@ bool check(puzzle_row U[], int s, int k){
       p.row = s;
 
       pthread_mutex_t cleanup_lock = PTHREAD_MUTEX_INITIALIZER;
-      
+
       pthread_t th_MIP;
       pthread_t th_SAT;
       struct thread input_MIP;
@@ -1202,7 +1201,7 @@ bool check(puzzle_row U[], int s, int k){
 
       pthread_mutex_lock(&input_MIP.complete_lock);
       pthread_mutex_lock(&input_MIP.init_lock);
-      
+
       struct thread input_SAT;
       input_SAT.p = &p;
       input_SAT.complete_lock = PTHREAD_MUTEX_INITIALIZER;
@@ -1211,7 +1210,7 @@ bool check(puzzle_row U[], int s, int k){
 
       pthread_mutex_lock(&input_SAT.complete_lock);
       pthread_mutex_lock(&input_SAT.init_lock);
-      
+
       long res = -1; // This must be a long, because of sizeof(long) = sizeof(void *)
 
       pthread_create(&th_SAT, NULL, SAT, (void *)&input_SAT);
@@ -1221,19 +1220,19 @@ bool check(puzzle_row U[], int s, int k){
         usleep(1000);
 
         if(pthread_mutex_trylock(&input_MIP.complete_lock)==0){
-	  // printf("MIP completed first\n");	  
+	         printf("MIP completed first\n");
           pthread_join(th_MIP, (void **)&res);
           pthread_mutex_lock(&input_SAT.init_lock);
           sat_interrupt(input_SAT.solver_handle);
 	  pthread_mutex_unlock(&cleanup_lock);
 	  pthread_join(th_SAT, NULL);
           return res;
-	  
+
         }
-	
+
 	if (pthread_mutex_trylock(&input_SAT.complete_lock)==0){
 
-	  //printf("SAT completed first\n");
+	  printf("SAT completed first\n");
           pthread_join(th_SAT, (void **)&res);
           pthread_mutex_lock(&input_MIP.init_lock);
 

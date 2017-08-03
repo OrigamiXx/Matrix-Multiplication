@@ -7,6 +7,7 @@
 #include "checkUSP_mip.h"
 #include <unistd.h>
 
+int check_MIP(puzzle * p, GRBmodel * model);
 
 //Conver the corrdiate for 3D matching into one index in the format of ijk
 int corr_to_index(int s, int i, int j, int k){
@@ -28,15 +29,10 @@ void finalize_check_MIP(){
   }
 }
 
-int check_MIP(puzzle *p){
 
-  if (env == NULL) {
-    int res = GRBloadenv(&env, NULL);
-    if (res != 0) {
-      env = NULL;
-      return -1;
-    }
-  }
+
+int check_MIP(puzzle *p, GRBmodel * model){
+
 
 
   int s, i, j, k, index, max_index, counter;
@@ -44,7 +40,8 @@ int check_MIP(puzzle *p){
   max_index = s * s *s  -1;
 
 
-  GRBmodel *model = NULL;
+
+  // GRBmodel *model = NULL;
   int       ind[max_index];
   double    val[max_index];
   char      vtype[max_index];
@@ -54,7 +51,7 @@ int check_MIP(puzzle *p){
 
   //Set up environment and an empty model
   //GRBloadenv(&env, NULL);
-  GRBnewmodel(env, &model, "3DM_to_MIP", 0, NULL, NULL, NULL, NULL, NULL);
+
   menv = GRBgetenv(model);
 
   GRBsetintparam(menv, "OutputFlag", 0);
@@ -149,6 +146,8 @@ int check_MIP(puzzle *p){
 
   GRBfreemodel(model);
 
+  //GRBfreeenv(menv);
+  menv = NULL;
   /* Free environment */
 
   // GRBfreeenv(env);
@@ -168,32 +167,57 @@ int check_MIP(puzzle *p){
   }
 }
 
+
 // Dummy code for MIP thread.
 void * MIP(void * arguments){
   pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS,NULL);
- 
+
   struct thread *args = (struct thread *)arguments;
 
+  if (env == NULL) {
+    GRBloadenv(&env, NULL);
+  }
+
   // XXX - Allocate here.
-  args -> solver_handle = NULL;
+  GRBmodel *model = NULL;
+  GRBnewmodel(env, &model, "3DM_to_MIP", 0, NULL, NULL, NULL, NULL, NULL);
+  args -> solver_handle = model;
+
   pthread_mutex_unlock(&(args->init_lock));
 
   //printf("Sleeping\n");
-  
-  sleep(10000);
 
+  //sleep(10000);
+  check_MIP(args -> p, model); 
   //printf("Awake\n");
 
 
   pthread_mutex_lock(args -> cleanup_lock);
 
   // XXX - Deallocate here.
-  
+  args -> solver_handle = NULL;
+  GRBfreemodel(model);
+
   pthread_mutex_unlock(&(args->complete_lock));
-  
+
   pthread_exit((void*)false);
 }
 
+
+int check_MIP(puzzle *p){
+  if (env == NULL) {
+    int res = GRBloadenv(&env, NULL);
+    if (res != 0) {
+      env = NULL;
+      return -1;
+    }
+  }
+  GRBmodel * model = NULL;
+  GRBnewmodel(env, &model, "3DM_to_MIP", 0, NULL, NULL, NULL, NULL, NULL);
+  check_MIP(p, model);
+}
+
+//Take the handle, terminate the process and elegently quit.
 void mip_interrupt(void * solver_handle){
-  int a =0;
+  GRBterminate((GRBmodel *)solver_handle);
 }
