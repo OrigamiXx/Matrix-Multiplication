@@ -54,50 +54,35 @@ int brute_force(puzzle_row U[], int s, int k, bool skip[], int skipping, int max
 
 }
 
-int main(int argc, char *argv[])
-{
 
-  if (argc != 5 && argc != 6){
-    
-    fprintf(stderr,"usage: usp_greedy <s> <k> <two-elt-cols> <stride> [start-usp]\n");
-    return -1;
-  }
 
-  int s = atoi(argv[1]);
-  int k = atoi(argv[2]);
-  int special_num = atoi(argv[3]);
-  int stride_init = atoi(argv[4]);
+
+puzzle * create_usp_greedy(int s, int k, int stride_init, int special, puzzle * start_p, bool verbose){
+
   int stride = (stride_init == 0 ? 1 : stride_init);
-    
   int max_r = (int)pow(3,k);
   int counts[max_r];
   bool skip[max_r];
   int skipping = 0;
   bzero(skip, max_r * sizeof(bool));
 
-  long seed = time(NULL);
-  printf("seed = %ld\n", seed);
-  srand48(seed);
+
 
   int max = 2;
   int r = 0;
-  
-  puzzle_row U[MAX_S];
-  
-  if (argc == 6) {
-    puzzle * p = create_puzzle_from_file(argv[5]);
 
-    if (p == NULL) {
-      fprintf(stderr,"Error: unable to locate puzzle file.\n");
-      return -2;
-    }
-    bzero(U, sizeof(puzzle_row) * MAX_S);
-    memcpy(U, p -> puzzle, p -> row * sizeof(puzzle_row));
-    r = p -> row;
-    printU(U,r,k);
-    //destroy_puzzle(p);
+  puzzle * p = create_puzzle(s,k);
+  if (p == NULL)
+    return NULL;
+
+  if (start_p != NULL) {
+    memcpy(p -> puzzle, start_p, start_p -> row * sizeof(int));
+    if (verbose)
+      print_puzzle(start_p);
   }
 
+  int * puz = p -> puzzle;
+  
   for ( ; r < s && max > 1; r++){
 
     bzero(counts, max_r * sizeof(int));
@@ -105,20 +90,22 @@ int main(int argc, char *argv[])
     int max_num = 0;
 
     // First new row.
-    for (U[r] = 0; U[r] < max_r; U[r]++){
+    for (puz[r] = 0; puz[r] < max_r; puz[r]++){
 
-      printf("\r%8.2f%%", U[r] / (double)max_r * 100.0);
-      fflush(stdout);
-      
-      if (skip[U[r]]) continue;
+      if (verbose) {
+	printf("\r%8.2f%%", puz[r] / (double)max_r * 100.0);
+	fflush(stdout);
+      }
+	
+      if (skip[puz[r]]) continue;
 
-      if (puzzle_has_at_least_n_two_columns(U,r+1,k,special_num) && check(U, r + 1, k)){
+      if (puzzle_has_at_least_n_two_columns(puz,r+1,k,special) && check(puz, r + 1, k)){
 
-	counts[U[r]]++;
-	if (counts[U[r]] > max) {
-	  max = counts[U[r]];
+	counts[puz[r]]++;
+	if (counts[puz[r]] > max) {
+	  max = counts[puz[r]];
 	  max_num = 1;
-	} else if (counts[U[r]] == max) {
+	} else if (counts[puz[r]] == max) {
 	  max_num++;
 	}
 	
@@ -126,34 +113,34 @@ int main(int argc, char *argv[])
 	  int step = 1;
 
 	  // Second new row.
-	  for (U[r+1] = 0; U[r+1] < max_r; U[r+1]++){
+	  for (puz[r+1] = 0; puz[r+1] < max_r; puz[r+1]++){
 	    
-	    if (!skip[U[r+1]] && puzzle_has_at_least_n_two_columns(U,r+2,k,special_num)){
+	    if (!skip[puz[r+1]] && puzzle_has_at_least_n_two_columns(puz,r+2,k,special)){
 	      if (step != stride) {
 		step++;
 	      } else {
 		step = 1;		
 		
-		if (check(U, r+2, k)) {
-		  counts[U[r]]++;
-		  if (counts[U[r]] > max) {
-		    max = counts[U[r]];
+		if (check(puz, r+2, k)) {
+		  counts[puz[r]]++;
+		  if (counts[puz[r]] > max) {
+		    max = counts[puz[r]];
 		    max_num = 1;
-		  } else if (counts[U[r]] == max) {
+		  } else if (counts[puz[r]] == max) {
 		    max_num++;
 		  }
 		  /* Third new row
 		  if ((r + 2) < s){
-		    for (U[r+2] = 0; U[r+2] < max_r; U[r+2]++){
+		    for (puz[r+2] = 0; puz[r+2] < max_r; puz[r+2]++){
 		      
-		      if (!skip[U[r+2]] && puzzle_has_at_least_n_two_columns(U,r+3,k,special_num)){
+		      if (!skip[puz[r+2]] && puzzle_has_at_least_n_two_columns(puz,r+3,k,special)){
 			
-			if (check(U, r+3, k)) {
-			  counts[U[r]]++;
-			  if (counts[U[r]] > max) {
-			    max = counts[U[r]];
+			if (check(puz, r+3, k)) {
+			  counts[puz[r]]++;
+			  if (counts[puz[r]] > max) {
+			    max = counts[puz[r]];
 			    max_num = 1;
-			  } else if (counts[U[r]] == max) {
+			  } else if (counts[puz[r]] == max) {
 			    max_num++;
 			  }
 			}
@@ -168,11 +155,12 @@ int main(int argc, char *argv[])
 	  }
 	}
       } else {
-	skip[U[r]] = true;
+	skip[puz[r]] = true;
 	skipping++;
       }
     }
-    printf("\r%2d: max = %5d, stride = %5d, special = %2d, skipping = %7.4f%%\n", r+1, max, stride, special_num, skipping / (double)max_r * 100.0);
+    if (verbose)
+      printf("\r%2d: max = %5d, stride = %5d, special = %2d, skipping = %7.4f%%\n", r+1, max, stride, special, skipping / (double)max_r * 100.0);
     
     int choice = lrand48() % max_num;
     int found = 0;
@@ -182,12 +170,12 @@ int main(int argc, char *argv[])
 	stride = 1;
     }
 
-    //if (max < special_num*2 && special_num > 0)
-    //      special_num--;
+    //if (max < special*2 && special > 0)
+    //      special--;
     
     if (max >= 1){
-      for (U[r] = 0; true ; U[r]++){ 
-	if (counts[U[r]] == max) {
+      for (puz[r] = 0; true ; puz[r]++){ 
+	if (counts[puz[r]] == max) {
 	  found++;
 	  if (found > choice)
 	    break;
@@ -197,14 +185,81 @@ int main(int argc, char *argv[])
     
   }
 
-  //printf("best = %d\n", brute_force(U, r, k, skip, skipping, max_r, special_num));
-  
-  printU(U,r,k);
-  if (check(U,r,k)){
-    printf("is a strong USP.\n");
-  } else {
-    printf("is NOT a strong USP.\n");
-  }
-  return 0;
+  //printf("best = %d\n", brute_force(puz, r, k, skip, skipping, max_r, special));
 
+  if (verbose) {
+    printU(puz,r,k);
+    if (check(puz,r,k)){
+      printf("is a strong USP.\n");
+    } else {
+      printf("is NOT a strong USP.\n");
+    }
+  }
+
+  if (r == s)
+    return p;
+  else {
+    destroy_puzzle(p);
+    return NULL;
+  }
+
+}
+
+
+puzzle * create_usp_greedy(int s, int k){
+
+  puzzle * p = NULL;
+  while (p == NULL) {
+    p = create_usp_greedy(s, k, 1, 0, NULL, false);
+  }
+
+  return p;
+  
+}
+
+
+int main(int argc, char *argv[])
+{
+
+  if (argc != 5 && argc != 6){
+    fprintf(stderr,"usage: usp_greedy <s> <k> <two-elt-cols> <stride> [start-usp]\n");
+    return -1;
+  }
+
+  int s = atoi(argv[1]);
+  int k = atoi(argv[2]);
+  int special = atoi(argv[3]);
+  int stride_init = atoi(argv[4]);
+
+  long seed = time(NULL);
+  printf("seed = %ld\n", seed);
+  srand48(seed);
+
+  puzzle * start_p = NULL;
+  if (argc == 6) {
+    start_p = create_puzzle_from_file(argv[5]);
+    if (start_p == NULL) {
+      fprintf(stderr,"Error: unable to locate puzzle file.\n");
+      return -2;
+    }
+  }
+
+  puzzle * p = create_usp_greedy(s, k, stride_init, special, start_p, true);
+
+  if (start_p != NULL)
+    destroy_puzzle(start_p);
+
+  if (p != NULL)
+    destroy_puzzle(p);
+
+
+  for (int i = 0; i < 100; i++){
+
+    p = create_usp_greedy(s,k);
+    print_puzzle(p);
+    printf("\n");
+    
+  }
+
+  return 0;
 }

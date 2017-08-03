@@ -48,12 +48,13 @@ puzzle * create_puzzle_from_file(const char * filename){
   //printf("width %d\n", width);
   p->column = width;
   int rows = 1;
+  if (buff[0] == '#') rows = 0;
   //loop until end of file using feof(f).  Build up puzzle DS.
   //printf("line |%s|\n",buff);
   while(!feof(f)){
     bytes_read = fscanf(f,"%s\n",buff);
     assert(bytes_read > 0);
-    //printf("line |%s|\n",buff);
+    if (buff[0] == '#') continue; // Comment
     if (width != strlen(buff)){
       printf("this is not a puzzle since the width is not all the same\n");
       return NULL;
@@ -81,6 +82,7 @@ puzzle * create_puzzle_from_file(const char * filename){
   while(!feof(f)){
     bytes_read = fscanf(f,"%s\n", buff);
     assert(bytes_read > 0);
+    if (buff[0] == '#') continue;
     //printf("line %s\n",buff);
     if (p->column >= 2){
       element = buff[p->column-1] - '0';

@@ -58,12 +58,18 @@ bool const EL_PERM_MODE =
 int const ARB_MODE =
   //0; // A constant 1, 2, or 3.
   //1; // A duplicate of a column in p2. (If * is more than one column the same duplicate will be used.)
-  2;   // A constant 1, 2, or 3, or a duplicate of a column in p2.  
-  //3; // No restriction. 
+  //2;   // A constant 1, 2, or 3, or a duplicate of a column in p2.  
+  3; // No restriction.
+
+int const NEW_MODE =
+  //0; // New column is special and separates the original puzzles
+  //1; // New column is special (slow)
+  2; // New column is arbitrary (slow)
+  //3; // New column is special and balanced.
 
 // How many columns that strong USPs constructed by twisting must have with only two elements of {1,2,3}.
 // Only <= 1 is guaranteed by construction, but 2 and 3 may work.  4 won't work.
-int const N_SPECIAL_COLS = 4;
+int const N_SPECIAL_COLS = 3;
 
 // Number of iterations to perform randomized twisting before giving up.
 int const POP_ITER = 1000;
@@ -104,8 +110,12 @@ void compute_twist_params(puzzle * p, puzzle *p1, puzzle *p2, int *num_last,
   int s2 = p2 -> row;
   int dk = k1 - p2 -> column;
 
-  *num_last = 6;
-
+  *num_last =
+    (NEW_MODE == 0 ? 6 :
+     (NEW_MODE == 1 ? (long)pow(2,s1 + s2) * 6 :
+      (NEW_MODE == 2 ? (long)pow(3, s1 + s2) :
+       6)));
+      
   *num_arb =
     (ARB_MODE == 0 ? 3 :
      (ARB_MODE == 1 ? k2 :
@@ -138,17 +148,7 @@ bool apply_twist(puzzle * p, puzzle * p1, puzzle * p2, int last, int arb, int pe
   int s2 = p2 -> row;
   int dk = k1 - p2 -> column;
 
-  int x, y;
-  if (last < 2) {
-    x = 1;
-    y = (last == 0 ? 2 : 3);
-  } else if (last < 4){
-    x = 2;
-    y = (last == 2 ? 1 : 3);
-  } else {
-    x = 3;
-    y = (last == 4 ? 1 : 2);
-  }
+
   
   perm * pi = create_perm_identity(k1);
   
@@ -192,13 +192,83 @@ bool apply_twist(puzzle * p, puzzle * p1, puzzle * p2, int last, int arb, int pe
       id++;
     }
   }
-  
-  for (int r = 0; r < s1; r++){
-    puz[r] = set_entry_in_row(puz[r], k1, x);
-  }
-  
-  for (int r = 0; r < s2; r++){
-    puz[r + s1] = set_entry_in_row(puz[r + s1], k1, y);
+
+  if (NEW_MODE == 0){
+    int x, y;
+    if (last < 2) {
+      x = 1;
+      y = (last == 0 ? 2 : 3);
+    } else if (last < 4){
+      x = 2;
+      y = (last == 2 ? 1 : 3);
+    } else {
+      x = 3;
+      y = (last == 4 ? 1 : 2);
+    }
+    
+    for (int r = 0; r < s1; r++){
+      puz[r] = set_entry_in_row(puz[r], k1, x);
+    }
+    
+    for (int r = 0; r < s2; r++){
+      puz[r + s1] = set_entry_in_row(puz[r + s1], k1, y);
+    }
+  } else if (NEW_MODE == 2) {
+
+    int t = last % 6;
+    last = (last - t) / 6;
+    
+    int x, y;
+    if (t < 2) {
+      x = 1;
+      y = (t == 0 ? 2 : 3);
+    } else if (t < 4){
+      x = 2;
+      y = (t == 2 ? 1 : 3);
+    } else {
+      x = 3;
+      y = (t == 4 ? 1 : 2);
+    }
+
+    for (int r = 0; r < s1 + s2; r++){
+      if (last % 2 == 0) 
+	puz[r] = set_entry_in_row(puz[r], k1, x);
+      else
+	puz[r] = set_entry_in_row(puz[r], k1, y);
+      last = last / 2;
+    }
+    
+  } else if (NEW_MODE == 3) {
+
+    for (int r = 0; r < s1 + s2; r++){
+      if (last % 3 == 0) 
+	puz[r] = set_entry_in_row(puz[r], k1, 1);
+      else if (last % 3 == 1) 
+	puz[r] = set_entry_in_row(puz[r], k1, 2);
+      else      
+	puz[r] = set_entry_in_row(puz[r], k1, 3);
+      last = last / 3;
+    }
+  } else if (NEW_MODE == 3) {
+
+    int x, y;
+    if (last < 2) {
+      x = 1;
+      y = (last == 0 ? 2 : 3);
+    } else if (last < 4){
+      x = 2;
+      y = (last == 2 ? 1 : 3);
+    } else {
+      x = 3;
+      y = (last == 4 ? 1 : 2);
+    }
+    
+    for (int r = 0; r < s1 + s2; r++){
+      if (r <= (s1 + s2) / 2)
+	puz[r] = set_entry_in_row(puz[r], k1, x);
+      else
+	puz[r] = set_entry_in_row(puz[r], k1, y);
+    }
   }
   
   destroy_perm(pi);
@@ -247,7 +317,11 @@ bool full_twist(puzzle * p, puzzle * p1, puzzle * p2){
   compute_twist_params(p, p1, p2, &num_last, &num_arb, &num_perm, &num_el_perm);
 
   for (int last = 0; last < num_last; last++) {
+    //printf("\r %8.4f%%", (last) / (double)(num_last) * 100.0);
+    //fflush(stdout);
     for (int arb = 0; arb < num_arb; arb++) {
+      printf("\r %8.4f%%", (last * num_arb + arb) / (double)(num_last * num_arb) * 100.0);
+      fflush(stdout);
       for (int perm_id = 0; perm_id < num_perm; perm_id++) {
 	for (int el_perm_id = 0; el_perm_id < num_el_perm; el_perm_id++) {
 	  if (apply_twist(p, p1, p2, last, arb, perm_id, el_perm_id)){
@@ -261,6 +335,54 @@ bool full_twist(puzzle * p, puzzle * p1, puzzle * p2){
 
 }
 
+
+puzzle * create_random_twist(puzzle * p1, puzzle * p2, int iter){
+
+  if (p1 -> column < p2 -> column){
+    puzzle * tmp = p2;
+    p2 = p1;
+    p1 = tmp;
+  }
+
+  int s = p1 -> row + p1 -> row;
+  int k = p1 -> column + 1;
+  puzzle * p = create_puzzle(s,k);
+
+  bool res = random_twist(p, p1, p2, iter);
+
+  if (res) {
+    return p;
+  } else {
+    destroy_puzzle(p);
+    return NULL;
+  }
+  
+}
+
+puzzle * create_full_twist(puzzle * p1, puzzle * p2){
+  
+  if (p1 -> column < p2 -> column){
+    puzzle * tmp = p2;
+    p2 = p1;
+    p1 = tmp;
+  }
+  
+  int s = p1 -> row + p1 -> row;
+  int k = p1 -> column + 1;
+  puzzle * p = create_puzzle(s,k);
+  
+  bool res = full_twist(p, p1, p2);
+
+  if (res) {
+    return p;
+  } else {
+    destroy_puzzle(p);
+    return NULL;
+  }
+  
+}
+
+  
 
 int const MAX_K = 10;
 
