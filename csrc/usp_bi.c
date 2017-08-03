@@ -1252,6 +1252,12 @@ bool check(puzzle_row U[], int s, int k){
 }
 
 
+bool check(puzzle * p){
+
+  return check(p -> puzzle, p -> row, p -> column);
+  
+}
+
 
 /*
  * A specialized function that determines whether the given 2-by-k

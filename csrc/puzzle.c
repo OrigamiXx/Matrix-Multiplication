@@ -117,7 +117,7 @@ puzzle * next_file(FILE * f, int max_row){
   char buff[256];
   char * result;
 
-  int element;//,r;
+  //int element;//,r;
   //first check whether this file is able to turn into a puzzle
   result = fgets(buff, 30, f);
   assert(result != NULL);
@@ -310,6 +310,55 @@ void sort_puzzle(puzzle * p){
   sort(p -> puzzle, p -> puzzle + p -> row);
 
 }
+
+void arrange_puzzle(puzzle * p){
+
+  int balance[p -> column] = {0};
+  
+  for (int c = 0; c < p -> column; c++){
+    int counts[3] = {0,0,0};
+    for (int r = 0; r < p -> row; r++){
+      counts[get_column_from_row(p -> puzzle[r], c) - 1]++;
+    }
+
+    if (counts[0] == 0){
+      balance[c] = abs(counts[1] - counts[2]);
+    } else if (counts[1] == 0){
+      balance[c] = abs(counts[0] - counts[2]);
+    } else if (counts[2] == 0){
+      balance[c] = abs(counts[0] - counts[1]);
+    } else {
+      balance[c] = -1;
+    }
+    
+  }
+
+  for (int c = 0; c < p -> column ; c++){
+    int max = balance[c];
+    int max_c = c;
+    for (int c1 = c+1; c1 < p -> column ; c1++){
+      if (max > balance[c1]) {
+	max = balance[c1];
+	max_c = c1;
+      }
+    }
+
+    balance[max_c] = balance[c];
+    for (int r = 0; r < p -> row; r++){
+      int tmp = get_column_from_row(p -> puzzle[r], max_c);
+      p -> puzzle[r] =
+	      set_entry_in_row(
+			       set_entry_in_row(p -> puzzle[r], max_c,
+						get_column_from_row(p -> puzzle[r], c)),
+			       c, tmp);
+    }
+    
+  }
+  
+  sort(p -> puzzle, p -> puzzle + p -> row);
+
+}
+
 
 // print a puzzle
 int print_puzzle(puzzle * p){

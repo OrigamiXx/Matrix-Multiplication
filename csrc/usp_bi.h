@@ -75,6 +75,7 @@ bool check_usp_bi(puzzle_row U[], int s, int k);
  * search otherwise.
  */
 bool check(puzzle_row U[], int s, int k);
+bool check(puzzle * p);
 
 /*
  * Initialize the USP cache.  Precomputes whether each s-by-k puzzle

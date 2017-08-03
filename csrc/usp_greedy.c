@@ -186,9 +186,15 @@ puzzle * create_usp_greedy(int s, int k, int stride_init, int special, puzzle * 
   }
 
   //printf("best = %d\n", brute_force(puz, r, k, skip, skipping, max_r, special));
-
+  p -> row = r;
+  
   if (verbose) {
-    printU(puz,r,k);
+    
+    print_puzzle(p);
+    arrange_puzzle(p);
+    printf("\n");
+    print_puzzle(p);
+    
     if (check(puz,r,k)){
       printf("is a strong USP.\n");
     } else {
@@ -205,15 +211,21 @@ puzzle * create_usp_greedy(int s, int k, int stride_init, int special, puzzle * 
 
 }
 
-
-puzzle * create_usp_greedy(int s, int k){
+puzzle * create_usp_greedy(int s, int k, int special){
 
   puzzle * p = NULL;
   while (p == NULL) {
-    p = create_usp_greedy(s, k, 1, 0, NULL, false);
+    p = create_usp_greedy(s, k, 1, special, NULL, false);
   }
 
   return p;
+  
+}
+
+
+puzzle * create_usp_greedy(int s, int k){
+
+  return create_usp_greedy(s, k, 0);
   
 }
 
@@ -255,7 +267,11 @@ int main(int argc, char *argv[])
 
   for (int i = 0; i < 100; i++){
 
-    p = create_usp_greedy(s,k);
+    p = create_usp_greedy(s, k, special);
+    //print_puzzle(p);
+    //    printf("\n");
+    arrange_puzzle(p);
+    //assert(check(p));
     print_puzzle(p);
     printf("\n");
     

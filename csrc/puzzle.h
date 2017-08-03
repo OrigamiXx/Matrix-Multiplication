@@ -58,6 +58,8 @@ void random_usp(puzzle * p);
 // Sorts the rows of the puzzle in increasing order.
 void sort_puzzle(puzzle * p);
 
+void arrange_puzzle(puzzle * p);
+
 int print_puzzle(puzzle * p);
 
 //Write puzzle into a file
