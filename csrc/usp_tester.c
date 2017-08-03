@@ -29,7 +29,7 @@ int main(int argc, char * argv[]){
   int time = 46800;
 
   struct timespec begin={0,0}, end={0,0};
-  FILE * puzzles = fopen("data/13-by-6-data.txt", "r");
+  FILE * puzzles = fopen("data/13-by-6-puzzle.txt", "r");
   //FILE * puzzles = fopen("1", "r");
   while(!feof(puzzles)){
     puzzle * p = create_puzzle(14,6);
@@ -61,10 +61,10 @@ int main(int argc, char * argv[]){
       //print_puzzle(p);
       //printf("got here \n");
       clock_gettime(CLOCK_MONOTONIC, &begin);
-      if //(check(p->puzzle,p->row,p->column)){
+      if (check(p->puzzle,p->row,p->column)){
         //(check_usp_bi(p->puzzle,p->row,p->column)){
         //(check_MIP(p)){
-        (check_SAT(p)){
+        //(check_SAT(p)){
         printf("this puzzle is a new 14 by 6y usp it's rua %d and index %d\n", checked+1, i);
         //write_puzzle(p, -1);
         //print_puzzle(p);

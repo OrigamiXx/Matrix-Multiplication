@@ -64,7 +64,7 @@ int main(int argc, char * argv[]){
   i = givenC;
   //j = givenR;
   //for (i = 1; i<=givenC; i++){
-  for (j = 1; j <= givenR; j++){
+  for (j = 10; j <= givenR; j++){
       long checked = 0;
       double usp_total = 0;
       double nonusp_total = 0;
@@ -92,9 +92,13 @@ int main(int argc, char * argv[]){
       for (index = 0; index < 100000; index++){
         //puzzle *p;
         //p = create_puzzle_from_index(j,i,index);
+        if((check_usp_bi(p->puzzle,p->row,p->column)) != check(p->puzzle,p->row,p->column)){
+          printf("Conflict!");
+          break;
+        }
         clock_gettime(CLOCK_MONOTONIC, &begin);
-        if //(check(p->puzzle, p->row, p->column)){
-          (check_MIP(p)){
+        if (check(p->puzzle, p->row, p->column)){
+          //(check_MIP(p)){
           //(check_SAT(p)){
           //(popen_simple(p->row, p->column,-1,p)){
           clock_gettime(CLOCK_MONOTONIC, &end);
