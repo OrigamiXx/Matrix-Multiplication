@@ -1229,6 +1229,7 @@ int check_SAT_MIP(puzzle * p){
   if(input_SAT.complete){
     input_MIP.interrupt = true;
     pthread_join(th_SAT, (void **)&res);
+    //pthread_detach(th_MIP);
     pthread_join(th_MIP, NULL);
     return res;
   }

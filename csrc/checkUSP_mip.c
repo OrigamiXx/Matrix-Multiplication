@@ -31,8 +31,7 @@ void finalize_check_MIP(){
 }
 
 
-
-int check_MIP(puzzle *p, GRBmodel * model){
+int check_MIP(puzzle *p, GRBmodel * model, bool * interrupt_ptr){
 
 
 
@@ -79,6 +78,7 @@ int check_MIP(puzzle *p, GRBmodel * model){
 
           GRBaddconstr(model, 1, ind, val, GRB_EQUAL, 0.0, NULL);
         }
+
       }
     }
   }
@@ -145,7 +145,7 @@ int check_MIP(puzzle *p, GRBmodel * model){
 
   /* Free model */
 
-  GRBfreemodel(model);
+  //GRBfreemodel(model);
 
   //GRBfreeenv(menv);
   menv = NULL;
@@ -197,7 +197,7 @@ void * MIP(void * arguments){
   GRBsetcallbackfunc(model, interrupt_callback, &(args -> interrupt));
 
   // Run check
-  long res = check_MIP(args -> p, model);
+  long res = check_MIP(args -> p, model, &(args -> interrupt));
 
   // Deallocate model.
   GRBfreemodel(model);
@@ -219,5 +219,5 @@ int check_MIP(puzzle *p){
   }
   GRBmodel * model = NULL;
   GRBnewmodel(env, &model, "3DM_to_MIP", 0, NULL, NULL, NULL, NULL, NULL);
-  check_MIP(p, model);
+  check_MIP(p, model, NULL);
 }

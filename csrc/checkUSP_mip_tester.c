@@ -23,8 +23,8 @@
 #include "checkUSP_mip.h"
 
 int main(int argc, char * argv[]){
-  int givenR = 15;
-  int givenC = 6;
+  int givenR = 30;
+  int givenC = 9;
   // int * puzzle1 = (int *) malloc(sizeof(int *)*givenR);
   // puzzle1[0] = 279;
   // puzzle1[1]= 284;
@@ -56,7 +56,7 @@ int main(int argc, char * argv[]){
   double thread_time, mip_time, sat_time;
 
   FILE * nonUSP = fopen("data/6-row-nonUSP-timing.csv", "w");
-  FILE * USP = fopen("data/6-row-nonUSP-timing.csv", "w");
+  FILE * USP = fopen("data/6-row-USP-timing.csv", "w");
   assert(nonUSP != NULL);
   assert(USP != NULL);
 
@@ -74,7 +74,7 @@ int main(int argc, char * argv[]){
   i = givenC;
   //j = givenR;
   //for (i = 1; i<=givenC; i++){
-  for (j = 1; j <= givenR; j++){
+  for (j = givenR; j <= givenR; j++){
       int checked = 0;
       double usp_total = 0;
       double nonusp_total = 0;
@@ -107,7 +107,8 @@ int main(int argc, char * argv[]){
       puzzle * p = create_puzzle(j, i);
       randomize_puzzle(p);
       srand48(time(NULL));
-      for (index = 0; index < 100000; index++){
+      for (index = 0; index < 100; index++){
+	printf("index = %d\n", index);
         //puzzle *p;
         //p = create_puzzle_from_index(j,i,index);
 
@@ -124,7 +125,7 @@ int main(int argc, char * argv[]){
 
 
         clock_gettime(CLOCK_MONOTONIC, &begin);
-        thread_res = check(p->puzzle,p->row,p->column);
+        thread_res = check_SAT_MIP(p);
         clock_gettime(CLOCK_MONOTONIC, &end);
         thread_time = ((double)end.tv_sec + 1.0e-9*end.tv_nsec) - ((double)begin.tv_sec + 1.0e-9*begin.tv_nsec);
 
