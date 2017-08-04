@@ -351,7 +351,7 @@ bool check_SAT(puzzle * p, Solver * S){
   int y = 2;
 
   S -> verbosity = 0;
-  
+
   vec<Lit> lits;
   int var, lit;
   lits.clear();
@@ -497,7 +497,7 @@ bool check_SAT(puzzle * p, Solver * S){
   //fprintf(file, "0\n");
   S -> addClause_(lits);
   lits.clear();
-  
+
   if (!(S -> simplify())){
     return true;
   }else{
@@ -523,7 +523,7 @@ bool check_SAT(puzzle * p){
   bool res = check_SAT(p, S);
   delete S;
   return res;
-  
+
 }
 
 void *SAT(void *arguments){
@@ -532,7 +532,8 @@ void *SAT(void *arguments){
   Solver * S = new Solver();
   args -> solver_handle = S;
   pthread_mutex_unlock(&(args->init_lock));
-  
+
+  //sleep(10000);
   int res = check_SAT(args->p, S);
 
   pthread_mutex_lock(args -> cleanup_lock);

@@ -188,7 +188,7 @@ void * MIP(void * arguments){
   //printf("Sleeping\n");
 
   //sleep(10000);
-  check_MIP(args -> p, model); 
+  int res = check_MIP(args -> p, model);
   //printf("Awake\n");
 
 
@@ -200,7 +200,7 @@ void * MIP(void * arguments){
 
   pthread_mutex_unlock(&(args->complete_lock));
 
-  pthread_exit((void*)false);
+  pthread_exit((void*)res);
 }
 
 

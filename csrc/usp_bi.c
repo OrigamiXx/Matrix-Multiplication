@@ -1224,6 +1224,7 @@ bool check(puzzle_row U[], int s, int k){
           pthread_join(th_MIP, (void **)&res);
           pthread_mutex_lock(&input_SAT.init_lock);
           sat_interrupt(input_SAT.solver_handle);
+          //pthread_cancel(th_SAT);
 	  pthread_mutex_unlock(&cleanup_lock);
 	  pthread_join(th_SAT, NULL);
           return res;
@@ -1237,11 +1238,11 @@ bool check(puzzle_row U[], int s, int k){
           pthread_mutex_lock(&input_MIP.init_lock);
 
 	  // Placeholder.
-	  pthread_cancel(th_MIP);
-	  //mip_interrupt(input_MIP.solver_handle);
+	  //pthread_cancel(th_MIP);
+	  mip_interrupt(input_MIP.solver_handle);
 
 	  pthread_mutex_unlock(&cleanup_lock);
-	  //pthread_join(th_MIP, NULL);
+	  pthread_join(th_MIP, NULL);
           return res;
         }
       }
