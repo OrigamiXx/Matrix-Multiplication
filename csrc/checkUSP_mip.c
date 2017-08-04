@@ -7,6 +7,7 @@
 #include "checkUSP_mip.h"
 #include <unistd.h>
 #include <semaphore.h>
+#include <sched.h>
 
 int check_MIP(puzzle * p, GRBmodel * model);
 
@@ -211,7 +212,12 @@ void * MIP(void * arguments){
 
 int check_MIP(puzzle *p){
   if (env == NULL) {
+    char buf[20];
+    int saved_stdout = dup(1);
+    freopen("/dev/null", "w", stdout);
     int res = GRBloadenv(&env, NULL);
+    sprintf(buf, "/dev/fd/%d", saved_stdout);
+    freopen(buf, "w", stdout);
     if (res != 0) {
       env = NULL;
       return -1;

@@ -34,6 +34,7 @@
 #include <unistd.h>
 #include "puzzle.h"
 #include <syscall.h>
+#include <sched.h>
 using namespace std;
 
 /*
@@ -1218,7 +1219,7 @@ int check_SAT_MIP(puzzle * p){
   sem_wait(&complete_sem);
 
   long res = -999;
-  
+
   if(input_MIP.complete){
     input_SAT.interrupt = true;
     pthread_join(th_MIP, (void **)&res);
@@ -1229,7 +1230,6 @@ int check_SAT_MIP(puzzle * p){
   if(input_SAT.complete){
     input_MIP.interrupt = true;
     pthread_join(th_SAT, (void **)&res);
-    //pthread_detach(th_MIP);
     pthread_join(th_MIP, NULL);
     return res;
   }

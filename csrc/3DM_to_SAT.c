@@ -20,6 +20,7 @@
 #include <semaphore.h>
 #include <errno.h>
 #include <signal.h>
+#include <sched.h>
 #include "utils/System.h"
 #include "utils/ParseUtils.h"
 #include "core/Dimacs.h"
@@ -529,6 +530,7 @@ int check_SAT(puzzle * p){
 }
 
 void *SAT(void *arguments){
+
   struct thread *args = (struct thread *)arguments;
 
   Solver * S = new Solver();

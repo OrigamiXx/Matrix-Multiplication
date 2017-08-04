@@ -10,7 +10,7 @@ int time_check(int (* checker)(puzzle *), puzzle * p, double * time_ptr){
 
   struct timespec begin={0,0}, end={0,0};  
 
-  clockid_t clock_mode = CLOCK_PROCESS_CPUTIME_ID; 
+  clockid_t clock_mode = CLOCK_MONOTONIC; //CLOCK_REALTIME; //CLOCK_PROCESS_CPUTIME_ID; 
   
   clock_gettime(clock_mode, &begin);
   int res = (*checker)(p);
