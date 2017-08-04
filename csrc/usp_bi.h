@@ -66,6 +66,13 @@ bool check_usp_uni(puzzle_row U[], int s, int k);
  * a bidirectional algorithm.
  */
 bool check_usp_bi(puzzle_row U[], int s, int k);
+int check_usp_bi(puzzle * p);
+
+/*
+ * Determines whether the given s-by-k puzzle U is a strong USP.
+ * Checks using SAT and MIP solvers in parallel threads.
+ */
+int check_SAT_MIP(puzzle * p);
 
 /*
  * Determines whether the given s-by-k puzzle U is a strong USP.
@@ -74,8 +81,8 @@ bool check_usp_bi(puzzle_row U[], int s, int k);
  * bidirectional search if s is large enough, and the unidirectional
  * search otherwise.
  */
-bool check(puzzle_row U[], int s, int k);
-bool check(puzzle * p);
+int check(puzzle_row U[], int s, int k);
+int check(puzzle * p);
 
 /*
  * Initialize the USP cache.  Precomputes whether each s-by-k puzzle

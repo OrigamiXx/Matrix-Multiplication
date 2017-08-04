@@ -342,7 +342,7 @@ int file_simple(int row, int column, long index, puzzle * p){
 
 
 
-bool check_SAT(puzzle * p, Solver * S){
+int check_SAT(puzzle * p, Solver * S){
   int row = p->row;
   //int column = p->column;
   int i, j, k;
@@ -499,28 +499,30 @@ bool check_SAT(puzzle * p, Solver * S){
   lits.clear();
 
   if (!(S -> simplify())){
-    return true;
+    return 1;
   }else{
     vec<Lit> dummy;
     /*lbool ret = S -> solveLimited(dummy);
       if (ret == l_True){
-      return false;
+      return 0;
       }else if(ret == l_False){
-      return true;
+      return 1;
       }*/
-    bool ret = S -> solve();
-    if (!ret){
-      return true;
-    }else if(ret){
-      return false;
+    lbool ret = S -> solveLimited();
+    if (ret == l_True){
+      return 0;
+    } else if(ret == l_False){
+      return 1;
+    } else {
+      return -1;
     }
   }
 }
 
-bool check_SAT(puzzle * p){
+int check_SAT(puzzle * p){
 
   Solver * S = new Solver();
-  bool res = check_SAT(p, S);
+  int res = check_SAT(p, S);
   delete S;
   return res;
 

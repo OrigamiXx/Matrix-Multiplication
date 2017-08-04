@@ -9,6 +9,7 @@
 #include "puzzle.h"
 #include <time.h>
 #include <sys/time.h>
+#include "timing.h"
 #include "3DM_to_SAT.h"
 #include "checkUSP_mip.h"
 #include <math.h>
@@ -28,8 +29,8 @@ int main(int argc, char * argv[]){
   int row;
   int row_index;
   int time = 46800;
-  int thread_res, mip_res, sat_res;
-  double thread_time, mip_time, sat_time;
+  int thread_res, mip_res, sat_res, bi_res;
+  double thread_time, mip_time, sat_time, bi_time;
   char csv_input[50];
   char usp_num[10];
 
@@ -72,22 +73,26 @@ int main(int argc, char * argv[]){
       //fwrite(",", sizeof(char), 1, record);
       //print_puzzle(p);
       //printf("got here \n");
-      clock_gettime(CLOCK_MONOTONIC, &begin);
-      mip_res = check_MIP(p);
-      clock_gettime(CLOCK_MONOTONIC, &end);
-      mip_time = ((double)end.tv_sec + 1.0e-9*end.tv_nsec) - ((double)begin.tv_sec + 1.0e-9*begin.tv_nsec);
+      int test_count = 0;
+      int total_res = 0;
+      mip_res = time_check(&check_MIP, p, &mip_time);
+      total_res += mip_res;
+      test_count++;
       //ftoa(individual, timing, 5);
 
-
-      clock_gettime(CLOCK_MONOTONIC, &begin);
-      sat_res = check_SAT(p);
-      clock_gettime(CLOCK_MONOTONIC, &end);
-      sat_time = ((double)end.tv_sec + 1.0e-9*end.tv_nsec) - ((double)begin.tv_sec + 1.0e-9*begin.tv_nsec);
+      sat_res = time_check(&check_SAT, p, &sat_time);
+      total_res += sat_res;
+      test_count++;
       //ftoa(individual, timing, 5);
 
+      thread_res = time_check(&check_SAT_MIP, p, &thread_time);
+      total_res += thread_res;
+      test_count++;
 
-      clock_gettime(CLOCK_MONOTONIC, &begin);
-      thread_res = check(p->puzzle,p->row,p->column);
+      //bi_res = time_check(&check_usp_bi, p, &bi_time);
+      //total_res += bi_res;
+      //test_count++;
+      
       //print_puzzle(p);
       //if (check(p->puzzle,p->row,p->column)){
         //(check_usp_bi(p->puzzle,p->row,p->column)){
@@ -98,10 +103,8 @@ int main(int argc, char * argv[]){
         //print_puzzle(p);
         //usps++;
       //}
-
-      clock_gettime(CLOCK_MONOTONIC, &end);
       checked2++;
-      thread_time = ((double)end.tv_sec + 1.0e-9*end.tv_nsec) - ((double)begin.tv_sec + 1.0e-9*begin.tv_nsec);
+
       //ftoa(individual, timing, 5);
       //printf("%d,%.5f,%.5f,%.5f\n", checked, thread_time, mip_time, sat_time);
       //sprintf(csv_input, "%d,%.5f,%.5f,%.5f\n", checked, thread_time, mip_time, sat_time);
@@ -110,8 +113,8 @@ int main(int argc, char * argv[]){
       // fwrite(individual, sizeof(double), 1, record);
       // fwrite("\n", sizeof(char), 1, record);
 
-      if (mip_res != sat_res || sat_res != thread_res){
-        printf("Conflict, mip is %d, sat is %d, and thread is %d", mip_res, sat_res, thread_res);
+      if (total_res != test_count && total_res != 0){ //mip_res != sat_res || sat_res != thread_res){
+        printf("Conflict, mip = %d, sat = %d, thread = %d", mip_res, sat_res, thread_res);
         return -1;
       }
 

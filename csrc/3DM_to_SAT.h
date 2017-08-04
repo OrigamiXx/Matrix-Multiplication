@@ -30,7 +30,7 @@ long power(int base, int exponent);
 
 // direct interface with the solver
 // true if is UNSAT which is a USP; false OW;
-bool check_SAT(puzzle * p);
+int check_SAT(puzzle * p);
 void *SAT(void *arguments);
 void sat_interrupt(void * x);
 #endif

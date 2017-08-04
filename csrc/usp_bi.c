@@ -942,6 +942,14 @@ bool check_usp_bi(puzzle_row U[], int s, int k){
 
 }
 
+int check_usp_bi(puzzle * p){
+
+  if (check_usp_bi(p -> puzzle, p -> row, p -> column))
+    return 1;
+  else
+    return 0;
+}
+
 /*
  * A memoized recursive function contructs partial witnesses of
  * non-strong USP for a s-by-k puzzle with given row_witness, from row
@@ -1181,6 +1189,67 @@ bool cache_lookup(puzzle_row U[], int s, int k){
 
 
 
+/*
+ * Determines whether the given s-by-k puzzle U is a strong USP.
+ * Checks using SAT and MIP solvers in parallel threads.
+ */
+int check_SAT_MIP(puzzle * p){
+  
+  pthread_mutex_t cleanup_lock = PTHREAD_MUTEX_INITIALIZER;
+  
+  pthread_t th_MIP;
+  pthread_t th_SAT;
+  struct thread input_MIP;
+  input_MIP.p = p;
+  input_MIP.complete_lock = PTHREAD_MUTEX_INITIALIZER;
+  input_MIP.init_lock = PTHREAD_MUTEX_INITIALIZER;
+  input_MIP.cleanup_lock = &cleanup_lock;
+  
+  pthread_mutex_lock(&input_MIP.complete_lock);
+  pthread_mutex_lock(&input_MIP.init_lock);
+  
+  struct thread input_SAT;
+  input_SAT.p = p;
+  input_SAT.complete_lock = PTHREAD_MUTEX_INITIALIZER;
+  input_SAT.init_lock = PTHREAD_MUTEX_INITIALIZER;
+  input_SAT.cleanup_lock = &cleanup_lock;
+  
+  pthread_mutex_lock(&input_SAT.complete_lock);
+  pthread_mutex_lock(&input_SAT.init_lock);
+  
+  long res = -1; // This must be a long, because of sizeof(long) = sizeof(void *)
+  
+  pthread_create(&th_SAT, NULL, SAT, (void *)&input_SAT);
+  pthread_create(&th_MIP, NULL, MIP, (void *)&input_MIP);
+  
+  while (res == -1){
+    usleep(100);
+    
+    if(pthread_mutex_trylock(&input_MIP.complete_lock)==0){
+      //printf("MIP completed first\n");
+      pthread_join(th_MIP, (void **)&res);
+      pthread_mutex_lock(&input_SAT.init_lock);
+      sat_interrupt(input_SAT.solver_handle);
+      //pthread_cancel(th_SAT);
+      pthread_mutex_unlock(&cleanup_lock);
+      pthread_join(th_SAT, NULL);
+      return res;
+    }
+    
+    if (pthread_mutex_trylock(&input_SAT.complete_lock)==0){
+      //printf("SAT completed first\n");
+      pthread_join(th_SAT, (void **)&res);
+      pthread_mutex_lock(&input_MIP.init_lock);
+      mip_interrupt(input_MIP.solver_handle);
+      //pthread_cancel(th_MIP);
+      pthread_mutex_unlock(&cleanup_lock);
+      pthread_join(th_MIP, NULL);
+      return res;
+    }
+  }
+  assert(false == "SHOULDN'T GET HERE.");
+  return res;
+}
 
 /*
  * Determines whether the given s-by-k puzzle U is a strong USP.
@@ -1189,7 +1258,7 @@ bool cache_lookup(puzzle_row U[], int s, int k){
  * search if s is large enough, and the unidirectional search
  * otherwise.
  */
-bool check(puzzle_row U[], int s, int k){
+int check(puzzle_row U[], int s, int k){
 
   if (is_cached(s,k))
     return cache_lookup(U,s,k);
@@ -1232,65 +1301,15 @@ bool check(puzzle_row U[], int s, int k){
       p.column = k;
       p.row = s;
 
-      pthread_mutex_t cleanup_lock = PTHREAD_MUTEX_INITIALIZER;
-
-      pthread_t th_MIP;
-      pthread_t th_SAT;
-      struct thread input_MIP;
-      input_MIP.p = &p;
-      input_MIP.complete_lock = PTHREAD_MUTEX_INITIALIZER;
-      input_MIP.init_lock = PTHREAD_MUTEX_INITIALIZER;
-      input_MIP.cleanup_lock = &cleanup_lock;
-
-      pthread_mutex_lock(&input_MIP.complete_lock);
-      pthread_mutex_lock(&input_MIP.init_lock);
-
-      struct thread input_SAT;
-      input_SAT.p = &p;
-      input_SAT.complete_lock = PTHREAD_MUTEX_INITIALIZER;
-      input_SAT.init_lock = PTHREAD_MUTEX_INITIALIZER;
-      input_SAT.cleanup_lock = &cleanup_lock;
-
-      pthread_mutex_lock(&input_SAT.complete_lock);
-      pthread_mutex_lock(&input_SAT.init_lock);
-
-      long res = -1; // This must be a long, because of sizeof(long) = sizeof(void *)
-
-      pthread_create(&th_SAT, NULL, SAT, (void *)&input_SAT);
-      pthread_create(&th_MIP, NULL, MIP, (void *)&input_MIP);
-
-      while (res == -1){
-        usleep(1000);
-
-        if(pthread_mutex_trylock(&input_MIP.complete_lock)==0){
-	  //printf("MIP completed first\n");
-          pthread_join(th_MIP, (void **)&res);
-          pthread_mutex_lock(&input_SAT.init_lock);
-          sat_interrupt(input_SAT.solver_handle);
-          //pthread_cancel(th_SAT);
-	  pthread_mutex_unlock(&cleanup_lock);
-	  pthread_join(th_SAT, NULL);
-          return res;
-        }
-
-	if (pthread_mutex_trylock(&input_SAT.complete_lock)==0){
-	  //printf("SAT completed first\n");
-          pthread_join(th_SAT, (void **)&res);
-          pthread_mutex_lock(&input_MIP.init_lock);
-	  mip_interrupt(input_MIP.solver_handle);
-	  //pthread_cancel(th_MIP);
-	  pthread_mutex_unlock(&cleanup_lock);
-	  pthread_join(th_MIP, NULL);
-          return res;
-        }
-      }
+      int res = check_SAT_MIP(&p);
+      assert(res != -1);
       return res;
     }
   }
 }
 
 
-bool check(puzzle * p){
+int check(puzzle * p){
 
   return check(p -> puzzle, p -> row, p -> column);
   

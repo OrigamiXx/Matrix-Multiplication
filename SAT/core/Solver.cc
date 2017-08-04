@@ -898,6 +898,15 @@ lbool Solver::search(int& nof_conflicts)
     starts++;
 
     for (;;){
+      if (!withinBudget()){
+	lbd_queue.clear();
+	cached = false;
+	// Reached bound on number of conflicts:
+	progress_estimate = progressEstimate();
+	cancelUntil(0);
+	return l_Undef;
+      }
+      
         CRef confl = propagate();
 
         if (confl != CRef_Undef){
@@ -974,7 +983,7 @@ lbool Solver::search(int& nof_conflicts)
                 restart = lbd_queue.full() && (lbd_queue.avg() * 0.8 > global_lbd_sum / conflicts_VSIDS);
                 cached = true;
             }
-            if (restart /*|| !withinBudget()*/){
+            if (restart || !withinBudget()){
                 lbd_queue.clear();
                 cached = false;
                 // Reached bound on number of conflicts:
@@ -1100,13 +1109,13 @@ lbool Solver::solve_()
 
     VSIDS = true;
     int init = 10000;
-    while (status == l_Undef && init > 0 /*&& withinBudget()*/)
+    while (status == l_Undef && init > 0 && withinBudget())
        status = search(init);
     VSIDS = false;
 
     // Search:
     int curr_restarts = 0;
-    while (status == l_Undef /*&& withinBudget()*/){
+    while (status == l_Undef && withinBudget()){
         if (VSIDS){
             int weighted = INT32_MAX;
             status = search(weighted);
