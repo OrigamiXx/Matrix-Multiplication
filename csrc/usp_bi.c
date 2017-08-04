@@ -71,6 +71,7 @@ void print_row_witnesses(bool * row_witnesses, int s){
   }
 }
 
+
 /*
  * Returns true iff a length-k row that permutations map to u_1, u_2,
  * u_3, respectively, satisfies the inner condition of strong USPs.
@@ -95,6 +96,80 @@ bool valid_combination(int u_1, int u_2, int u_3, int k){
   }
   return false;
 }
+
+void compute_row_witnesses(puzzle_row U[], int s, int k, bool * row_witness){
+  
+  for (int i = 0; i < s; i++){
+    for (int j = 0; j < s; j++){
+      for (int r = 0; r < s; r++){
+	row_witness[i * s * s + j * s + r] = valid_combination(U[i],U[j],U[r],k);
+      }
+    }
+  }
+  
+}
+
+
+int count_row_witnesses(bool * row_witnesses, int s){
+
+  int count = 0;
+  for (int i = 0; i < s; i++){
+    for (int j = 0; j < s; j++){
+      for (int k = 0; k < s; k++){
+	if (!row_witnesses[i * s * s + j * s + k])
+	  count++;
+      }
+    }
+  }
+  return count;
+}
+
+void witness_simplify(bool * row_witness, puzzle_row U[], int s, int k){
+
+  for (int c = 0; c < k; c++){
+    int counts[3] = {0,0,0};
+    for (int r = 0; r < s; r++){
+      counts[get_column_from_row(U[r], c) - 1]++;
+    }
+
+    int missing = (counts[0] == 0) + (counts[1] == 0) + (counts[2] == 0);
+    if (missing == 1) {
+
+      for (int i = 0; i < s; i++){
+	for (int j = 0; j < s; j++){
+	  if (get_column_from_row(U[i], c) != get_column_from_row(U[j], c)) {
+	    for (int l = 0; l < s; l++){
+	      if (counts[0] == 0) {
+		row_witness[l * s * s + i * s + j] = true;
+		row_witness[l * s * s + j * s + i] = true;
+	      } else if (counts[1] == 0){
+		row_witness[i * s * s + l * s + j] = true;
+		row_witness[j * s * s + l * s + i] = true;
+	      } else {
+		row_witness[i * s * s + j * s + l] = true;
+		row_witness[j * s * s + i * s + l] = true;
+	      }
+	    }
+	  }
+	}
+      }
+    }
+
+  }
+
+}
+
+
+int count_row_witnesses(puzzle * p){
+
+  int s = p -> row;
+  bool row_witnesses[s * s * s];
+  compute_row_witnesses(p -> puzzle, s, p -> column, row_witnesses);
+  witness_simplify(row_witnesses, p -> puzzle, s, p -> column);
+  return count_row_witnesses(row_witnesses, s);
+
+}
+
 
 /*
  * Checks whether the given vector pi represents the identity
@@ -1104,40 +1179,7 @@ bool cache_lookup(puzzle_row U[], int s, int k){
 
 }
 
-void witness_simplify(bool * row_witness, puzzle_row U[], int s, int k){
 
-  for (int c = 0; c < k; c++){
-    int counts[3] = {0,0,0};
-    for (int r = 0; r < s; r++){
-      counts[get_column_from_row(U[r], c) - 1]++;
-    }
-
-    int missing = (counts[0] == 0) + (counts[1] == 0) + (counts[2] == 0);
-    if (missing == 1) {
-
-      for (int i = 0; i < s; i++){
-	for (int j = 0; j < s; j++){
-	  if (get_column_from_row(U[i], c) != get_column_from_row(U[j], c)) {
-	    for (int l = 0; l < s; l++){
-	      if (counts[0] == 0) {
-		row_witness[l * s * s + i * s + j] = true;
-		row_witness[l * s * s + j * s + i] = true;
-	      } else if (counts[1] == 0){
-		row_witness[i * s * s + l * s + j] = true;
-		row_witness[j * s * s + l * s + i] = true;
-	      } else {
-		row_witness[i * s * s + j * s + l] = true;
-		row_witness[j * s * s + i * s + l] = true;
-	      }
-	    }
-	  }
-	}
-      }
-    }
-
-  }
-
-}
 
 
 /*
@@ -1160,24 +1202,25 @@ bool check(puzzle_row U[], int s, int k){
     int iter = s * s * s;
 
     bool row_witness[s * s * s];
-    for (int i = 0; i < s; i++){
-      for (int j = 0; j < s; j++){
-	for (int r = 0; r < s; r++){
-	  row_witness[i * s * s + j * s + r] = valid_combination(U[i],U[j],U[r],k);
-	}
-      }
-    }
+    compute_row_witnesses(U,s,k,row_witness);
 
     int res = random_precheck(row_witness, s, k, iter);
     if (res != 0)
       return res == 1;
 
     if (s < 10){
+      /*
+      witness_simplify(row_witness, U, s, k);
+      res = greedy_precheck(row_witness, s, iter);
+      if (res != 0)
+	return res == 1;
+      */
       return check_usp_bi_inner(row_witness, s);
     } else {
 
       // XXX - This won't do anything for the SAT solver because it
       //doesn't take in row_witness.
+      // XXX - May be incorrect.
       //witness_simplify(row_witness, U, s, k);
 
       res = greedy_precheck(row_witness, s, iter);
@@ -1220,28 +1263,22 @@ bool check(puzzle_row U[], int s, int k){
         usleep(1000);
 
         if(pthread_mutex_trylock(&input_MIP.complete_lock)==0){
-	         printf("MIP completed first\n");
+	  //printf("MIP completed first\n");
           pthread_join(th_MIP, (void **)&res);
           pthread_mutex_lock(&input_SAT.init_lock);
           sat_interrupt(input_SAT.solver_handle);
 	  pthread_mutex_unlock(&cleanup_lock);
 	  pthread_join(th_SAT, NULL);
           return res;
-
         }
 
 	if (pthread_mutex_trylock(&input_SAT.complete_lock)==0){
-
-	  printf("SAT completed first\n");
+	  //printf("SAT completed first\n");
           pthread_join(th_SAT, (void **)&res);
           pthread_mutex_lock(&input_MIP.init_lock);
-
-	  // Placeholder.
-	  pthread_cancel(th_MIP);
-	  //mip_interrupt(input_MIP.solver_handle);
-
+	  mip_interrupt(input_MIP.solver_handle);
 	  pthread_mutex_unlock(&cleanup_lock);
-	  //pthread_join(th_MIP, NULL);
+	  pthread_join(th_MIP, NULL);
           return res;
         }
       }

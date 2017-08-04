@@ -123,4 +123,6 @@ bool valid_combination(int u_1, int u_2, int u_3, int k);
 int random_precheck(bool * row_witness, int s, int k, int iter);
 
 
+int count_row_witnesses(puzzle * p);
+
 #endif

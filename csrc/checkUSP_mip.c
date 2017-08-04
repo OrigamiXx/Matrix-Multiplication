@@ -170,37 +170,36 @@ int check_MIP(puzzle *p, GRBmodel * model){
 
 // Dummy code for MIP thread.
 void * MIP(void * arguments){
-  pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS,NULL);
 
   struct thread *args = (struct thread *)arguments;
 
   if (env == NULL) {
+    // Loaded env, but redirect stdout to dev/null to hide init message.
+    char buf[20];
+    int saved_stdout = dup(1);
+    freopen("/dev/null", "w", stdout);
     GRBloadenv(&env, NULL);
+    sprintf(buf, "/dev/fd/%d", saved_stdout);
+    freopen(buf, "w", stdout);
   }
 
-  // XXX - Allocate here.
+  // Allocate model.
   GRBmodel *model = NULL;
   GRBnewmodel(env, &model, "3DM_to_MIP", 0, NULL, NULL, NULL, NULL, NULL);
   args -> solver_handle = model;
-
   pthread_mutex_unlock(&(args->init_lock));
 
-  //printf("Sleeping\n");
+  // Run check
+  int res = check_MIP(args -> p, model); 
 
-  //sleep(10000);
-  check_MIP(args -> p, model); 
-  //printf("Awake\n");
-
-
+  // Deallocate model.
   pthread_mutex_lock(args -> cleanup_lock);
-
-  // XXX - Deallocate here.
   args -> solver_handle = NULL;
   GRBfreemodel(model);
 
   pthread_mutex_unlock(&(args->complete_lock));
 
-  pthread_exit((void*)false);
+  pthread_exit((void*)res);
 }
 
 
@@ -219,5 +218,6 @@ int check_MIP(puzzle *p){
 
 //Take the handle, terminate the process and elegently quit.
 void mip_interrupt(void * solver_handle){
-  GRBterminate((GRBmodel *)solver_handle);
+  if (solver_handle != NULL)
+    GRBterminate((GRBmodel *)solver_handle);
 }
