@@ -143,6 +143,7 @@ public:
     void    budgetOff();
     void    interrupt();          // Trigger a (potentially asynchronous) interruption of the solver.
     void    clearInterrupt();     // Clear interrupt indicator flag.
+    void    setInterruptPtr(bool * ptr);
 
     // Memory managment:
     //
@@ -282,7 +283,8 @@ protected:
     int64_t             conflict_budget;    // -1 means no budget.
     int64_t             propagation_budget; // -1 means no budget.
     bool                asynch_interrupt;
-
+    bool *              asynch_interrupt_ptr = NULL;    
+    
     // Main internal methods:
     //
     void     insertVarOrder   (Var x);                                                 // Insert a variable in the decision order priority queue.
@@ -471,9 +473,11 @@ inline void     Solver::setConfBudget(int64_t x){ conflict_budget    = conflicts
 inline void     Solver::setPropBudget(int64_t x){ propagation_budget = propagations + x; }
 inline void     Solver::interrupt(){ asynch_interrupt = true; }
 inline void     Solver::clearInterrupt(){ asynch_interrupt = false; }
+inline void     Solver::setInterruptPtr(bool * ptr){ asynch_interrupt_ptr = ptr; }
+ 
 inline void     Solver::budgetOff(){ conflict_budget = propagation_budget = -1; }
 inline bool     Solver::withinBudget() const {
-  return !asynch_interrupt;} //&&
+  return asynch_interrupt_ptr == NULL || (asynch_interrupt_ptr != NULL && !*asynch_interrupt_ptr);} //&&
       // (conflict_budget    < 0 || conflicts < (uint64_t)conflict_budget) &&
       //     (propagation_budget < 0 || propagations < (uint64_t)propagation_budget); }
 

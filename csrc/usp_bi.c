@@ -1194,59 +1194,45 @@ bool cache_lookup(puzzle_row U[], int s, int k){
  * Checks using SAT and MIP solvers in parallel threads.
  */
 int check_SAT_MIP(puzzle * p){
-  
-  pthread_mutex_t cleanup_lock = PTHREAD_MUTEX_INITIALIZER;
+
+  sem_t complete_sem;
+  sem_init(&complete_sem, 0, 0);
   
   pthread_t th_MIP;
   pthread_t th_SAT;
   struct thread input_MIP;
   input_MIP.p = p;
-  input_MIP.complete_lock = PTHREAD_MUTEX_INITIALIZER;
-  input_MIP.init_lock = PTHREAD_MUTEX_INITIALIZER;
-  input_MIP.cleanup_lock = &cleanup_lock;
-  
-  pthread_mutex_lock(&input_MIP.complete_lock);
-  pthread_mutex_lock(&input_MIP.init_lock);
-  
+  input_MIP.interrupt = false;
+  input_MIP.complete_sem = &complete_sem;
+  input_MIP.complete = false;
+    
   struct thread input_SAT;
   input_SAT.p = p;
-  input_SAT.complete_lock = PTHREAD_MUTEX_INITIALIZER;
-  input_SAT.init_lock = PTHREAD_MUTEX_INITIALIZER;
-  input_SAT.cleanup_lock = &cleanup_lock;
-  
-  pthread_mutex_lock(&input_SAT.complete_lock);
-  pthread_mutex_lock(&input_SAT.init_lock);
-  
-  long res = -1; // This must be a long, because of sizeof(long) = sizeof(void *)
+  input_SAT.interrupt = false;
+  input_SAT.complete_sem = &complete_sem;
+  input_SAT.complete = false;
   
   pthread_create(&th_SAT, NULL, SAT, (void *)&input_SAT);
   pthread_create(&th_MIP, NULL, MIP, (void *)&input_MIP);
+
+  sem_wait(&complete_sem);
+
+  long res = -999;
   
-  while (res == -1){
-    usleep(100);
-    
-    if(pthread_mutex_trylock(&input_MIP.complete_lock)==0){
-      //printf("MIP completed first\n");
-      pthread_join(th_MIP, (void **)&res);
-      pthread_mutex_lock(&input_SAT.init_lock);
-      sat_interrupt(input_SAT.solver_handle);
-      //pthread_cancel(th_SAT);
-      pthread_mutex_unlock(&cleanup_lock);
-      pthread_join(th_SAT, NULL);
-      return res;
-    }
-    
-    if (pthread_mutex_trylock(&input_SAT.complete_lock)==0){
-      //printf("SAT completed first\n");
-      pthread_join(th_SAT, (void **)&res);
-      pthread_mutex_lock(&input_MIP.init_lock);
-      mip_interrupt(input_MIP.solver_handle);
-      //pthread_cancel(th_MIP);
-      pthread_mutex_unlock(&cleanup_lock);
-      pthread_join(th_MIP, NULL);
-      return res;
-    }
+  if(input_MIP.complete){
+    input_SAT.interrupt = true;
+    pthread_join(th_MIP, (void **)&res);
+    pthread_join(th_SAT, NULL);
+    return res;
+  } 
+
+  if(input_SAT.complete){
+    input_MIP.interrupt = true;
+    pthread_join(th_SAT, (void **)&res);
+    pthread_join(th_MIP, NULL);
+    return res;
   }
+
   assert(false == "SHOULDN'T GET HERE.");
   return res;
 }

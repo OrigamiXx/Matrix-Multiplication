@@ -17,7 +17,7 @@
 #include "usp_bi.h"
 #include <pthread.h>
 #include <syscall.h>
-
+#include <semaphore.h>
 #include <errno.h>
 #include <signal.h>
 #include "utils/System.h"
@@ -532,17 +532,14 @@ void *SAT(void *arguments){
   struct thread *args = (struct thread *)arguments;
 
   Solver * S = new Solver();
-  args -> solver_handle = S;
-  pthread_mutex_unlock(&(args->init_lock));
-
-  //sleep(10000);
+  S -> setInterruptPtr(&(args->interrupt));
+  
   int res = check_SAT(args->p, S);
 
-  pthread_mutex_lock(args -> cleanup_lock);
-  args -> solver_handle = NULL;
   delete S;
 
-  pthread_mutex_unlock(&(args->complete_lock));
+  args -> complete = true;
+  sem_post(args -> complete_sem);
 
   pthread_exit((void*)res);
 }

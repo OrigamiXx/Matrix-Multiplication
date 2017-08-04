@@ -25,18 +25,19 @@
 #include <map>
 #include <math.h>
 #include <assert.h>
+#include <semaphore.h>
 #include "pthread.h"
 #include "puzzle.h"
 using namespace std;
 
 typedef struct thread {
+
   puzzle * p;
-  pthread_mutex_t complete_lock;
-  pthread_mutex_t init_lock;
-  pthread_mutex_t * cleanup_lock;
+  bool interrupt;
+  sem_t * complete_sem;
+  bool complete;
   
-  void * solver_handle;
-}thread;
+} thread;
 
 /*
  * Uses an integer to store a puzzle row, capable of representing rows

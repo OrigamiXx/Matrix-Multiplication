@@ -6,6 +6,7 @@
 #include "usp_bi.h"
 #include "checkUSP_mip.h"
 #include <unistd.h>
+#include <semaphore.h>
 
 int check_MIP(puzzle * p, GRBmodel * model);
 
@@ -133,7 +134,7 @@ int check_MIP(puzzle *p, GRBmodel * model){
   }
   double limit = (double)(s -1);
   GRBaddconstr(model, counter, ind, val, GRB_LESS_EQUAL, limit, NULL);
-
+  
   GRBoptimize(model);
   //GRBwrite(model, "3DM_to_MIP.lp");
 
@@ -167,6 +168,13 @@ int check_MIP(puzzle *p, GRBmodel * model){
   }
 }
 
+int interrupt_callback(GRBmodel *model, void *cbdata, int where, void *usrdata){
+
+  bool interrupt = *((bool *)usrdata);
+  if (interrupt)
+    GRBterminate(model);
+  
+}
 
 // Dummy code for MIP thread.
 void * MIP(void * arguments){
@@ -186,19 +194,16 @@ void * MIP(void * arguments){
   // Allocate model.
   GRBmodel *model = NULL;
   GRBnewmodel(env, &model, "3DM_to_MIP", 0, NULL, NULL, NULL, NULL, NULL);
-  args -> solver_handle = model;
-  pthread_mutex_unlock(&(args->init_lock));
+  GRBsetcallbackfunc(model, interrupt_callback, &(args -> interrupt));
 
   // Run check
-  //sleep(10000);
-  int res = check_MIP(args -> p, model);
+  long res = check_MIP(args -> p, model);
 
   // Deallocate model.
-  pthread_mutex_lock(args -> cleanup_lock);
-  args -> solver_handle = NULL;
   GRBfreemodel(model);
 
-  pthread_mutex_unlock(&(args->complete_lock));
+  args -> complete = true;
+  sem_post(args -> complete_sem);
 
   pthread_exit((void*)res);
 }
@@ -215,10 +220,4 @@ int check_MIP(puzzle *p){
   GRBmodel * model = NULL;
   GRBnewmodel(env, &model, "3DM_to_MIP", 0, NULL, NULL, NULL, NULL, NULL);
   check_MIP(p, model);
-}
-
-//Take the handle, terminate the process and elegently quit.
-void mip_interrupt(void * solver_handle){
-  if (solver_handle != NULL)
-    GRBterminate((GRBmodel *)solver_handle);
 }
