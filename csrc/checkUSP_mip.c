@@ -54,7 +54,10 @@ int check_MIP(puzzle *p, GRBmodel * model, bool * interrupt_ptr){
   //GRBloadenv(&env, NULL);
 
   menv = GRBgetenv(model);
-
+  
+  GRBsetintparam(menv, "Threads", 2);
+  GRBsetintparam(menv, GRB_INT_PAR_MIPFOCUS, 1);
+  //if (interrupt_ptr == NULL)
   GRBsetintparam(menv, "OutputFlag", 0);
   //printf("\n\nThe error is %d\n\n", error);
   //GRBsetdblparam(env, GRB_DBL_PAR_HEURISTICS, 0.0);
@@ -138,7 +141,7 @@ int check_MIP(puzzle *p, GRBmodel * model, bool * interrupt_ptr){
   
   GRBoptimize(model);
   //GRBwrite(model, "3DM_to_MIP.lp");
-
+  
   /* Capture solution information */
   GRBgetintattr(model, GRB_INT_ATTR_STATUS, &optimstatus);
 
@@ -171,9 +174,13 @@ int check_MIP(puzzle *p, GRBmodel * model, bool * interrupt_ptr){
 
 int interrupt_callback(GRBmodel *model, void *cbdata, int where, void *usrdata){
 
-  bool interrupt = *((bool *)usrdata);
-  if (interrupt)
+  
+  bool * interrupt = ((bool *)usrdata);
+  if (*interrupt) {
     GRBterminate(model);
+    *interrupt = false;
+  }
+  //printf("in callback\n");
   
 }
 
@@ -191,14 +198,15 @@ void * MIP(void * arguments){
     sprintf(buf, "/dev/fd/%d", saved_stdout);
     freopen(buf, "w", stdout);
   }
-
+  long res = -1;
+  
   // Allocate model.
   GRBmodel *model = NULL;
   GRBnewmodel(env, &model, "3DM_to_MIP", 0, NULL, NULL, NULL, NULL, NULL);
   GRBsetcallbackfunc(model, interrupt_callback, &(args -> interrupt));
-
+  
   // Run check
-  long res = check_MIP(args -> p, model, &(args -> interrupt));
+  res = check_MIP(args -> p, model, &(args -> interrupt));
 
   // Deallocate model.
   GRBfreemodel(model);
@@ -206,6 +214,7 @@ void * MIP(void * arguments){
   args -> complete = true;
   sem_post(args -> complete_sem);
 
+  
   pthread_exit((void*)res);
 }
 

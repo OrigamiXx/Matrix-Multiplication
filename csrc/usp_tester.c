@@ -1,3 +1,4 @@
+
 #include "permutation.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -113,6 +114,7 @@ int main(int argc, char * argv[]){
       // fwrite(individual, sizeof(double), 1, record);
       // fwrite("\n", sizeof(char), 1, record);
 
+      
       if (total_res != test_count && total_res != 0){ //mip_res != sat_res || sat_res != thread_res){
         printf("Conflict, mip = %d, sat = %d, thread = %d", mip_res, sat_res, thread_res);
         return -1;

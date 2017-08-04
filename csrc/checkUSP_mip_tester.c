@@ -129,7 +129,7 @@ int main(int argc, char * argv[]){
         clock_gettime(CLOCK_MONOTONIC, &end);
         thread_time = ((double)end.tv_sec + 1.0e-9*end.tv_nsec) - ((double)begin.tv_sec + 1.0e-9*begin.tv_nsec);
 
-
+	
         if(mip_res != sat_res || sat_res != thread_res){
           printf("Conflict!");
           printf("mip is %d, sat is %d, and thread is %d", mip_res, sat_res, thread_res);
