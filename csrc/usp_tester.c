@@ -11,6 +11,7 @@
 #include <sys/time.h>
 #include "3DM_to_SAT.h"
 #include "checkUSP_mip.h"
+#include <math.h>
 
 int main(int argc, char * argv[]){
   // distribution
@@ -27,10 +28,18 @@ int main(int argc, char * argv[]){
   int row;
   int row_index;
   int time = 46800;
+  int thread_res, mip_res, sat_res;
+  double thread_time, mip_time, sat_time;
+  char csv_input[50];
+  char usp_num[10];
 
   struct timespec begin={0,0}, end={0,0};
-  FILE * puzzles = fopen("data/13-by-6-puzzle.txt", "r");
+  FILE * puzzles = fopen("data/13-by-6-big.txt", "r");
   //FILE * puzzles = fopen("1", "r");
+  FILE * record = fopen("data/14-by-6-time-record.csv", "w");
+  assert(record != NULL);
+  fprintf(record, "puzzle_number, thread_check, mip_check, sat_check\n");
+  fflush(record);
   while(!feof(puzzles)){
     puzzle * p = create_puzzle(14,6);
     row = 0;
@@ -56,25 +65,60 @@ int main(int argc, char * argv[]){
     if (total>time) {
       break;
     }
+    //itoa(checked, usp_num, 10);
     for (int i = 0; i < 729; i++){
       p->puzzle[row] = i;
+      //fwrite(checked, sizeof(int), 1, record);
+      //fwrite(",", sizeof(char), 1, record);
       //print_puzzle(p);
       //printf("got here \n");
       clock_gettime(CLOCK_MONOTONIC, &begin);
-      if (check(p->puzzle,p->row,p->column)){
+      mip_res = check_MIP(p);
+      clock_gettime(CLOCK_MONOTONIC, &end);
+      mip_time = ((double)end.tv_sec + 1.0e-9*end.tv_nsec) - ((double)begin.tv_sec + 1.0e-9*begin.tv_nsec);
+      //ftoa(individual, timing, 5);
+
+
+      clock_gettime(CLOCK_MONOTONIC, &begin);
+      sat_res = check_SAT(p);
+      clock_gettime(CLOCK_MONOTONIC, &end);
+      sat_time = ((double)end.tv_sec + 1.0e-9*end.tv_nsec) - ((double)begin.tv_sec + 1.0e-9*begin.tv_nsec);
+      //ftoa(individual, timing, 5);
+
+
+      clock_gettime(CLOCK_MONOTONIC, &begin);
+      thread_res = check(p->puzzle,p->row,p->column);
+      //print_puzzle(p);
+      //if (check(p->puzzle,p->row,p->column)){
         //(check_usp_bi(p->puzzle,p->row,p->column)){
         //(check_MIP(p)){
         //(check_SAT(p)){
-        printf("this puzzle is a new 14 by 6y usp it's rua %d and index %d\n", checked+1, i);
+        //printf("this puzzle is a new 14 by 6y usp it's rua %d and index %d\n", checked+1, i);
         //write_puzzle(p, -1);
         //print_puzzle(p);
-        usps++;
-      }
+        //usps++;
+      //}
+
       clock_gettime(CLOCK_MONOTONIC, &end);
       checked2++;
-      individual = ((double)end.tv_sec + 1.0e-9*end.tv_nsec) - ((double)begin.tv_sec + 1.0e-9*begin.tv_nsec);
+      thread_time = ((double)end.tv_sec + 1.0e-9*end.tv_nsec) - ((double)begin.tv_sec + 1.0e-9*begin.tv_nsec);
+      //ftoa(individual, timing, 5);
+      //printf("%d,%.5f,%.5f,%.5f\n", checked, thread_time, mip_time, sat_time);
+      //sprintf(csv_input, "%d,%.5f,%.5f,%.5f\n", checked, thread_time, mip_time, sat_time);
+      fprintf(record, "%d,%.5f,%.5f,%.5f\n", checked, thread_time, mip_time, sat_time);
+      fflush(record);
+      // fwrite(individual, sizeof(double), 1, record);
+      // fwrite("\n", sizeof(char), 1, record);
 
-      total += individual;
+      if (mip_res != sat_res || sat_res != thread_res){
+        printf("Conflict, mip is %d, sat is %d, and thread is %d", mip_res, sat_res, thread_res);
+        return -1;
+      }
+
+      if(thread_res == 1){
+        printf("this puzzle is a new 14 by 6y usp it's rua %d and index %d\n", checked+1, i);
+      }
+      //total += individual;
       //printf("this one %d takes %.5f\n", i, ((double)end.tv_sec + 1.0e-9*end.tv_nsec) - ((double)begin.tv_sec + 1.0e-9*begin.tv_nsec));
       if (individual>=0 && individual < 0.01){
         one++;
@@ -102,6 +146,7 @@ int main(int argc, char * argv[]){
     //printf("rua%d\n",checked);
 
   }
+  fclose(record);
   finalize_check_MIP();
   printf("checked 13by6 %d\n", checked);
   printf("checked 14by6 %d\n", checked2);

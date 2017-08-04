@@ -51,6 +51,16 @@ int main(int argc, char * argv[]){
   int i, j;
   //int checked = 0;
   long index;
+
+  int thread_res, mip_res, sat_res;
+  double thread_time, mip_time, sat_time;
+
+  FILE * nonUSP = fopen("data/6-row-nonUSP-timing.csv", "w");
+  FILE * USP = fopen("data/6-row-nonUSP-timing.csv", "w");
+  assert(nonUSP != NULL);
+  assert(USP != NULL);
+
+
   /*for (index=0; index<power(3,givenC*givenR)-1; index+=10){
     puzzle * p;
     p = create_puzzle_from_index(givenR,givenC, index);
@@ -64,14 +74,22 @@ int main(int argc, char * argv[]){
   i = givenC;
   //j = givenR;
   //for (i = 1; i<=givenC; i++){
-  for (j = 10; j <= givenR; j++){
-      long checked = 0;
+  for (j = 1; j <= givenR; j++){
+      int checked = 0;
       double usp_total = 0;
       double nonusp_total = 0;
       long usps = 0;
       long nonusps = 0;
       double total = 0;
       struct timespec begin={0,0}, end={0,0};
+
+      fprintf(nonUSP, "%d * %d\n", j, givenC);
+      fprintf(nonUSP, "puzzle_number, thread_check, mip_check, sat_check\n");
+      fflush(nonUSP);
+
+      fprintf(USP, "%d * %d\n", j, givenC);
+      fprintf(USP, "puzzle_number, thread_check, mip_check, sat_check\n");
+      fflush(USP);
   /*clock_t begin, stop;
   FILE * a;
   begin = clock();
@@ -92,34 +110,69 @@ int main(int argc, char * argv[]){
       for (index = 0; index < 100000; index++){
         //puzzle *p;
         //p = create_puzzle_from_index(j,i,index);
-        if((check_usp_bi(p->puzzle,p->row,p->column)) != check(p->puzzle,p->row,p->column)){
+
+        clock_gettime(CLOCK_MONOTONIC, &begin);
+        mip_res = check_MIP(p);
+        clock_gettime(CLOCK_MONOTONIC, &end);
+        mip_time = ((double)end.tv_sec + 1.0e-9*end.tv_nsec) - ((double)begin.tv_sec + 1.0e-9*begin.tv_nsec);
+
+
+        clock_gettime(CLOCK_MONOTONIC, &begin);
+        sat_res = check_SAT(p);
+        clock_gettime(CLOCK_MONOTONIC, &end);
+        sat_time = ((double)end.tv_sec + 1.0e-9*end.tv_nsec) - ((double)begin.tv_sec + 1.0e-9*begin.tv_nsec);
+
+
+        clock_gettime(CLOCK_MONOTONIC, &begin);
+        thread_res = check(p->puzzle,p->row,p->column);
+        clock_gettime(CLOCK_MONOTONIC, &end);
+        thread_time = ((double)end.tv_sec + 1.0e-9*end.tv_nsec) - ((double)begin.tv_sec + 1.0e-9*begin.tv_nsec);
+
+
+        if(mip_res != sat_res || sat_res != thread_res){
           printf("Conflict!");
+          printf("mip is %d, sat is %d, and thread is %d", mip_res, sat_res, thread_res);
           break;
         }
-        clock_gettime(CLOCK_MONOTONIC, &begin);
-        if (check(p->puzzle, p->row, p->column)){
-          //(check_MIP(p)){
-          //(check_SAT(p)){
-          //(popen_simple(p->row, p->column,-1,p)){
-          clock_gettime(CLOCK_MONOTONIC, &end);
-          usp_total = usp_total + ((double)end.tv_sec + 1.0e-9*end.tv_nsec) - ((double)begin.tv_sec + 1.0e-9*begin.tv_nsec);
+        else if (thread_res == 1){
           usps++;
-        }else {
-          clock_gettime(CLOCK_MONOTONIC, &end);
-          nonusp_total = nonusp_total + ((double)end.tv_sec + 1.0e-9*end.tv_nsec) - ((double)begin.tv_sec + 1.0e-9*begin.tv_nsec);
-          nonusps++;
+          fprintf(USP, "%d,%.5f,%.5f,%.5f\n", checked, thread_time, mip_time, sat_time);
+
         }
+
+        else if (thread_res == 0){
+          nonusps++;
+          fprintf(nonUSP, "%d,%.5f,%.5f,%.5f\n", checked, thread_time, mip_time, sat_time);
+        }
+
+        else{
+          printf("Unexpected problem");
+          return -1;
+        }
+        // clock_gettime(CLOCK_MONOTONIC, &begin);
+        // if (check(p->puzzle, p->row, p->column)){
+        //   //(check_MIP(p)){
+        //   //(check_SAT(p)){
+        //   //(popen_simple(p->row, p->column,-1,p)){
+        //   clock_gettime(CLOCK_MONOTONIC, &end);
+        //   usp_total = usp_total + ((double)end.tv_sec + 1.0e-9*end.tv_nsec) - ((double)begin.tv_sec + 1.0e-9*begin.tv_nsec);
+        //   usps++;
+        // }else {
+        //   clock_gettime(CLOCK_MONOTONIC, &end);
+        //   nonusp_total = nonusp_total + ((double)end.tv_sec + 1.0e-9*end.tv_nsec) - ((double)begin.tv_sec + 1.0e-9*begin.tv_nsec);
+        //   nonusps++;
+        // }
         checked++;
-        total = nonusp_total + usp_total;
+        //total = nonusp_total + usp_total;
         randomize_puzzle(p);
         srand48(time(NULL));
         //destroy_puzzle(p);
       }
       destroy_puzzle(p);
-      printf("checked: %ld usps: %ld nonusps: %ld\n",checked, usps, nonusps);
-      printf("usp average time: %.6f nonusps average time: %.6f \n",
-            usp_total/usps, nonusp_total/nonusps);
-      printf("total average time: %.6f\n", total/checked);
+      printf("checked: %d usps: %ld nonusps: %ld\n",checked, usps, nonusps);
+      //printf("usp average time: %.6f nonusps average time: %.6f \n",
+      //      usp_total/usps, nonusp_total/nonusps);
+      //printf("total average time: %.6f\n", total/checked);
       printf("finish checking%d by %d\n", j, i);
     }
   finalize_check_MIP();

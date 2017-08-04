@@ -190,7 +190,8 @@ void * MIP(void * arguments){
   pthread_mutex_unlock(&(args->init_lock));
 
   // Run check
-  int res = check_MIP(args -> p, model); 
+  //sleep(10000);
+  int res = check_MIP(args -> p, model);
 
   // Deallocate model.
   pthread_mutex_lock(args -> cleanup_lock);
