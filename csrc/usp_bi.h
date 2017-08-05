@@ -40,17 +40,6 @@ typedef struct thread {
 } thread;
 
 /*
- * Uses an integer to store a puzzle row, capable of representing rows
- * with at most 19 columns.
- */
-typedef int puzzle_row;
-
-/*
- * Prints an s-by-k puzzle U to the console.
- */
-void printU(puzzle_row U[], int s, int k);
-
-/*
  *
  * Determines whether the given s-by-k puzzle U is a strong USP.  Uses
  * a unidirectional algorithm that tests all permutations pi_2 and
@@ -60,13 +49,12 @@ void printU(puzzle_row U[], int s, int k);
  * uses c++ iterators with the built-in function next_permutation to
  * loop over all permutations.
  */
-bool check_usp_uni(puzzle_row U[], int s, int k);
+bool check_usp_uni(puzzle * p);
 
 /*
  * Determines whether the given s-by-k puzzle U is a strong USP.  Uses
  * a bidirectional algorithm.
  */
-bool check_usp_bi(puzzle_row U[], int s, int k);
 int check_usp_bi(puzzle * p);
 
 /*
@@ -82,7 +70,6 @@ int check_SAT_MIP(puzzle * p);
  * bidirectional search if s is large enough, and the unidirectional
  * search otherwise.
  */
-int check(puzzle_row U[], int s, int k);
 int check(puzzle * p);
 
 /*
@@ -105,14 +92,14 @@ bool check4(puzzle_row r1, puzzle_row r2, puzzle_row r3, puzzle_row r4, int k);
  * prevent an s-by-k from being a strong USP.  Return true iff all
  * pairs of rows are valid.
  */
-bool check_row_pairs(puzzle_row U[], int s, int k);
+bool check_row_pairs(puzzle * p);
 
 /*
  * A specialized function that determines whether any triple of rows
  * prevent an s-by-k from being a strong USP.  Return true iff all
  * pairs of rows are valid.
  */
-bool check_row_triples(puzzle_row U[], int s, int k);
+bool check_row_triples(puzzle * p); 
 
 /*
  * Returns true iff a length-k row that permutations map to u_1, u_2,
@@ -128,8 +115,7 @@ bool valid_combination(int u_1, int u_2, int u_3, int k);
  * strong USP.  Returns 0 if the function has not determined the
  * puzzle is a strong USP.
  */
-int random_precheck(bool * row_witness, int s, int k, int iter);
-
+int random_precheck(puzzle * p, int iter);
 
 int count_row_witnesses(puzzle * p);
 

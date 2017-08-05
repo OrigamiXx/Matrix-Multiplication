@@ -11,19 +11,35 @@
 #include <algorithm>
 #include "usp_bi.h"
 
+
+
+
+
+puzzle * create_puzzle(int s, int k){
+
+  puzzle * p = (puzzle *) (malloc(sizeof(puzzle)));
+
+  // Initialize dimensions of puzzle.
+  p -> puzzle = (puzzle_row *) (malloc(sizeof(puzzle_row) * s));
+  p -> max_row = MAX_ROWS[k];
+  p -> s = s;
+  p -> k = k;
+  p -> tdm = (bool *) (malloc(sizeof(bool) * s * s * s));
+
+  bzero(p -> puzzle, sizeof(puzzle_row) * s);
+
+  return p;
+}
+
 //create a puzzle that has one more row and same width as the input puzzle
 // according to the given row_index
-puzzle * create_puzzle_from_puzzle(puzzle * p, int row_index){
-  puzzle * result = (puzzle *) (malloc(sizeof(puzzle)));
-  //int r;
-  result->row = p->row+1;
-  result->column = p->column;
-  result->puzzle = (int *) malloc(sizeof(int *)*result->row);
-  int i;
-  for(i = 0; i<p->row; i++){
-    result->puzzle[i] = p->puzzle[i];
-  }
-  result->puzzle[result->row-1] = row_index;
+puzzle * create_puzzle_from_puzzle(puzzle * p, puzzle_row row){
+
+  puzzle * result = create_puzzle(p -> s + 1, p -> k);
+
+  memcpy(result -> puzzle, p -> puzzle, sizeof(puzzle_row) * p -> s);
+  result -> puzzle[result -> s - 1] = row;
+  
   return result;
 }
 
@@ -39,229 +55,137 @@ puzzle * create_puzzle_from_file(const char * filename){
 
   char buff[256];
 
-  int element;//,r;
+  int element;
   //first check whether this file is able to turn into a puzzle
   int bytes_read = fscanf(f,"%s\n",buff);
   assert(bytes_read > 0);
 
-  unsigned int width = strlen(buff);
-  //printf("width %d\n", width);
-  p->column = width;
-  int rows = 1;
-  if (buff[0] == '#') rows = 0;
+  unsigned int k = strlen(buff);
+
+  int s = 1;
+  if (buff[0] == '#') s = 0;
   //loop until end of file using feof(f).  Build up puzzle DS.
-  //printf("line |%s|\n",buff);
   while(!feof(f)){
     bytes_read = fscanf(f,"%s\n",buff);
     assert(bytes_read > 0);
     if (buff[0] == '#') continue; // Comment
-    if (width != strlen(buff)){
-      printf("this is not a puzzle since the width is not all the same\n");
+    if (k != strlen(buff)){
+      fprintf(stderr, "Error: Puzzle rows not all same length.\n");
       return NULL;
     }
-    for(unsigned int i = 0; i <width; i++){
-      element = buff[i] -'0';
+    for(unsigned int i = 0; i < k; i++){
+      element = buff[i] - '0';
       if(element != 1 &&  element != 2 && element != 3){
-	       //printf("%d", buff[i]);
-	        printf("this is not a puzzle since the element are not all 1 or 2 or 3\n");
-	         return NULL;
+	fprintf(stderr, "Error: Puzzle entries can only be 1 or 2 or 3.\n");
+	return NULL;
       }
     }
-    rows++;
+    s++;
   }
+  
+  p = create_puzzle(s, k);
 
-  //turn the file into a puzzle
-  p->row = rows;
-  p->puzzle = (int *) malloc(sizeof(int *)*p->row);
-  //for (r = 0; r < p->row; r++){
-  //  p->puzzle[r] = (int *) malloc(sizeof(int *)*p->column);
-  //}
   f = fopen(filename,"r");
-  rows = 0;
-  int row_index = 0, next_element;
+  int r = 0;
   while(!feof(f)){
     bytes_read = fscanf(f,"%s\n", buff);
     assert(bytes_read > 0);
     if (buff[0] == '#') continue;
-    //printf("line %s\n",buff);
-    if (p->column >= 2){
-      element = buff[p->column-1] - '0';
-      element = element -1;
-      next_element = buff[p->column-2] - '0';
-      next_element = next_element-1;
-      row_index = element*3 + next_element;
-	    for(int i = p->column-2; i>0; i--){
-	       next_element = buff[i-1] - '0';
-	       next_element = next_element - 1;
-	       // printf("%d",element);
-	       row_index = row_index*3 + next_element;
-	       //p->puzzle[rows][i] = element;
-	    }
-    }else if(p->column == 1){
-      row_index = buff[p->column-1] - '0';
-      row_index = row_index - 1;
-    }
-    p->puzzle[rows] = row_index;
-    rows++;
+    p -> puzzle[r] = atol(buff);
+    r++;
   }
   return p;
 }
 
 //Return the next available puzzle from the open file f
-puzzle * next_file(FILE * f, int max_row){
-  puzzle * p = (puzzle *) (malloc(sizeof(puzzle)));
+puzzle * next_file(FILE * f, int max_rows){
 
   if (f == NULL)
     return NULL;
-
+  
   char buff[256];
   char * result;
 
-  //int element;//,r;
   //first check whether this file is able to turn into a puzzle
   result = fgets(buff, 30, f);
   assert(result != NULL);
 
-  int width = strlen(buff);
-  //printf("width %d\n", width);
-  p->column = width;
-  p->puzzle = (int *) malloc(sizeof(int *)*max_row);
-  int rows = 0;
+  int k = strlen(buff);
+  puzzle * p = create_puzzle(max_rows, k);
+  int r = 0;
 
   //Loop until encountered an empty line
   while(buff[0] != '\n'){
-    p->puzzle[rows] = line_to_index(buff);
-    rows++;
+    p -> puzzle[r] = atol(buff);
+    r++;
     result = fgets(buff, 30, f);
     assert(result != NULL);
-    //printf("line |%s|\n",buff);
-
-    }
-    p->row = rows;
-    return p;
   }
-
-
-
-//Takes in one line of puzzle and return the index of the line. Return -1 if line is an empty line.
-int line_to_index(char * line){
-  // if (line[0] =='\n'){
-  //   return -1;
-  // }
-  // else{
-    int digit = 0;
-    int index = 0;
-    int element;
-    while(line[digit] != '\n'){
-      element = line[digit] - '0';
-      index += (element -1) * pow(3, digit);
-      digit++;
-    }
-  // }
-  return index;
-}
-
-
-
-puzzle * create_puzzle(int rows, int cols){
-
-  puzzle * usp = (puzzle *) (malloc(sizeof(puzzle)));
-
-  // Initialize dimensions of puzzle.
-  usp -> row = rows;
-  usp -> column = cols;
-  usp -> puzzle = (int *) (malloc(sizeof(int) * rows));
-
-  bzero(usp->puzzle, sizeof(int) * rows);
-
-  return usp;
+  p -> s = r;
+  return p;
 }
 
 
 
 
-//give width(column) and height(row) and the index of all the possible puzzle in this size
-//return a puzzle
-//index must be 0-(3^(k*s)-1)
-puzzle * create_puzzle_from_index(int row, int column, int index){
-  puzzle * p = (puzzle *) (malloc(sizeof(puzzle)));
+//give width(column) and height(row) and the index of all the possible
+//puzzle in this size return a puzzle index must be 0-(3^(k*s)-1)
+puzzle * create_puzzle_from_index(int s, int k, puzzle_row index){
+  
+  puzzle * p = create_puzzle(s, k);
 
-  p->row = row;
-  p->column = column;
-  p->puzzle = (int *) malloc(sizeof(int *)*p->row);
-
-  int num_type_rows = 1;
-  int a;
-  for (a = 0; a<column; a++){
-    num_type_rows = num_type_rows * 3;
+  for(int r = 0; r < s; r++){
+    p -> puzzle[r] = index % p -> max_row;
+    index /= p -> max_row;
   }
-
-  int i;
-  int x;
-  for(x = 0; x < row; x++){
-    i = index % num_type_rows;
-    p->puzzle[x] = i;
-    index = index/num_type_rows;
-  }
+  
   return p;
 }
 
 // with a given puzzle return the index out of 0-(3^(r*c)-1)
 int get_index_from_puzzle(puzzle * p){
-  int i;
-  int result = p->puzzle[p->row-1];
-  int max_row_index = pow(3,p->column);
-  for (i= p->row-2; i>=0; i--){
-    result = result * max_row_index + p->puzzle[i];
+
+  int result = p -> puzzle[p -> s - 1];
+  for (int i = p -> s - 2; i >= 0; i--){
+    result = result * p -> max_row + p -> puzzle[i];
   }
   return result;
 }
 
 
 
+int get_entry(puzzle * p, int r, int c){
+
+  return get_column_from_row(p -> puzzle[r], c);
+  
+}
+
+void set_entry(puzzle * p, int r, int c, int val){
+
+  p -> puzzle[r] = set_entry_in_row(p -> puzzle[r], c, val);
+  
+}
+
 //return the data (1or2or3) of the row - col index
 //row_index must from the puzzle
 //col index must less than the column number of the puzzle(0- col-1)
 // MWA: This could be done without an explicit loop, use the pow function instead.
-int get_column_from_row(int row_index, int col_index){
-  int i,result = 1;
-  int num_elements_in_row = 3;
-  int r = row_index;
-  for(i=0; i<col_index+1; i++){
-  //Seemed to me that the result isn't used in the loop. Maybe move it out?
-    result = r % num_elements_in_row;
-    r = r / num_elements_in_row;
-  }
-  if (result < 0 || result > 2){
-    fprintf(stderr,"result = %d\n", result);
-
-    fprintf(stderr,"row_index = %d\n",row_index);
-    int i,result = 1;
-    int num_elements_in_row = 3;
-    for(i=0; i<col_index+1; i++){
-      //Seemed to me that the result isn't used in the loop. Maybe move it out?
-      result = row_index % num_elements_in_row;
-      row_index = row_index/num_elements_in_row;
-      fprintf(stderr,"%d, %d, %d\n",row_index, result, row_index);
-    }
-  }
-
-  assert(result >= 0 && result <= 2);
-  return result+1;
+int get_column_from_row(puzzle_row row, int c){
+  int res = (row % MAX_ROWS[c]) / MAX_ROWS[c - 1];
+  assert(res >= 0 && res <= 2);
+  return res + 1;
 }
 
 /*
  * Returns the result of setting the entry at c of row_index to val.
  */
-int set_entry_in_row(int row_index, int c, int val) {
+int set_entry_in_row(puzzle_row row, int c, int val) {
 
   assert(val >= 1 && val <= 3);
 
-  int old_val = get_column_from_row(row_index, c);
-  int ret = row_index + (val - old_val) * (int)pow(3, c);
-  if (ret < 0){
-    fprintf(stderr,"row_index = %d, val = %d, old_val = %d, c = %d, ret = %d\n",row_index, val, old_val, c, ret);
-  }
+  int old_val = get_column_from_row(row, c);
+  int ret = row + (val - old_val) * MAX_ROWS[c];
+
   assert(ret >= 0);
   return ret;
 }
@@ -270,18 +194,8 @@ int set_entry_in_row(int row_index, int c, int val) {
 // dimensions.
 void randomize_puzzle(puzzle * p){
 
-  int r = p -> row;
-  int c = p -> column;
-  int * puz = p -> puzzle;
-
-  int max_row = 1;
-  for(int i = 0 ; i < c ; i++)
-    max_row = max_row * 3;
-
-  for (int i = 0 ; i < r; i++) {
-    puz[i] = lrand48() % max_row;
-    assert(puz[i] >= 0);
-  }
+  for (int i = 0 ; i < p -> k; i++) 
+    p -> puzzle[i] = lrand48() % MAX_ROWS[p -> k];
 
 }
 
@@ -290,15 +204,8 @@ void randomize_puzzle(puzzle * p){
 // Is likely very slow except for small puzzle sizes.
 void random_usp(puzzle * p){
 
-  int s = p -> row;
-  int k = p -> column;
-
   randomize_puzzle(p);
-  while (true) {
-
-    if (check(p -> puzzle, s, k)) {
-      return;
-    }
+  while (!check(p)){
     randomize_puzzle(p);
   }
 
@@ -307,18 +214,18 @@ void random_usp(puzzle * p){
 // Sorts the rows of the puzzle in increasing order.
 void sort_puzzle(puzzle * p){
 
-  sort(p -> puzzle, p -> puzzle + p -> row);
+  sort(p -> puzzle, p -> puzzle + p -> s);
 
 }
 
 void arrange_puzzle(puzzle * p){
 
-  int balance[p -> column] = {0};
+  int balance[p -> k] = {0};
   
-  for (int c = 0; c < p -> column; c++){
+  for (int c = 0; c < p -> k; c++){
     int counts[3] = {0,0,0};
-    for (int r = 0; r < p -> row; r++){
-      counts[get_column_from_row(p -> puzzle[r], c) - 1]++;
+    for (int r = 0; r < p -> s; r++){
+      counts[get_entry(p, r, c) - 1]++;
     }
 
     if (counts[0] == 0){
@@ -333,10 +240,10 @@ void arrange_puzzle(puzzle * p){
     
   }
 
-  for (int c = 0; c < p -> column ; c++){
+  for (int c = 0; c < p -> k ; c++){
     int max = balance[c];
     int max_c = c;
-    for (int c1 = c+1; c1 < p -> column ; c1++){
+    for (int c1 = c + 1; c1 < p -> s ; c1++){
       if (max > balance[c1]) {
 	max = balance[c1];
 	max_c = c1;
@@ -344,107 +251,151 @@ void arrange_puzzle(puzzle * p){
     }
 
     balance[max_c] = balance[c];
-    for (int r = 0; r < p -> row; r++){
-      int tmp = get_column_from_row(p -> puzzle[r], max_c);
-      p -> puzzle[r] =
-	      set_entry_in_row(
-			       set_entry_in_row(p -> puzzle[r], max_c,
-						get_column_from_row(p -> puzzle[r], c)),
-			       c, tmp);
+    for (int r = 0; r < p -> s; r++){
+      int tmp = get_entry(p, r, max_c);
+      set_entry(p, r, max_c, get_entry(p, r, c));
+      set_entry(p, r, c, tmp);
     }
     
   }
   
-  sort(p -> puzzle, p -> puzzle + p -> row);
+  sort(p -> puzzle, p -> puzzle + p -> s);
 
 }
 
 
 // print a puzzle
-int print_puzzle(puzzle * p){
+void print_puzzle(puzzle * p){
   if (p != NULL){
     int r,c;
-    for(r = 0; r<p->row; r++){
-      for(c = 0; c<p->column; c++){
-	       printf("%d", get_column_from_row(p->puzzle[r], c));
+    for(r = 0; r < p -> s; r++){
+      for(c = 0; c < p -> k; c++){
+	printf("%d", get_entry(p, r, c));
       }
       printf("\n");
     }
   }
-  else{
-    printf("puzzle is a Null.\n");
-  }
-  return 0;
 }
 
-
-// Write the puzzle to a new text file.
-void write_puzzle(puzzle * p, int index){
-  //char a[256];
-  //itoa(index, a);
-  //string extension = ".puzz";
-  //char * name[100];
-  //string name;
-  FILE * f;
-  //snprintf(name, sizeof(name), "puzzles/%d_%d_%04d%s", p -> row, p -> column, index, ".txt");
-  //printf(name);
-  //string name;
-  //name = "puzzles" + to_string(p->row) + "_" + to_string(p->column) + "_" + to_string(index) + extension;
-  f = fopen("1", "a");
-  assert(f != NULL);
-  int i, j;
-  for(i=0; i<p->row;i++){
-    for(j=0;j<p->column;j++){
-      fprintf(f, "%d", get_column_from_row(p->puzzle[i], j));
+void print_tdm(puzzle * p){
+  int s = p -> s;
+  for (int r1 = 0; r1 < s; r1++){
+    for (int r2 = 0; r2 < s; r2++){
+      for (int r3 = 0; r3 < s; r3++){
+	printf("%d", p -> tdm[r1 * s * s + r2 * s + r3]);
+      }
+      printf("\n");
     }
-    fprintf(f, "\n");
+    printf("\n");
   }
-  fclose(f);
+}
+
+/*
+ * Returns true iff a length-k row that permutations map to u_1, u_2,
+ * u_3, respectively, satisfies the inner condition of strong USPs.
+ * It is false if this length-k row this mapping does not witness that
+ * the puzzle is a strong USP.  Runtime is O(k).
+ */
+bool is_witness(puzzle * p, int r1, int r2, int r3){
+
+  puzzle_row u1 = p -> puzzle[r1];
+  puzzle_row u2 = p -> puzzle[r2];
+  puzzle_row u3 = p -> puzzle[r3];
+  
+  for (int i = 0; i < p -> k; i++){
+    int count = 0;
+    puzzle_row d1 = u1 % 3;
+    puzzle_row d2 = u2 % 3;
+    puzzle_row d3 = u3 % 3;
+    u1 = (u1 - d1) / 3;
+    u2 = (u2 - d2) / 3;
+    u3 = (u3 - d3) / 3;
+
+    if (d1 == 0) count++;
+    if (d2 == 1) count++;
+    if (d3 == 2) count++;
+    if (count == 2) return true;
+  }
+  return false;
+}
+
+void compute_tdm(puzzle * p){
+
+  int s = p -> s;
+  for (int r1 = 0; r1 < s; r1++){
+    for (int r2 = 0; r2 < s; r2++){
+      for (int r3 = 0; r3 < s; r3++){
+	p -> tdm[r1 * s * s + r2 * s + r3] = !is_witness(p, r1, r2, r3);
+      }
+    }
+  }
+  
 }
 
 
+void simplify_tdm(puzzle * p){
+
+  int s = p -> s;
+  int k = p -> k;
+  
+  for (int c = 0; c < k; c++){
+    int counts[3] = {0,0,0};
+    for (int r = 0; r < s; r++){
+      counts[get_entry(p, r, c) - 1]++;
+    }
+
+    int missing = (counts[0] == 0) + (counts[1] == 0) + (counts[2] == 0);
+    if (missing == 1) {
+
+      for (int i = 0; i < s; i++){
+	for (int j = 0; j < s; j++){
+	  if (get_entry(p, i, c) != get_entry(p, j, c)) {
+	    for (int l = 0; l < s; l++){
+	      if (counts[0] == 0) {
+		p -> tdm[l * s * s + i * s + j] = true;
+		p -> tdm[l * s * s + j * s + i] = true;
+	      } else if (counts[1] == 0){
+		p -> tdm[i * s * s + l * s + j] = true;
+		p -> tdm[j * s * s + l * s + i] = true;
+	      } else {
+		p -> tdm[i * s * s + j * s + l] = true;
+		p -> tdm[j * s * s + i * s + l] = true;
+	      }
+	    }
+	  }
+	}
+      }
+    }
+
+  }
+
+}
+
+int count_tdm(puzzle * p){
+
+  int count = 0;
+  int s = p -> s;
+  for (int r1 = 0; r1 < s; r1++){
+    for (int r2 = 0; r2 < s; r2++){
+      for (int r3 = 0; r3 < s; r3++){
+	if (p -> tdm[r1 * s * s + r2 * s + r3])
+	  count++;
+      }
+    }
+  }
+  return count;
+}
 
 
 
 // Deallocates a puzzle
 void destroy_puzzle(puzzle * p){
-  //int i;
-  // for (i = 0; i < p -> row; i++){
-  //   free(p -> puzzle[i]);
-  //}
-  free(p -> puzzle);
-  free(p);
-}
 
-
-int count_witnesses(puzzle * p){
-
-  int i,j,k,l;
-  int count = 0;
-
-  for (i = 0; i < p -> row; i++){
-    for (j = 0; j < p -> row; j++){
-
-      for (k = 0; k < p -> row; k++){
-
-	for (l = 0; l < p -> column; l++){
-
-//Should this be i, j ,k instead of all i for the three? I assume that this is
-//a strong USP check or some kind?
-	  int num_sat = (get_column_from_row(p -> puzzle[i], l) == 1 ? 1 : 0)
-	    + (get_column_from_row(p -> puzzle[i], l) == 1 ? 1 : 0)
-	    + (get_column_from_row(p -> puzzle[i], l) == 1 ? 1 : 0);
-
-	  if (num_sat == 2) {
-	    count++;
-	    break;
-	  }
-
-	}
-      }
-    }
+  if (p != NULL){
+    if (p -> tdm != NULL)
+      free(p -> tdm); 
+    free(p -> puzzle);
+    free(p);
   }
-
-  return count;
-
+  
 }
