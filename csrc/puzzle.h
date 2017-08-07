@@ -96,7 +96,7 @@ int get_index_from_puzzle(puzzle * p);
 
 //Return the number at the col_index digit of the row with given row_index.
 inline int get_column_from_row(puzzle_row row, int c){
-  return (row % MAX_ROWS[c]) / MAX_ROWS[c - 1] + 1;
+  return (row % MAX_ROWS[c + 1]) / MAX_ROWS[c] + 1;
 }
 
 /*
@@ -156,7 +156,7 @@ void compute_tdm(puzzle * p);
 void simplify_tdm(puzzle * p);
 int count_tdm(puzzle * p);
 inline bool get_tdm_entry(puzzle * p, int r1, int r2, int r3){
-  return p -> tdm[r1 * p -> s * p -> s + r2 * p -> s + r3];
+  return p -> tdm[r1 * (p -> s) * (p -> s) + r2 * (p -> s) + r3];
 }
 inline void invalidate_tdm(puzzle * p){
   p -> tdm_valid = false;

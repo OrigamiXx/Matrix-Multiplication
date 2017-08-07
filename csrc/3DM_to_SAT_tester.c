@@ -93,7 +93,7 @@ int main(int argc, char * argv[]){
         //p = create_puzzle_from_index(j,i,index);
         clock_gettime(CLOCK_MONOTONIC, &begin);
         if //(check(p->puzzle, p->row, p->column)){
-          (check_MIP(p)){
+          (IS_USP == check_MIP(p)){
           //(check_SAT(p)){
           //(popen_simple(p->row, p->column,-1,p)){
           clock_gettime(CLOCK_MONOTONIC, &end);

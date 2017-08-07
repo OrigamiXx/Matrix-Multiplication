@@ -44,7 +44,7 @@ int brute_force(puzzle * p, bool skip[], int skipping, int max_row, int n){
 
     if (local_skip[U[s]]) continue;
 
-    if (puzzle_has_at_least_n_two_columns(p, n) && check(p)){
+    if (puzzle_has_at_least_n_two_columns(p, n) && IS_USP == check(p)){
 
       int res = brute_force(p, local_skip, skipping, max_row, n);
       ret = (res > ret ? res : ret);
@@ -107,7 +107,7 @@ puzzle * create_usp_greedy(int s, int k, int stride_init, int special, puzzle * 
 	
       if (skip[puz[r]]) continue;
 
-      if (puzzle_has_at_least_n_two_columns(p, special) && check(p)){
+      if (puzzle_has_at_least_n_two_columns(p, special) && IS_USP == check(p)){
 
 
 	
@@ -132,7 +132,7 @@ puzzle * create_usp_greedy(int s, int k, int stride_init, int special, puzzle * 
 	      } else {
 		step = 1;		
 		
-		if (check(p)) {
+		if (IS_USP == check(p)) {
 		  counts[puz[r]]++;
 		  if (counts[puz[r]] > max) {
 		    max = counts[puz[r]];
@@ -196,7 +196,7 @@ puzzle * create_usp_greedy(int s, int k, int stride_init, int special, puzzle * 
     printf("\n");
     print_puzzle(p);
     
-    if (check(p)){
+    if (IS_USP == check(p)){
       printf("is a strong USP.\n");
     } else {
       printf("is NOT a strong USP.\n");
@@ -272,7 +272,7 @@ int main(int argc, char *argv[])
     //print_puzzle(p);
     //    printf("\n");
     arrange_puzzle(p);
-    //assert(check(p));
+    //assert(IS_USP == check(p));
     print_puzzle(p);
     printf("\n");
     

@@ -277,7 +277,7 @@ check_t check_usp_uni(puzzle * p){
       // Check whether pi_1, pi_2, pi_3 touch only trues.
       bool found = false;
       for (int i = 0; i < s; i++){
-	if (!(p -> tdm[i * s * s + pi_2[i] * s + pi_3[i]])){
+	if (!get_tdm_entry(p, i, pi_2[i], pi_3[i])){
 	  found = true;
 	  break;
 	}
@@ -514,7 +514,7 @@ void reorder_witnesses(puzzle * p, bool increasing, bool sorted){
 
   // Copy back to original matrix.
   memcpy(tdm, tdm2, s * s * s * sizeof(bool));
-
+  
 }
 
 /*
@@ -1383,7 +1383,7 @@ void init_cache(int s, int k){
 
     for (U[0] = 0; U[0] < max_row; U[0]++){
       for (U[1] = U[0]+1; U[1] < max_row; U[1]++){
-	if (check(p)) {
+	if (check(p) == IS_USP) {
 	  //cout << "Cached USP: " << U_to_string(U,2) << endl;
 	  cache[2][k] -> insert(pair<string,void *>(U_to_string(U,2),NULL));
 	}
@@ -1401,7 +1401,7 @@ void init_cache(int s, int k){
     for (U[0] = 0; U[0] < max_row; U[0]++){
       for (U[1] = U[0]+1; U[1] < max_row; U[1]++){
 	for (U[2] = U[1]+1; U[2] < max_row; U[2]++){
-	  if (check(p)) {
+	  if (check(p) == IS_USP) {
 	    cache[3][k] -> insert(pair<string,void *>(U_to_string(U,3),NULL));
 	  }
 	}
@@ -1419,7 +1419,7 @@ void init_cache(int s, int k){
       for (U[1] = U[0]+1; U[1] < max_row; U[1]++){
 	for (U[2] = U[1]+1; U[2] < max_row; U[2]++){
 	  for (U[3] = U[2]+1; U[3] < max_row; U[3]++){
-	    if (check(p)) {
+	    if (check(p) == IS_USP) {
 	      cache[4][k] -> insert(pair<string,void *>(U_to_string(U,4),NULL));
 	    }
 	  }

@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include "usp.h"
 #include "puzzle.h"
+#include "3DM_to_SAT.h"
+#include "3DM_to_MIP.h"
 
 int main(int argc, char * argv[]){
 
@@ -18,10 +20,16 @@ int main(int argc, char * argv[]){
   
   print_puzzle(p);
 
-  if (check(p)){
+  //compute_tdm(p);
+  //print_tdm(p);
+
+  check_t res = check(p);
+  if (res == IS_USP) {
     printf("is a strong USP.\n");
-  } else {
+  } else if (res == NOT_USP) {
     printf("is NOT a Strong USP.\n");
+  } else {
+    printf("is UNDETERMINED.\n");
   }
 
   destroy_puzzle(p);

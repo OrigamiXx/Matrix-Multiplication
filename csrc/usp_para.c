@@ -69,9 +69,9 @@ void random_usps(int itask, KeyValue *kv, void *ptr){
     randomize_puzzle(p);
     sort_puzzle(p);
 
-    if (check(p)) {
-			 //(check_SAT(p)){
-			//(check_MIP(p)){
+    if (IS_USP == check(p)) {
+			 //(IS_USP == check_SAT(p)){
+			//(IS_USP == check_MIP(p)){
       count++;
       kv->add((char*)p -> puzzle, random_rows*sizeof(int), NULL, 0);
     }
@@ -83,19 +83,13 @@ void random_usps(int itask, KeyValue *kv, void *ptr){
 
 
 void row_one_keys(int itask, KeyValue *kv, void *ptr){
+  
    puzzle_row i, row = 1;
-   /*//insert one specific puzzle
-   string raw_input = "puzzles/test.puz";
-   const char * input = raw_input.c_str();
-   puzzle * p = create_puzzle_from_file(input);
-   if (check_usp_recursive(p)){
-     kv->add((char*)p->puzzle,p->row*sizeof(int),NULL,0);
-   }
-     destroy_puzzle(p);*/
-   //insert all row one puzzle in the column size
+
    for(i = 0; i < max_poss_row; i++){
      kv->add((char*)&i, sizeof(int), NULL, 0);
    }
+   
 }
 
 void extend_puzzle(uint64_t itask, char * key, int keybytes, char *value, int valuebytes, KeyValue *kv, void *ptr){

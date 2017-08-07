@@ -89,7 +89,10 @@ puzzle * create_puzzle_from_file(const char * filename){
     bytes_read = fscanf(f,"%s\n", buff);
     assert(bytes_read > 0);
     if (buff[0] == '#') continue;
-    p -> puzzle[r] = atol(buff);
+    p -> puzzle[r] = (puzzle_row) 0;
+    for (int c = 0; c < k; c++){
+      set_entry(p, r, c, buff[c] - '0');
+    }
     r++;
   }
   return p;
@@ -114,7 +117,10 @@ puzzle * next_file(FILE * f, int max_rows){
 
   //Loop until encountered an empty line
   while(buff[0] != '\n'){
-    p -> puzzle[r] = atol(buff);
+    p -> puzzle[r] = (puzzle_row) 0;
+    for (int c = 0; c < k; c++){
+      set_entry(p, r, c, buff[c] - '0');
+    }
     r++;
     result = fgets(buff, 30, f);
     assert(result != NULL);
@@ -154,8 +160,9 @@ int get_index_from_puzzle(puzzle * p){
 // dimensions.
 void randomize_puzzle(puzzle * p){
 
-  for (int i = 0 ; i < p -> k; i++) 
-    p -> puzzle[i] = lrand48() % MAX_ROWS[p -> k];
+  for (int i = 0 ; i < p -> s; i++) 
+    p -> puzzle[i] =
+      (lrand48() + lrand48() * MAX_ROWS[15] + lrand48() * MAX_ROWS[30]) % p -> max_row;
 
 }
 
@@ -254,7 +261,7 @@ void fprint_tdm(FILE * f, puzzle * p){
   for (int r1 = 0; r1 < s; r1++){
     for (int r2 = 0; r2 < s; r2++){
       for (int r3 = 0; r3 < s; r3++){
-	fprintf(f, "%d", p -> tdm[r1 * s * s + r2 * s + r3]);
+	fprintf(f, "%d", get_tdm_entry(p, r1, r2, r3));
       }
       fprintf(f, "\n");
     }
