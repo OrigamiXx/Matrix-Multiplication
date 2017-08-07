@@ -2,9 +2,11 @@
 #define __3DM_to_MIP_H__
 
 /*
-  This is a program that takes in a puzzle. The program would firstly convert
-  the puzzle into a 3D matching problem then the 3D matching problem is solved
-  through integer programming.
+  This module checks whether a puzzle is a strong USP by reducing the
+  3DM matching instance implicit in the puzzle to a mixed integer
+  program and then solve the mixed integer program using Gurobi.  This
+  module requires that Gurobi have been installed on the machine which
+  this source is compiled on.
 
   Author: Anthony Yang Xu & Matt.
   Summer 2017.
@@ -28,7 +30,7 @@ check_t check_MIP(puzzle *p);
 // interrupted.
 void * MIP(void * arguments);
 
-// Deallocates the global Gurobi environment if allocated.
+// Deallocates internal static datastructures.
 void finalize_check_MIP();
 
 #endif

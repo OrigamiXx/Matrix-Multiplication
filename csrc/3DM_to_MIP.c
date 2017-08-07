@@ -1,3 +1,14 @@
+/*
+  This module checks whether a puzzle is a strong USP by reducing the
+  3DM matching instance implicit in the puzzle to a mixed integer
+  program and then solve the mixed integer program using Gurobi.  This
+  module requires that Gurobi have been installed on the machine which
+  this source is compiled on.
+
+  Author: Anthony Yang Xu & Matt.
+  Summer 2017.
+*/
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <semaphore.h>
@@ -20,7 +31,7 @@ GRBenv *env = NULL;
 
 // Loads the system Gurobi environment to a global variable if it has
 // not already been loaded.  Suppresses output of Gurobi's start-up
-// message by directing stdout.  XXX - not sure whether this is thread
+// message by directing stdout.  XXX - Not sure whether this is thread
 // safe.  Returns true iff the Gurobi environment exists on return.
 bool ensure_env_loaded_quiet(void){
   
