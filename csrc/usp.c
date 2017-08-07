@@ -24,16 +24,18 @@
 #include <math.h>
 #include <assert.h>
 #include <string.h>
-#include "matching.h"
-#include "3DM_to_SAT.h"
-#include "checkUSP_mip.h"
-#include "pthread.h"
-#include "usp.h"
-#include "time.h"
-#include <unistd.h>
-#include "puzzle.h"
 #include <syscall.h>
 #include <sched.h>
+#include <unistd.h>
+#include <time.h>
+#include <pthread.h>
+
+#include "matching.h"
+#include "3DM_to_SAT.h"
+#include "3DM_to_MIP.h"
+#include "usp.h"
+#include "puzzle.h"
+
 using namespace std;
 
 
@@ -235,7 +237,7 @@ int precheck_row_witness(bool * row_witness, int s){
  * uses c++ iterators with the built-in function next_permutation to
  * loop over all permutations.
  */
-bool check_usp_uni(puzzle * p){
+check_t check_usp_uni(puzzle * p){
 
   int s = p -> s;
   
@@ -283,11 +285,11 @@ bool check_usp_uni(puzzle * p){
 
       if (!found)
 	// pi_2 and pi_3 are a witness that U is not a strong USP.
-	return false;
+	return NOT_USP;
     }
   }
 
-  return true;
+  return IS_USP;
 }
 
 
@@ -430,8 +432,12 @@ bool find_witness_reverse(int w, map<set_long,bool> * memo, int i1, set_long set
  *  -> inside, or inside -> outside.
  *  XXX - Make it also permute the puzzle?
  */
-void reorder_witnesses(bool * tdm, int s, bool increasing, bool sorted){
+void reorder_witnesses(puzzle * p, bool increasing, bool sorted){
 
+  int s = p -> s;
+  compute_tdm(p);
+  bool * tdm = p -> tdm;
+  
   // Count the witnesses in each layer.
   int layer_counts[s];
   for (int i = 0; i < s; i++){
@@ -560,13 +566,17 @@ bool has_2d_matchings(bool * tdm, int s){
 
 
 /*
- * Returns true iff it finds a witness that puzzle is not a strong USP.
- * False indicates the search was inconclusive.  Requires s <= 31.
+ * Returns NOT_USP iff it finds a witness that puzzle is not a strong USP.
+ * UNDET_USP indicates the search was inconclusive.  Requires s <= 31.
  */
-bool has_random_witness(bool * tdm, int s, int repeats){
+check_t has_random_witness(puzzle * p, int repeats){
 
+  int s = p -> s;
+  compute_tdm(p);
+  bool * tdm = p -> tdm;
+  
   if (s > 31)
-    return false;
+    return UNDET_USP;
 
   bool failed = false;
   int best = 0;
@@ -607,23 +617,23 @@ bool has_random_witness(bool * tdm, int s, int repeats){
       }
     }
     if (!failed && !is_ident)
-      return true;
+      return NOT_USP;
 
     // Not sure if this is a good heuristic stopping condition, it is
     // to prevent a lot of time being waste on small puzzle sizes.  It
     // makes longer puzzles slower.  XXX - Improve parameters.
     if ((log(n + 1) / log(2))  > best)
-      return false;
+      return NOT_USP;
     failed = false;
   }
 
-  return false;
+  return NOT_USP;
 }
 
 
 /*
- * Returns true iff it finds a witness that puzzle is not a strong
- * USP.  False indicates the search was inconclusive.  Attempts to
+ * Returns NOT_USP iff it finds a witness that puzzle is not a strong
+ * USP.  UNDET_USP indicates the search was inconclusive.  Attempts to
  * generate a witness by greedily selecting a layer from among those
  * with fewest remaining edges and then uniformly selects an edge from
  * that layer.  This repeats until a witness is found, or no progress
@@ -631,10 +641,14 @@ bool has_random_witness(bool * tdm, int s, int repeats){
  * iterations.  There is no benefit to reorder_witnesses() be called
  * before this.  Requires s <= 31.
  */
-int greedy_precheck(bool * tdm, int s, int repeats){
+check_t greedy_precheck(puzzle * p, int repeats){
 
+  int s = p -> s;
+  compute_tdm(p);
+  bool * tdm = p -> tdm;
+  
   if (s > 31)
-    return false;
+    return UNDET_USP;
 
   bool failed = false;
   int best_depth = 0;
@@ -764,7 +778,7 @@ int greedy_precheck(bool * tdm, int s, int repeats){
     */
 
     if (!failed && !is_ident)
-      return -1;
+      return NOT_USP;
 
     // Not sure if this is a good heuristic stopping condition, it is
     // to prevent a lot of time being waste on small puzzle sizes.  It
@@ -776,7 +790,7 @@ int greedy_precheck(bool * tdm, int s, int repeats){
 
   //printf("best_length = %d\n", best_length);
 
-  return 0;
+  return UNDET_USP;
 }
 
 // Some variables measuring performance.
@@ -787,11 +801,11 @@ int checks_backward = 0;
 
 /*
  * Heuristically precheck puzzle via random and greedy approaches
- * Returns 1 if puzzle is a strong USP.  Returns -1 if puzzle is not a
- * strong USP.  Returns 0 if the function has not determined the
- * puzzle is a strong USP.
+ * Returns IS_USP if puzzle is a strong USP.  Returns NOT_USP if
+ * puzzle is not a strong USP.  Returns UNDET_USP if the function has
+ * not determined the puzzle is a strong USP.
  */
-int random_precheck(puzzle * p, int iter){
+check_t random_precheck(puzzle * p, int iter){
 
   // Rearrange row_witness in the hope it makes the search faster.
   // Then randomly attempt to build a witness that U is not a strong
@@ -802,28 +816,28 @@ int random_precheck(puzzle * p, int iter){
 
   // This reorder is aimed to make the randomize search more likely to
   // succeed.
-  reorder_witnesses(p -> tdm, p -> s, true, true);
-  if (has_random_witness(p -> tdm, p -> s, iter)){
-    return -1;
+  reorder_witnesses(p, true, true);
+  if (has_random_witness(p, iter)){
+    return NOT_USP;
   }
-
-  reorder_witnesses(p -> tdm, p -> s, false, false);
-  if (has_random_witness(p -> tdm, p -> s, iter)){
-    return -1;
+    
+  reorder_witnesses(p, false, false);
+  if (has_random_witness(p, iter)){
+    return NOT_USP;
   }
 
   // This reorder is aimed to make the forward and backward search
   // balanced.
-  reorder_witnesses(p -> tdm, p -> s, true, false);
-  if (has_random_witness(p -> tdm, p -> s, iter)){
-    return -1;
+  reorder_witnesses(p, true, false);
+  if (has_random_witness(p, iter)){
+    return NOT_USP;
   }
 
-  return 0;
+  return UNDET_USP;
 }
 
 
-bool check_usp_bi_inner(puzzle * p){
+check_t check_usp_bi_inner(puzzle * p){
 
  // Create two maps that will store partial witnesses of U not being
   // a strong USP.
@@ -860,8 +874,8 @@ bool check_usp_bi_inner(puzzle * p){
   // strong USP.
 
   bool res = !find_witness_reverse(s, &reverse_memo, s - 1, SET_ID(0L), p -> tdm, true, &forward_memo);
-
-  return res;
+  
+  return (res ? IS_USP : NOT_USP);
 
 }
 
@@ -869,7 +883,7 @@ bool check_usp_bi_inner(puzzle * p){
  * Determines whether the given s-by-k puzzle U is a strong USP.  Uses
  * a bidirectional algorithm.
  */
-int check_usp_bi(puzzle * p){
+check_t check_usp_bi(puzzle * p){
 
   // Precompute s * s * s memoization table storing the mapping of
   // rows that witness that a partial mapping is consistent with U
@@ -1128,7 +1142,7 @@ bool cache_lookup(puzzle * p){
  * Determines whether the given s-by-k puzzle U is a strong USP.
  * Checks using SAT and MIP solvers in parallel threads.
  */
-int check_SAT_MIP(puzzle * p){
+check_t check_SAT_MIP(puzzle * p){
 
   sem_t complete_sem;
   sem_init(&complete_sem, 0, 0);
@@ -1152,24 +1166,24 @@ int check_SAT_MIP(puzzle * p){
 
   sem_wait(&complete_sem);
 
-  long res = -999;
+  long res = UNDET_USP;
 
   if(input_MIP.complete){
     input_SAT.interrupt = true;
     pthread_join(th_MIP, (void **)&res);
     pthread_join(th_SAT, NULL);
-    return res;
+    return (check_t) res;
   } 
 
   if(input_SAT.complete){
     input_MIP.interrupt = true;
     pthread_join(th_SAT, (void **)&res);
     pthread_join(th_MIP, NULL);
-    return res;
+    return (check_t) res;
   }
 
   assert(false == "SHOULDN'T GET HERE.");
-  return res;
+  return (check_t) res;
 }
 
 /*
@@ -1179,13 +1193,13 @@ int check_SAT_MIP(puzzle * p){
  * search if s is large enough, and the unidirectional search
  * otherwise.
  */
-int check(puzzle * p){
+check_t check(puzzle * p){
 
   int s = p -> s;
   int k = p -> k;
   
   if (is_cached(s,k))
-    return cache_lookup(p);
+    return (cache_lookup(p) ? IS_USP : NOT_USP);
   else if (s < 3)
     return check_usp_uni(p);
   else if (s < 8) {
@@ -1194,11 +1208,9 @@ int check(puzzle * p){
 
     int iter = s * s * s;
 
-    compute_tdm(p);
-
-    int res = random_precheck(p, iter);
-    if (res != 0)
-      return res == 1;
+    check_t res = random_precheck(p, iter);
+    if (res != UNDET_USP)
+      return res;
 
     if (s < 10){
       /*
@@ -1215,12 +1227,12 @@ int check(puzzle * p){
       // XXX - May be incorrect.
       //simplify_tdm(p);
 
-      res = greedy_precheck(p -> tdm, p -> s, iter);
-      if (res != 0)
-	return res == 1;
+      res = greedy_precheck(p, iter);
+      if (res != UNDET_USP)
+	return res;
 
-      int res = check_SAT_MIP(p);
-      assert(res != -1);
+      res = check_SAT_MIP(p);
+      assert(res != UNDET_USP);
       return res;
     }
   }
@@ -1232,7 +1244,7 @@ int check(puzzle * p){
  * A specialized function that determines whether the given 2-by-k
  * puzzle U is a strong USP.
  */
-bool check2(puzzle_row r1, puzzle_row r2, int k){
+check_t check2(puzzle_row r1, puzzle_row r2, int k){
 
   int s = 2;
   puzzle p;
@@ -1255,7 +1267,7 @@ bool check2(puzzle_row r1, puzzle_row r2, int k){
  * A specialized function that determines whether the given 3-by-k
  * puzzle U is a strong USP.
  */
-bool check3(puzzle_row r1, puzzle_row r2, puzzle_row r3, int k){
+check_t check3(puzzle_row r1, puzzle_row r2, puzzle_row r3, int k){
 
   int s = 3;
   puzzle p;
@@ -1278,7 +1290,7 @@ bool check3(puzzle_row r1, puzzle_row r2, puzzle_row r3, int k){
  * A specialized function that determines whether the given 4-by-k
  * puzzle U is a strong USP.
  */
-bool check4(puzzle_row r1, puzzle_row r2, puzzle_row r3, puzzle_row r4, int k){
+check_t check4(puzzle_row r1, puzzle_row r2, puzzle_row r3, puzzle_row r4, int k){
 
   int s = 4;
   puzzle p;
@@ -1303,15 +1315,18 @@ bool check4(puzzle_row r1, puzzle_row r2, puzzle_row r3, puzzle_row r4, int k){
  * prevent an s-by-k from being a strong USP.  Return true iff all
  * pairs of rows are valid.
  */
-bool check_row_pairs(puzzle * p){
+check_t check_row_pairs(puzzle * p){
   int s = p -> s;
   for (int r1 = 0; r1 < s-1; r1++){
     for (int r2 = r1+1; r2 < s; r2++){
-      if (!check2(p -> puzzle[r1], p -> puzzle[r2], p -> k))
-	return false;
+      check_t res = check2(p -> puzzle[r1], p -> puzzle[r2], p -> k);
+      if (res == UNDET_USP)
+	return UNDET_USP;
+      if (res == NOT_USP)
+	return NOT_USP;
     }
   }
-  return true;
+  return IS_USP;
 }
 
 /*
@@ -1319,18 +1334,21 @@ bool check_row_pairs(puzzle * p){
  * prevent an s-by-k from being a strong USP.  Return true iff all
  * pairs of rows are valid.
  */
-bool check_row_triples(puzzle * p){
+check_t check_row_triples(puzzle * p){
 
   int s = p -> s;
   for (int r1 = 0; r1 < s-2; r1++){
     for (int r2 = r1+1; r2 < s-1; r2++){
       for (int r3 = r2+1; r3 < s; r3++){
-	if (!check3(p -> puzzle[r1],p -> puzzle[r2],p -> puzzle[r3],p -> k))
-	  return false;
+	check_t res = check3(p -> puzzle[r1],p -> puzzle[r2],p -> puzzle[r3],p -> k);
+	if (res == UNDET_USP)
+	  return UNDET_USP;
+	if (res == NOT_USP)
+	  return NOT_USP;
       }
     }
   }
-  return true;
+  return IS_USP;
 }
 
 /*

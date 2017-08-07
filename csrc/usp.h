@@ -61,19 +61,19 @@ int check_usp_same_col(int max_row, int column);
  * uses c++ iterators with the built-in function next_permutation to
  * loop over all permutations.
  */
-bool check_usp_uni(puzzle * p);
+check_t check_usp_uni(puzzle * p);
 
 /*
  * Determines whether the given s-by-k puzzle U is a strong USP.  Uses
  * a bidirectional algorithm.
  */
-int check_usp_bi(puzzle * p);
+check_t check_usp_bi(puzzle * p);
 
 /*
  * Determines whether the given s-by-k puzzle U is a strong USP.
  * Checks using SAT and MIP solvers in parallel threads.
  */
-int check_SAT_MIP(puzzle * p);
+check_t check_SAT_MIP(puzzle * p);
 
 /*
  * Determines whether the given s-by-k puzzle U is a strong USP.
@@ -82,7 +82,7 @@ int check_SAT_MIP(puzzle * p);
  * bidirectional search if s is large enough, and the unidirectional
  * search otherwise.
  */
-int check(puzzle * p);
+check_t check(puzzle * p);
 
 /*
  * Initialize the USP cache.  Precomputes whether each s-by-k puzzle
@@ -95,23 +95,23 @@ void init_cache(int s, int k);
  * Several specialized functions that determine whether a puzzle U is
  * a strong USP for a given constant number of rows.
  */
-bool check2(puzzle_row r1, puzzle_row r2, int k);
-bool check3(puzzle_row r1, puzzle_row r2, puzzle_row r3, int k);
-bool check4(puzzle_row r1, puzzle_row r2, puzzle_row r3, puzzle_row r4, int k);
+check_t check2(puzzle_row r1, puzzle_row r2, int k);
+check_t check3(puzzle_row r1, puzzle_row r2, puzzle_row r3, int k);
+check_t check4(puzzle_row r1, puzzle_row r2, puzzle_row r3, puzzle_row r4, int k);
 
 /*
  * A specialized function that determines whether any pair of rows
  * prevent an s-by-k from being a strong USP.  Return true iff all
  * pairs of rows are valid.
  */
-bool check_row_pairs(puzzle * p);
+check_t check_row_pairs(puzzle * p);
 
 /*
  * A specialized function that determines whether any triple of rows
  * prevent an s-by-k from being a strong USP.  Return true iff all
  * pairs of rows are valid.
  */
-bool check_row_triples(puzzle * p); 
+check_t check_row_triples(puzzle * p); 
 
 /*
  * Returns true iff a length-k row that permutations map to u_1, u_2,
@@ -123,11 +123,11 @@ bool valid_combination(int u_1, int u_2, int u_3, int k);
 
 /*
  * Heuristically precheck puzzle via random and greedy approaches
- * Returns 1 if puzzle is a strong USP.  Returns -1 if puzzle is not a
- * strong USP.  Returns 0 if the function has not determined the
- * puzzle is a strong USP.
+ * Returns IS_USP if puzzle is a strong USP.  Returns NOT_USP if
+ * puzzle is not a strong USP.  Returns UNDET_USP if the function has
+ * not determined the puzzle is a strong USP.
  */
-int random_precheck(puzzle * p, int iter);
+check_t random_precheck(puzzle * p, int iter);
 
 int count_row_witnesses(puzzle * p);
 

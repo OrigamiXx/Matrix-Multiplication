@@ -1,26 +1,25 @@
-#include "permutation.h"
+
 #include <stdio.h>
 #include <stdlib.h>
-#include "usp.h"
+#include <string.h>
+#include <time.h>
 #include <math.h>
-#include "constants.h"
+
 #include <map>
 #include <cstdlib>
 
 // MapReduce finding usps to do matrix-multiplication
 // Syntax: mpirun -np 4 ./usp_cluster column(column number)
+#include "permutation.h"
+#include "constants.h"
+#include "usp.h"
 #include "mpi.h"
 #include "math.h"
-#include "stdio.h"
-#include "stdlib.h"
-#include "string.h"
+
 #include "mapreduce.h"
 #include "keyvalue.h"
-#include "usp.h"
 #include "puzzle.h"
-#include "usp_bi.h"
-#include  <time.h>
-#include "checkUSP_mip.h"
+#include "3DM_to_MIP.h"
 #include "3DM_to_SAT.h"
 using namespace MAPREDUCE_NS;
 
@@ -70,7 +69,7 @@ void random_usps(int itask, KeyValue *kv, void *ptr){
     randomize_puzzle(p);
     sort_puzzle(p);
 
-    if (check(p -> puzzle, random_rows, column)) {
+    if (check(p)) {
 			 //(check_SAT(p)){
 			//(check_MIP(p)){
       count++;
@@ -84,7 +83,7 @@ void random_usps(int itask, KeyValue *kv, void *ptr){
 
 
 void row_one_keys(int itask, KeyValue *kv, void *ptr){
-   int i, row = 1;
+   puzzle_row i, row = 1;
    /*//insert one specific puzzle
    string raw_input = "puzzles/test.puz";
    const char * input = raw_input.c_str();
@@ -94,45 +93,28 @@ void row_one_keys(int itask, KeyValue *kv, void *ptr){
    }
      destroy_puzzle(p);*/
    //insert all row one puzzle in the column size
-   for(i = 0; i<max_poss_row; i++){
+   for(i = 0; i < max_poss_row; i++){
      kv->add((char*)&i, sizeof(int), NULL, 0);
    }
 }
 
 void extend_puzzle(uint64_t itask, char * key, int keybytes, char *value, int valuebytes, KeyValue *kv, void *ptr){
-  int* puz = (int*)key;
-  int new_puz[row];
 
-  int i;
-  for(i=0; i<row-1; i++){
-    new_puz[i] = puz[i];
-  }
-  puzzle p;
-  //int index = 0;
-  int percent;
-  //printf("row = %d\n", row);
-  //printf("column= %d\n", column);
-  int seed = 1;
-  srand(time(NULL));
-  for(i = puz[row-2]; i < max_poss_row;i++){
-    new_puz[row-1] = i + 1;
-    //puzzle p;
-    p.row = row;
-    p.column = column;
-    p.puzzle = new_puz;
+  puzzle * p = create_puzzle(row, column);
 
-    percent = rand() % 100;
-    //percent = 0;
+  memcpy(p -> puzzle, (puzzle_row *)key, sizeof(puzzle_row) * (row - 1));
+
+  puzzle_row * puz = p -> puzzle;
+  
+  for(puz[row - 1] = puz[row-2] + 1; puz[row - 1] < p -> max_row; puz[row - 1]++){
+   
     int percentage = 100;
-    //printf("%d\n",percent);
-    if (percent < percentage && check(p.puzzle, p.row, p.column)){//check_usp(&p)){//check_usp_recursive(&p)){
-      //index++;
-      //if(index<2){
+    if (rand() % 100 < percentage && check(p))
+      kv->add((char*)(p -> puzzle), row * sizeof(puzzle_row), NULL, 0);
 
-      kv->add((char*)new_puz, row*sizeof(int), NULL, 0);
-      //}
-    }
   }
+  
+  destroy_puzzle(p);
 }
 /* ---------------------------------------------------------------------- */
 

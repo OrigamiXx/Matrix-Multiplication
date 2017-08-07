@@ -12,9 +12,6 @@
 #include "usp.h"
 
 
-
-
-
 puzzle * create_puzzle(int s, int k){
 
   puzzle * p = (puzzle *) (malloc(sizeof(puzzle)));
@@ -174,7 +171,7 @@ void random_usp(puzzle * p){
 
 }
 
-// Sorts the rows of the puzzle in increasing order.
+// Sorts the rows of the puzzle in increasing order.  Invalidates 3DM.
 void sort_puzzle(puzzle * p){
 
   sort(p -> puzzle, p -> puzzle + p -> s);
@@ -182,6 +179,9 @@ void sort_puzzle(puzzle * p){
 
 }
 
+// Sorts the columns of the puzzle to separate those with fewer unique
+// entries.  Then sorts the rows of the puzzle in increasing
+// order. Invalidates 3DM.
 void arrange_puzzle(puzzle * p){
 
   int balance[p -> k] = {0};
@@ -229,30 +229,42 @@ void arrange_puzzle(puzzle * p){
 }
 
 
-// print a puzzle
-void print_puzzle(puzzle * p){
+// Print a puzzle to the specified open file.
+void fprint_puzzle(FILE * f, puzzle * p){
   if (p != NULL){
     int r,c;
     for(r = 0; r < p -> s; r++){
       for(c = 0; c < p -> k; c++){
-	printf("%d", get_entry(p, r, c));
+	fprintf(f, "%d", get_entry(p, r, c));
       }
-      printf("\n");
+      fprintf(f, "\n");
     }
   }
 }
 
-void print_tdm(puzzle * p){
+
+// Print a puzzle to the console.
+void print_puzzle(puzzle * p){
+  fprint_puzzle(stdout, p);
+}
+
+// Print a puzzle's 3DM instance to the specified open file.
+void fprint_tdm(FILE * f, puzzle * p){
   int s = p -> s;
   for (int r1 = 0; r1 < s; r1++){
     for (int r2 = 0; r2 < s; r2++){
       for (int r3 = 0; r3 < s; r3++){
-	printf("%d", p -> tdm[r1 * s * s + r2 * s + r3]);
+	fprintf(f, "%d", p -> tdm[r1 * s * s + r2 * s + r3]);
       }
-      printf("\n");
+      fprintf(f, "\n");
     }
-    printf("\n");
+    fprintf(f, "\n");
   }
+}
+
+// Print a puzzle's 3DM instance to the console.
+void print_tdm(puzzle * p){
+  fprint_tdm(stdout, p);
 }
 
 /*
@@ -341,6 +353,9 @@ void simplify_tdm(puzzle * p){
 
 int count_tdm(puzzle * p){
 
+  if (!p -> tdm_valid)
+    compute_tdm(p);
+  
   int count = 0;
   int s = p -> s;
   for (int r1 = 0; r1 < s; r1++){
@@ -351,6 +366,7 @@ int count_tdm(puzzle * p){
       }
     }
   }
+  
   return count;
 }
 

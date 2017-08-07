@@ -126,12 +126,22 @@ void randomize_puzzle(puzzle * p);
 // Is likely very slow except for small puzzle sizes.
 void random_usp(puzzle * p);
 
-// Sorts the rows of the puzzle in increasing order.
+// Sorts the rows of the puzzle in increasing order.  Invalidates 3DM.
 void sort_puzzle(puzzle * p);
 
+// Sorts the columns of the puzzle to separate those with fewer unique
+// entries.  Then sorts the rows of the puzzle in increasing
+// order. Invalidates 3DM.
 void arrange_puzzle(puzzle * p);
 
+// Print a puzzle to the specified open file.
+void fprint_puzzle(FILE * f, puzzle * p);
+// Print a puzzle to the console.
 void print_puzzle(puzzle * p);
+
+// Print a puzzle's 3DM instance to the specified open file.
+void fprint_tdm(FILE * f, puzzle * p);
+// Print a puzzle's 3DM instance to the console.
 void print_tdm(puzzle * p);
 
 
@@ -156,10 +166,8 @@ inline void validate_tdm(puzzle * p){
   p -> tdm_valid = true;
 }
 
-
-
 //Write puzzle into a file
-void write_puzzle(puzzle * p, int index);
+//void write_puzzle(puzzle * p, int index);
 
 //free puzzle
 void destroy_puzzle(puzzle * p);

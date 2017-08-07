@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "usp_bi.h"
+#include "usp.h"
 #include "puzzle.h"
 
 int main(int argc, char * argv[]){
@@ -18,7 +18,7 @@ int main(int argc, char * argv[]){
   
   print_puzzle(p);
 
-  if (check(p->puzzle, p->row, p->column)){
+  if (check(p)){
     printf("is a strong USP.\n");
   } else {
     printf("is NOT a Strong USP.\n");

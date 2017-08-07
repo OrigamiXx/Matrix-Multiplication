@@ -9,18 +9,17 @@
 */
 #include <stdio.h>
 #include <stdlib.h>
-#include "permutation.h"
-#include "usp.h"
-#include "assert.h"
-#include "puzzle.h"
-#include <math.h>
-#include "usp_bi.h"
-#include "3DM_to_SAT.h"
+#include <assert.h>
 #include <time.h>
+#include <math.h>
 #include <sys/time.h>
 #include <iostream>
-//#include "gurobi_c++.h"
-#include "checkUSP_mip.h"
+
+#include "permutation.h"
+#include "usp.h"
+#include "puzzle.h"
+#include "3DM_to_SAT.h"
+#include "3DM_to_MIP.h"
 
 int main(int argc, char * argv[]){
   int givenR = 15;
