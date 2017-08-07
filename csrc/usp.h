@@ -30,6 +30,8 @@
 #include "puzzle.h"
 using namespace std;
 
+typedef enum check_val {NOT_USP, IS_USP, UNDET_USP} check_t;
+
 typedef struct thread {
 
   puzzle * p;
@@ -37,7 +39,7 @@ typedef struct thread {
   sem_t * complete_sem;
   bool complete;
   
-} thread;
+} thread_args;
 
 
 #define GCC_VERSION (__GNUC__ * 10000 \

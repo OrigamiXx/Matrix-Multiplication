@@ -151,48 +151,49 @@ void construct_reduction(puzzle * p, Solver * S){
 }
 
 // Checks whether p is a strong USP using the provided Solver.
-// Returns 1 if p is a strong USP, 0 if p is not a strong USP and -1
-// if it was unable to determine whether p is a strong USP.  -1 will
-// only be returned if the solving was interrupted, or there was an
-// error.
-int check_SAT(puzzle * p, Solver * S){
+// Returns IS_USP if p is a strong USP, NOT_USP if p is not a strong
+// USP and UNDET_USP if it was unable to determine whether p is a
+// strong USP.  UNDET_USP will only be returned if the solving was
+// interrupted, or there was an error.
+check_t check_SAT(puzzle * p, Solver * S){
 
   S -> verbosity = 0;
 
   construct_reduction(p, S);
   
   if (!(S -> simplify())){
-    return 1;
+    return IS_USP;
   } else {
     lbool ret = S -> solveLimited();
     if (ret == l_True)
-      return 0;
+      return NOT_USP;
     else if(ret == l_False)
-      return 1;
+      return IS_USP;
     else 
-      return -1;
+      return UNDET_USP;
     
   }
   
 }
 
-// Checks whether p is a strong USP using the provided Solver.
-// Returns 1 if p is a strong USP, 0 if p is not a strong USP and -1
-// if it was unable to determine whether p is a strong USP.  -1 will
-// only be returned if there was an error.
-int check_SAT(puzzle * p){
+// Checks whether p is a strong USP, using a SAT solver.  Returns
+// IS_USP if p is a strong USP, NOT_USP if p is not a strong USP and
+// UNDET_USP if it was unable to determine whether p is a strong USP.
+// UNDET_USP will only be returned if there was an error.
+check_t check_SAT(puzzle * p){
 
   Solver * S = new Solver();
-  int res = check_SAT(p, S);
+  check_t res = check_SAT(p, S);
   delete S;
   return res;
 
 }
 
-// A synchronized version of check_SAT that takes it's parameters
-// using an argument struct.  May be asynchronously interrupted by
-// setting args -> interrupt = true.  Returns value computed via
-// pthread_exit.  Return value only meaningful if not interrupted.
+// A synchronized pthread version of check_SAT that takes it's
+// parameters using an argument struct.  May be asynchronously
+// interrupted by setting args -> interrupt = true.  Returns value
+// computed via pthread_exit.  Return value only meaningful if not
+// interrupted.
 void *SAT(void *arguments){
 
   struct thread *args = (struct thread *)arguments;
@@ -200,7 +201,7 @@ void *SAT(void *arguments){
   Solver * S = new Solver();
   S -> setInterruptPtr(&(args->interrupt));
   
-  int res = check_SAT(args->p, S);
+  check_t res = check_SAT(args->p, S);
 
   delete S;
 
