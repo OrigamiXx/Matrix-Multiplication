@@ -8,29 +8,21 @@
    problem and print out the reduction in 3cnf-form (dimacs) for MapleSAT solver
    to give a final answer.
 
-   Author: Jerry
+   Author: Jerry & Matt.
 */
-#include <stdio.h>
 #include <stdlib.h>
 #include "puzzle.h"
 
-int reduction_to_3cnf(FILE * file, int row, int column, int index, puzzle * p);
-
-int reduction_simple(FILE * file, int row, int column, long index, puzzle * p);
-
-bool popen_method(int row, int column, long index, puzzle * p);
-
-bool popen_simple(int row, int column, long index, puzzle * p);
-
-int file_making_methond(int row, int column, long index, puzzle * p);
-
-int file_simple(int row, int column, long index, puzzle * p);
-
-long power(int base, int exponent);
-
-// direct interface with the solver
-// true if is UNSAT which is a USP; false OW;
+// Checks whether p is a strong USP using the provided Solver.
+// Returns 1 if p is a strong USP, 0 if p is not a strong USP and -1
+// if it was unable to determine whether p is a strong USP.  -1 will
+// only be returned if there was an error.
 int check_SAT(puzzle * p);
+
+// A synchronized version of check_SAT that takes it's parameters
+// using an argument struct.  May be asynchronously interrupted by
+// setting args -> interrupt = true.  Returns value computed via
+// pthread_exit.  Return value only meaningful if not interrupted.
 void *SAT(void *arguments);
-void sat_interrupt(void * x);
+
 #endif

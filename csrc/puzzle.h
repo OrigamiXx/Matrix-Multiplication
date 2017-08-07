@@ -21,6 +21,7 @@ typedef struct puzzle {
   int s;
   int k;
   bool * tdm;
+  bool tdm_valid;
 }puzzle;
 
 #define MAX_K 40
@@ -147,6 +148,15 @@ int count_tdm(puzzle * p);
 inline bool get_tdm_entry(puzzle * p, int r1, int r2, int r3){
   return p -> tdm[r1 * p -> s * p -> s + r2 * p -> s + r3];
 }
+inline void invalidate_tdm(puzzle * p){
+  p -> tdm_valid = false;
+}
+
+inline void validate_tdm(puzzle * p){
+  p -> tdm_valid = true;
+}
+
+
 
 //Write puzzle into a file
 void write_puzzle(puzzle * p, int index);

@@ -25,6 +25,7 @@ puzzle * create_puzzle(int s, int k){
   p -> s = s;
   p -> k = k;
   p -> tdm = (bool *) (malloc(sizeof(bool) * s * s * s));
+  p -> tdm_valid = false;
 
   bzero(p -> puzzle, sizeof(puzzle_row) * s);
 
@@ -177,6 +178,7 @@ void random_usp(puzzle * p){
 void sort_puzzle(puzzle * p){
 
   sort(p -> puzzle, p -> puzzle + p -> s);
+  invalidate_tdm(p);
 
 }
 
@@ -222,6 +224,7 @@ void arrange_puzzle(puzzle * p){
   }
   
   sort(p -> puzzle, p -> puzzle + p -> s);
+  invalidate_tdm(p);
 
 }
 
@@ -283,6 +286,8 @@ bool is_witness(puzzle * p, int r1, int r2, int r3){
 
 void compute_tdm(puzzle * p){
 
+  if (p -> tdm_valid) return;
+  
   int s = p -> s;
   for (int r1 = 0; r1 < s; r1++){
     for (int r2 = 0; r2 < s; r2++){
@@ -291,7 +296,8 @@ void compute_tdm(puzzle * p){
       }
     }
   }
-  
+
+  validate_tdm(p);
 }
 
 

@@ -138,7 +138,7 @@ int check_MIP(puzzle *p, GRBmodel * model, bool * interrupt_ptr){
   }
   double limit = (double)(s -1);
   GRBaddconstr(model, counter, ind, val, GRB_LESS_EQUAL, limit, NULL);
-  
+
   GRBoptimize(model);
   //GRBwrite(model, "3DM_to_MIP.lp");
   
@@ -180,8 +180,6 @@ int interrupt_callback(GRBmodel *model, void *cbdata, int where, void *usrdata){
     GRBterminate(model);
     *interrupt = false;
   }
-  //printf("in callback\n");
-  
 }
 
 // Dummy code for MIP thread.
@@ -232,7 +230,10 @@ int check_MIP(puzzle *p){
       return -1;
     }
   }
+  long res = -1;
   GRBmodel * model = NULL;
   GRBnewmodel(env, &model, "3DM_to_MIP", 0, NULL, NULL, NULL, NULL, NULL);
-  check_MIP(p, model, NULL);
+  res = check_MIP(p, model, NULL);
+  GRBfreemodel(model);
+  return res;
 }
