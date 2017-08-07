@@ -9,7 +9,7 @@
 #include "matrix.h"
 #include "puzzle.h"
 #include <algorithm>
-#include "usp_bi.h"
+#include "usp.h"
 
 
 
@@ -150,44 +150,6 @@ int get_index_from_puzzle(puzzle * p){
     result = result * p -> max_row + p -> puzzle[i];
   }
   return result;
-}
-
-
-
-int get_entry(puzzle * p, int r, int c){
-
-  return get_column_from_row(p -> puzzle[r], c);
-  
-}
-
-void set_entry(puzzle * p, int r, int c, int val){
-
-  p -> puzzle[r] = set_entry_in_row(p -> puzzle[r], c, val);
-  
-}
-
-//return the data (1or2or3) of the row - col index
-//row_index must from the puzzle
-//col index must less than the column number of the puzzle(0- col-1)
-// MWA: This could be done without an explicit loop, use the pow function instead.
-int get_column_from_row(puzzle_row row, int c){
-  int res = (row % MAX_ROWS[c]) / MAX_ROWS[c - 1];
-  assert(res >= 0 && res <= 2);
-  return res + 1;
-}
-
-/*
- * Returns the result of setting the entry at c of row_index to val.
- */
-int set_entry_in_row(puzzle_row row, int c, int val) {
-
-  assert(val >= 1 && val <= 3);
-
-  int old_val = get_column_from_row(row, c);
-  int ret = row + (val - old_val) * MAX_ROWS[c];
-
-  assert(ret >= 0);
-  return ret;
 }
 
 // Replaces data in puzzle with an random puzzle of the same

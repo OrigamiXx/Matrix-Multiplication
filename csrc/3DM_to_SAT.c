@@ -14,7 +14,6 @@
 #include "assert.h"
 #include "puzzle.h"
 #include <math.h>
-#include "usp_bi.h"
 #include <pthread.h>
 #include <syscall.h>
 #include <semaphore.h>
