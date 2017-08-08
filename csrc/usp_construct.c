@@ -10,6 +10,7 @@
 
 #include "permutation.h"
 #include "usp.h"
+#include "heuristic.h"
 
 using namespace std;
 
@@ -274,7 +275,7 @@ bool apply_twist(puzzle * p, puzzle * p1, puzzle * p2, int last, int arb, int pe
   if (!puzzle_has_at_least_n_two_columns(p, (k < N_SPECIAL_COLS ? k : N_SPECIAL_COLS)))
     return false;
 
-  if (IS_USP == check_row_triples(p)){
+  if (UNDET_USP == heuristic_row_triples(p)){
     if (IS_USP == check(p)) {
       return true;
     }
