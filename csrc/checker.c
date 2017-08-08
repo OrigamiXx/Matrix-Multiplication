@@ -166,7 +166,7 @@ int main() {
   checkers.push_back(c_SAT_MIP);
   checkers.push_back(c_full);
   
-  Random_Generator G(4, 4, 1);
+  Random_Generator G(4, 4, 10);
   
   cout << "--------------------------- Starting tests ----------------------------\n";
   
