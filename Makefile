@@ -11,7 +11,7 @@ RMFLAGS=-f
 # Put additional object sources in list below.
 OBJ-SOURCES=usp.c permutation.c puzzle.c set.c matching.c 3DM_to_SAT.c 3DM_to_MIP.c timing.c
 # Put additional executable sources in list below.
-EXE-SOURCES=permutation_tester.c puzzle_tester.c set_tester.c generate_puzzle.c usp_exp.c matching_tester.c test.c usp_construct.c usp_test_file.c 3DM_to_MIP_tester.c usp_tester.c 3DM_to_SAT_tester.c usp_greedy.c
+EXE-SOURCES=permutation_tester.c puzzle_tester.c set_tester.c generate_puzzle.c usp_exp.c matching_tester.c test.c usp_construct.c usp_test_file.c 3DM_to_MIP_tester.c usp_tester.c 3DM_to_SAT_tester.c usp_greedy.c checker.c
 # Put additional parallel / cluster executable sources in list below, must end with "_para".
 PARA-SOURCES=usp_para.c
 

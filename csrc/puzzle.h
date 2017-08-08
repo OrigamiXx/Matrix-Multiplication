@@ -173,7 +173,7 @@ inline void validate_tdm(puzzle * p){
 void destroy_puzzle(puzzle * p);
 
 //Return the next available puzzle from the open file f
-puzzle * next_file(FILE * f, int max_rows);
+puzzle * create_next_puzzle_from_file(FILE * f);
 
 //Takes in one line of puzzle and return the index of the line. Return -1 if line is an empty line.
 int line_to_index(char * line);

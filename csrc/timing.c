@@ -3,11 +3,14 @@
 #include <stdio.h>
 #include <time.h>
 #include <sys/time.h>
+#include <vector>
 
 #include "puzzle.h"
 #include "usp.h"
+#include "timing.h"
 
-check_t time_check(check_t (* checker)(puzzle *), puzzle * p, double * time_ptr){
+
+check_t time_check(checker_t checker, puzzle * p, double * time_ptr){
 
   struct timespec begin={0,0}, end={0,0};  
 

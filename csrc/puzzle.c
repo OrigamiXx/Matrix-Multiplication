@@ -11,7 +11,6 @@
 #include <algorithm>
 #include "usp.h"
 
-
 puzzle * create_puzzle(int s, int k){
 
   puzzle * p = (puzzle *) (malloc(sizeof(puzzle)));
@@ -99,34 +98,38 @@ puzzle * create_puzzle_from_file(const char * filename){
 }
 
 //Return the next available puzzle from the open file f
-puzzle * next_file(FILE * f, int max_rows){
+puzzle * create_next_puzzle_from_file(FILE * f){
 
   if (f == NULL)
     return NULL;
+
+  int max_buff = 1000;
   
-  char buff[256];
-  char * result;
+  puzzle_row row_buff[max_buff];
+  char line_buff[max_buff];
 
   //first check whether this file is able to turn into a puzzle
-  result = fgets(buff, 30, f);
-  assert(result != NULL);
-
-  int k = strlen(buff);
-  puzzle * p = create_puzzle(max_rows, k);
-  int r = 0;
-
+  int start_k = fscanf(f, "%s\n", line_buff);
+  int k = start_k;
+  int s = 0;
   //Loop until encountered an empty line
-  while(buff[0] != '\n'){
-    p -> puzzle[r] = (puzzle_row) 0;
+  while(k > 0){
+    row_buff[s] = (puzzle_row) 0;
     for (int c = 0; c < k; c++){
-      set_entry(p, r, c, buff[c] - '0');
+      row_buff[s] = set_entry_in_row(row_buff[s], c, line_buff[c] - '0');
     }
-    r++;
-    result = fgets(buff, 30, f);
-    assert(result != NULL);
+    s++;
+    k = fscanf(f, "%s\n", line_buff);
+    assert(k == start_k);
   }
-  p -> s = r;
-  return p;
+
+  if (s > 0) {
+    puzzle * p = create_puzzle(s, k);
+    memcpy(p -> puzzle, row_buff, sizeof(puzzle_row) * s);
+    return p;
+  }
+  
+  return NULL;
 }
 
 
