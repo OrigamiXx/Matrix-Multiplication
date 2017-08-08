@@ -66,7 +66,4 @@ check_t heuristic_random(puzzle * p);
 check_t heuristic_greedy(puzzle * p);
 
 
-// Experimental application of simplify_tdm on usp_bi.
-check_t heuristic_simplify(puzzle * p);
-
 #endif

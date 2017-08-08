@@ -641,24 +641,15 @@ check_t check(puzzle * p){
       return res;
 
     if (s < 10){
-      /*
       simplify_tdm(p);
-      res = heuristic_greedy(p);
-      if (res != 0)
-	return res == 1;
-      */
       return check_usp_bi(p);
     } else {
-
-      // XXX - This won't do anything for the SAT solver because it
-      //doesn't take in row_witness.
-      // XXX - May be incorrect.
-      //simplify_tdm(p);
 
       res = heuristic_greedy(p);
       if (res != UNDET_USP)
 	return res;
 
+      simplify_tdm(p);
       res = check_SAT_MIP(p);
       assert(res != UNDET_USP);
       return res;

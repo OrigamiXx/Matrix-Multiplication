@@ -299,7 +299,7 @@ int main() {
   Checker h_2d_matching(&heuristic_2d_matching, "2d_matching");
 
   // Experimental
-  Checker h_simplify(&heuristic_simplify, "experimental_simplify");
+
   
   
   vector<Checker> checkers;
@@ -317,7 +317,6 @@ int main() {
   checkers.push_back(h_row_pairs);
   checkers.push_back(h_row_triples);
   checkers.push_back(h_2d_matching);
-  checkers.push_back(h_simplify);
   
   
   Random_Tester R1("Small Random1", 3, 3, 10000);
@@ -337,10 +336,10 @@ int main() {
   R3.run_test(&checkers);
   R4.run_test(&checkers);
   R5.run_test(&checkers);
-  R6.run_test(&checkers);
+  //R6.run_test(&checkers);
   F1.run_test(&checkers);
   F2.run_test(&checkers);
-  F3.run_test(&checkers);
+  //F3.run_test(&checkers);
 
   cout << "--------------------------- Tests complete ----------------------------\n";
    

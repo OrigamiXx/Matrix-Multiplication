@@ -120,7 +120,6 @@ check_t heuristic_2d_matching(puzzle * p){
 void reorder_witnesses(puzzle * p, bool increasing, bool sorted){
 
   int s = p -> s;
-  compute_tdm(p);
   bool * tdm = p -> tdm;
   
   // Count the witnesses in each layer.
@@ -210,7 +209,6 @@ void reorder_witnesses(puzzle * p, bool increasing, bool sorted){
 check_t has_random_witness(puzzle * p, int repeats){
 
   int s = p -> s;
-  compute_tdm(p);
   bool * tdm = p -> tdm;
   
   if (s > 31)
@@ -288,7 +286,7 @@ int default_heuristic_iteration(int s){
 check_t heuristic_greedy(puzzle * p, int repeats){
 
   int s = p -> s;
-  compute_tdm(p);
+  simplify_tdm(p);
   bool * tdm = p -> tdm;
   
   if (s > 31)
@@ -432,6 +430,8 @@ check_t heuristic_greedy(puzzle * p, int repeats){
     failed = false;
   }
 
+  invalidate_tdm(p);
+  
   return UNDET_USP;
 }
 
@@ -466,24 +466,31 @@ check_t heuristic_random(puzzle * p, int iter){
 
   // This reorder is aimed to make the randomize search more likely to
   // succeed.
+  simplify_tdm(p);
+  check_t res = UNDET_USP;
+  
   reorder_witnesses(p, true, true);
   if (has_random_witness(p, iter)){
-    return NOT_USP;
-  }
+    res = NOT_USP;
+  } else {
     
-  reorder_witnesses(p, false, false);
-  if (has_random_witness(p, iter)){
-    return NOT_USP;
+    reorder_witnesses(p, false, false);
+    if (has_random_witness(p, iter)){
+      res = NOT_USP;
+    } else {
+
+      // This reorder is aimed to make the forward and backward search
+      // balanced.
+      reorder_witnesses(p, true, false);
+      if (has_random_witness(p, iter)){
+	res =  NOT_USP;
+      }
+    }
   }
 
-  // This reorder is aimed to make the forward and backward search
-  // balanced.
-  reorder_witnesses(p, true, false);
-  if (has_random_witness(p, iter)){
-    return NOT_USP;
-  }
-
-  return UNDET_USP;
+  invalidate_tdm(p);
+  
+  return res;
 }
 
 check_t heuristic_random(puzzle * p) {
@@ -492,12 +499,3 @@ check_t heuristic_random(puzzle * p) {
   
 }
 
-
-
-// Experimental application of simplify_tdm on usp_bi.
-check_t heuristic_simplify(puzzle * p){
-
-  simplify_tdm(p);
-  return check_usp_bi(p);
-
-}
