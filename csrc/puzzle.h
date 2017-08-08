@@ -155,9 +155,15 @@ bool is_witness(puzzle * p, int r1, int r2, int r3);  //aka check_usp_rows
 void compute_tdm(puzzle * p);
 void simplify_tdm(puzzle * p);
 int count_tdm(puzzle * p);
+
 inline bool get_tdm_entry(puzzle * p, int r1, int r2, int r3){
   return p -> tdm[r1 * (p -> s) * (p -> s) + r2 * (p -> s) + r3];
 }
+
+inline bool set_tdm_entry(puzzle * p, int r1, int r2, int r3, bool val){
+  return p -> tdm[r1 * (p -> s) * (p -> s) + r2 * (p -> s) + r3] = val;
+}
+
 inline void invalidate_tdm(puzzle * p){
   p -> tdm_valid = false;
 }

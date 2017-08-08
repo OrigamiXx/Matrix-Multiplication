@@ -493,3 +493,11 @@ check_t heuristic_random(puzzle * p) {
 }
 
 
+
+// Experimental application of simplify_tdm on usp_bi.
+check_t heuristic_simplify(puzzle * p){
+
+  simplify_tdm(p);
+  return check_usp_bi(p);
+
+}

@@ -321,13 +321,10 @@ void compute_tdm(puzzle * p){
   if (p -> tdm_valid) return;
   
   int s = p -> s;
-  for (int r1 = 0; r1 < s; r1++){
-    for (int r2 = 0; r2 < s; r2++){
-      for (int r3 = 0; r3 < s; r3++){
-	p -> tdm[r1 * s * s + r2 * s + r3] = !is_witness(p, r1, r2, r3);
-      }
-    }
-  }
+  for (int r1 = 0; r1 < s; r1++)
+    for (int r2 = 0; r2 < s; r2++)
+      for (int r3 = 0; r3 < s; r3++)
+	set_tdm_entry(p, r1, r2, r3, !is_witness(p, r1, r2, r3));
 
   validate_tdm(p);
 }
@@ -335,37 +332,33 @@ void compute_tdm(puzzle * p){
 
 void simplify_tdm(puzzle * p){
 
+  compute_tdm(p);
+
   int s = p -> s;
   int k = p -> k;
   
   for (int c = 0; c < k; c++){
     int counts[3] = {0,0,0};
-    for (int r = 0; r < s; r++){
+    for (int r = 0; r < s; r++)
       counts[get_entry(p, r, c) - 1]++;
-    }
 
     int missing = (counts[0] == 0) + (counts[1] == 0) + (counts[2] == 0);
-    if (missing == 1) {
 
-      for (int i = 0; i < s; i++){
-	for (int j = 0; j < s; j++){
-	  if (get_entry(p, i, c) != get_entry(p, j, c)) {
-	    for (int l = 0; l < s; l++){
+    if (missing == 1) 
+      for (int i = 0; i < s; i++)
+	for (int j = 0; j < s; j++)
+	  if (get_entry(p, i, c) != get_entry(p, j, c)) 
+	    for (int l = 0; l < s; l++)
 	      if (counts[0] == 0) {
-		p -> tdm[l * s * s + i * s + j] = true;
-		p -> tdm[l * s * s + j * s + i] = true;
+		set_tdm_entry(p, l, i, j, false);
+		set_tdm_entry(p, l, j, i, false);
 	      } else if (counts[1] == 0){
-		p -> tdm[i * s * s + l * s + j] = true;
-		p -> tdm[j * s * s + l * s + i] = true;
+		set_tdm_entry(p, i, l, j, false);
+		set_tdm_entry(p, j, l, i, false);
 	      } else {
-		p -> tdm[i * s * s + j * s + l] = true;
-		p -> tdm[j * s * s + i * s + l] = true;
+		set_tdm_entry(p, i, j, l, false);
+		set_tdm_entry(p, j, i, l, false);
 	      }
-	    }
-	  }
-	}
-      }
-    }
 
   }
 
@@ -373,8 +366,7 @@ void simplify_tdm(puzzle * p){
 
 int count_tdm(puzzle * p){
 
-  if (!p -> tdm_valid)
-    compute_tdm(p);
+  compute_tdm(p);
   
   int count = 0;
   int s = p -> s;

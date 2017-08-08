@@ -117,7 +117,7 @@ class Puzzle_Tester {
       
       if (!consistent){
 	success = false;
-	cerr << "Error: Test #"  << test_num << " Returns Inconsistent.\n";
+	cerr << "ERROR: Test #"  << test_num << " Returns Inconsistent.\n\n";
 	fprint_puzzle(stderr, p);
 	cerr << "\n";
 	
@@ -164,7 +164,7 @@ class Puzzle_Tester {
 	  }
 	  cerr << "\n";
 	}
-	
+	cerr << "\n";
       }
       
       display_progress();
@@ -297,6 +297,9 @@ int main() {
   Checker h_row_pairs(&heuristic_row_pairs, "row_pairs");
   Checker h_row_triples(&heuristic_row_triples, "row_triples");
   Checker h_2d_matching(&heuristic_2d_matching, "2d_matching");
+
+  // Experimental
+  Checker h_simplify(&heuristic_simplify, "experimental_simplify");
   
   
   vector<Checker> checkers;
@@ -314,6 +317,7 @@ int main() {
   checkers.push_back(h_row_pairs);
   checkers.push_back(h_row_triples);
   checkers.push_back(h_2d_matching);
+  checkers.push_back(h_simplify);
   
   
   Random_Tester R1("Small Random1", 2, 3, 10000);
