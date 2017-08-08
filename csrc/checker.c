@@ -320,7 +320,7 @@ int main() {
   checkers.push_back(h_simplify);
   
   
-  Random_Tester R1("Small Random1", 2, 3, 10000);
+  Random_Tester R1("Small Random1", 3, 3, 10000);
   Random_Tester R2("Small Random2", 5, 4, 10000);
   Random_Tester R3("Medium Random1", 7, 5, 1000);
   Random_Tester R4("Medium Random2", 12, 6, 1000);
