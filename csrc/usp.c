@@ -673,22 +673,16 @@ check_t check(puzzle * p){
  * puzzle U is a strong USP.
  */
 check_t check2(puzzle_row r1, puzzle_row r2, int k){
-
-  int s = 2;
-  puzzle p;
-  puzzle_row U[s];
-  bool tdm[s * s * s];
-  p.puzzle = U;
-  p.max_row = MAX_ROWS[k];
-  p.tdm = tdm;
-  p.s = s;
-  p.k = k;
   
-  U[0] = r1;
-  U[1] = r2;
+  puzzle * p = create_puzzle(2, k); // XXX - Rather not allocate here.
+  p -> puzzle[0] = r1;
+  p -> puzzle[1] = r2;
+  invalidate_tdm(p);
 
-  return check(&p);
-
+  check_t res = check(p);
+  destroy_puzzle(p);
+  return res;
+  
 }
 
 /*
@@ -697,21 +691,16 @@ check_t check2(puzzle_row r1, puzzle_row r2, int k){
  */
 check_t check3(puzzle_row r1, puzzle_row r2, puzzle_row r3, int k){
 
-  int s = 3;
-  puzzle p;
-  puzzle_row U[s];
-  bool tdm[s * s * s];
-  p.puzzle = U;
-  p.max_row = MAX_ROWS[k];
-  p.tdm = tdm;
-  p.s = s;
-  p.k = k;
-  
-  U[0] = r1;
-  U[1] = r2;
-  U[2] = r3;
-  return check(&p);
+  puzzle * p = create_puzzle(3, k);
+  p -> puzzle[0] = r1;
+  p -> puzzle[1] = r2;
+  p -> puzzle[2] = r3;
+  invalidate_tdm(p);
 
+  check_t res = check(p);
+  destroy_puzzle(p);
+  return res;
+  
 }
 
 /*
@@ -720,21 +709,16 @@ check_t check3(puzzle_row r1, puzzle_row r2, puzzle_row r3, int k){
  */
 check_t check4(puzzle_row r1, puzzle_row r2, puzzle_row r3, puzzle_row r4, int k){
 
-  int s = 4;
-  puzzle p;
-  puzzle_row U[s];
-  bool tdm[s * s * s];
-  p.puzzle = U;
-  p.max_row = MAX_ROWS[k];
-  p.tdm = tdm;
-  p.s = s;
-  p.k = k;
+  puzzle * p = create_puzzle(4, k);
+  p -> puzzle[0] = r1;
+  p -> puzzle[1] = r2;
+  p -> puzzle[2] = r3;
+  p -> puzzle[3] = r4;
+  invalidate_tdm(p);
 
-  U[0] = r1;
-  U[1] = r2;
-  U[2] = r3;
-  U[3] = r4;
-  return check(&p);
+  check_t res = check(p);
+  destroy_puzzle(p);
+  return res;
 
 }
 

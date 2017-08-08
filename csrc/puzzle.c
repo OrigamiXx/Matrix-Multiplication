@@ -89,7 +89,7 @@ puzzle * create_puzzle_from_file(const char * filename){
     assert(bytes_read > 0);
     if (buff[0] == '#') continue;
     p -> puzzle[r] = (puzzle_row) 0;
-    for (int c = 0; c < k; c++){
+    for (unsigned int c = 0; c < k; c++){
       set_entry(p, r, c, buff[c] - '0');
     }
     r++;
@@ -98,33 +98,43 @@ puzzle * create_puzzle_from_file(const char * filename){
 }
 
 //Return the next available puzzle from the open file f
-puzzle * create_next_puzzle_from_file(FILE * f){
+puzzle * create_next_puzzle_from_file(FILE * f, int * lines_read){
 
   if (f == NULL)
     return NULL;
 
   int max_buff = 1000;
+  *lines_read = 0;
   
   puzzle_row row_buff[max_buff];
   char line_buff[max_buff];
 
   //first check whether this file is able to turn into a puzzle
-  int start_k = fscanf(f, "%s\n", line_buff);
+  char * res = fgets(line_buff, max_buff, f);
+  int start_k = strlen(line_buff) - 1;
   int k = start_k;
   int s = 0;
+  if (res != NULL) (*lines_read)++;
+  
+  //printf("res = %s, start_k = %d\n",res, start_k);
   //Loop until encountered an empty line
-  while(k > 0){
+  while(res != NULL && line_buff[0] != '\n'){
     row_buff[s] = (puzzle_row) 0;
     for (int c = 0; c < k; c++){
       row_buff[s] = set_entry_in_row(row_buff[s], c, line_buff[c] - '0');
     }
     s++;
-    k = fscanf(f, "%s\n", line_buff);
-    assert(k == start_k);
+
+    res = fgets(line_buff, max_buff, f);
+    k = strlen(line_buff) - 1;
+    assert(res == NULL || k <= 0 || k == start_k);
+    if (res != NULL) (*lines_read)++;
+
   }
 
   if (s > 0) {
-    puzzle * p = create_puzzle(s, k);
+    puzzle * p = create_puzzle(s, start_k);
+    //printf("s = %d, k = %d\n", s, start_k);
     memcpy(p -> puzzle, row_buff, sizeof(puzzle_row) * s);
     return p;
   }
