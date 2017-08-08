@@ -38,10 +38,10 @@ bool ensure_env_loaded_quiet(void){
   if (env == NULL) {
     char buf[20];
     int saved_stdout = dup(1);
-    freopen("/dev/null", "w", stdout);
+    assert(freopen("/dev/null", "w", stdout));
     int res = GRBloadenv(&env, NULL);
     sprintf(buf, "/dev/fd/%d", saved_stdout);
-    freopen(buf, "w", stdout);
+    assert(freopen(buf, "w", stdout));
     if (res != 0) {
       env = NULL;
       return false;
@@ -74,7 +74,7 @@ void construct_reduction(puzzle * p, GRBmodel * model) {
   char vtype[num_vars];
 
   // Add s^3 binary variables {0, ... , s^3-1} to model.
-  for (int i = 0; i <= num_vars; num_vars++){
+  for (unsigned int i = 0; i < num_vars; i++){
     vtype[i] = GRB_BINARY;
   }
   GRBaddvars(model, num_vars, 0, NULL, NULL, NULL, NULL, NULL, NULL, vtype, NULL);
@@ -95,7 +95,7 @@ void construct_reduction(puzzle * p, GRBmodel * model) {
   for(int r1 = 0; r1 < s; r1++){
     int counter = 0;
     for(int r2 = 0; r2 < s; r2++){
-      for(int r3 = 0; r3 <s; r3++){
+      for(int r3 = 0; r3 < s; r3++){
 	val[counter] = 1;
 	ind[counter] = coord_to_var(s, r1, r2, r3);
 	counter++;
@@ -107,7 +107,7 @@ void construct_reduction(puzzle * p, GRBmodel * model) {
   // SUM_{r1,r3} x_{r1,r2,r3} = 1, for all r2.
   for(int r2 = 0; r2 < s; r2++){
     int counter = 0;
-    for(int r1 = 0; r2 < s; r1++){
+    for(int r1 = 0; r1 < s; r1++){
       for(int r3 = 0; r3 <s; r3++){
 	val[counter] = 1;
 	ind[counter] = coord_to_var(s, r1, r2, r3);
@@ -151,14 +151,14 @@ check_t check_MIP(puzzle *p, GRBmodel * model){
   GRBenv * menv = GRBgetenv(model);
 
   // Set parameters.
-  GRBsetintparam(menv, "Threads", 2);
+  GRBsetintparam(menv, "Threads", 1);
   GRBsetintparam(menv, GRB_INT_PAR_MIPFOCUS, 1);
   GRBsetintparam(menv, "OutputFlag", 0);  
 
   // Construct MIP instance.
   construct_reduction(p, model);
   //GRBwrite(model, "3DM_to_MIP.lp");
-  
+
   GRBoptimize(model);
   
   /* Capture solution information */
@@ -185,6 +185,7 @@ check_t check_MIP(puzzle *p){
 
   GRBmodel * model = NULL;
   GRBnewmodel(env, &model, "3DM_to_MIP", 0, NULL, NULL, NULL, NULL, NULL);
+
   
   check_t res = check_MIP(p, model);
 
@@ -204,7 +205,8 @@ int interrupt_callback(GRBmodel *model, void *cbdata, int where, void *usrdata){
     GRBterminate(model);
     *interrupt = false;
   }
-  
+
+  return 0;
 }
 
 // A synchronized pthread version of check_MIP that takes it's

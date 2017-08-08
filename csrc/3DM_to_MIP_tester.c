@@ -102,7 +102,7 @@ int main(int argc, char * argv[]){
       randomize_puzzle(p);
       srand48(time(NULL));
       for (index = 0; index < 100; index++){
-	printf("index = %d\n", index);
+	printf("index = %ld\n", index);
         //puzzle *p;
         //p = create_puzzle_from_index(j,i,index);
 
