@@ -89,8 +89,6 @@ puzzle * create_usp_greedy(int s, int k, int stride_init, int special, puzzle * 
   puzzle_row * puz = p -> puzzle;
   
   for ( ; r < s && max > 1; r++){
-
-
     
     bzero(counts, max_row * sizeof(int));
     max = 0;
@@ -108,8 +106,6 @@ puzzle * create_usp_greedy(int s, int k, int stride_init, int special, puzzle * 
       if (skip[puz[r]]) continue;
 
       if (puzzle_has_at_least_n_two_columns(p, special) && IS_USP == check(p)){
-
-
 	
 	counts[puz[r]]++;
 	if (counts[puz[r]] > max) {

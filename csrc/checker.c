@@ -625,6 +625,8 @@ check_t check_SAT_MIP(puzzle * p){
  */
 check_t check(puzzle * p){
 
+  invalidate_tdm(p);
+  
   int s = p -> s;
   int k = p -> k;
   check_t res = UNDET_USP;
