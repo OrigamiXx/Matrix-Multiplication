@@ -338,7 +338,8 @@ class Puzzle_Tester {
 	  }
 	  fprintf(log_err,"\n");
 	}
-	
+
+	fflush(log_err);
       }
       
       display_progress();
@@ -360,6 +361,7 @@ class Puzzle_Tester {
       for (vector<Checker>::iterator it = checkers -> begin() ; it != checkers -> end(); ++it)
 	(*it).display_stats(log);
       fprintf(log,"\n");
+      fflush(log);
     }
 
     if (verbose){
@@ -369,8 +371,7 @@ class Puzzle_Tester {
 	cout << endl;     
       }
     }
-      
-      
+          
     return success;
   }
 
