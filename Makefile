@@ -45,6 +45,7 @@ $(BINDIR)/%_para: $(SRCDIR)/%_para.c $(MRMPI_L)
 	$(MPICC) -I $(MRMPI_SRC_PATH) $(OBJECTS) $(SOLVER_OBJECTS) $(LDFLAGS) -L $(GUROBI_HOME)/lib $< $(MRMPI_L) -o $@
 
 $(BINDIR)/% : $(SRCDIR)/%.c $(OBJECTS)
+	mkdir -p logs/
 	$(CC) -I $(GUROBI_HOME)/include $(OBJECTS) $(SOLVER_OBJECTS) -L $(GUROBI_HOME)/lib $(LDFLAGS) $< -o $@
 
 tmp_dirs:

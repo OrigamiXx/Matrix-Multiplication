@@ -62,21 +62,107 @@ class Checker {
     times.push_back(pair<double,check_t>(t,res));
   }
 
-  void static display_stats_header(){
- 
-    cout << "                     #         Total Time   Min (sec)    Max (sec)    Mean (sec)   Variance (%)" << endl;
+  void display_stats_header(FILE * f){
 
+    if (f == NULL){
+      printf("                     #      Total Time     Mean (sec)     Variance(%%)  Min (sec)      Max (sec)\n");
+    } else {
+      
+      for (int i = 3; i >= 0; i--){
+	
+	string mode = "Total";
+	
+	if (i == IS_USP)
+	  mode = "IS_USP";
+	else if (i == NOT_USP)
+	  mode = "NOT_USP";
+	else if (i == UNDET_USP)
+	  mode = "UNDET_USP";
+	
+	fprintf(f,",%s-%s Count", name.c_str(), mode.c_str());
+	fprintf(f,",%s-%s Time (sec)", name.c_str(), mode.c_str());
+	fprintf(f,",%s-%s Mean (sec)", name.c_str(), mode.c_str());
+	fprintf(f,",%s-%s Var (%%mean)", name.c_str(), mode.c_str());
+	fprintf(f,",%s-%s Min (sec)", name.c_str(), mode.c_str());
+	fprintf(f,",%s-%s Max (sec)", name.c_str(), mode.c_str());
+      }
+    }
   }
-  
-  void display_stats(){
 
+  
+  void display_stats(FILE * f){
+
+    compute_stats();
+
+    if (f == NULL){
+      if (times.size() != 0) {
+	
+	cout << "  " << name << endl;
+	for (int i = 0; i < 4; i++){
+	  
+	  if (size[i] == 0) continue;
+	  
+	  if (i == 0)
+	    cout << "    NOT_USP   ";
+	  else if (i == 1)
+	    cout << "    IS_USP    ";
+	  else if (i == 2)
+	    cout << "    UNDET_USP ";
+	  else
+	    cout << "  Totals:     ";
+	  
+	  printf("%8d %18.8f %14.8f %12.2f %14.8f %14.8f\n",
+		 size[i], total[i],  mean[i], (var[i] / mean[i]) * 100.0, min[i], max[i]);
+	  
+	}
+      } else {
+	cout << "  " << name << " -- No puzzles checkable." << endl;
+      }
+    } else {
+      for (int i = 3; i >= 0; i--){
+	if (size[i] != 0){
+	  fprintf(f,",%d", size[i]);
+	  fprintf(f,",%f", total[i]);
+	  fprintf(f,",%f", mean[i]);
+	  fprintf(f,",%f", (var[i] / mean[i]) * 100.0);
+	  fprintf(f,",%f", min[i]);
+	  fprintf(f,",%f", max[i]);
+	} else {
+	  fprintf(f,",");
+	  fprintf(f,",");
+	  fprintf(f,",");
+	  fprintf(f,",");
+	  fprintf(f,",");
+	  fprintf(f,",");
+	}
+      }
+    }
+  }
+
+
+ private:
+  int max_s;
+  int max_k;
+  int size[4];
+  double total[4];
+  double min[4];
+  double max[4];
+  double mean[4];
+  double var[4];
+  vector<pair<double,check_t> > times;
+  
+  void compute_stats(){
+
+    for (int i = 0; i < 4; i++){
+      size[i] = 0;
+      total[i] = 0.0;
+      min[i] = 0.0;
+      max[i] = 0.0;
+      mean[i] = 0.0;
+      var[i] = 0.0;
+    }
+    
     if (times.size() != 0) {
-      int size[4] = {0};
-      double total[4] = {0.0};
-      double min[4] = {0.0};
-      double max[4] = {0.0};
-      double mean[4] = {0.0};
-      double var[4] = {0.0};
       
       for (vector<pair<double, check_t> >::iterator it = times.begin() ; it != times.end(); ++it){
 	double t = (*it).first;
@@ -92,7 +178,6 @@ class Checker {
 	min[i] = mean[i];
 	max[i] = mean[i];
       }
-      
       
       for (vector<pair<double, check_t> >::iterator it = times.begin() ; it != times.end(); ++it){
 	double t = (*it).first;
@@ -113,37 +198,13 @@ class Checker {
 	var[i] /= size[i];
 	var[i] = sqrt(var[i]);
       }
-      
-      cout << "  " << name << endl;
-      for (int i = 0; i < 4; i++){
-	
-	if (size[i] == 0) continue;
-	
-	if (i == 0)
-	  cout << "    NOT_USP   ";
-	else if (i == 1)
-	  cout << "    IS_USP    ";
-	else if (i == 2)
-	  cout << "    UNDET_USP ";
-	else
-	  cout << "  Totals:     ";
-	
-	printf("%8d %18.8f %12.8f %12.8f %12.8f %10.2f\n",
-	       size[i], total[i], min[i], max[i], mean[i], (var[i] / mean[i]) * 100.0);
-	
-      }
-    } else {
-      cout << "  " << name << " -- No puzzles checkable." << endl;
     }
-     
+      
   }
   
 
-  
- private:
-  int max_s;
-  int max_k;
-  vector<pair<double,check_t> > times;
+
+
 
 };
 
@@ -151,13 +212,14 @@ class Puzzle_Tester {
 
  protected:
   double progress;
+  int last_percent;
   string name;
   
  public:
   virtual puzzle * next_puzzle(void) {};
   virtual bool is_empty(void) {};
 
-  bool run_test(vector<Checker> * checkers){
+  bool run_test(vector<Checker> * checkers, FILE * log, FILE * log_err){
 
     bool success = true;
     int test_num = 0;
@@ -177,6 +239,7 @@ class Puzzle_Tester {
 	  //cerr << (*it).name << endl;
 	  checkable[i] = true;
 	  double dt = 0.0;
+	  invalidate_tdm(p);
 	  results[i] = time_check((*it).checker, p, &dt);
 	  (*it).add_time(dt, results[i]);
 	} else {
@@ -207,54 +270,31 @@ class Puzzle_Tester {
       
       if (!consistent){
 	success = false;
-	cerr << "ERROR: Test #"  << test_num << " Returns Inconsistent.\n\n";
-	fprint_puzzle(stderr, p);
-	cerr << "\n";
-	
-	if (found_IS_USP){
-	  cerr << "IS_USP:    ";
-	  i = 0;
+
+	fprintf(log_err, "\nERROR: %s, Test #%d returns inconsistent values.\n\n", name.c_str(), test_num);
+	fprint_puzzle(log_err, p);
+	fprintf(log_err, "\n");
+
+	for (int i = 0; i < 4; i++){
+
+	  if (i == IS_USP)
+	    fprintf(log_err, "IS_USP:    ");
+	  else if (i == NOT_USP)
+	    fprintf(log_err, "NOT_USP:   ");
+	  else if (i == UNDET_USP)
+	    fprintf(log_err, "UNDET_USP: ");
+	  else
+	    fprintf(log_err, "Skipped:   ");	
+
+	  int j = 0;
 	  for (vector<Checker>::iterator it = checkers -> begin() ; it != checkers -> end(); ++it){
-	    if (checkable[i] && results[i] == IS_USP)
-	      cerr << (*it).name << " ";
-	    i++;
+	    if ((checkable[j] && results[j] == i) || (!checkable[j] && i == 3))
+	      fprintf(log_err,"%s ",(*it).name.c_str());
+	    j++;
 	  }
-	  cerr << "\n";
+	  fprintf(log_err,"\n");
 	}
 	
-	if (found_NOT_USP){
-	  cerr << "NOT_USP:   ";
-	  i = 0;
-	  for (vector<Checker>::iterator it = checkers -> begin() ; it != checkers -> end(); ++it){
-	    if (checkable[i] && results[i] == NOT_USP)
-	      cerr << (*it).name << " ";
-	    i++;
-	  }
-	  cerr << "\n";
-	}
-	
-	if (found_UNDET_USP){
-	  cerr << "UNDET_USP: ";
-	  i = 0;
-	  for (vector<Checker>::iterator it = checkers -> begin() ; it != checkers -> end(); ++it){
-	    if (checkable[i] && results[i] == UNDET_USP)
-	      cerr << (*it).name << " ";
-	    i++;
-	  }
-	  cerr << "\n";
-	}
-	
-	if (found_uncheckable){
-	  cerr << "Skipped:   ";
-	  i = 0;
-	  for (vector<Checker>::iterator it = checkers -> begin() ; it != checkers -> end(); ++it){
-	    if (!checkable[i])
-	      cerr << (*it).name << " ";
-	    i++;
-	  }
-	  cerr << "\n";
-	}
-	cerr << "\n";
       }
       
       display_progress();
@@ -262,16 +302,23 @@ class Puzzle_Tester {
       destroy_puzzle(p);
     }
 
-    cout << "\r" << "Test: " << name << " -> ";
+    cerr << "\r" << "Test: " << name << " -> ";
     
     if (success)
-      cout << "SUCCESS" << setw(80) << "" << endl;
+      cerr << "SUCCESS" << setw(80) << "" << endl;
     else
-      cout << "FAILURE" << setw(80) << "" << endl;
+      cerr << "FAILURE" << setw(80) << "" << endl;
 
-    Checker::display_stats_header();
+    if (log != NULL){
+      fprintf(log,"%s", name.c_str());
+      for (vector<Checker>::iterator it = checkers -> begin() ; it != checkers -> end(); ++it)
+	(*it).display_stats(log);
+      fprintf(log,"\n");
+    }
+
+    (*(checkers -> begin())).display_stats_header(NULL);
     for (vector<Checker>::iterator it = checkers -> begin() ; it != checkers -> end(); ++it){
-      (*it).display_stats();
+      (*it).display_stats(NULL);
       cout << endl;
       (*it).reset();
     }
@@ -280,22 +327,33 @@ class Puzzle_Tester {
   }
 
 
+  void reset_progress(){
+
+    progress = 0;
+    last_percent = 0;
+    
+  }
   
   void display_progress(){
 
     int percent = (int)(progress * 100.0);
+
+    if (percent > last_percent) {
     
-    if (!is_empty()){
-      cout << "\rTest: " << name <<" [";
-      for (int i = 0; i < 50; i++){
-	if (2*i <= percent)
-	  cout << ">";
-	else 
-	  cout << "-";
+      if (!is_empty()){
+	cerr << "\rTest: " << name <<" [";
+	for (int i = 0; i < 50; i++){
+	  if (2*i <= percent)
+	    cerr << ">";
+	  else 
+	    cerr << "-";
+	}
+	cerr << "] " << percent << "%";
+	
+	fflush(stdout);
       }
-      cout << "] " << percent << "%";
-      
-      fflush(stdout);
+
+      last_percent = percent;
     }
     
   }  
@@ -317,7 +375,7 @@ class Random_Tester : public Puzzle_Tester {
     this -> count = count;
     this -> name = name;
     completed = 0;
-    progress = 0.0;
+    reset_progress();
   }
   
   puzzle * next_puzzle(void) {
@@ -353,7 +411,7 @@ class File_Tester : public Puzzle_Tester {
     fclose(f);
 
     f = fopen(fname, "r");
-    progress = 0.0;
+    reset_progress();
     lines_completed = 0;
     this -> name = name;
   }
@@ -416,36 +474,69 @@ int main() {
   checkers.push_back(h_2d_matching);
   
   
-  Random_Tester R1("Small Random1", 3, 3, 1000);
-  Random_Tester R2("Small Random2", 5, 4, 10000);
-  Random_Tester R3("Medium Random1", 7, 5, 100000);
-  Random_Tester R4("Medium Random2", 12, 6, 10000);
-  Random_Tester R5("Large Random1", 18, 8, 1000);
-  Random_Tester R6("Large Random2", 30, 11, 100);
-  Random_Tester R7("Huge Random1", 40, 13, 100);
-  Random_Tester R8("Huge Random2", 70, 15, 100);
-  Random_Tester R9("Yuge Random1", 80, 19, 10);
+  Random_Tester R1("Small Random1", 3, 3, 10);
+  Random_Tester R2("Small Random2", 5, 4, 10);
+  Random_Tester R3("Medium Random1", 7, 5, 100);
+  Random_Tester R4("Medium Random2", 12, 6, 10);
+  Random_Tester R5("Large Random1", 18, 8, 10);
+  Random_Tester R6("Large Random2", 30, 11, 10);
+  Random_Tester R7("Huge Random1", 40, 13, 1);
+  Random_Tester R8("Huge Random2", 70, 15, 1);
+  Random_Tester R9("Yuge Random1", 80, 19, 1);
   
   File_Tester F1("File 8-5s", "test_data/8-5s.puz");
   File_Tester F2("File 13-6s", "test_data/13-6s.puz");
   File_Tester F3("File 13-6-usps", "test_data/13-6-usps.puz");
   
-  cout << "--------------------------- Starting tests ----------------------------\n";
-  
-  R1.run_test(&checkers);
-  R2.run_test(&checkers);
-  R3.run_test(&checkers);
-  R4.run_test(&checkers);
-  R5.run_test(&checkers);
-  R6.run_test(&checkers);
-  R7.run_test(&checkers);
-  R8.run_test(&checkers);
-  R9.run_test(&checkers);
-  F1.run_test(&checkers);
-  F2.run_test(&checkers);
-  F3.run_test(&checkers);
 
-  cout << "--------------------------- Tests complete ----------------------------\n";
+
+  char log_name[300];
+  char log_err_name[300];
+  
+  sprintf(log_name, "logs/log%lu.csv", time(NULL));
+  sprintf(log_err_name, "logs/log%lu-error.txt", time(NULL));
+  
+  FILE * log = fopen(log_name, "w");
+  FILE * log_err = fopen(log_err_name, "w");
+  
+
+  if (log != NULL){
+    fprintf(log,"Test Name");
+    for (vector<Checker>::iterator it = checkers.begin() ; it != checkers.end(); ++it)
+      (*it).display_stats_header(log);
+    fprintf(log,"\n");
+  } 
+
+  cerr << "--------------------------- Starting tests ----------------------------\n";
+  
+  bool success = true;
+  
+  success = R1.run_test(&checkers, log, log_err) && success;
+  success = R2.run_test(&checkers, log, log_err) && success;
+  success = R3.run_test(&checkers, log, log_err) && success;
+  success = R4.run_test(&checkers, log, log_err) && success;
+  success = R5.run_test(&checkers, log, log_err) && success;
+  success = R6.run_test(&checkers, log, log_err) && success;
+  //  success = R7.run_test(&checkers, log, log_err) && success;
+  //  success = R8.run_test(&checkers, log, log_err) && success;
+  //  success = R9.run_test(&checkers, log, log_err) && success;
+  success = F1.run_test(&checkers, log, log_err) && success;
+  success = F2.run_test(&checkers, log, log_err) && success;
+  //  success = F3.run_test(&checkers, log, log_err) && success;
+
+  cerr << "--------------------------- Tests complete ----------------------------\n";
+  
+  fclose(log);
+  fclose(log_err);
+  
+  if (success) {
+    fprintf(stderr, "All tests successful!  Performance output in %s.\n", log_name);
+    remove(log_err_name);
+  } else {
+    fprintf(stderr, "ERROR: Some tests failed.  Check %s for more details.\n", log_err_name);
+  }
+  
+
    
   return 0;
 }
