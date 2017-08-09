@@ -627,33 +627,42 @@ check_t check(puzzle * p){
 
   int s = p -> s;
   int k = p -> k;
+  check_t res = UNDET_USP;
   
   if (is_cached(s,k))
     return (cache_lookup(p) ? IS_USP : NOT_USP);
-  else if (s < 3)
+
+  if (s < 3)
     return check_usp_uni(p);
-  else if (s < 8) {
+
+  if (s < 8) 
+    return check_usp_bi(p);
+  
+  res = heuristic_row_pairs(p);
+  if (res != UNDET_USP)
+    return res;
+  
+  res = heuristic_random(p);
+  if (res != UNDET_USP)
+      return res;
+
+  if (s < 10){
+    simplify_tdm(p);
     return check_usp_bi(p);
   } else {
-
-    check_t res = heuristic_random(p);
+    
+    res = heuristic_row_triples(p);
     if (res != UNDET_USP)
       return res;
-
-    if (s < 10){
-      simplify_tdm(p);
-      return check_usp_bi(p);
-    } else {
-
-      res = heuristic_greedy(p);
-      if (res != UNDET_USP)
+    
+    res = heuristic_greedy(p);
+    if (res != UNDET_USP)
 	return res;
-
-      simplify_tdm(p);
-      res = check_SAT_MIP(p);
-      assert(res != UNDET_USP);
-      return res;
-    }
+    
+    simplify_tdm(p);
+    res = check_SAT_MIP(p);
+    assert(res != UNDET_USP);
+    return res;
   }
 }
 

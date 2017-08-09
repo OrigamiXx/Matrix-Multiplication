@@ -63,10 +63,12 @@ check_t heuristic_row_triples(puzzle * p){
 /*
  * Polytime heuristic that checks whether 2DM exists for each of the
  * projected faces of the 3DM instance.  Returns UNDET_USP or IS_USP.
- * XXX - Almost never returns IS_USP.
+ * XXX - Almost never returns IS_USP, maybe be broken.
  */
 check_t heuristic_2d_matching(puzzle * p){
 
+  simplify_tdm(p);
+  
   int s = p -> s;
   bool M[s * s];
 
@@ -128,7 +130,7 @@ void reorder_witnesses(puzzle * p, bool increasing, bool sorted){
     layer_counts[i] = 0;
     for (int j = 0; j < s; j++){
       for (int r = 0; r < s; r++){
-	if (tdm[i * s * s + j * s + r])
+	if (get_tdm_entry(p, i, j, r))
 	  layer_counts[i]++;
       }
     }
@@ -177,7 +179,7 @@ void reorder_witnesses(puzzle * p, bool increasing, bool sorted){
     for (int j = 0; j < s; j++){
       for (int r = 0; r < s; r++){
 	int ix = perm[i] * s * s + perm[j] * s + perm[r];
-	tdm2[ix] = tdm[i * s * s + j * s + r];
+	tdm2[ix] = get_tdm_entry(p, i, j, r);
       }
     }
   }
@@ -206,7 +208,7 @@ void reorder_witnesses(puzzle * p, bool increasing, bool sorted){
  * Returns NOT_USP iff it finds a witness that puzzle is not a strong USP.
  * UNDET_USP indicates the search was inconclusive.  Requires s <= 31.
  */
-check_t has_random_witness(puzzle * p, int repeats){
+check_t heuristic_random_witness(puzzle * p, int repeats){
 
   int s = p -> s;
   bool * tdm = p -> tdm;
@@ -259,11 +261,11 @@ check_t has_random_witness(puzzle * p, int repeats){
     // to prevent a lot of time being waste on small puzzle sizes.  It
     // makes longer puzzles slower.  XXX - Improve parameters.
     if ((log(n + 1) / log(2))  > best)
-      return NOT_USP;
+      return UNDET_USP;
     failed = false;
   }
 
-  return NOT_USP;
+  return UNDET_USP;
 }
 
 
@@ -437,6 +439,9 @@ check_t heuristic_greedy(puzzle * p, int repeats){
 
 check_t heuristic_greedy(puzzle * p){
 
+  if (p -> s > 31)
+    return UNDET_USP;
+  
   return heuristic_greedy(p, default_heuristic_iteration(p -> s));
   
 }
@@ -470,20 +475,20 @@ check_t heuristic_random(puzzle * p, int iter){
   check_t res = UNDET_USP;
   
   reorder_witnesses(p, true, true);
-  if (has_random_witness(p, iter)){
+  if (heuristic_random_witness(p, iter) == NOT_USP){
     res = NOT_USP;
   } else {
     
     reorder_witnesses(p, false, false);
-    if (has_random_witness(p, iter)){
+    if (heuristic_random_witness(p, iter) == NOT_USP){
       res = NOT_USP;
     } else {
 
       // This reorder is aimed to make the forward and backward search
       // balanced.
       reorder_witnesses(p, true, false);
-      if (has_random_witness(p, iter)){
-	res =  NOT_USP;
+      if (heuristic_random_witness(p, iter) == NOT_USP){
+	res = NOT_USP;
       }
     }
   }
@@ -494,6 +499,9 @@ check_t heuristic_random(puzzle * p, int iter){
 }
 
 check_t heuristic_random(puzzle * p) {
+
+  if (p -> s > 31)
+    return UNDET_USP;
 
   return heuristic_random(p, default_heuristic_iteration(p -> s));
   

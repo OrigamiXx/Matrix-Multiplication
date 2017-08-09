@@ -10,6 +10,7 @@
 #include <sys/time.h>
 #include <vector>
 #include <iomanip>
+#include <math.h>
 
 #include "puzzle.h"
 #include "usp.h"
@@ -41,6 +42,10 @@ class Checker {
     this -> max_k = max_k;
   }
 
+  void reset(){
+    times.clear();
+  }
+  
   bool checkable(puzzle * p){
 
     bool res = true;
@@ -52,10 +57,93 @@ class Checker {
     return res;
     
   }
+
+  void add_time(double t, check_t res){
+    times.push_back(pair<double,check_t>(t,res));
+  }
+
+  void static display_stats_header(){
+ 
+    cout << "                     #         Total Time   Min (sec)    Max (sec)    Mean (sec)   Variance (%)" << endl;
+
+  }
+  
+  void display_stats(){
+
+    if (times.size() != 0) {
+      int size[4] = {0};
+      double total[4] = {0.0};
+      double min[4] = {0.0};
+      double max[4] = {0.0};
+      double mean[4] = {0.0};
+      double var[4] = {0.0};
+      
+      for (vector<pair<double, check_t> >::iterator it = times.begin() ; it != times.end(); ++it){
+	double t = (*it).first;
+	check_t res = (*it).second;
+	total[3] += t;
+	size[3]++;
+	total[res] += t;
+	size[res]++;
+      }
+      
+      for (int i = 0; i < 4; i++){
+	mean[i] = total[i] / size[i];
+	min[i] = mean[i];
+	max[i] = mean[i];
+      }
+      
+      
+      for (vector<pair<double, check_t> >::iterator it = times.begin() ; it != times.end(); ++it){
+	double t = (*it).first;
+	check_t res = (*it).second;
+	var[3] += (t - mean[3]) * (t - mean[3]);
+	var[res] += (t - mean[res]) * (t - mean[res]);
+	if (t < min[res])
+	  min[res] = t;
+	if (t < min[3])
+	  min[3] = t;
+	if (t > max[res])
+	  max[res] = t;
+	if (t > max[3])
+	  max[3] = t;
+      }
+      
+      for (int i = 0; i < 4; i++){
+	var[i] /= size[i];
+	var[i] = sqrt(var[i]);
+      }
+      
+      cout << "  " << name << endl;
+      for (int i = 0; i < 4; i++){
+	
+	if (size[i] == 0) continue;
+	
+	if (i == 0)
+	  cout << "    NOT_USP   ";
+	else if (i == 1)
+	  cout << "    IS_USP    ";
+	else if (i == 2)
+	  cout << "    UNDET_USP ";
+	else
+	  cout << "  Totals:     ";
+	
+	printf("%8d %18.8f %12.8f %12.8f %12.8f %10.2f\n",
+	       size[i], total[i], min[i], max[i], mean[i], (var[i] / mean[i]) * 100.0);
+	
+      }
+    } else {
+      cout << "  " << name << " -- No puzzles checkable." << endl;
+    }
+     
+  }
+  
+
   
  private:
   int max_s;
   int max_k;
+  vector<pair<double,check_t> > times;
 
 };
 
@@ -88,7 +176,9 @@ class Puzzle_Tester {
 	if ((*it).checkable(p)) {
 	  //cerr << (*it).name << endl;
 	  checkable[i] = true;
-	  results[i] = ((*it).checker)(p);
+	  double dt = 0.0;
+	  results[i] = time_check((*it).checker, p, &dt);
+	  (*it).add_time(dt, results[i]);
 	} else {
 	  checkable[i] = false;
 	}
@@ -178,6 +268,13 @@ class Puzzle_Tester {
       cout << "SUCCESS" << setw(80) << "" << endl;
     else
       cout << "FAILURE" << setw(80) << "" << endl;
+
+    Checker::display_stats_header();
+    for (vector<Checker>::iterator it = checkers -> begin() ; it != checkers -> end(); ++it){
+      (*it).display_stats();
+      cout << endl;
+      (*it).reset();
+    }
     
     return success;
   }
@@ -288,12 +385,12 @@ int main() {
   
   Checker c_uni(&check_usp_uni, "UNI", 6, 0);
   Checker c_bi(&check_usp_bi, "BI", 11, 0);
-  Checker c_SAT(&check_SAT, "SAT");
+  Checker c_SAT(&check_SAT, "SAT", 35, 0);
   Checker c_MIP(&check_MIP, "MIP");
   Checker c_SAT_MIP(&check_SAT_MIP, "SAT_MIP");
 
-  Checker h_greedy(&heuristic_greedy, "greedy");
-  Checker h_random(&heuristic_random, "random");
+  Checker h_greedy(&heuristic_greedy, "greedy", 31, 0);
+  Checker h_random(&heuristic_random, "random", 31, 0);
   Checker h_row_pairs(&heuristic_row_pairs, "row_pairs");
   Checker h_row_triples(&heuristic_row_triples, "row_triples");
   Checker h_2d_matching(&heuristic_2d_matching, "2d_matching");
@@ -319,27 +416,34 @@ int main() {
   checkers.push_back(h_2d_matching);
   
   
-  Random_Tester R1("Small Random1", 3, 3, 10000);
-  Random_Tester R2("Small Random2", 5, 4, 10000);
-  Random_Tester R3("Medium Random1", 7, 5, 1000);
-  Random_Tester R4("Medium Random2", 12, 6, 1000);
-  Random_Tester R5("Large Random1", 18, 8, 100);
-  Random_Tester R6("Large Random2", 30, 11, 10);
+  Random_Tester R1("Small Random1", 3, 3, 1000);
+  Random_Tester R2("Small Random2", 5, 4, 100000);
+  Random_Tester R3("Medium Random1", 7, 5, 100000);
+  Random_Tester R4("Medium Random2", 12, 6, 10000);
+  Random_Tester R5("Large Random1", 18, 8, 1000);
+  Random_Tester R6("Large Random2", 30, 11, 100);
+  Random_Tester R7("Huge Random1", 40, 13, 100);
+  Random_Tester R8("Huge Random2", 70, 15, 100);
+  Random_Tester R9("Yuge Random1", 80, 19, 10);
+  
   File_Tester F1("File 8-5s", "test_data/8-5s.puz");
   File_Tester F2("File 13-6s", "test_data/13-6s.puz");
   File_Tester F3("File 13-6-usps", "test_data/13-6-usps.puz");
   
   cout << "--------------------------- Starting tests ----------------------------\n";
-
+  
   R1.run_test(&checkers);
   R2.run_test(&checkers);
   R3.run_test(&checkers);
   R4.run_test(&checkers);
   R5.run_test(&checkers);
-  //R6.run_test(&checkers);
+  R6.run_test(&checkers);
+  R7.run_test(&checkers);
+  R8.run_test(&checkers);
+  R9.run_test(&checkers);
   F1.run_test(&checkers);
   F2.run_test(&checkers);
-  //F3.run_test(&checkers);
+  F3.run_test(&checkers);
 
   cout << "--------------------------- Tests complete ----------------------------\n";
    
