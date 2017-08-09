@@ -1,6 +1,9 @@
 /*
  * Module implementing several non-trivial heursitics for checking
  * whether a given puzzle is a strong USP.
+ * 
+ * Heuristics MUST match the checker_t type and semantics, and should
+ * be named with a prefix "heuristic_".
  *
  * Author: Matt.
  */
@@ -21,7 +24,7 @@
 #include <semaphore.h>
 #include "pthread.h"
 #include "puzzle.h"
-#include "usp.h"
+#include "checker.h"
 using namespace std;
 
 /*

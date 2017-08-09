@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include "usp.h"
+#include "checker.h"
 #include "constants.h"
 #include "puzzle.h"
 

@@ -2,12 +2,13 @@
  * Module implementing several non-trivial methods for checking
  * whether a given puzzle is a strong USP.
  *
- * 1. Undirectional search for a witness that puzzle is not a strong USP.
- * 2. Bidirectional search for a witness that puzzle is not a strong USP.
- * 3. Hybrid search using 1 & 2 with the option to precompute and
- *    cache small puzzles.
+ * 1. check_usp_uni() - Undirectional search for a witness that puzzle is not a strong USP.
+ * 2. check_usp_bi() - Bidirectional search for a witness that puzzle is not a strong USP.
+ * 3. check_SAT_MIP() - Thread parallel search using SAT and MIP solvers.
+ * 4. check() - A combinations of the above checks and various heuristics.
+ * 5. A mechanism for caching (that isn't turned on and may be broken).
  *
- * Uses it's own representation of sets and permutations.
+ * Uses it's own representation of sets.
  *
  * Author: Matt & Jerry.
  */
@@ -30,11 +31,10 @@
 #include <time.h>
 #include <pthread.h>
 
-#include "matching.h"
+#include "checker.h"
+#include "puzzle.h"
 #include "3DM_to_SAT.h"
 #include "3DM_to_MIP.h"
-#include "usp.h"
-#include "puzzle.h"
 #include "heuristic.h"
 
 using namespace std;

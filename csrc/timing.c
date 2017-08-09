@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "puzzle.h"
-#include "usp.h"
+#include "checker.h"
 #include "timing.h"
 
 

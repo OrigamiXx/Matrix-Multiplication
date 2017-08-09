@@ -16,7 +16,7 @@
 #include <iostream>
 
 #include "permutation.h"
-#include "usp.h"
+#include "checker.h"
 #include "puzzle.h"
 #include "3DM_to_SAT.h"
 #include "3DM_to_MIP.h"

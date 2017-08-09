@@ -7,7 +7,7 @@
 #include <time.h>
 #include "matrix.h"
 #include "permutation.h"
-#include "usp.h"
+#include "checker.h"
 #include "groups.h"
 #include "constants.h"
 #include "puzzle.h"

@@ -14,7 +14,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "usp.h"
+#include "checker.h"
 #include "puzzle.h"
 
 // Checks whether p is a strong USP, using a MIP reduction.  Returns

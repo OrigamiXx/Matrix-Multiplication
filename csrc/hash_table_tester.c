@@ -6,7 +6,7 @@
 #include "permutation.h"
 #include "groups.h"
 #include "matrix.h"
-#include "usp.h"
+#include "checker.h"
 #include "hash_table.h"
 #include <time.h>
 

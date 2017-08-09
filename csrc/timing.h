@@ -12,9 +12,8 @@
 #include <stdlib.h>
 
 #include "puzzle.h"
-#include "usp.h"
+#include "checker.h"
 
-typedef check_t (* checker_t)(puzzle *);
 
 // Runs checker on p and returns result, return time taken in second through time_ptr.
 check_t time_check(checker_t checker, puzzle * p, double * time_ptr);

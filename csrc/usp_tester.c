@@ -11,7 +11,7 @@
 #include "puzzle.h"
 #include "constants.h"
 #include "timing.h"
-#include "usp.h"
+#include "checker.h"
 #include "3DM_to_SAT.h"
 #include "3DM_to_MIP.h"
 #include "permutation.h"

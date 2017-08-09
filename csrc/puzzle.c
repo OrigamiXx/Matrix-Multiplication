@@ -9,7 +9,7 @@
 #include "matrix.h"
 #include "puzzle.h"
 #include <algorithm>
-#include "usp.h"
+#include "checker.h"
 
 puzzle * create_puzzle(int s, int k){
 

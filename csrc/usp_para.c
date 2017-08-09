@@ -12,7 +12,7 @@
 // Syntax: mpirun -np 4 ./usp_cluster column(column number)
 #include "permutation.h"
 #include "constants.h"
-#include "usp.h"
+#include "checker.h"
 #include "mpi.h"
 #include "math.h"
 

@@ -12,7 +12,7 @@
 */
 #include <stdlib.h>
 #include "puzzle.h"
-#include "usp.h"
+#include "checker.h"
 
 // Checks whether p is a strong USP, using a SAT solver.  Returns
 // IS_USP if p is a strong USP, NOT_USP if p is not a strong USP and

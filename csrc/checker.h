@@ -2,12 +2,15 @@
  * Module implementing several non-trivial methods for checking
  * whether a given puzzle is a strong USP.
  *
- * 1. Undirectional search for a witness that puzzle is not a strong USP.
- * 2. Bidirectional search for a witness that puzzle is not a strong USP.
- * 3. Hybrid search using 1 & 2 with the option to precompute and
- *    cache small puzzles.
+ * 1. check_usp_uni() - Undirectional search for a witness that puzzle is not a strong USP.
+ * 2. check_usp_bi() - Bidirectional search for a witness that puzzle is not a strong USP.
+ * 3. check_SAT_MIP() - Thread parallel search using SAT and MIP solvers.
+ * 4. check() - A combinations of the above checks and various heuristics.
+ * 5. A mechanism for caching (that isn't turned on and may be broken).
  *
- * Uses it's own representation of sets and puzzles.
+ * Checker should be named prefixed with "checker_". 
+ *
+ * Uses it's own representation of sets.
  *
  * Author: Matt & Jerry.
  */
@@ -28,9 +31,29 @@
 #include <semaphore.h>
 #include "pthread.h"
 #include "puzzle.h"
+
 using namespace std;
 
+/*
+ * Datatypes for expressing the return values of puzzle checkers and
+ * heuristics.
+ *
+ * + IS_USP indicates that the puzzle is a strong USP.  
+ * + NOT_USP indicates that the puzzle is not a strong USP.
+ *
+ * + UNDET_USP indicates that it was not determined whether or not the
+ *     puzzle is a strong USP.  
+ *
+ *     Checkers should not return this value unless there is an
+ *     intentional interruption of the function or an unrecoverable
+ *     error.
+ *
+ *     Heuristics return this value in the event they are unable to
+ *     decide whether the given puzzle is a strong USP.
+ */
 typedef enum check_val {NOT_USP, IS_USP, UNDET_USP} check_t;
+typedef check_t (* checker_t)(puzzle *);
+
 
 typedef struct thread {
 

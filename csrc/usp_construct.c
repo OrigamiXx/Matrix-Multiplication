@@ -9,7 +9,7 @@
 #include <iostream>
 
 #include "permutation.h"
-#include "usp.h"
+#include "checker.h"
 #include "heuristic.h"
 
 using namespace std;

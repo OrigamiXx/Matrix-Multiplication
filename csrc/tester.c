@@ -1,5 +1,24 @@
 /*
- * A simple consistency testing and benchmarking module. 
+ * A consistency testing and benchmarking module.  Outputs
+ * inconsistencies and performance statistics to files in logs.  Can
+ * be run against a specified set of the checkers and heuristics.
+ *
+ * Usage: tester <O|C|H|A> [<start_s> <end_s> <start_k> <end_k> <iter>]\n");
+ *
+ *  O = Only the main checking function: check().
+ *  C = All checking functions.
+ *  H = All heuristic functions.
+ *  A = All checking and heuristic functions.
+ *
+ * Has two modes:
+ *
+ *   1. argc=2.  Runs a battery of increasingly complex random-puzzle
+ *   and file-based tests against the specified set of checkers and
+ *   heuristics.
+ *
+ *   2. argc=7.  Runs a test which sweeps around the specified s and k
+ *   parameter ranges generating a random number of puzzles to test in
+ *   that range against the specified set of checkers an heuristics.
  *
  * Author: Matt.
  */
@@ -13,7 +32,7 @@
 #include <math.h>
 
 #include "puzzle.h"
-#include "usp.h"
+#include "checker.h"
 #include "heuristic.h"
 #include "timing.h"
 
@@ -493,11 +512,11 @@ int main(int argc, char * argv[]) {
   }
 
   if (all || mode == 'C' || mode == 'c'){
-    Checker c_uni(&check_usp_uni, "UNI", 6, 0);
+    Checker c_uni(&check_usp_uni, "UNI", 6, 0);  // Too slow after s = 6.
     checkers.push_back(c_uni);
-    Checker c_bi(&check_usp_bi, "BI", 11, 0);
+    Checker c_bi(&check_usp_bi, "BI", 11, 0);  // Too slow after s = 11.
     checkers.push_back(c_bi);
-    Checker c_SAT(&check_SAT, "SAT", 35, 0);
+    Checker c_SAT(&check_SAT, "SAT", 35, 0);   // Too slow after s = 35.
     checkers.push_back(c_SAT);
     Checker c_MIP(&check_MIP, "MIP");
     checkers.push_back(c_MIP);
@@ -507,9 +526,9 @@ int main(int argc, char * argv[]) {
 
   // Heuristics
   if (all || mode == 'H' || mode == 'h'){
-    Checker h_greedy(&heuristic_greedy, "greedy", 31, 0);
+    Checker h_greedy(&heuristic_greedy, "greedy", 31, 0);  // Code only supports s <= 31.
     checkers.push_back(h_greedy);
-    Checker h_random(&heuristic_random, "random", 31, 0);
+    Checker h_random(&heuristic_random, "random", 31, 0);  // Code only supports s <= 31.
     checkers.push_back(h_random);
     Checker h_row_pairs(&heuristic_row_pairs, "row_pairs");
     checkers.push_back(h_row_pairs);
@@ -543,7 +562,7 @@ int main(int argc, char * argv[]) {
   bool success = true;
   bool verbose = false;
 
-  if (argc == 1){ // Standard tests.
+  if (argc == 1){ // Mode one: Standard tests.
 
     if (log != NULL){
       fprintf(log,"Test Name");
@@ -582,7 +601,7 @@ int main(int argc, char * argv[]) {
     success = F3.run_test(&checkers, verbose, log, log_err) && success;
     
     cerr << "--------------------------- Tests complete ----------------------------\n";
-  } else if (argc == 7) {  // Random Sweeps.
+  } else if (argc == 7) {  // Mode Two: Random Sweeps.
 
     int start_s = atoi(argv[2]);
     int end_s = atoi(argv[3]);

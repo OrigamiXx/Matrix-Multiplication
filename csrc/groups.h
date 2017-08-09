@@ -2,7 +2,7 @@
 #define __GROUPS_H__
 
 #include "permutation.h"
-#include "usp.h"
+#include "checker.h"
 #include "hash_table.h"
 
 // ================================================================================

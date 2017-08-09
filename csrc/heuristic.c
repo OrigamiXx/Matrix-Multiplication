@@ -1,3 +1,13 @@
+/*
+ * Module implementing several non-trivial heursitics for checking
+ * whether a given puzzle is a strong USP.
+ * 
+ * Heuristics MUST match the checker_t type and semantics, and should
+ * be named with a prefix "heuristic_".
+ *
+ * Author: Matt.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <vector>
@@ -19,7 +29,7 @@
 #include "matching.h"
 #include "3DM_to_SAT.h"
 #include "3DM_to_MIP.h"
-#include "usp.h"
+#include "checker.h"
 #include "puzzle.h"
 
 

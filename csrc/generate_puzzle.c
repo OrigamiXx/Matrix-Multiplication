@@ -1,7 +1,7 @@
 #include "permutation.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "usp.h"
+#include "checker.h"
 #include <math.h>
 #include "constants.h"
 #include <map>
