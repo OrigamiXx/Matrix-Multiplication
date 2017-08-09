@@ -63,52 +63,64 @@ check_t heuristic_row_triples(puzzle * p){
 /*
  * Polytime heuristic that checks whether 2DM exists for each of the
  * projected faces of the 3DM instance.  Returns UNDET_USP or IS_USP.
- * XXX - Almost never returns IS_USP, maybe be broken.
+ * XXX - Almost never returns IS_USP, may be broken.
  */
 check_t heuristic_2d_matching(puzzle * p){
 
+  invalidate_tdm(p);
+  //compute_tdm(p);
   simplify_tdm(p);
   
   int s = p -> s;
   bool M[s * s];
+  bool found = false;
+  
+  for (int del = 0; del < s && !found; del++){
 
-  for (int i = 0; i < s; i++){
-    for (int j = 0; j < s; j++){
-      M[i * s + j] = false;
-      for (int k = 0; k < s; k++){
-	M[i * s + j] = M[i * s + j] || get_tdm_entry(p, i, j, k);
+    set_tdm_entry(p, del, del, del, false);
+    
+    for (int i = 0; i < s; i++){
+      for (int j = 0; j < s; j++){
+	M[i * s + j] = false;
+	for (int k = 0; k < s; k++){
+	  M[i * s + j] = M[i * s + j] || get_tdm_entry(p, i, j, k);
+	}
       }
     }
-  }
 
-  if (!has_perfect_bipartite_matching(M, s))
-    return IS_USP;
-
-  for (int i = 0; i < s; i++){
-    for (int j = 0; j < s; j++){
-      M[i * s + j] = false;
-      for (int k = 0; k < s; k++){
-	M[i * s + j] = M[i * s + j] || get_tdm_entry(p, k, i, j);
+    bool found1 = has_perfect_bipartite_matching(M, s);
+  
+    for (int i = 0; i < s; i++){
+      for (int j = 0; j < s; j++){
+	M[i * s + j] = false;
+	for (int k = 0; k < s; k++){
+	  M[i * s + j] = M[i * s + j] || get_tdm_entry(p, k, i, j);
+	}
       }
     }
-  }
+    
+    bool found2 = has_perfect_bipartite_matching(M, s);
 
-  if (!has_perfect_bipartite_matching(M, s))
-    return IS_USP;
-
-  for (int i = 0; i < s; i++){
-    for (int j = 0; j < s; j++){
-      M[i * s + j] = false;
-      for (int k = 0; k < s; k++){
-	M[i * s + j] = M[i * s + j] || get_tdm_entry(p, j, k, i);
+    for (int i = 0; i < s; i++){
+      for (int j = 0; j < s; j++){
+	M[i * s + j] = false;
+	for (int k = 0; k < s; k++){
+	  M[i * s + j] = M[i * s + j] || get_tdm_entry(p, j, k, i);
+	}
       }
     }
+
+    bool found3 = has_perfect_bipartite_matching(M, s);
+    found = found || (found1 && found2 && found3);
+    
+    set_tdm_entry(p, del, del, del, true);
+
   }
 
-  if (!has_perfect_bipartite_matching(M, s))
+  if (found)
+    return UNDET_USP;
+  else 
     return IS_USP;
-
-  return UNDET_USP;
 }
 
 

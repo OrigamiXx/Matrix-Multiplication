@@ -4,5 +4,6 @@
 // Implement Bipartite matchin using Ford-Faulkerson flow algorithm.
 bool has_perfect_bipartite_matching(bool *M, int n);
 
+void print_G(bool * G, int n);
 
 #endif

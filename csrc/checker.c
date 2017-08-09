@@ -417,7 +417,7 @@ int main() {
   
   
   Random_Tester R1("Small Random1", 3, 3, 1000);
-  Random_Tester R2("Small Random2", 5, 4, 100000);
+  Random_Tester R2("Small Random2", 5, 4, 10000);
   Random_Tester R3("Medium Random1", 7, 5, 100000);
   Random_Tester R4("Medium Random2", 12, 6, 10000);
   Random_Tester R5("Large Random1", 18, 8, 1000);
