@@ -214,15 +214,40 @@ class Puzzle_Tester {
   double progress;
   int last_percent;
   string name;
+  string short_name;
   
  public:
+  Puzzle_Tester(string name){
+
+    this -> progress = 0.0;
+    this -> last_percent = 0;
+    this -> name = name;
+    char short_name[100];
+    strcpy(short_name, name.c_str());
+    for (int j = 0; j < strlen(name.c_str()); j++){
+      if (short_name[j] == ',')
+	short_name[j] = '\0';
+    }
+    this -> short_name = string(short_name);
+    
+  }
   virtual puzzle * next_puzzle(void) {};
   virtual bool is_empty(void) {};
 
-  bool run_test(vector<Checker> * checkers, FILE * log, FILE * log_err){
+  void set_short_name(){
+
+
+    
+  }
+  
+  bool run_test(vector<Checker> * checkers, bool verbose, FILE * log, FILE * log_err){
 
     bool success = true;
     int test_num = 0;
+
+    for (vector<Checker>::iterator it = checkers -> begin() ; it != checkers -> end(); ++it){
+      (*it).reset();
+    }
     
     while (!is_empty()){
       test_num++;
@@ -271,7 +296,7 @@ class Puzzle_Tester {
       if (!consistent){
 	success = false;
 
-	fprintf(log_err, "\nERROR: %s, Test #%d returns inconsistent values.\n\n", name.c_str(), test_num);
+	fprintf(log_err, "\nERROR: %s, Test #%d returns inconsistent values.\n\n", short_name.c_str(), test_num);
 	fprint_puzzle(log_err, p);
 	fprintf(log_err, "\n");
 
@@ -302,12 +327,14 @@ class Puzzle_Tester {
       destroy_puzzle(p);
     }
 
-    cerr << "\r" << "Test: " << name << " -> ";
+
+
+    fprintf(stderr,"\rTest: %s -> ", short_name.c_str());
     
     if (success)
-      cerr << "SUCCESS" << setw(80) << "" << endl;
+      cerr << "SUCCESS" << setw(50) << "" << endl;
     else
-      cerr << "FAILURE" << setw(80) << "" << endl;
+      cerr << "FAILURE" << setw(50) << "" << endl;
 
     if (log != NULL){
       fprintf(log,"%s", name.c_str());
@@ -316,13 +343,15 @@ class Puzzle_Tester {
       fprintf(log,"\n");
     }
 
-    (*(checkers -> begin())).display_stats_header(NULL);
-    for (vector<Checker>::iterator it = checkers -> begin() ; it != checkers -> end(); ++it){
-      (*it).display_stats(NULL);
-      cout << endl;
-      (*it).reset();
+    if (verbose){
+      (*(checkers -> begin())).display_stats_header(NULL);
+      for (vector<Checker>::iterator it = checkers -> begin() ; it != checkers -> end(); ++it){
+	(*it).display_stats(NULL);
+	cout << endl;     
+      }
     }
-    
+      
+      
     return success;
   }
 
@@ -341,7 +370,7 @@ class Puzzle_Tester {
     if (percent > last_percent) {
     
       if (!is_empty()){
-	cerr << "\rTest: " << name <<" [";
+	cerr << "\rTest: " << short_name <<" [";
 	for (int i = 0; i < 50; i++){
 	  if (2*i <= percent)
 	    cerr << ">";
@@ -369,13 +398,11 @@ class Random_Tester : public Puzzle_Tester {
   int completed;
   
  public:
-  Random_Tester(string name, int s, int k, int count){
+  Random_Tester(string name, int s, int k, int count) : Puzzle_Tester(name) {
     this -> s = s;
     this -> k = k;
     this -> count = count;
-    this -> name = name;
     completed = 0;
-    reset_progress();
   }
   
   puzzle * next_puzzle(void) {
@@ -400,7 +427,7 @@ class File_Tester : public Puzzle_Tester {
   int lines_completed;
     
  public:
-  File_Tester(string name, const char * fname){
+ File_Tester(string name, const char * fname) : Puzzle_Tester(name) {
     
     f = fopen(fname, "r");
     int max_buff = 1000;
@@ -414,6 +441,7 @@ class File_Tester : public Puzzle_Tester {
     reset_progress();
     lines_completed = 0;
     this -> name = name;
+    set_short_name();
   }
 
   puzzle * next_puzzle(void) {
@@ -434,97 +462,152 @@ class File_Tester : public Puzzle_Tester {
 };
 
   
+void str_subs(char * str, char a, char b){
+
+  for (int i = 0; i < strlen(str); i++)
+    if (str[i] == a)
+      str[i] = b;
+
+}
+
+					
 
 
+int main(int argc, char * argv[]) {
 
-int main() {
-
-  Checker c_full(&check, "Full");
+  if (!(argc == 2 || argc == 7)){
+    fprintf(stderr, "usage: tester <OnlyCheck|Checkers|Heuristics|All> [<start_s> <end_s> <start_k> <end_k> <iter>]\n");
+    return -1;
+  }
   
-  Checker c_uni(&check_usp_uni, "UNI", 6, 0);
-  Checker c_bi(&check_usp_bi, "BI", 11, 0);
-  Checker c_SAT(&check_SAT, "SAT", 35, 0);
-  Checker c_MIP(&check_MIP, "MIP");
-  Checker c_SAT_MIP(&check_SAT_MIP, "SAT_MIP");
-
-  Checker h_greedy(&heuristic_greedy, "greedy", 31, 0);
-  Checker h_random(&heuristic_random, "random", 31, 0);
-  Checker h_row_pairs(&heuristic_row_pairs, "row_pairs");
-  Checker h_row_triples(&heuristic_row_triples, "row_triples");
-  Checker h_2d_matching(&heuristic_2d_matching, "2d_matching");
-
-  // Experimental
-
-  
-  
+  // Initialize Checkers.
   vector<Checker> checkers;
 
-  checkers.push_back(c_full);
-  
-  checkers.push_back(c_uni);
-  checkers.push_back(c_bi);
-  checkers.push_back(c_SAT);
-  checkers.push_back(c_MIP);
-  checkers.push_back(c_SAT_MIP);
+  char mode = argv[1][0];
+  bool all = mode == 'A' || mode == 'a';
 
-  checkers.push_back(h_random);
-  checkers.push_back(h_greedy);
-  checkers.push_back(h_row_pairs);
-  checkers.push_back(h_row_triples);
-  checkers.push_back(h_2d_matching);
-  
-  
-  Random_Tester R1("Small Random1", 3, 3, 10);
-  Random_Tester R2("Small Random2", 5, 4, 10);
-  Random_Tester R3("Medium Random1", 7, 5, 100);
-  Random_Tester R4("Medium Random2", 12, 6, 10);
-  Random_Tester R5("Large Random1", 18, 8, 10);
-  Random_Tester R6("Large Random2", 30, 11, 10);
-  Random_Tester R7("Huge Random1", 40, 13, 1);
-  Random_Tester R8("Huge Random2", 70, 15, 1);
-  Random_Tester R9("Yuge Random1", 80, 19, 1);
-  
-  File_Tester F1("File 8-5s", "test_data/8-5s.puz");
-  File_Tester F2("File 13-6s", "test_data/13-6s.puz");
-  File_Tester F3("File 13-6-usps", "test_data/13-6-usps.puz");
-  
+  // Checkers
+  if (all || (mode != 'H' && mode != 'h')){
+    Checker c_full(&check, "Full");
+    checkers.push_back(c_full);
+  }
 
+  if (all || mode == 'C' || mode == 'c'){
+    Checker c_uni(&check_usp_uni, "UNI", 6, 0);
+    checkers.push_back(c_uni);
+    Checker c_bi(&check_usp_bi, "BI", 11, 0);
+    checkers.push_back(c_bi);
+    Checker c_SAT(&check_SAT, "SAT", 35, 0);
+    checkers.push_back(c_SAT);
+    Checker c_MIP(&check_MIP, "MIP");
+    checkers.push_back(c_MIP);
+    Checker c_SAT_MIP(&check_SAT_MIP, "SAT_MIP");
+    checkers.push_back(c_SAT_MIP);
+  }
 
+  // Heuristics
+  if (all || mode == 'H' || mode == 'h'){
+    Checker h_greedy(&heuristic_greedy, "greedy", 31, 0);
+    checkers.push_back(h_greedy);
+    Checker h_random(&heuristic_random, "random", 31, 0);
+    checkers.push_back(h_random);
+    Checker h_row_pairs(&heuristic_row_pairs, "row_pairs");
+    checkers.push_back(h_row_pairs);
+    Checker h_row_triples(&heuristic_row_triples, "row_triples");
+    checkers.push_back(h_row_triples);
+    Checker h_2d_matching(&heuristic_2d_matching, "2d_matching");
+    checkers.push_back(h_2d_matching);
+  }
+  
+  // Initialize Logging.
   char log_name[300];
   char log_err_name[300];
+
+  time_t t;
+  time(&t);
   
-  sprintf(log_name, "logs/log%lu.csv", time(NULL));
-  sprintf(log_err_name, "logs/log%lu-error.txt", time(NULL));
+  sprintf(log_name, "logs/log-%scsv", ctime(&t));
+  sprintf(log_err_name, "logs/error-%stxt", ctime(&t));
+
+  str_subs(log_name, ' ', '-');
+  str_subs(log_name, '\n', '.');
+
+  str_subs(log_err_name, ' ', '-');
+  str_subs(log_err_name, '\n', '.');
   
   FILE * log = fopen(log_name, "w");
   FILE * log_err = fopen(log_err_name, "w");
   
 
-  if (log != NULL){
-    fprintf(log,"Test Name");
-    for (vector<Checker>::iterator it = checkers.begin() ; it != checkers.end(); ++it)
-      (*it).display_stats_header(log);
-    fprintf(log,"\n");
-  } 
-
-  cerr << "--------------------------- Starting tests ----------------------------\n";
   
   bool success = true;
-  
-  success = R1.run_test(&checkers, log, log_err) && success;
-  success = R2.run_test(&checkers, log, log_err) && success;
-  success = R3.run_test(&checkers, log, log_err) && success;
-  success = R4.run_test(&checkers, log, log_err) && success;
-  success = R5.run_test(&checkers, log, log_err) && success;
-  success = R6.run_test(&checkers, log, log_err) && success;
-  //  success = R7.run_test(&checkers, log, log_err) && success;
-  //  success = R8.run_test(&checkers, log, log_err) && success;
-  //  success = R9.run_test(&checkers, log, log_err) && success;
-  success = F1.run_test(&checkers, log, log_err) && success;
-  success = F2.run_test(&checkers, log, log_err) && success;
-  //  success = F3.run_test(&checkers, log, log_err) && success;
+  bool verbose = false;
 
-  cerr << "--------------------------- Tests complete ----------------------------\n";
+  if (argc == 1){ // Standard tests.
+
+    if (log != NULL){
+      fprintf(log,"Test Name");
+      for (vector<Checker>::iterator it = checkers.begin() ; it != checkers.end(); ++it)
+	(*it).display_stats_header(log);
+      fprintf(log,"\n");
+    } 
+    
+    Random_Tester R1("Small Random1", 3, 3, 1000);
+    Random_Tester R2("Small Random2", 5, 4, 10000);
+    Random_Tester R3("Medium Random1", 7, 5, 10000);
+    Random_Tester R4("Medium Random2", 12, 6, 1000);
+    Random_Tester R5("Large Random1", 18, 8, 1000);
+    Random_Tester R6("Large Random2", 30, 11, 1000);
+    Random_Tester R7("Huge Random1", 40, 13, 10);
+    Random_Tester R8("Huge Random2", 70, 15, 10);
+    Random_Tester R9("Yuge Random1", 80, 19, 10);
+    
+    File_Tester F1("File 8-5s", "test_data/8-5s.puz");
+    File_Tester F2("File 13-6s", "test_data/13-6s.puz");
+    File_Tester F3("File 13-6-usps", "test_data/13-6-usps.puz");
+    
+    cerr << "--------------------------- Starting tests ----------------------------\n";
+    
+    success = R1.run_test(&checkers, verbose, log, log_err) && success;
+    success = R2.run_test(&checkers, verbose, log, log_err) && success;
+    success = R3.run_test(&checkers, verbose, log, log_err) && success;
+    success = R4.run_test(&checkers, verbose, log, log_err) && success;
+    success = R5.run_test(&checkers, verbose, log, log_err) && success;
+    success = R6.run_test(&checkers, verbose, log, log_err) && success;
+    success = R7.run_test(&checkers, verbose, log, log_err) && success;
+    success = R8.run_test(&checkers, verbose, log, log_err) && success;
+    success = R9.run_test(&checkers, verbose, log, log_err) && success;
+    success = F1.run_test(&checkers, verbose, log, log_err) && success;
+    success = F2.run_test(&checkers, verbose, log, log_err) && success;
+    success = F3.run_test(&checkers, verbose, log, log_err) && success;
+    
+    cerr << "--------------------------- Tests complete ----------------------------\n";
+  } else if (argc == 7) {  // Random Sweeps.
+
+    int start_s = atoi(argv[2]);
+    int end_s = atoi(argv[3]);
+    int start_k = atoi(argv[4]);
+    int end_k = atoi(argv[5]);
+    int iter = atoi(argv[6]);
+
+    if (log != NULL){
+      fprintf(log,"Test Name,s,k,#Iterations");
+      for (vector<Checker>::iterator it = checkers.begin() ; it != checkers.end(); ++it)
+	(*it).display_stats_header(log);
+      fprintf(log,"\n");
+    } 
+    
+    for (int k = start_k; k <= end_k; k++){
+      for (int s = start_s; s <= end_s; s++){
+	char test_name[50];
+	sprintf(test_name,"Random s=%d k=%d iter=%d,%d,%d,%d", s, k, iter, s, k, iter);
+	Random_Tester R(test_name, s, k, iter);
+	R.run_test(&checkers, verbose, log, log_err) && success;
+      }
+    }
+    
+
+  }
   
   fclose(log);
   fclose(log_err);
