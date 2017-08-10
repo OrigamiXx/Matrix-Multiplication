@@ -225,19 +225,19 @@ void arrange_puzzle(puzzle * p){
   }
 
   for (int c = 0; c < p -> k ; c++){
-    int max = balance[c];
-    int max_c = c;
+    int min = balance[c];
+    int min_c = c;
     for (int c1 = c + 1; c1 < p -> s ; c1++){
-      if (max > balance[c1]) {
-	max = balance[c1];
-	max_c = c1;
+      if (min > balance[c1]) {
+	min = balance[c1];
+	min_c = c1;
       }
     }
 
-    balance[max_c] = balance[c];
+    balance[min_c] = balance[c];
     for (int r = 0; r < p -> s; r++){
-      int tmp = get_entry(p, r, max_c);
-      set_entry(p, r, max_c, get_entry(p, r, c));
+      int tmp = get_entry(p, r, min_c);
+      set_entry(p, r, min_c, get_entry(p, r, c));
       set_entry(p, r, c, tmp);
     }
     

@@ -8,7 +8,7 @@
 
 #define MAX_S 100
 
-bool puzzle_has_at_least_n_two_columns(puzzle * p, int n){
+int count_special_columns(puzzle * p){
 
   int s = p -> s;
   int k = p -> k;
@@ -25,10 +25,15 @@ bool puzzle_has_at_least_n_two_columns(puzzle * p, int n){
       found++;
   }
 
-  return found >= n;
+  return found;
   
 }
 
+bool puzzle_has_at_least_n_special(puzzle * p, int n){
+
+  return count_special_columns(p) >= n;
+  
+}
 
 int brute_force(puzzle * p, bool skip[], int skipping, int max_row, int n){
 
@@ -44,7 +49,7 @@ int brute_force(puzzle * p, bool skip[], int skipping, int max_row, int n){
 
     if (local_skip[U[s]]) continue;
 
-    if (puzzle_has_at_least_n_two_columns(p, n) && IS_USP == check(p)){
+    if (puzzle_has_at_least_n_special(p, n) && IS_USP == check(p)){
 
       int res = brute_force(p, local_skip, skipping, max_row, n);
       ret = (res > ret ? res : ret);
@@ -75,7 +80,7 @@ puzzle * create_usp_greedy(int s, int k, int stride_init, int special, puzzle * 
     return NULL;
   int max_row = p -> max_row;
 
-  int counts[max_row];
+  int fitness[max_row];
   bool skip[max_row];
   int skipping = 0;
   bzero(skip, max_row * sizeof(bool));
@@ -90,7 +95,7 @@ puzzle * create_usp_greedy(int s, int k, int stride_init, int special, puzzle * 
   
   for ( ; r < s && max > 1; r++){
     
-    bzero(counts, max_row * sizeof(int));
+    bzero(fitness, max_row * sizeof(int));
     max = 0;
     int max_num = 0;
 
@@ -105,45 +110,59 @@ puzzle * create_usp_greedy(int s, int k, int stride_init, int special, puzzle * 
 	
       if (skip[puz[r]]) continue;
 
-      if (puzzle_has_at_least_n_two_columns(p, special) && IS_USP == check(p)){
+      if (puzzle_has_at_least_n_special(p, special) && IS_USP == check(p)){
+
+	int tdm_lower_thresh = 300;
+	int tdm_upper_thresh = 27;
 	
-	counts[puz[r]]++;
-	if (counts[puz[r]] > max) {
-	  max = counts[puz[r]];
+	if (r < tdm_lower_thresh || r > tdm_upper_thresh){
+	  fitness[puz[r]]++;
+	} else {
+	  invalidate_tdm(p);
+	  simplify_tdm(p);
+	  fitness[puz[r]] = p -> s * p -> s * p -> s - count_tdm(p);
+	  stride_init = 0;
+	  stride = 1;
+	}
+	  
+	if (fitness[puz[r]] > max) {
+	  max = fitness[puz[r]];
 	  max_num = 1;
-	} else if (counts[puz[r]] == max) {
+	} else if (fitness[puz[r]] == max) {
 	  max_num++;
 	}
-	
-	if ((r + 1) < s) {
-	  int step = 1;
 
-	  // Second new row.
-	  for (puz[r+1] = 0; puz[r+1] < max_row; puz[r+1]++){
-	    p -> s = r + 2;
+	if (r < tdm_lower_thresh || r > tdm_upper_thresh) {
+	  if ((r + 1) < s) {
+	    int step = 1;
 	    
-	    if (!skip[puz[r+1]] && puzzle_has_at_least_n_two_columns(p, special)){
-	      if (step != stride) {
-		step++;
-	      } else {
-		step = 1;		
-		
-		if (IS_USP == check(p)) {
-		  counts[puz[r]]++;
-		  if (counts[puz[r]] > max) {
-		    max = counts[puz[r]];
-		    max_num = 1;
-		  } else if (counts[puz[r]] == max) {
-		    max_num++;
+	    // Second new row.
+	    for (puz[r+1] = 0; puz[r+1] < max_row; puz[r+1]++){
+	      p -> s = r + 2;
+	      
+	      if (!skip[puz[r+1]] && puzzle_has_at_least_n_special(p, special)){
+		if (step != stride) {
+		  step++;
+		} else {
+		  step = 1;		
+		  
+		  if (IS_USP == check(p)) {
+		    fitness[puz[r]]++;
+		    if (fitness[puz[r]] > max) {
+		      max = fitness[puz[r]];
+		      max_num = 1;
+		    } else if (fitness[puz[r]] == max) {
+		      max_num++;
+		    }
 		  }
 		}
 	      }
 	    }
 	  }
 	}
+
 	/*printf("density = %8.4f%%, count = %d\n",
-	  count_tdm(p) / pow(p -> s, 3) * 100.0, counts[puz[r]]);*/
-	
+	  count_tdm(p) / pow(p -> s, 3) * 100.0, fitness[puz[r]]);*/
       } else {
 	skip[puz[r]] = true;
 	skipping++;
@@ -156,12 +175,9 @@ puzzle * create_usp_greedy(int s, int k, int stride_init, int special, puzzle * 
     int choice = lrand48() % max_num;
     int found = 0;
     
-    //if (max < special*2 && special > 0)
-    //      special--;
-    
     if (max >= 1){
       for (puz[r] = 0; true ; puz[r]++){ 
-	if (counts[puz[r]] == max) {
+	if (fitness[puz[r]] == max) {
 	  found++;
 	  if (found > choice)
 	    break;
@@ -169,9 +185,13 @@ puzzle * create_usp_greedy(int s, int k, int stride_init, int special, puzzle * 
       }
     }
 
+    invalidate_tdm(p);
+    simplify_tdm(p);
     if (verbose)
+      printf("\r                 \n");
+      print_puzzle(p);
       printf("\r%2d: max = %5d, stride = %5d, special = %2d, 3DM density = %8.4f%%, skipping = %8.4f%%\n",
-	     r+1, max, stride, special, (count_tdm(p) - p -> s) / pow(p -> s, 3) * 100.0,
+	     r+1, max, stride, count_special_columns(p), (count_tdm(p) - p -> s) / pow(p -> s, 3) * 100.0,
 	     skipping / (double)max_row * 100.0);    
 
     if (stride_init != 0) {
@@ -188,7 +208,7 @@ puzzle * create_usp_greedy(int s, int k, int stride_init, int special, puzzle * 
   if (verbose) {
     
     print_puzzle(p);
-    arrange_puzzle(p);
+    //arrange_puzzle(p);
     printf("\n");
     print_puzzle(p);
     
@@ -261,7 +281,7 @@ int main(int argc, char *argv[])
   if (p != NULL)
     destroy_puzzle(p);
 
-
+  /*
   for (int i = 0; i < 100; i++){
 
     p = create_usp_greedy(s, k, special);
@@ -272,7 +292,7 @@ int main(int argc, char *argv[])
     print_puzzle(p);
     printf("\n");
     
-  }
+  }*/
 
   return 0;
 }
