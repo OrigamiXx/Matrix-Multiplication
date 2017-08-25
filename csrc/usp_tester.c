@@ -13,11 +13,15 @@
 #include "timing.h"
 #include "checker.h"
 #include "3DM_to_SAT.h"
+#ifdef __GUROBI_INSTALLED__
 #include "3DM_to_MIP.h"
+#endif
 #include "permutation.h"
 
 
 int main(int argc, char * argv[]){
+
+  #ifdef __GUROBI_INSTALLED__
   // distribution
   int one = 0, two=0, three=0, four=0;
   int five=0, six=0, seven=0, eight = 0;
@@ -232,4 +236,11 @@ int main(int argc, char * argv[]){
 
   return 0;
 
+  #else
+
+  fprintf(stderr, "Error: usp_tester requires Gurobi installed.\n");
+  return -1;
+
+  #endif
+  
 }

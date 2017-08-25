@@ -182,7 +182,7 @@ int main(int narg, char **args)
 
   // stats to screen
   // include stats on number of nonzeroes per row
-  finalize_check_MIP();
+  //finalize_check_MIP();
 
   if (me == 0)
     printf("time: %g secs\n", tstop-tstart);

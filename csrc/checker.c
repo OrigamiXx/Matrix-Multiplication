@@ -34,7 +34,9 @@
 #include "checker.h"
 #include "puzzle.h"
 #include "3DM_to_SAT.h"
+#ifdef __GUROBI_INSTALLED__
 #include "3DM_to_MIP.h"
+#endif
 #include "heuristic.h"
 
 using namespace std;
@@ -567,6 +569,7 @@ bool cache_lookup(puzzle * p){
 }
 
 
+#ifdef __GUROBI_INSTALLED__
 
 /*
  * Determines whether the given s-by-k puzzle U is a strong USP.
@@ -616,6 +619,8 @@ check_t check_SAT_MIP(puzzle * p){
   return (check_t) res;
 }
 
+#endif
+
 /*
  * Determines whether the given s-by-k puzzle U is a strong USP.
  * Tries to pick the most efficient method.  Uses cache if present;
@@ -662,7 +667,13 @@ check_t check(puzzle * p){
 	return res;
     
     simplify_tdm(p);
+
+    #ifdef __GUROBI_INSTALLED__
     res = check_SAT_MIP(p);
+    #else
+    res = check_SAT(p);
+    #endif
+    
     assert(res != UNDET_USP);
     return res;
   }

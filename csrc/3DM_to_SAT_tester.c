@@ -22,6 +22,9 @@
 #include "3DM_to_MIP.h"
 
 int main(int argc, char * argv[]){
+
+  #ifdef __GUROBI_INSTALLED__
+  
   int givenR = 15;
   int givenC = 6;
   // int * puzzle1 = (int *) malloc(sizeof(int *)*givenR);
@@ -138,4 +141,12 @@ int main(int argc, char * argv[]){
 
   //destroy_puzzle(result);
   return 0;
+
+  #else
+
+  fprintf(stderr, "Error: 3DM_to_SAT_tester requires Gurobi installed.\n");
+  return -1;
+
+  #endif
+  
 }

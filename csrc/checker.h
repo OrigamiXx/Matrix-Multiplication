@@ -91,11 +91,14 @@ check_t check_usp_uni(puzzle * p);
  */
 check_t check_usp_bi(puzzle * p);
 
+#ifdef __GUROBI_INSTALLED__
 /*
  * Determines whether the given s-by-k puzzle U is a strong USP.
  * Checks using SAT and MIP solvers in parallel threads.
+ * Requires GUROBI installed.
  */
 check_t check_SAT_MIP(puzzle * p);
+#endif
 
 /*
  * Determines whether the given s-by-k puzzle U is a strong USP.

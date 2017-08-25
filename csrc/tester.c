@@ -519,10 +519,12 @@ int main(int argc, char * argv[]) {
     checkers.push_back(c_bi);
     Checker c_SAT(&check_SAT, "SAT", 35, 0);   // Too slow after s = 35.
     checkers.push_back(c_SAT);
+    #ifdef __GUROBI_INSTALLED__
     Checker c_MIP(&check_MIP, "MIP");
     checkers.push_back(c_MIP);
     Checker c_SAT_MIP(&check_SAT_MIP, "SAT_MIP");
     checkers.push_back(c_SAT_MIP);
+    #endif
   }
 
   // Heuristics
@@ -563,7 +565,7 @@ int main(int argc, char * argv[]) {
   bool success = true;
   bool verbose = false;
 
-  if (argc == 1){ // Mode one: Standard tests.
+  if (argc == 2){ // Mode one: Standard tests.
 
     if (log != NULL){
       fprintf(log,"Test Name");

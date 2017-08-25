@@ -56,10 +56,10 @@ int k = -1;
 int me,nprocs;
 double t_total = 0.0;
 
-puzzle_row init_row =291;
+puzzle_row init_row = 115;
 bool prune_start_row = false;
 bool greedy = true;
-double greedy_count = 2;
+double greedy_count = 3;
 //int max_scan = 100;
 
 // Map Reduce Option Initialization.
@@ -578,8 +578,8 @@ int main(int narg, char **args)
  
   int max_s = 0;
 
-  for (puzzle_row start_row = init_row; start_row >= 0; start_row--){ // Reverse scan
-  //for (puzzle_row start_row = init_row; start_row < max_row; start_row++){ // Forward scan
+  //for (puzzle_row start_row = init_row; start_row >= 0; start_row--){ // Reverse scan
+  for (puzzle_row start_row = init_row; start_row < max_row; start_row++){ // Forward scan
     
     if (prune_start_row && !is_row_sorted(start_row,k)) {
       // Only need to consider unique permutation of first row.
@@ -589,7 +589,7 @@ int main(int narg, char **args)
     }
 
     if (me == 0){
-      printf("%3d: ",start_row);
+      printf("%3ld: ",start_row);
       print_row(stdout,start_row,k);
 
       fflush(stdout);
