@@ -87,7 +87,7 @@ void row_one_keys(int itask, KeyValue *kv, void *ptr){
    puzzle_row i, row = 1;
 
    for(i = 0; i < max_poss_row; i++){
-     kv->add((char*)&i, sizeof(int), NULL, 0);
+     kv->add((char*)&i, sizeof(puzzle_row), NULL, 0);
    }
    
 }
@@ -103,7 +103,7 @@ void extend_puzzle(uint64_t itask, char * key, int keybytes, char *value, int va
   for(puz[row - 1] = puz[row-2] + 1; puz[row - 1] < p -> max_row; puz[row - 1]++){
    
     int percentage = 100;
-    if (rand() % 100 < percentage && check(p))
+    if (rand() % 100 < percentage && check(p) == IS_USP)
       kv->add((char*)(p -> puzzle), row * sizeof(puzzle_row), NULL, 0);
 
   }
@@ -123,7 +123,7 @@ int main(int narg, char **args)
   // parse command-line args
   //int column;
   if (narg != 2 && narg != 5){//&& narg != 10) {
-    if (me == 0) printf("Syntax: usp_para <column> [target_rows] [random_rows] [random_tries]");
+    if (me == 0) fprintf(stderr, "Syntax: usp_para <column> [target_rows] [random_rows] [random_tries]\n");
     MPI_Abort(MPI_COMM_WORLD,1);
     return 0;
   }
@@ -179,8 +179,6 @@ int main(int narg, char **args)
 
   MPI_Barrier(MPI_COMM_WORLD);
   double tstop = MPI_Wtime();
-
-
 
   // stats to screen
   // include stats on number of nonzeroes per row
