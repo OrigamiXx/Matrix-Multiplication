@@ -8,6 +8,8 @@ CC=g++
 CCFLAGS=-c -Wall -O3 -pg -ggdb
 LDFLAGS=-lm -pg -pthread 
 RMFLAGS=-f
+NAUTY=nauty.o nautil.o nausparse.o naugraph.o schreier.o naurng.o
+NAUTYDIR=nauty26r7
 # Put additional object sources in list below.
 OBJ-SOURCES=checker.c permutation.c puzzle.c set.c matching.c 3DM_to_SAT.c timing.c heuristic.c
 # Put additional executable sources in list below.
@@ -25,7 +27,8 @@ PARA-SOURCES=usp_para.c usp_batch_para.c
 OBJDIR=objs
 BINDIR=bin
 SRCDIR=csrc
-OBJECTS=$(addprefix $(OBJDIR)/,$(OBJ-SOURCES:.c=.o))
+LOCAL-OBJECTS=$(addprefix $(OBJDIR)/,$(OBJ-SOURCES:.c=.o))
+OBJECTS=$(LOCAL-OBJECTS) $(addprefix $(NAUTYDIR)/,$(NAUTY))  
 SOLVER_OBJECTS=$(SOLVER_SRC_PATH)/Solver.or
 EXES=$(EXE-SOURCES:.c= )
 PARA-EXES=$(PARA-SOURCES:.c= )
@@ -41,7 +44,7 @@ $(MRMPI_L):
 	make -e -C $(MRMPI_SRC_PATH)  mpicc
 
 $(OBJDIR)/%.o : $(SRCDIR)/%.c
-	$(CC) -I $(GUROBI_HOME)/include -I ./SAT $(CFLAGS) $(CCFLAGS) $< -o $@
+	$(CC) -I $(NAUTYDIR)/ -I $(GUROBI_HOME)/include -I ./SAT $(CFLAGS) $(CCFLAGS) $< -o $@
 
 
 $(BINDIR)/%_solver:
@@ -52,7 +55,7 @@ $(BINDIR)/%_para: $(SRCDIR)/%_para.c $(MRMPI_L)
 	$(MPICC) -I $(MRMPI_SRC_PATH) $(OBJECTS) $(SOLVER_OBJECTS) $(LDFLAGS) -L $(GUROBI_HOME)/lib $(CFLAGS) $< $(MRMPI_L) -o $@
 
 $(BINDIR)/% : $(SRCDIR)/%.c $(OBJECTS)
-	$(CC) -I $(GUROBI_HOME)/include $(OBJECTS) $(SOLVER_OBJECTS) -L $(GUROBI_HOME)/lib $(CFLAGS) $(LDFLAGS) $< -o $@
+	$(CC) -I $(NAUTYDIR)/ -I $(GUROBI_HOME)/include $(OBJECTS) $(SOLVER_OBJECTS) -L $(GUROBI_HOME)/lib $(CFLAGS) $(LDFLAGS) $< -o $@
 
 tmp_dirs:
 	mkdir -p $(OBJDIR)
@@ -69,4 +72,4 @@ clean:
 	$(MAKE) -C $(SOLVER_SRC_PATH) clean
 	rm -f $(MRMPI_SRC_PATH)$(MRMPI_LIB)
 	rm -fr $(BINS)
-	rm -fr $(OBJECTS)
+	rm -fr $(LOCAL-OBJECTS)

@@ -12,7 +12,6 @@
 #include <stdlib.h>
 #include <vector>
 #include <algorithm>
-#include <set>
 #include <string>
 #include <sstream>
 #include <iostream>
@@ -31,7 +30,7 @@
 #include "3DM_to_MIP.h"
 #include "checker.h"
 #include "puzzle.h"
-
+#include "nauty.h"
 
 /*
  * A specialized function that determines whether any pair of rows
@@ -529,3 +528,90 @@ check_t heuristic_random(puzzle * p) {
   
 }
 
+check_t heuristic_graph_automorphism(puzzle * p){
+
+  int n = 3 * p -> s + p -> k;
+  
+  graph g[n*n];
+  int lab[n],ptn[n],orbits[n];
+  static DEFAULTOPTIONS_GRAPH(options);
+  statsblk stats;
+  
+  int m;
+  
+  /* Default options are set by the DEFAULTOPTIONS_GRAPH macro above.
+     Here we change those options that we want to be different from
+     the defaults.  writeautoms=TRUE causes automorphisms to be
+     written.  */
+  
+  options.writeautoms = FALSE;
+  options.defaultptn = FALSE;
+  
+
+  
+  /* The nauty parameter m is a value such that an array of m setwords
+     is sufficient to hold n bits.  The type setword is defined in
+     nauty.h.  The number of bits in a setword is WORDSIZE, which is
+     16, 32 or 64.  Here we calculate m = ceiling(n/WORDSIZE).  */
+    
+  m = SETWORDSNEEDED(n);
+  
+  /* The following optional call verifies that we are linking
+     to compatible versions of the nauty routines.            */
+  
+  nauty_check(WORDSIZE,m,n,NAUTYVERSIONID);
+  
+  /* Now we create the cycle.  First we zero the graph, than for
+     each v, we add the edge (v,v+1), where values are mod n. */
+  
+  EMPTYGRAPH(g,m,n);
+  
+  for (int r = 0; r < p -> s; r++){
+    for (int c = 0; c < p -> k; c++){
+      int entry = get_entry(p, r, c);
+      int a = 3 * r + (entry - 1);
+      int b = 3 * p -> s + c;
+      //printf("adding edge %d -> %d\n",a,b);
+      ADDONEEDGE(g, a, b, m);
+    }
+    ptn[3*r] = 1;
+    ptn[3*r+1] = 2;
+    ptn[3*r+2] = 3;
+  }
+  
+  for (int i = 0; i < 3; i++){
+    for (int r = 0; r < p -> s; r++){
+      lab[p -> s * i + r] = 3 * r + i;
+      ptn[p -> s * i + r] = (r == p -> s - 1 ? 0 : 1);
+    }
+  }
+  
+  for (int c = 0; c < p -> k; c++){
+    lab[3 * p -> s + c] = 3 * p -> s + c;
+    ptn[3 * p -> s + c] = (c == p -> k - 1 ? 0 : 1);
+  }
+  
+  /*
+    for (int i = 0; i < n; i++){
+    printf("lab, ptn[%d] = %d, %d\n",i,lab[i], ptn[i]);
+    }
+  */
+  
+  
+  densenauty(g,lab,ptn,orbits,&options,&stats,m,n,NULL);
+  
+  //printf("%d, %f, %d\n", stats.errstatus, stats.grpsize1, stats.grpsize2);
+  if (stats.numgenerators == 0) {
+    
+    //printf("Rigid\n");
+    return UNDET_USP;
+    //return IS_USP;
+    
+  } else {
+    
+    //printf("Not rigid: %d generators\n", stats.numgenerators);
+    
+    return NOT_USP;
+  }
+  
+}

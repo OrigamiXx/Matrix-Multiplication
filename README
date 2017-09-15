@@ -102,7 +102,14 @@ for Ubuntu 16.04:
 
   Now enter "ls -la" again, you should see "libgurobi_c++.a -> ./libgurobi_g++5.2.a"
 
-5, Problem shooting.
+5. Building Nauty
+
+   cd nauty26r7
+   ./configure
+   make
+
+6, Troubleshooting.
 
 At this point you should be all set. If you had any problem, please refer to Gurobi
 documentation in: http://www.gurobi.com/documentation/
+

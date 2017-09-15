@@ -17,7 +17,6 @@
 #include <stdlib.h>
 #include <vector>
 #include <algorithm>
-#include <set>
 #include <string>
 #include <sstream>
 #include <iostream>
@@ -648,10 +647,10 @@ check_t check(puzzle * p){
   res = heuristic_row_pairs(p);
   if (res != UNDET_USP)
     return res;
-  
-  res = heuristic_random(p);
+
+  res = heuristic_graph_automorphism(p);
   if (res != UNDET_USP)
-      return res;
+    return res;
 
   if (s < 10){
     simplify_tdm(p);
@@ -659,6 +658,10 @@ check_t check(puzzle * p){
   } else {
     
     res = heuristic_row_triples(p);
+    if (res != UNDET_USP)
+      return res;
+
+    res = heuristic_random(p);
     if (res != UNDET_USP)
       return res;
     
