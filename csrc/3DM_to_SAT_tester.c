@@ -95,8 +95,13 @@ int main(int argc, char * argv[]){
         //puzzle *p;
         //p = create_puzzle_from_index(j,i,index);
         clock_gettime(CLOCK_MONOTONIC, &begin);
+<<<<<<< HEAD
+        if (check(p)){
+          //(check_MIP(p)){
+=======
         if //(check(p->puzzle, p->row, p->column)){
           (IS_USP == check_MIP(p)){
+>>>>>>> 2349b64095ace22c85f2786bb7c065c6dc111153
           //(check_SAT(p)){
           //(popen_simple(p->row, p->column,-1,p)){
           clock_gettime(CLOCK_MONOTONIC, &end);
@@ -112,6 +117,10 @@ int main(int argc, char * argv[]){
         randomize_puzzle(p);
         //srand48(time(NULL));
         //destroy_puzzle(p);
+        if (check(p)!= check_SAT(p) || check(p)!= check_MIP(p)){
+          printf("this puzzle is different\n");
+          print_puzzle(p);
+        }
       }
       destroy_puzzle(p);
       printf("checked: %ld usps: %ld nonusps: %ld\n",checked, usps, nonusps);
