@@ -1,18 +1,16 @@
-#include "permutation.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "usp.h"
 #include <math.h>
-#include "constants.h"
 #include <map>
-#include "usp_bi.h"
 #include <time.h>
-#include "3DM_to_SAT.h"
 #include <vector>
 #include <string>
 #include <sstream>
 #include <iostream>
 
+#include "permutation.h"
+#include "checker.h"
+#include "heuristic.h"
 
 using namespace std;
 
@@ -83,9 +81,9 @@ int ns[8] = {0, 100, 500, 10000,     500,   100,   10,     1};
 bool puzzle_has_at_least_n_two_columns(puzzle * p, int n){
 
   int found = 0;
-  for (int c = 0; c < p -> column; c++){
+  for (int c = 0; c < p -> k; c++){
     int counts[3] = {0,0,0};
-    for (int r = 0; r < p -> row; r++){
+    for (int r = 0; r < p -> s; r++){
       counts[get_column_from_row(p -> puzzle[r], c) - 1]++;
     }
 
@@ -101,14 +99,14 @@ bool puzzle_has_at_least_n_two_columns(puzzle * p, int n){
 void compute_twist_params(puzzle * p, puzzle *p1, puzzle *p2, int *num_last,
 			  int *num_arb, int *num_perm, int *num_el_perm){
 
-  int s = p -> row;
-  int k = p -> column;
-  int * puz = p -> puzzle;
-  int k1 = p1 -> column;
-  int s1 = p1 -> row;
-  int k2 = p2 -> column;
-  int s2 = p2 -> row;
-  int dk = k1 - p2 -> column;
+  int s = p -> s;
+  int k = p -> k;
+  puzzle_row * puz = p -> puzzle;
+  int k1 = p1 -> k;
+  int s1 = p1 -> s;
+  int k2 = p2 -> k;
+  int s2 = p2 -> s;
+  int dk = k1 - p2 -> k;
 
   *num_last =
     (NEW_MODE == 0 ? 6 :
@@ -139,14 +137,14 @@ void compute_twist_params(puzzle * p, puzzle *p1, puzzle *p2, int *num_last,
 
 bool apply_twist(puzzle * p, puzzle * p1, puzzle * p2, int last, int arb, int perm_id, int el_perm_id) {
   
-  int s = p -> row;
-  int k = p -> column;
-  int * puz = p -> puzzle;
-  int k1 = p1 -> column;
-  int s1 = p1 -> row;
-  int k2 = p2 -> column;
-  int s2 = p2 -> row;
-  int dk = k1 - p2 -> column;
+  int s = p -> s;
+  int k = p -> k;
+  puzzle_row * puz = p -> puzzle;
+  int k1 = p1 -> k;
+  int s1 = p1 -> s;
+  int k2 = p2 -> k;
+  int s2 = p2 -> s;
+  int dk = k1 - p2 -> k;
 
 
   
@@ -277,8 +275,8 @@ bool apply_twist(puzzle * p, puzzle * p1, puzzle * p2, int last, int arb, int pe
   if (!puzzle_has_at_least_n_two_columns(p, (k < N_SPECIAL_COLS ? k : N_SPECIAL_COLS)))
     return false;
 
-  if (check_row_triples(puz, s, k)){
-    if (check(puz, s, k)) {
+  if (UNDET_USP == heuristic_row_triples(p)){
+    if (IS_USP == check(p)) {
       return true;
     }
   }
@@ -338,14 +336,14 @@ bool full_twist(puzzle * p, puzzle * p1, puzzle * p2){
 
 puzzle * create_random_twist(puzzle * p1, puzzle * p2, int iter){
 
-  if (p1 -> column < p2 -> column){
+  if (p1 -> k < p2 -> k){
     puzzle * tmp = p2;
     p2 = p1;
     p1 = tmp;
   }
 
-  int s = p1 -> row + p1 -> row;
-  int k = p1 -> column + 1;
+  int s = p1 -> s + p1 -> s;
+  int k = p1 -> k + 1;
   puzzle * p = create_puzzle(s,k);
 
   bool res = random_twist(p, p1, p2, iter);
@@ -361,14 +359,14 @@ puzzle * create_random_twist(puzzle * p1, puzzle * p2, int iter){
 
 puzzle * create_full_twist(puzzle * p1, puzzle * p2){
   
-  if (p1 -> column < p2 -> column){
+  if (p1 -> k < p2 -> k){
     puzzle * tmp = p2;
     p2 = p1;
     p1 = tmp;
   }
   
-  int s = p1 -> row + p1 -> row;
-  int k = p1 -> column + 1;
+  int s = p1 -> s + p1 -> s;
+  int k = p1 -> k + 1;
   puzzle * p = create_puzzle(s,k);
   
   bool res = full_twist(p, p1, p2);
@@ -383,12 +381,9 @@ puzzle * create_full_twist(puzzle * p1, puzzle * p2){
 }
 
   
-
-int const MAX_K = 10;
-
 string puzzle_to_string(puzzle * p){
 
-  int s = p -> row;
+  int s = p -> s;
   
   ostringstream oss;
   oss << p -> puzzle[0];
@@ -447,8 +442,8 @@ puzzle_meta * random_table_usp(int k){
 
 void construct_table_usp(puzzle * p, int iter){
 
-  int s = p -> row;
-  int k = p -> column;
+  int s = p -> s;
+  int k = p -> k;
   
   if (s <= 2) {
     random_usp(p);
@@ -707,22 +702,22 @@ int main(int argc, char * argv[]){
       return -1;
     }
     
-    if (!check(p1 -> puzzle, p1 -> row, p1 -> column)){
+    if (!check(p1)){
       fprintf(stderr, "Warning: Puzzle One is not a strong USP.\n");
     }
     
-    if (!check(p2 -> puzzle, p2 -> row, p2 -> column)){
+    if (!check(p2)){
       fprintf(stderr, "Warning: Puzzle Two is not a strong USP.\n");
     }
     
     // Make p1 the wider of the two.
-    if (p1 -> column < p2 -> column){
+    if (p1 -> k < p2 -> k){
       puzzle * tmp = p1;
       p1 = p2;
       p2 = tmp;
     }
     
-    puzzle * p = create_puzzle(p1 -> row + p2 -> row, p1 -> column + 1);
+    puzzle * p = create_puzzle(p1 -> s + p2 -> s, p1 -> k + 1);
     randomize_puzzle(p);
     
     if (full_twist(p,p1,p2)){
@@ -758,7 +753,7 @@ int main(int argc, char * argv[]){
     puzzle * p1 = create_puzzle(s1,k1);
     puzzle * p2 = create_puzzle(s2,k2);
 
-    puzzle * p = create_puzzle(p1 -> row + p2 -> row, p1 -> column + 1);
+    puzzle * p = create_puzzle(p1 -> s + p2 -> s, p1 -> k + 1);
     randomize_puzzle(p);
     
     srand48(time(NULL));

@@ -1,7 +1,7 @@
 #ifndef __MATRIX_H__
 #define __MATRIX_H__
 
-#include "usp.h"
+#include "checker.h"
 #include "groups.h"
 #include "puzzle.h"
 

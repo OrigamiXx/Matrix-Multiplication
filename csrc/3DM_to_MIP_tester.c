@@ -1,26 +1,20 @@
-/* Reduction from 3D-matching to 3SAT
-   The goal is to use the result from check_usp_rows to deside whether
-   witness is allowed to occur on that specific coordinate on a 3D cube.
-   Then use the result to reduce this 3D-perfect matching problem to a 3SAT
-   problem and print out the reduction in 3cnf-form (dimacs) for MapleSAT solver
-   to give a final answer.
-
-   Author: Jerry
+/* 
+   ???
 */
 #include <stdio.h>
 #include <stdlib.h>
-#include "permutation.h"
-#include "usp.h"
-#include "assert.h"
-#include "puzzle.h"
-#include <math.h>
-#include "usp_bi.h"
-#include "3DM_to_SAT.h"
 #include <time.h>
+#include <assert.h>
 #include <sys/time.h>
 #include <iostream>
-//#include "gurobi_c++.h"
-#include "checkUSP_mip.h"
+#include <math.h>
+
+#include "permutation.h"
+#include "checker.h"
+#include "puzzle.h"
+#include "3DM_to_SAT.h"
+#include "3DM_to_MIP.h"
+
 
 int main(int argc, char * argv[]){
   int givenR = 30;
@@ -108,7 +102,7 @@ int main(int argc, char * argv[]){
       randomize_puzzle(p);
       srand48(time(NULL));
       for (index = 0; index < 100; index++){
-	printf("index = %d\n", index);
+	printf("index = %ld\n", index);
         //puzzle *p;
         //p = create_puzzle_from_index(j,i,index);
 
@@ -129,7 +123,7 @@ int main(int argc, char * argv[]){
         clock_gettime(CLOCK_MONOTONIC, &end);
         thread_time = ((double)end.tv_sec + 1.0e-9*end.tv_nsec) - ((double)begin.tv_sec + 1.0e-9*begin.tv_nsec);
 
-
+	
         if(mip_res != sat_res || sat_res != thread_res){
           printf("Conflict!");
           printf("mip is %d, sat is %d, and thread is %d", mip_res, sat_res, thread_res);

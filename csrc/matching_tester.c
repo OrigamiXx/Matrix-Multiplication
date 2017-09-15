@@ -1,11 +1,5 @@
-#include "permutation.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "usp.h"
-#include <math.h>
-#include "constants.h"
-#include <map>
-#include "usp_bi.h"
 #include "matching.h"
 
 int main(int argc, char * argv[]){

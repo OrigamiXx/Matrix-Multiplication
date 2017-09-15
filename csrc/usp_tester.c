@@ -1,20 +1,27 @@
-#include "permutation.h"
+/* 
+ * ???
+ */
 #include <stdio.h>
 #include <stdlib.h>
-#include "usp.h"
 #include <math.h>
-#include "constants.h"
-#include <map>
-#include "usp_bi.h"
-#include "puzzle.h"
 #include <time.h>
 #include <sys/time.h>
+#include <map>
+
+#include "puzzle.h"
+#include "constants.h"
 #include "timing.h"
+#include "checker.h"
 #include "3DM_to_SAT.h"
-#include "checkUSP_mip.h"
-#include <math.h>
+#ifdef __GUROBI_INSTALLED__
+#include "3DM_to_MIP.h"
+#endif
+#include "permutation.h"
+
 
 int main(int argc, char * argv[]){
+
+  #ifdef __GUROBI_INSTALLED__
   // distribution
   int one = 0, two=0, three=0, four=0;
   int five=0, six=0, seven=0, eight = 0;
@@ -29,7 +36,7 @@ int main(int argc, char * argv[]){
   int row;
   int row_index;
   int time = 46800;
-  int thread_res, mip_res, sat_res, bi_res;
+  check_t thread_res, mip_res, sat_res, bi_res;
   double thread_time, mip_time, sat_time, bi_time;
   char csv_input[50];
   char usp_num[10];
@@ -46,12 +53,12 @@ int main(int argc, char * argv[]){
     row = 0;
     row_index= 0;
     while (fgets(buff,sizeof(buff),puzzles) != NULL && buff[0]!= '\n'){
-      element = buff[p->column-1] - '0';
+      element = buff[p->k-1] - '0';
       element = element -1;
-      next_element = buff[p->column-2] - '0';
+      next_element = buff[p->k-2] - '0';
       next_element = next_element-1;
       row_index = element*3 + next_element;
-      for(int i = p->column-2; i>0; i--){
+      for(int i = p->k-2; i>0; i--){
          next_element = buff[i-1] - '0';
          next_element = next_element - 1;
          //printf("%d",element);
@@ -94,8 +101,8 @@ int main(int argc, char * argv[]){
       //test_count++;
       
       //print_puzzle(p);
-      //if (check(p->puzzle,p->row,p->column)){
-        //(check_usp_bi(p->puzzle,p->row,p->column)){
+      //if (check(p->puzzle,p->s,p->k)){
+        //(check_usp_bi(p->puzzle,p->s,p->k)){
         //(check_MIP(p)){
         //(check_SAT(p)){
         //printf("this puzzle is a new 14 by 6y usp it's rua %d and index %d\n", checked+1, i);
@@ -113,6 +120,7 @@ int main(int argc, char * argv[]){
       // fwrite(individual, sizeof(double), 1, record);
       // fwrite("\n", sizeof(char), 1, record);
 
+      
       if (total_res != test_count && total_res != 0){ //mip_res != sat_res || sat_res != thread_res){
         printf("Conflict, mip = %d, sat = %d, thread = %d", mip_res, sat_res, thread_res);
         return -1;
@@ -207,9 +215,8 @@ int main(int argc, char * argv[]){
 
 
   //puzzle * result = (puzzle *) (malloc(sizeof(puzzle)));
-  //result->row = givenR;
-  //result->column = givenC;
-  //result->pi = create_perm_identity(result->row);
+  //result->s = givenR;
+  //result->k = givenC;
   //result -> puzzle = puzzle1;
 
   //print_puzzle(result);
@@ -229,4 +236,11 @@ int main(int argc, char * argv[]){
 
   return 0;
 
+  #else
+
+  fprintf(stderr, "Error: usp_tester requires Gurobi installed.\n");
+  return -1;
+
+  #endif
+  
 }
