@@ -1,0 +1,58 @@
+#!/bin/bash
+
+WARNFLAG=1
+
+usage(){
+    echo "Usage: "
+    echo "        glatexdiff SOURCE-SHA SINK-SHA TEX-MASTER-FILE"
+    echo "outputs the latexdiff between the two states into STDIN."
+    echo ""
+    echo "Using a branch name instead of the SHA would use the head of"
+    echo "the branch at that time to run the command."
+}
+
+die () {
+    echo >&2 "$@"
+    usage
+    exit 1
+}
+
+TMPSRCDIR='/tmp/glatexdiff-tmp1'
+TMPSINKDIR='/tmp/glatexdiff-tmp2'
+
+
+displaywarn(){
+    TIMEOUT=5
+    echo >&2 "This script will clean and use "$TMPSRCDIR" and "$TMPSINKDIR" to put temporary files. Hopefully you do not have any files there. (Why would you?!)"
+    echo >&2 "Kill the script if you wish to abort. You have "$TIMEOUT" seconds."
+    echo >&2 "If you wish to remove this warning, change line 3 of the file to  WARNFLAG=0"
+    sleep $TIMEOUT
+}
+
+if [ $WARNFLAG -ne 0 ]; then
+    displaywarn
+fi
+
+if [ $# -ne 3 ]; then
+   die 'Need three arguments.';
+fi
+
+
+
+if [ -d "$TMPSRCDIR" ]; then
+    rm -rf $TMPSRCDIR/*
+else
+    mkdir $TMPSRCDIR || die "Unable to create temporary directory $TMPSRCDIR";
+fi
+
+if [ -d "$TMPSINKDIR" ]; then
+    rm -rf $TMPSINKDIR/*
+else
+    mkdir $TMPSINKDIR || die "Unable to create temporary directory $TMPSINKDIR";
+fi
+
+git archive "$1" | tar -xC $TMPSRCDIR  || die "Unable to create git archive on $1";
+git archive "$2" | tar -xC $TMPSINKDIR || die "Unable to create git archive on $2";
+latexdiff --flatten $TMPSRCDIR/"$3" $TMPSINKDIR/"$3" || die "Unable to run latexdiff";
+rm -rf  $TMPSRCDIR $TMPSINKDIR || die "Unable to cleanup"
+

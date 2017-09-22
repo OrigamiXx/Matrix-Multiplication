@@ -1,0 +1,77 @@
+\documentclass[11pt]{article}
+\usepackage{fullpage}
+\usepackage{rpmacros}
+\RequirePackage[colorlinks=true]{hyperref}
+\hypersetup{
+  linkcolor=[rgb]{0,0,0.4},
+  citecolor=[rgb]{0, 0.4, 0},
+  urlcolor=[rgb]{0.6, 0, 0}
+}
+\usepackage{mathpazo}
+\usepackage{bbm}
+\usepackage{todonotes}
+\usepackage{lipsum}
+\usepackage{setspace}
+\usepackage{mdframed}
+\usepackage{tikz}
+\usetikzlibrary{decorations.pathreplacing,backgrounds}
+
+\usepackage[font=footnotesize]{caption}
+
+\input{thmmacros}
+\input{customurlbst/bibmacros}
+
+\newcommand{\occur}[3]{\mathrm{Occur}_{#1}^{#2}({#3})}
+\newcommand{\var}[2]{\mathrm{Var}_{#1}({#2})}
+
+\newcommand{\exi}{\vecx_{[i]}}
+
+\newcommand{\cH}{\mathcal{H}}
+\usepackage{algorithmicx}
+\usepackage{algorithm} % http://ctan.org/pkg/algorithms
+\usepackage{algpseudocode}
+\renewcommand{\algorithmicensure}{\textbf{Output:}}
+\renewcommand{\algorithmicrequire}{\textbf{Input:}}
+
+\algrenewcommand\algorithmicindent{1.0em}%
+
+\def\rowsum{\operatorname{rowSum}} 
+\def\colsum{\operatorname{colSum}}
+
+\newcommand{\RPnote}[1]{\textcolor{BrickRed}{RP: #1}}
+\newcommand{\Mattnote}[1]{\textcolor{OliveGreen}{MWA: #1}}
+\newcommand{\BLnote}[1]{\textcolor{Blue}{BLV: #1}}
+\newcommand{\Anote}[1]{\textcolor{Plum}{A: #1}}
+\newcommand{\MFnote}[1]{\textcolor{DarkOrchid}{MF: #1}}
+
+\newcommand*\samethanks[1][\value{footnote}]{\footnotemark[#1]}
+
+%\onehalfspacing
+\date{}
+
+\title{Finding Strong Uniquely-Solvable Puzzles
+{\IfFileExists{./sha.tex}{\\\small SHA: \input{sha}}{}}}
+\author{
+Matthew Anderson\thanks{Department of Computer Science, Union College, Schenectady, New York, USA, E-mails: \texttt{andersm2@union.edu, jiz@union.edu, xua@union.edu}}%
+\and%
+Zongliang Ji\samethanks[1]
+\and%
+Anthony Yang Xu\samethanks[1]
+}
+\begin{document}
+\maketitle
+
+\begin{abstract}
+XXX
+\end{abstract}
+
+\thispagestyle{empty}
+\newpage
+\pagenumbering{arabic}
+
+
+\section{Introduction}
+\label{sec:intro}
+
+\end{document}
+

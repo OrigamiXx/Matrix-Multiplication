@@ -1,0 +1,247 @@
+% Built over http://jeffe.cs.illinois.edu/pubs/tex/jeffe.sty
+
+\RequirePackage{latexsym,amsmath,amssymb}
+\RequirePackage[dvipsnames,usenames]{color}
+
+\hyphenation{co-or-din-ate co-or-din-ates half-plane half-space stereo-iso-mers
+stereo-iso-mer Round-table homol-ogous homol-ogy}
+
+% ----------------------------------------------------------------------
+%  Common abbreviations and words with accents
+% ----------------------------------------------------------------------
+
+% ---- LATIN ----
+\def\etal{\emph{et~al.}}			% and others
+%\def\ie{\emph{i.e.}}			% that is
+\def\ie{\textcolor{red}{that is}}
+%\def\eg{\emph{e.g.}}			% for example
+\def\eg{\textcolor{red}{for example}}
+\def\vitae{vit\ae{}}
+\def\apriori{\emph{a~priori}}
+\def\aposteriori{\emph{a~posteriori}}
+
+% ---- FRENCH ----
+\def\naive{na\"{\i}ve}
+\def\Naive{Na\"{\i}ve}
+\def\naively{na\"{\i}vely}	% Okay, I know, this isn't French.
+\def\Naively{Na\"{\i}vely}
+\def\cafe{caf\'e}
+
+% ---- GERMAN ----
+\def\fur{f\"ur}
+\def\Universitat{Universit\"at}
+\def\Saarbrucken{Saar\-br\"ucken}	% Bypass TeX hyphenation
+\def\Zurich{Z\"urich}
+
+% ---- PORTUGESE (Hi Jorge!) ----
+\def\Computacao{Computa\c{c}\~ao}
+
+% ---- PROPER NAMES (because I'm lazy) ----
+\def\Benes{Bene\v{s}}		% ...network
+\def\Bezier{B\'ezier}		% ...spline/curve/surface
+\def\bezout{b\'{e}zout}
+\def\Bezout{B\'{e}zout}
+\def\Bjorner{Bj\"orner}
+\def\Bochis{Bochi\c{s}}		% Daciana
+\def\Boruvka{Bor\.uvka}		% ...'s MST algorithm
+\def\Bragger{Br\"agger}
+\def\Bronnimann{Br\"onnimann}   \def\Herve{Herv\'e}
+\def\Bruckner{Br\"uckner}
+\def\Caratheodory{Carath\'eodory}	% Constantin
+\def\Chvatal{Chv\'atal}         \def\Vasek{Va\v{s}ek}
+				\def\Joao{Jo\~ao}	% Compa
+\def\Cortes{Cort\'es}		% Carmen
+\def\Dujmovic{Dujmovi\'c}	% Vida
+				\def\Fredo{Fr\'edo}	% Durand
+\def\Erdos{Erd\H{o}s}           \def\Pal{P\'al}
+\def\Frechet{Fr\'echet}
+\def\Furedi{F\"uredi}           \def\Zoltan{Zolt\'an}
+\def\Gauss{Gau{\ss}}
+\def\Godel{G\"{o}del}
+\def\Grobner{Gr\"obner}		% ... basis
+\def\grobner{gr\"obner}		% ... basis
+\def\Grunbaum{Gr\"unbaum}	% Branko
+\def\Hanoi{Hano\"\i}		% Tower of...
+\def\Hastad{H{\aa}stad}
+\def\Jarnik{Jarn\a'{\i}k}	% ...'s (`Prim's') MST algorithm
+\def\Komlos{Koml\'os}
+\def\Kovari{K\"ov\'ari}
+\def\Lovasz{Lov\'asz}           \def\Laszlo{L\'aszl\'o}
+\def\Matousek{Matou\v{s}ek}     \def\Jiri{Ji\v{r}\'\i}
+\def\Mnev{Mn\"ev}
+\def\Mobius{M\"obius}		% ... strip/transformation/function
+\def\Mucke{M\"ucke}		% Ernst
+\def\ODunliang{\'O'D\'unliang}
+\def\Oleinik{Ole\u{\i}nik}
+                                \def\Janos{J\'anos}     % Pach
+\def\Palasti{Pal\'asti}
+				\def\Belen{Bel\'en}	% Palop
+\def\Petrovskii{Petrovski\u{\i}}
+\def\Pinar{P\i nar}		% Ali
+\def\Plucker{Pl\"ucker}		% ... coordinates
+\def\Poincare{Poincar\'e}	% ... duality/halfplane
+                                \def\Gunter{G\"unter}   % Rote, Ziegler
+\def\Sacristan{Sacrist\'an}	% Vera
+\def\Saskin{\v{S}a\v{s}kin}
+\def\Schomer{Sch\"omer}
+\def\Schonhardt{Sch\"onhardt}	% ... polyhedron
+\def\Sos{S\'os}
+\def\Stackel{St\"ackel}		% Paul
+\def\Szekely{Sz\'ekely}
+\def\Szemeredi{Szemer\'edi}
+\def\Toth{T\'{o}th}		% Geza
+\def\Turan{Tur\'an}
+\def\Ungor{\"Ung\"or}		% Alper
+\def\Voronoi{Vorono\"i}		% ... diagram [for francophile pedants only]
+
+
+% ---- Math structures -----
+
+\def\Real{\mathbb{R}}
+\def\Proj{\mathbb{P}}
+\def\Hyper{\mathbb{H}}
+\def\Integer{\mathbb{Z}}
+\def\Natural{\mathbb{N}}
+\def\Complex{\mathbb{C}}
+\def\Rational{\mathbb{Q}}
+\def\Field{\mathbb{F}}
+
+\let\N\Natural
+\let\Q\Rational
+\let\R\Real
+\let\Z\Integer
+\let\F\Field
+\let\FF\Field
+\def\Rd{\Real^d}
+\def\RP{\Real\Proj}
+\def\CP{\Complex\Proj}
+
+
+% ---- OPERATORS (requires amsmath) ----
+\def\aff{\operatorname{aff}}		
+\def\area{\operatorname{area}}
+\def\argmax{\operatornamewithlimits{arg\,max}}
+\def\argmin{\operatornamewithlimits{arg\,min}}
+\def\Aut{\operatorname{Aut}}		% Automorphism group
+\def\conv{\operatorname{conv}}	
+\def\E{\operatornamewithlimits{\mathbb{E}}}			% Expectation: $\E[X]$ (like \Pr)
+\def\Hom{\operatorname{Hom}}		% Homomorphism group
+\def\id{\operatorname{id}}		% identity
+\def\im{\operatorname{im}}		% image
+\def\lcm{\operatorname{lcm}}
+\def\poly{\operatorname{poly}}
+\def\polylog{\operatorname{polylog}}
+\def\rank{\operatorname{rank}}
+\def\rel{\operatorname{rel\,}}	% relative (interior, boundary, etc.)
+\def\sgn{\operatorname{sgn}}
+\def\Span{\operatorname{span}}	
+\def\vol{\operatorname{vol}}		% volume
+
+\def\evalDim{\operatorname{evalDim}}
+\def\eval{\operatorname{eval}}
+
+
+% ---- DELIMITER PAIRS ----
+\def\floor#1{\left\lfloor #1 \right\rfloor}
+\def\ceil#1{\left\lceil #1 \right\rceil}
+\def\set#1{\left\{ #1 \right\}}
+\def\abs#1{\left| #1 \right|}
+\def\norm#1{\left\| #1 \right\|}
+\def\inparen#1{\left( #1 \right)}
+\def\insquare#1{\left[ #1 \right]}
+\def\inbrace#1{\left\{ #1 \right\}}
+\def\inangle#1{\left\langle #1 \right\rangle}
+\def\pfrac#1#2{\inparen{\frac{#1}{#2}}} % just something I use so often
+
+% ----- Some math symbols -----
+\def\union{\cup}
+\def\Union{\mathop{\bigcup}}
+\def\intersection{\cap}
+\def\Intersection{\mathop{\bigcap}}
+\def\setdef#1#2{\inbrace{ #1 \ : \ #2}}      % E.g: \setdef{x}{f(x) = 0}
+\def\innerproduct#1#2{\inangle{#1,#2}}
+
+% ----- Bold letters -------
+\def\veca{\mathbf{a}}
+\def\vecb{\mathbf{b}}
+\def\vecc{\mathbf{c}}
+\def\vecd{\mathbf{d}}
+\def\vece{\mathbf{e}}
+\def\vecf{\mathbf{f}}
+\def\vecg{\mathbf{g}}
+\def\vech{\mathbf{h}}
+\def\veci{\mathbf{i}}
+\def\vecj{\mathbf{j}}
+\def\veck{\mathbf{k}}
+\def\vecl{\mathbf{l}}
+\def\vecm{\mathbf{m}}
+\def\vecn{\mathbf{n}}
+\def\veco{\mathbf{o}}
+\def\vecp{\mathbf{p}}
+\def\vecq{\mathbf{q}}
+\def\vecr{\mathbf{r}}
+\def\vecs{\mathbf{s}}
+\def\vect{\mathbf{t}}
+\def\vecu{\mathbf{u}}
+\def\vecv{\mathbf{v}}
+\def\vecw{\mathbf{w}}
+\def\vecx{\mathbf{x}}
+\def\vecy{\mathbf{y}}
+\def\vecz{\mathbf{z}}
+
+
+% ------ "I'm lazy"-macros
+\def\spaced#1{\quad #1 \quad}
+
+
+% -------- Some complexity classes and circuit classes I use often
+%%% Circuit classes
+\def\SPS{\Sigma\Pi\Sigma}
+\def\SPSP{\Sigma\Pi\Sigma\Pi}
+\def\SPSE{\Sigma\Pi\Sigma\wedge}
+\def\SPSPfanin#1#2{\Sigma\Pi^{[#1]}\Sigma\Pi^{[#2]}}
+\def\SPSPsupp#1{\Sigma\Pi\Sigma\Pi^{\{#1\}}}
+\def\SESES{\Sigma\!\wedge\!\Sigma\!\wedge\!\Sigma}
+
+%%% Some complexity classes. (Don't want to include complexity.sty jsut for this. Messes up with \R etc.
+\def\VP{\mathsf{VP}}
+\def\VNP{\mathsf{VNP}}
+\def\NP{\mathsf{NP}}
+\def\BPP{\mathsf{BPP}}
+\def\P{\mathsf{P}}
+
+% ------ Some proof enviroments ------
+\newenvironment{proof-sketch}{\medskip\noindent{\em Sketch of Proof.}\hspace*{1em}}{\qed\bigskip}
+\newenvironment{proof-attempt}{\medskip\noindent{\em Proof attempt.}\hspace*{1em}}{\bigskip}
+\newenvironment{proofof}[1]{\medskip\noindent\emph{Proof of #1.}\hspace*{1em}}{\qed\bigskip}
+\newenvironment{myproof}[1]%
+{\vspace{1ex}\noindent{\emph{Proof.}}\hspace{0.5em}\def\myproof@name{#1}\newif\ifqedhere\qedherefalse}%
+{\ifqedhere \else \hfill{\tiny \qed\ (\myproof@name)}\vspace{1ex} \qedherefalse \fi}
+
+\newcommand{\myqedhere}
+{\global\qedheretrue \tag*{\text{\tiny \qed\ (\myproof@name)}}}
+
+% ----------------------------------------------------------------------
+%  \now  -- Current time in h:mm AM/PM format
+%  \mdyy -- Today's date in m/d/yy format.  Forget Y2K; this is for humans!
+%  \dmyy -- Today's date in d/m/yy format.  Forget Y2K; this is for humans!
+% ----------------------------------------------------------------------
+\newcount\timehh\timehh=\time
+\divide\timehh by 60
+\newcount\timemm\timemm=\time
+\count255=\timehh
+\multiply\count255 by -60
+\advance\timemm by \count255
+\newif\iftimePM
+\ifnum\timehh>11 \timePMtrue\else\timePMfalse\fi
+\ifnum\timehh<1 \advance\timehh by 12\fi
+\ifnum\timehh>12 \advance\timehh by -12\fi
+\def\now{\number\timehh:\ifnum\timemm<10 0\fi\number\timemm
+         \iftimePM pm\else am\fi}
+\newcount\mdYY\mdYY=\year
+\count255=\year
+\divide\count255 by 100
+\multiply\count255 by 100
+\advance\mdYY by -\count255
+\def\mdyy{\number\month/\number\day/\ifnum\mdYY<10 0\fi\number\mdYY}
+\def\dmyy{\number\day/\number\month/\ifnum\mdYY<10 0\fi\number\mdYY}
