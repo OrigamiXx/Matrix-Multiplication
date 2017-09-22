@@ -21,12 +21,6 @@
 \input{thmmacros}
 \input{customurlbst/bibmacros}
 
-\newcommand{\occur}[3]{\mathrm{Occur}_{#1}^{#2}({#3})}
-\newcommand{\var}[2]{\mathrm{Var}_{#1}({#2})}
-
-\newcommand{\exi}{\vecx_{[i]}}
-
-\newcommand{\cH}{\mathcal{H}}
 \usepackage{algorithmicx}
 \usepackage{algorithm} % http://ctan.org/pkg/algorithms
 \usepackage{algpseudocode}
@@ -34,9 +28,6 @@
 \renewcommand{\algorithmicrequire}{\textbf{Input:}}
 
 \algrenewcommand\algorithmicindent{1.0em}%
-
-\def\rowsum{\operatorname{rowSum}} 
-\def\colsum{\operatorname{colSum}}
 
 \newcommand{\RPnote}[1]{\textcolor{BrickRed}{RP: #1}}
 \newcommand{\Mattnote}[1]{\textcolor{OliveGreen}{MWA: #1}}
@@ -49,7 +40,7 @@
 %\onehalfspacing
 \date{}
 
-\title{Finding Strong Uniquely-Solvable Puzzles
+\title{Matrix Multiplication: Finding Strong Uniquely-Solvable Puzzles
 {\IfFileExists{./sha.tex}{\\\small SHA: \input{sha}}{}}}
 \author{
 Matthew Anderson\thanks{Department of Computer Science, Union College, Schenectady, New York, USA, E-mails: \texttt{andersm2@union.edu, jiz@union.edu, xua@union.edu}}%
@@ -62,7 +53,7 @@ Anthony Yang Xu\samethanks[1]
 \maketitle
 
 \begin{abstract}
-XXX
+
 \end{abstract}
 
 \thispagestyle{empty}
@@ -73,5 +64,41 @@ XXX
 \section{Introduction}
 \label{sec:intro}
 
+Cohn and Umans \cite{cu03} introduced an approach for developing
+faster algorithms for matrix multiplication by reducing this question
+to a search for group-theoretic groups that satisfy a certain
+combinatorial property.
+
+\section{Preliminaries}
+\label{sec:prelim}
+
+\section{Checking for Strong USPs}
+\label{sec:check}
+
+\section{Heuristics for Strong USPs}
+\label{sec:heuristic}
+
+\section{Searching for Strong USPs}
+\label{sec:search}
+
+\section{Results}
+\label{sec:results}
+
+\subsection{Strong USPs Found}
+\label{subsec:usps_found}
+
+\subsection{Algorithm Performance}
+\label{subsec:performance}
+
+\section{Conclusions}
+\label{sec:conclusion}
+
+\bibliographystyle{customurlbst/alphaurlpp} \bibliography{references}
+
+\appendix
+
+
 \end{document}
+
+
 
