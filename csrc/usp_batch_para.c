@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <vector>
 #include <algorithm>
-#include <set>
 #include <string>
 #include <iostream>
 #include <map>
@@ -56,10 +55,10 @@ int k = -1;
 int me,nprocs;
 double t_total = 0.0;
 
-puzzle_row init_row = 115;
+puzzle_row init_row = 2301;
 bool prune_start_row = false;
 bool greedy = true;
-double greedy_count = 3;
+double greedy_count = 1.2;
 //int max_scan = 100;
 
 // Map Reduce Option Initialization.
@@ -632,7 +631,7 @@ int main(int narg, char **args)
 	fflush(stdout);
       }
 
-      if (s >= 14)
+      if ((s >= 14 && k == 6) || (s >= 21 && k == 7))
 	mr -> print(-1,&fprintUKV);
       
       t_total += t_stop - t_start;

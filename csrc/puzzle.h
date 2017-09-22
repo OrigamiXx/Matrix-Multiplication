@@ -3,6 +3,9 @@
 
 #include <string.h>
 
+
+
+
 /*
  * Uses an integer to store a puzzle row, capable of representing rows
  * with at most 19 columns.
@@ -23,6 +26,27 @@ typedef struct puzzle {
   bool * tdm;
   bool tdm_valid;
 }puzzle;
+
+
+/*
+ * Datatypes for expressing the return values of puzzle checkers and
+ * heuristics.
+ *
+ * + IS_USP indicates that the puzzle is a strong USP.  
+ * + NOT_USP indicates that the puzzle is not a strong USP.
+ *
+ * + UNDET_USP indicates that it was not determined whether or not the
+ *     puzzle is a strong USP.  
+ *
+ *     Checkers should not return this value unless there is an
+ *     intentional interruption of the function or an unrecoverable
+ *     error.
+ *
+ *     Heuristics return this value in the event they are unable to
+ *     decide whether the given puzzle is a strong USP.
+ */
+typedef enum check_val {NOT_USP, IS_USP, UNDET_USP} check_t;
+typedef check_t (* checker_t)(puzzle *);
 
 #define MAX_K 40
 

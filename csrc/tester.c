@@ -507,7 +507,7 @@ int main(int argc, char * argv[]) {
   bool all = mode == 'A' || mode == 'a';
 
   // Checkers
-  if (all || (mode != 'H' && mode != 'h')){
+  if (all || mode == 'H' || mode == 'C' || mode == 'O'){
     Checker c_full(&check, "Full");
     checkers.push_back(c_full);
   }
@@ -529,9 +529,9 @@ int main(int argc, char * argv[]) {
 
   // Heuristics
   if (all || mode == 'H' || mode == 'h'){
-    Checker h_greedy(&heuristic_greedy, "greedy", 31, 0);  // Code only supports s <= 31.
+    Checker h_greedy(&heuristic_greedy, "greedy", 25, 0);  // Code only supports s <= 31.
     checkers.push_back(h_greedy);
-    Checker h_random(&heuristic_random, "random", 31, 0);  // Code only supports s <= 31.
+    Checker h_random(&heuristic_random, "random", 25, 0);  // Code only supports s <= 31.
     checkers.push_back(h_random);
     Checker h_row_pairs(&heuristic_row_pairs, "row_pairs");
     checkers.push_back(h_row_pairs);
@@ -539,6 +539,8 @@ int main(int argc, char * argv[]) {
     checkers.push_back(h_row_triples);
     Checker h_2d_matching(&heuristic_2d_matching, "2d_matching");
     checkers.push_back(h_2d_matching);
+    Checker h_ga(&heuristic_graph_automorphism, "ga");
+    checkers.push_back(h_ga);
   }
   
   // Initialize Logging.
@@ -621,10 +623,10 @@ int main(int argc, char * argv[]) {
     
     for (int k = start_k; k <= end_k; k++){
       for (int s = start_s; s <= end_s; s++){
-	char test_name[50];
+	char test_name[500];
 	sprintf(test_name,"Random s=%d k=%d iter=%d,%d,%d,%d", s, k, iter, s, k, iter);
 	Random_Tester R(test_name, s, k, iter);
-	R.run_test(&checkers, verbose, log, log_err) && success;
+	success = R.run_test(&checkers, verbose, log, log_err) && success;
       }
     }
     

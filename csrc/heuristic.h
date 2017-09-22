@@ -15,7 +15,6 @@
 #include <stdlib.h>
 #include <vector>
 #include <algorithm>
-#include <set>
 #include <string>
 #include <iostream>
 #include <map>
@@ -67,6 +66,12 @@ check_t heuristic_random(puzzle * p);
  * before this.  Requires s <= 31.
  */
 check_t heuristic_greedy(puzzle * p);
+
+
+/* Returns NOT_USP iff it determines that puzzle's structure is not
+   uniquely solvable.  Returns UNDET_USP otherwise.  Effectively tests
+   whether puzzle is a USP, but not a strong USP. */
+check_t heuristic_graph_automorphism(puzzle * p);
 
 
 #endif
