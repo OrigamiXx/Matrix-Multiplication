@@ -25,8 +25,8 @@ int main(int argc, char * argv[]){
 
   #ifdef __GUROBI_INSTALLED__
 
-  int givenR = 15;
-  int givenC = 6;
+  int givenR = 30;
+  int givenC = 8;
   // int * puzzle1 = (int *) malloc(sizeof(int *)*givenR);
   // puzzle1[0] = 279;
   // puzzle1[1]= 284;
@@ -91,14 +91,13 @@ int main(int argc, char * argv[]){
       puzzle * p = create_puzzle(j, i);
       randomize_puzzle(p);
       //srand48(time(NULL));
-      for (index = 0; index < 100000; index++){
+      for (index = 0; index < 10000; index++){
         //puzzle *p;
         //p = create_puzzle_from_index(j,i,index);
         clock_gettime(CLOCK_MONOTONIC, &begin);
-        if (check(p)){
+        if //(check(p)){
           //(check_MIP(p)){
-          //(check_SAT(p)){
-          //(popen_simple(p->row, p->column,-1,p)){
+          (IS_USP == check_SAT(p)){
           clock_gettime(CLOCK_MONOTONIC, &end);
           usp_total = usp_total + ((double)end.tv_sec + 1.0e-9*end.tv_nsec) - ((double)begin.tv_sec + 1.0e-9*begin.tv_nsec);
           usps++;
@@ -112,10 +111,10 @@ int main(int argc, char * argv[]){
         randomize_puzzle(p);
         //srand48(time(NULL));
         //destroy_puzzle(p);
-        if (check(p)!= check_SAT(p) || check(p)!= check_MIP(p)){
+        /*if (check(p)!= check_SAT(p) || check(p)!= check_MIP(p)){
           printf("this puzzle is different\n");
           print_puzzle(p);
-        }
+        }*/
       }
       destroy_puzzle(p);
       printf("checked: %ld usps: %ld nonusps: %ld\n",checked, usps, nonusps);
