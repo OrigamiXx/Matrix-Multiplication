@@ -653,7 +653,7 @@ configure:5607: $? = 0
 configure:5614: result: 1
 configure:5628: checking for pthread_create
 configure:5628: gcc -o conftest  -O3   conftest.c  >&5
-/tmp/ccSSNSq5.o: In function `main':
+/tmp/ccmqKyra.o: In function `main':
 conftest.c:(.text.startup+0x7): undefined reference to `pthread_create'
 collect2: error: ld returned 1 exit status
 configure:5628: $? = 1

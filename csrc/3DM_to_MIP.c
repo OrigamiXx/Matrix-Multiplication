@@ -34,7 +34,7 @@ GRBenv *env = NULL;
 // message by directing stdout.  XXX - Not sure whether this is thread
 // safe.  Returns true iff the Gurobi environment exists on return.
 bool ensure_env_loaded_quiet(void){
-  
+
   if (env == NULL) {
     char buf[20];
     int saved_stdout = dup(1);
@@ -138,7 +138,7 @@ void construct_reduction(puzzle * p, GRBmodel * model) {
   }
   GRBaddconstr(model, s, ind, val, GRB_LESS_EQUAL, (double)(s - 1), NULL);
 
- 
+
 }
 
 // Checks whether p is a strong USP, using the provided Gurobi model.
@@ -147,31 +147,40 @@ void construct_reduction(puzzle * p, GRBmodel * model) {
 // only be returned if there was an error, or the solving was
 // interrupted.
 check_t check_MIP(puzzle *p, GRBmodel * model){
-  
+
   GRBenv * menv = GRBgetenv(model);
 
   // Set parameters.
   GRBsetintparam(menv, "Threads", 1);
   GRBsetintparam(menv, GRB_INT_PAR_MIPFOCUS, 1);
-  GRBsetintparam(menv, "OutputFlag", 0);  
+  GRBsetintparam(menv, "OutputFlag", 0);
+
+  GRBsetdblparam(menv, "FeasibilityTol",1e-9);
+  GRBsetdblparam(menv, "IntFeasTol",1e-9);
+  GRBsetdblparam(menv, "MarkowitzTol",1e-4);
+  GRBsetdblparam(menv, "MIPGap", 0);
+  GRBsetdblparam(menv, "MIPGapAbs", 0);
+  GRBsetdblparam(menv, "OptimalityTol", 1e-9);
+  GRBsetdblparam(menv, "PSDTol", 0);
+
 
   // Construct MIP instance.
   construct_reduction(p, model);
   //GRBwrite(model, "3DM_to_MIP.lp");
 
   GRBoptimize(model);
-  
+
   /* Capture solution information */
   int opt_status;
   GRBgetintattr(model, GRB_INT_ATTR_STATUS, &opt_status);
 
-  if (opt_status == GRB_INFEASIBLE) 
+  if (opt_status == GRB_INFEASIBLE)
     return IS_USP;
-  else if (opt_status == GRB_OPTIMAL) 
+  else if (opt_status == GRB_OPTIMAL)
     return NOT_USP;
-  else 
+  else
     return UNDET_USP;
- 
+
 }
 
 // Checks whether p is a strong USP, using a MIP reduction.  Returns 1
@@ -179,27 +188,27 @@ check_t check_MIP(puzzle *p, GRBmodel * model){
 // unable to determine whether p is a strong USP.  -1 will only be
 // returned if there was an error.
 check_t check_MIP(puzzle *p){
-  
+
   if (!ensure_env_loaded_quiet())
     return UNDET_USP;
 
   GRBmodel * model = NULL;
   GRBnewmodel(env, &model, "3DM_to_MIP", 0, NULL, NULL, NULL, NULL, NULL);
 
-  
+
   check_t res = check_MIP(p, model);
 
   GRBfreemodel(model);
 
   return res;
-  
+
 }
 
 
 // Callback for interrupting Gurobi whenever the bool * in usrdata
 // points to true.
 int interrupt_callback(GRBmodel *model, void *cbdata, int where, void *usrdata){
-  
+
   bool * interrupt = ((bool *)usrdata);
   if (*interrupt) {
     GRBterminate(model);
@@ -219,27 +228,24 @@ void * MIP(void * arguments){
   thread_args * args = (thread_args *)arguments;
 
   check_t res = UNDET_USP;
-  
+
   if (ensure_env_loaded_quiet()){
-    
+
     // Allocate model.
     GRBmodel *model = NULL;
     GRBnewmodel(env, &model, "3DM_to_MIP", 0, NULL, NULL, NULL, NULL, NULL);
     GRBsetcallbackfunc(model, interrupt_callback, &(args -> interrupt));
-    
+
     // Run check
     res = check_MIP(args -> p, model);
-    
+
     // Deallocate model.
     GRBfreemodel(model);
 
     args -> complete = true;
     sem_post(args -> complete_sem);
-    
+
   }
-    
+
   pthread_exit((void*)res);
 }
-
-
-
