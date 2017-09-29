@@ -499,6 +499,8 @@ int main(int argc, char * argv[]) {
     fprintf(stderr, "usage: tester <OnlyCheck|Checkers|Heuristics|All> [<start_s> <end_s> <start_k> <end_k> <iter>]\n");
     return -1;
   }
+
+  srand48(0);
   
   // Initialize Checkers.
   vector<Checker> checkers;
@@ -517,7 +519,7 @@ int main(int argc, char * argv[]) {
     checkers.push_back(c_uni);
     Checker c_bi(&check_usp_bi, "BI", 11, 0);  // Too slow after s = 11.
     checkers.push_back(c_bi);
-    Checker c_SAT(&check_SAT, "SAT", 35, 0);   // Too slow after s = 35.
+    Checker c_SAT(&check_SAT, "SAT", 100, 0);   // Too slow after s = 35.
     checkers.push_back(c_SAT);
     #ifdef __GUROBI_INSTALLED__
     Checker c_MIP(&check_MIP, "MIP");

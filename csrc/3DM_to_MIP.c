@@ -69,6 +69,8 @@ void construct_reduction(puzzle * p, GRBmodel * model) {
   int s = p -> s;
   puzzle_row num_vars = s * s * s;
 
+  compute_tdm(p);
+  
   int ind[num_vars];
   double val[num_vars];
   char vtype[num_vars];
@@ -155,14 +157,15 @@ check_t check_MIP(puzzle *p, GRBmodel * model){
   GRBsetintparam(menv, GRB_INT_PAR_MIPFOCUS, 1);
   GRBsetintparam(menv, "OutputFlag", 0);
 
-  GRBsetdblparam(menv, "FeasibilityTol",1e-9);
-  GRBsetdblparam(menv, "IntFeasTol",1e-9);
-  GRBsetdblparam(menv, "MarkowitzTol",1e-4);
-  GRBsetdblparam(menv, "MIPGap", 0);
-  GRBsetdblparam(menv, "MIPGapAbs", 0);
-  GRBsetdblparam(menv, "OptimalityTol", 1e-9);
-  GRBsetdblparam(menv, "PSDTol", 0);
-
+  int res = 0;
+  res = res | GRBsetdblparam(menv, "FeasibilityTol",1e-6);
+  res = res | GRBsetdblparam(menv, "IntFeasTol",1e-6);
+  res = res | GRBsetdblparam(menv, "MarkowitzTol",1e-4);
+  res = res | GRBsetdblparam(menv, "MIPGap", 0);
+  res = res | GRBsetdblparam(menv, "MIPGapAbs", 0);
+  res = res | GRBsetdblparam(menv, "OptimalityTol", 1e-9);
+  res = res | GRBsetdblparam(menv, "PSDTol", 0);
+  //printf("\nres = %d\n",res); 
 
   // Construct MIP instance.
   construct_reduction(p, model);
