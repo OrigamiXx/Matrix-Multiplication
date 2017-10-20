@@ -16,12 +16,6 @@ Author: Jerry
 
 #include "checker.h"
 #include "puzzle.h"
-#include "3DM_to_SAT.h"
-#ifdef __GUROBI_INSTALLED__
-#include "3DM_to_MIP.h"
-#endif
-
-#include "heuristic.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -47,94 +41,115 @@ int ipow(int base, int exp){
 }
 
 int main(int argc, char ** argv){
-    #ifdef __GUROBI_INSTALLED__
-    int s = 1;
-    int k = 3;
-    int maxs = 4;
+  
+  int s = 2;
+  int k = 4;
+  int maxs = 0;
+  
+  puzzle_row r = 0;
+  
+  puzzle_row max_index = ipow(ipow(3,k),s);
+  int vertices[max_index];
+  //bool graph[max_index][max_index];
 
-    //print_puzzle(p);
+  // Allocate
+  bool ** graph = (bool **) malloc(sizeof(bool *) * max_index);
+  for (int i = 0; i < max_index; i++){
+    graph[i] = (bool *)malloc(sizeof(bool) * max_index);
+  }
+  
+  
+  // fill in the graph with vertices and edges
+  for(puzzle_row i = 0; i < max_index; i++){
+    
+    puzzle * p1 = create_puzzle_from_index(s, k, i);
+    
+    for(puzzle_row j = 0; j < max_index; j++){
+      
+      puzzle * p2  = create_puzzle_from_index(s, k, j);
 
-    puzzle_row r = 0;
-    //p = create_puzzle_from_puzzle(p, r);
-    //print_puzzle(p);
-    int index = ipow(3,k)-1;
-    int vertices[index];
-
-    bool ** graph = (bool **) malloc(sizeof(bool *)* index);
-    for (int i = 0; i <= index; i++){
-      graph[i] = (bool *)malloc(sizeof(bool)*index);
-    }
-
-
-    // fill in the graph with vertices and edges
-    for (int i = 0; i <= index; i++){
-      //print_puzzle(p);
-      //printf("%s\n", "aaaaaaa");
-      for (int j = 0; j <= index; j++){
-        puzzle * p  = create_puzzle_from_index(s,k,i);
-        r = j;
-        p = create_puzzle_from_puzzle(p, r);
-        if (check(p) == IS_USP){
-          //printf("%s\n", "got here");
-          graph[i][j] = true;
-          //print_puzzle(p);
-          //printf("%s\n", "xxxxxxxxxxxxxxx");
-        } else{
-          graph[i][j] = false;
-          //printf("%s\n", "got here");
-        }
-        destroy_puzzle(p);
-      }
-    }
-    //printf("%d\n", index);
-    // keep track of degree of vertices
-    for (int l = 0; l <= index; l++){
-        int count = 0;
-        for (int a = 0; a <= index; a++){
-          if (graph[l][a] == true){
-            count++;
-          }
-        }
-        vertices[l] = count;
-
-        //printf("count %d\n", vertices[l]);
-    }
-
-    // get rid of the vertices that is less than degree maxs
-
-    int sum;
-    for (int b = maxs; b >= 0; b--){
-      sum = 0;
-      for (int c = 0; c <= index; c++){
-        if (vertices[c] <= b){
-          for (int d = 0; d <= index; d++){
-            graph[c][d] = false;
-            graph[d][c] = false;
-          }
-        }
-      }
-      for (int e = 0; e <= index; e++){
-          int count = 0;
-          for (int f = 0; f <= index; f++){
-            if (graph[e][f] == true){
-              count++;
-            }
-          }
-          vertices[e] = count;
-          sum += count;
-      }
-      if (sum == 0){
-        printf("maximum degree is %d\n", b-1);
-        break;
+      puzzle * p = create_puzzle(2 * s,k);
+      for (int r = 0; r < s; r++){
+	p->puzzle[r] = p1->puzzle[r];
+	p->puzzle[r+s] = p2->puzzle[r];
       }
 
+      // Insert edge if necessary.
+      if (check(p) == IS_USP)
+	graph[i][j] = true;
+      else
+	graph[i][j] = false;
+
+      destroy_puzzle(p2);
+      destroy_puzzle(p);
+      
     }
-    for (int i = 0; i <= index; i++){
-      printf("count %d\n", vertices[i]);
+
+    destroy_puzzle(p1);
+  }
+  
+  // keep track of degree of vertices
+  for (puzzle_row i = 0; i < max_index; i++){
+
+    vertices[i] = 0;
+    
+    for (puzzle_row j = 0; j < max_index; j++)
+      if (graph[i][j])
+	vertices[i]++;
+
+    printf("vertices[%lu] = %d\n",i,vertices[i]);
+  }
+
+  // Eliminate vertices that can't be part of maxs-cliques.
+  // get rid of the vertices that is less than degree maxs
+  
+  // Loop until no further changes are affect in the graph.
+  bool changed = true;
+  while (changed) {
+
+    changed = false;
+
+    // Delete all vertices with less than maxs degree.
+    // Record change, if it occurs.
+    for (puzzle_row i = 0; i < max_index; i++){
+      if (vertices[i] < maxs){
+	for (puzzle_row j = 0; j < max_index; j++){
+	  if (graph[i][j] || graph[j][i])
+	    changed = true;
+	  graph[i][j] = false;
+	  graph[j][i] = false;
+	}
+      }
     }
 
+    // Recaulate degrees.
+    for (puzzle_row i = 0; i < max_index; i++){
+      
+      vertices[i] = 0;
 
+      for (puzzle_row j = 0; j < max_index; j++)
+	if (graph[i][j])
+	  vertices[i]++;
 
+    }
+      
+  }
 
-    #endif
+  printf("-- Reached fixed point --\n");
+  int min = vertices[0];
+  int max = vertices[0];
+  // Output final degree counts for stable graph.
+  for (puzzle_row i = 0; i < max_index; i++){
+    if (vertices[i] > max)
+      max = vertices[i];
+    if ((vertices[i] < min && vertices[i] != 0) || min == 0)
+      min = vertices[i];
+    printf("vertices[%lu] = %d\n",i,vertices[i]);
+  }
+
+  printf("min = %d, max = %d\n", min, max);
+  if (max == 0){
+    printf("It's not possible to construct a (%d,%d)-USP.\n", maxs, k);
+  }
+  
 }

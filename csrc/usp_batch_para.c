@@ -55,10 +55,10 @@ int k = -1;
 int me,nprocs;
 double t_total = 0.0;
 
-puzzle_row init_row = 2301;
+puzzle_row init_row = 0;
 bool prune_start_row = false;
 bool greedy = true;
-double greedy_count = 1.2;
+double greedy_count = 2;
 //int max_scan = 100;
 
 // Map Reduce Option Initialization.

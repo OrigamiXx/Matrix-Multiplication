@@ -98,6 +98,7 @@ const puzzle_row MAX_ROWS[MAX_K+1] =
 //create a puzzle that has one more row and same width as the input puzzle
 // according to the given row_inde
 //Again, this row_index is the trinary index
+//MWA: Rename to add_row_to_puzzle.
 puzzle * create_puzzle_from_puzzle(puzzle * p, puzzle_row row);
 
 //Creat an empty puzzle with given row and cols length
