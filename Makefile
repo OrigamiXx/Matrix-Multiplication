@@ -13,7 +13,7 @@ NAUTYDIR=nauty26r7
 # Put additional object sources in list below.
 OBJ-SOURCES=checker.c permutation.c puzzle.c set.c matching.c 3DM_to_SAT.c timing.c heuristic.c
 # Put additional executable sources in list below.
-EXE-SOURCES=permutation_tester.c puzzle_tester.c set_tester.c generate_puzzle.c usp_exp.c matching_tester.c test.c usp_construct.c usp_test_file.c usp_tester.c 3DM_to_SAT_tester.c usp_greedy.c tester.c clique.c
+EXE-SOURCES=permutation_tester.c puzzle_tester.c set_tester.c generate_puzzle.c usp_exp.c matching_tester.c test.c usp_construct.c usp_test_file.c usp_tester.c 3DM_to_SAT_tester.c usp_greedy.c tester.c clique.c search.c
 ifdef GUROBI_HOME
 OBJ-SOURCES+= 3DM_to_MIP.c
 EXE-SOURCES+= 3DM_to_MIP_tester.c
