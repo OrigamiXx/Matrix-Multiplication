@@ -78,7 +78,7 @@ int search(puzzle * p, int prev_best){  // Ext: Pass previous possible rows and 
     puzzle * p1 = create_puzzle_from_puzzle(p, i);
 
     if (check(p1) == IS_USP){
-      long value = h_inf(p1); // Ext: Pass possible rows.
+      long value = (long) h(p1); // Ext: Pass possible rows.
       possible[n].r = i;
       possible[n].val = value;
       if (value > max_val)
@@ -133,7 +133,7 @@ int search(puzzle * p, int prev_best){  // Ext: Pass previous possible rows and 
 
 int main(int argc, char ** argv){
   
-  puzzle * p = create_puzzle_from_index(1,7,0);
+  puzzle * p = create_puzzle_from_index(1,5,0);
 
   int res = search(p,0); // Ext: initialize possible rows before calling.
 
