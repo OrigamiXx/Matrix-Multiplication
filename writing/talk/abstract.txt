@@ -1,0 +1,19 @@
+Title: Computer-Aided Search for Matrix Multiplication Algorithms
+
+Abstract: In 2005, Henry Cohn and Chris Umans proposed a framework for
+developing matrix multiplication algorithms that could surpass the
+O(n^{2.375}) run time of Coppersmith and Winograd's algorithm.  They
+showed that the existence of certain algebraic structures, called
+strong uniquely-solvable puzzles, that are sufficiently large imply
+faster algorithms for matrix multiplication.  In my talk I'll begin by
+describing the Cohn-Umans framework and then discuss our work
+developing, implementing, and evaluating algorithms to generate large
+strong uniquely-solvable puzzles.  I will discuss the litany of
+greedy, dynamic programming, satisfiability, mixed-integer
+programming, 3D matching, search, and parallel approaches that we used
+to generate large uniquely-solvable puzzles.  I'll conclude by
+reflecting on some of the lessons I've learned as a theorist trying to
+use computers to aid in solving this computational complexity problem.
+
+This is ongoing work with Zongliang Ji and Anthony Yang Xu, two
+undergraduate students at Union College.
