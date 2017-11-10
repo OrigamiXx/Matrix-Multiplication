@@ -41,13 +41,13 @@ int ipow(int base, int exp){
 }
 
 int main(int argc, char ** argv){
-  
-  int s = 2;
+
+  int s = 1;
   int k = 4;
-  int maxs = 0;
-  
+  int maxs = 65;
+
   puzzle_row r = 0;
-  
+
   puzzle_row max_index = ipow(ipow(3,k),s);
   int vertices[max_index];
   //bool graph[max_index][max_index];
@@ -57,52 +57,52 @@ int main(int argc, char ** argv){
   for (int i = 0; i < max_index; i++){
     graph[i] = (bool *)malloc(sizeof(bool) * max_index);
   }
-  
-  
+
+
   // fill in the graph with vertices and edges
   for(puzzle_row i = 0; i < max_index; i++){
-    
+
     puzzle * p1 = create_puzzle_from_index(s, k, i);
-    
+
     for(puzzle_row j = 0; j < max_index; j++){
-      
+
       puzzle * p2  = create_puzzle_from_index(s, k, j);
 
       puzzle * p = create_puzzle(2 * s,k);
       for (int r = 0; r < s; r++){
-	p->puzzle[r] = p1->puzzle[r];
-	p->puzzle[r+s] = p2->puzzle[r];
+	       p->puzzle[r] = p1->puzzle[r];
+	       p->puzzle[r+s] = p2->puzzle[r];
       }
 
       // Insert edge if necessary.
       if (check(p) == IS_USP)
-	graph[i][j] = true;
+	     graph[i][j] = true;
       else
-	graph[i][j] = false;
+	     graph[i][j] = false;
 
       destroy_puzzle(p2);
       destroy_puzzle(p);
-      
+
     }
 
     destroy_puzzle(p1);
   }
-  
+
   // keep track of degree of vertices
   for (puzzle_row i = 0; i < max_index; i++){
 
     vertices[i] = 0;
-    
+
     for (puzzle_row j = 0; j < max_index; j++)
       if (graph[i][j])
-	vertices[i]++;
+	     vertices[i]++;
 
     printf("vertices[%lu] = %d\n",i,vertices[i]);
   }
 
   // Eliminate vertices that can't be part of maxs-cliques.
   // get rid of the vertices that is less than degree maxs
-  
+
   // Loop until no further changes are affect in the graph.
   bool changed = true;
   while (changed) {
@@ -113,26 +113,25 @@ int main(int argc, char ** argv){
     // Record change, if it occurs.
     for (puzzle_row i = 0; i < max_index; i++){
       if (vertices[i] < maxs){
-	for (puzzle_row j = 0; j < max_index; j++){
-	  if (graph[i][j] || graph[j][i])
-	    changed = true;
-	  graph[i][j] = false;
-	  graph[j][i] = false;
-	}
-      }
-    }
+	       for (puzzle_row j = 0; j < max_index; j++){
+	          if (graph[i][j] || graph[j][i])
+	           changed = true;
+	            graph[i][j] = false;
+	             graph[j][i] = false;
+	       }
+       }
+     }
 
     // Recaulate degrees.
     for (puzzle_row i = 0; i < max_index; i++){
-      
+
       vertices[i] = 0;
 
       for (puzzle_row j = 0; j < max_index; j++)
-	if (graph[i][j])
-	  vertices[i]++;
-
+	     if (graph[i][j])
+	      vertices[i]++;
     }
-      
+
   }
 
   printf("-- Reached fixed point --\n");
@@ -151,5 +150,5 @@ int main(int argc, char ** argv){
   if (max == 0){
     printf("It's not possible to construct a (%d,%d)-USP.\n", maxs, k);
   }
-  
+
 }
