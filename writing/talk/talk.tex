@@ -167,17 +167,119 @@ mathserif,xcolor=dvipsnames]{beamer}
 \begin{myframe}{Puzzles}
 
   \begin{definition}[Puzzle]
-    An $(s,k)$-\emph{puzzle} is a subset of $\set{1,2,3}^k$
+    An $(s,k)$-\emph{\structure{puzzle}} is a subset $P \sse U_k = \set{1,2,3}^k$ with $|P| = s$.
   \end{definition}
+
+  Consider $P = \set{(1,2,3), (2, 3, 2)} \sse \set{1,2,3}^3$.
+  
+  \begin{itemize}
+  \item $P$ is a (2,3)-puzzle.
+  \item $P$ has two \emph{rows} $(1,2,3)$ and $(2,3,2)$.
+  \item $P$ has three \emph{columns}.
+  \end{itemize}
+
+  Note that:
+  \begin{itemize}
+  \item The columns are ordered.
+  \item The rows are unordered (as $P$ is a set).
+  \item It sometimes helps to consider elements of $U_k$ as ordered
+    lexicographically.
+  \end{itemize}
+
+  XXX - insert diagram to right and format.
   
 \end{myframe}
 
-\begin{myframe}{\uline{Uniquely Solvable} Puzzles}
+\begin{myframe}{\uline{Uniquely Solvable} Puzzles -- Intuition}
+  
+  It helps to think of each row of a puzzle as consisting of
+  \structure{three} pieces corresponding to the coordinates of the row
+  that are 1, 2, or 3.
 
+
+  \begin{itemize}
+  \item E.g., the row $(1, 2, 1, 1)$ consists of a 1-piece $(1, *, 1,
+    1)$, a 2-piece $(*, 2, *, *)$ and a 3-piece $(*, *, *, *)$.
+    
+  \item A 1-piece, 2-piece, and 3-piece can be fit together to form a
+    row iff there is exactly one non-$*$ for each coordinate among the
+    three pieces.
+  
+  \item E.g., pieces $(1, 1, *, *)$, $(*, *, 2, *)$, $(*, 3, 3, *)$
+    cannot be fix together because they overlap on the $2^{nd}$ and
+    $3^{rd}$ coords, and there is no entry on the $4^{th}$.
+
+  \end{itemize}
+
+  Informally, a puzzle $P$ is \emph{\structure{uniquely solvable}} if
+  there is no way to reorganize the 1-, 2-, 3-pieces of $P$ into a
+  puzzle different from $P$.
+
+  \begin{itemize}
+  \item This is a natural property that holds of ``good'' real-world puzzles:
+    \begin{itemize}
+    \item jigsaw puzzles (locally), and
+    \item sudoku puzzles (globally).
+    \end{itemize}
+  \end{itemize}
+  
+\end{myframe}
+
+
+\begin{myframe}{Uniquely Solvable Puzzle -- Intuition}
+
+  XXX - diagram of uniquely solvable, and not.
+  
+\end{myframe}
+
+
+\begin{myframe}{Uniquely Solvable Puzzle -- Formal}
+  
+  \begin{definition}[Uniquely Solvable Puzzle]
+    An $(s,k)$-puzzle $P$ is called \emph{\structure{uniquely solvable}} if
+    $\forall \pi_1, \pi_2, \pi_3 \in \Sym{P}:$
+    \begin{enumerate}
+    \item either $\pi_1 = \pi_2 = \pi_3$, or
+    \item $\exists r \in P, \exists i \in [k]$ such that \structure{at least} two
+      of the following hold:
+      \begin{enumerate}
+      \item $(\pi_1(r))_i = 1$,
+      \item $(\pi_2(r))_i = 2$,
+      \item $(\pi_3(r))_i = 3$.
+      \end{enumerate}
+    \end{enumerate}
+    
+  \end{definition}
+
+  Basically, for every way of non-trivial way of reordering the 1-,
+  2-, 3-pieces according to $\pi_1, \pi_2, \pi_3$, they cannot all fit
+  together.
+    
+  
 \end{myframe}
 
 \begin{myframe}{\uline{Strong} Uniquely Solvable Puzzles}
 
+  \begin{definition}[Strong Uniquely Solvable Puzzle]
+
+    An $(s,k)$-puzzle $P$ is called \emph{\structure{strong uniquely solvable}} if
+    $\forall \pi_1, \pi_2, \pi_3 \in \Sym{P}:$
+    \begin{enumerate}
+    \item either $\pi_1 = \pi_2 = \pi_3$, or
+    \item $\exists r \in P, \exists i \in [k]$ such that \structure{exactly} two
+      of the following hold:
+      \begin{enumerate}
+      \item $(\pi_1(r))_i = 1$,
+      \item $(\pi_2(r))_i = 2$,
+      \item $(\pi_3(r))_i = 3$.
+      \end{enumerate}
+    \end{enumerate}
+
+  \end{definition}
+
+  No good physical intuition for the ``exactly two'' part.
+    
+  
 \end{myframe}
 
 \begin{myframe}{Properties of Strong USPs -- I}
