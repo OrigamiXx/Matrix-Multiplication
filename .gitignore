@@ -18,3 +18,15 @@ depend.mk
 *.puz
 .log
 ._*
+*.aux
+*.cb
+*.log
+*.nav
+*.snm
+*.pdf
+*.toc
+*.cb2
+*.blg
+*.fdb_latexmk
+*.fls
+*.tar.gz

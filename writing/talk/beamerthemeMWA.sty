@@ -1,0 +1,132 @@
+% this style was created by Philippe Dreuw and Thomas Deselaers
+\ProvidesPackage{beamerthemeMWA} 
+
+\definecolor{unionred}{RGB}{150,9,43}
+\newcommand\maincolor{unionred}
+%\newcommand\maincolor{Cerulean}
+
+\usetheme[height=7mm]{Rochester}
+\usecolortheme[named=\maincolor]{structure} 
+
+
+\definecolor{navyblue}{cmyk}{0.94,0.54,0,0} % RGB: 15 117 255
+\definecolor{cerulean}{cmyk}{0.94,0.11,0,0} % RGB: 15 227 255
+\definecolor{processblue}{cmyk}{0.96,0,0,0} % RGB: 10 255 255
+
+%tagray rgb: 136 138 133
+
+%\setbeamertemplate{itemize items}{\large\raise.75pt\hbox{\donotcoloroutermaths$\bullet$}}
+
+
+\setbeamertemplate{itemize items}[circle]
+\setbeamertemplate{itemize subitems}[circle]
+\setbeamertemplate{enumerate items}[square]
+\setbeamertemplate{enumerate subitems}[circle]
+%\setbeamertemplate{blocks}[rounded]%[shadow=true]
+\setbeamertemplate{navigation symbols}{}  % no navigation on a poster
+
+
+%% Corrects vertical alignment of title.
+\newenvironment{myframe}[1]{
+\begin{frame}{\vspace{1mm}\bf{#1}}
+\vspace{1ex}
+}
+{
+\end{frame}
+}
+
+\newenvironment{fragileframe}[1]{
+\begin{frame}[fragile]
+\frametitle{\vspace{1mm}\bf{#1}}
+\vspace{1ex}
+}
+{
+\end{frame}
+}
+
+\newenvironment{myblock}[1]
+{
+  \def \tempwidth {\linewidth}
+  \addtolength{\tempwidth}{0ex}%-1ex}
+
+  \vskip.75ex
+  \begin{minipage}{\tempwidth}
+  \begin{beamercolorbox}[rounded=false,shadow=false,leftskip=0cm,colsep*=.75ex]{block title}%
+    \usebeamerfont*{block title}#1
+  \end{beamercolorbox}%
+  {\ifbeamercolorempty[bg]{block body}{}{\nointerlineskip\vskip-0.5pt}}%
+  \usebeamerfont{block body}%
+  \begin{beamercolorbox}[rounded=false,shadow=false,colsep*=.75ex,sep=.5ex,vmode]{block body}%
+    \ifbeamercolorempty[bg]{block body}{\vskip-.25ex}{\vskip-.75ex}\vbox{}%
+    
+  }{ \end{beamercolorbox}
+%  \vskip.75ex
+%  \medskip
+\smallskip
+  \end{minipage}
+}
+
+\newcommand*{\squareref}[1]{
+  \hbox{%
+    \usebeamerfont*{item projected}%
+    \usebeamercolor[bg]{item projected}%
+    \vrule width2.25ex height1.85ex depth.4ex%
+    \hskip-2.25ex%
+    \hbox to2.25ex{%
+      \hfil%
+      \color{fg}\ref{#1}%
+      \hfil}%
+  }%
+}
+
+\newcommand{\hlbox}[1]{\colorbox{\maincolor}{\color{white}#1}}
+\newcommand{\hlword}[1]{\structure{\bf{#1}}}
+
+\newcommand*{\ballref}[1]{%
+    \begin{pgfpicture}{-1ex}{-0.65ex}{1ex}{1ex}
+    \usebeamercolor[fg]{item projected}
+    {\pgftransformscale{1.75}\pgftext{\normalsize\pgfuseshading{bigsphere}}}
+    {\pgftransformshift{\pgfpoint{0pt}{0.5pt}}
+      \pgftext{\usebeamerfont*{item projected}\ref{#1}}}
+  \end{pgfpicture}}%
+
+
+\usepackage{tangocolors}
+
+\setbeamercolor*{example text}{fg=tagray,bg=black}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% \setbeamercolor{headline}{fg=tabutter,bg=black}
+%% \setbeamercolor{footline}{fg=tabutter, bg=ta3gray}
+%% \setbeamerfont{footline}{size=\large,series=\tt}
+%% \setbeamercolor{separation line}{bg=ta2orange}
+%% \setbeamercolor{title in headline}{fg=white}%black}%tabutter}
+%% \setbeamercolor{author in headline}{fg=white}%3aluminium}%taorange}
+%% \setbeamercolor{institute in headline}{fg=white}%orange}
+
+%% \setbeamercolor{framesubtitle}{fg=ta3orange, bg=ta2gray}
+%% \setbeamercolor{author in head/foot}{fg=taorange, bg=black}
+%% \setbeamercolor{title in head/foot}{fg=ta2orange, bg=black}
+
+%% \setbeamercolor*{normal text}{fg=tachameleon, bg=white}%bg=ta3gray}
+%% \setbeamercolor*{block body}{bg=ta3aluminium,fg=black}
+%% \setbeamercolor*{block title}{fg=taorange,bg=ta2gray}
+%% \setbeamerfont{block title}{size=\large,series=\bf}
+%% \setbeamercolor{upper separation line head}{fg=ta2orange}
+
+%% \setbeamercolor*{example body}{fg=ta3aluminium,bg=black}
+%% \setbeamercolor*{example text}{fg=ta3aluminium,bg=black}
+%% \setbeamercolor*{example title}{bg=taorange,fg=ta2gray}
+
+%% \setbeamercolor{alerted text}{fg=ta3gray}
+
+%% %\setbeamercolor{example text}{fg=taorange}
+%\setbeamercolor{structure}{fg=ta3skyblue}
+
+\newcommand\bb[1]{\hyperlink{#1}{\raise1pt\hbox{$\triangleright$}}}
+\newcommand\rb[1]{\hyperlink{#1}{\hfill\raise1pt\hbox{$\triangleleft$}}}%\hfill\beamergotobutton{Return}}}
+
+%\onslide<2->{\hyperlink<2->{resetanim}{\beamergotobutton{Reset}}
+%\hypertarget<6>{resetanim}{}}

@@ -1,0 +1,57 @@
+%\usepackage{a4wide}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{amsthm}
+%\usepackage[amsmath,hyperref,thmmarks]{ntheorem}
+\usepackage{xspace}
+\usepackage{graphicx}
+\graphicspath{figs}
+\usepackage{mdwlist}
+\usepackage{color}
+\usepackage{soul}
+\usepackage{authblk}
+\usepackage{algpseudocode}
+\usepackage{xparse}
+\usepackage{tikz}
+%\usepackage{3dplot}
+%\usepackage[active,tightpage]{preview}  %generates a tightly fitting border around the work
+%\PreviewEnvironment{tikzpicture}
+%\setlength\PreviewBorder{2mm}
+%% \usetikzlibrary{external}
+%% \tikzexternalize
+%% \tikzexternaldisable
+%% \tikzset{external/force remake=true}
+%% \tikzset{external/system call={%
+%%   pdflatex \tikzexternalcheckshellescape -halt-on-error -interaction=batchmode -jobname "\image" "\texsource"; 
+%%   ps2pdf13 "\image".pdf "\image-13".pdf && cp "\image-13".pdf "\image".pdf}}
+
+
+
+\usepackage{changebar}
+\setcounter{changebargrey}{0} % darkness of change bars (0 = black)
+
+
+% Put a period after a paragraph title.
+%\let\originalparagraph\paragraph
+%\renewcommand{\paragraph}[2][.]{\originalparagraph{#2#1}}
+
+
+% Margin notes
+\newcommand\marginnote[1]{\marginpar{\raggedright\footnotesize\emph{#1}}}
+
+% Symbol to end definitions.
+\newcommand{\defnend}{\hfill\ensuremath{\blacktriangleleft}}
+
+% -----------------------------------------------------------------------------
+% Theorem environments
+% -----------------------------------------------------------------------------
+
+\newtheorem{thm}{Theorem}
+\newtheorem{lem}[thm]{Lemma}
+\newtheorem{question}[thm]{Question}
+\newtheorem{conj}[thm]{Conjecture}
+\newtheorem{claim}[thm]{Claim}
+\newtheorem{cor}[thm]{Corollary}
+\newtheorem{obs}[thm]{Observation}
+\newtheorem{prop}[thm]{Proposition}
+
