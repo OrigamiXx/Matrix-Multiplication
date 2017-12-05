@@ -36,6 +36,8 @@ mathserif,xcolor=dvipsnames]{beamer}
 
 %\setbeamertemplate{footline}[page number]
 
+\newcommand{\QQ}{\ensuremath{\mathbb{Q}}}
+
 \title{\textbf{Computer-Aided Search for \\ Matrix Multiplication Algorithms}}
 
 \institute{{\large \structure{Matthew Anderson} \quad  Zongliang Ji \quad  Anthony Yang Xu \\ \includegraphics[width=1.3in]{figs/uc_logo.eps}}}
@@ -43,7 +45,7 @@ mathserif,xcolor=dvipsnames]{beamer}
 
 \begin{document}
 \begin{frame}[plain]
-
+  
   \vspace{5ex}
 
   \titlepage
@@ -54,21 +56,87 @@ mathserif,xcolor=dvipsnames]{beamer}
 
 \subsection{The Matrix Multiplication Problem}
 
-\begin{myframe}{The Matrix Multiplication Problem}
+\begin{myframe}{Matrix Multiplication}
 
+  \begin{problem}%[Square Matrix Multiplication]
+    \textbf{Input:} $A \in \F^{n \times n}$, $B \in \F^{n \times n}$ \\
+    \textbf{Output:} $C = A \times B \in \F^{n\times n}$.    
+  \end{problem}
+
+  For example:
+  $$
+  \left[
+    \begin{tabular}{cc}
+      1 & 2 \\
+        2 & 0
+    \end{tabular}
+    \right]
+  \times
+  \left[
+    \begin{tabular}{cc}
+      -1 & 3 \\
+      1 & 1
+    \end{tabular}
+    \right]
+  =
+  \left[
+    \begin{tabular}{cc}
+      1 & 5 \\
+      -2 & 6
+    \end{tabular}
+    \right]    
+  $$
+  
+  
+  %\item Focus on \structure{square} matrix multiplication where $m = n = p$.
+  How many operations does it take to multiply two $n$-by-$n$
+  matrices?
+  \begin{itemize}
+  \item $O(n^3)$ by naively computing $n^2$ dot products of rows of $A$ and columns of $B$.
+  \item $\Omega(n^2)$ because there are at $n^2$ cells to output.
+  \end{itemize}
+  \begin{question}
+  What is the smallest $\omega \le 3$ such that $n$-by-$n$ matrix
+  multiplication can be done in time $O(n^\omega)$?
+  \end{question}
+    
 \end{myframe}
 
 \subsection{Historical Context}
 
-\begin{myframe}{Historical Progress}
+\begin{myframe}{Progress on $\omega$}
 
-  Timeline or chart.
+  \begin{center}
+  {\Large
+  \begin{tabular}{ll}
+    \structure{$3$} & Naive \\
+    \structure{$\uline{2}.808$} & Strassen 1969 \\
+    \structure{$2.\uline{7}96$} & Pan 1978 \\
+    \structure{$2.7\uline{8}$} & Bini et al 1979 \\
+    \structure{$2.\uline{5}22$} & Schönhage 1981 \\
+    \structure{$2.\uline{4}96$} & Coppersmith \& Winograd 1982 \\
+    \structure{$2.4\uline{7}9$} & Strassen 1986 \\  % Laser
+    \structure{$2.\uline{3}75477$} & Coppersmith \& Winograd 1987 \\
+    \structure{$2.37\uline{4}$} & Stothers 2010 \\
+    \structure{$2.37\uline{2}8642$} & Williams 2011 \\
+    \structure{$2.37286\uline{3}9$} & François Le Gall 2014
+  \end{tabular}
+  }
+  \end{center}
   
 \end{myframe}
 
-\begin{myframe}{Outline}
+\begin{frame}[label=outline]{\vspace{1mm}\textbf{Outline}}
 
-\end{myframe}
+  \begin{itemize}
+  \item Introduction
+  \item Cohn-Umans Framework
+  \item Verification
+  \item Search
+  \item Lessons
+  \end{itemize}
+  
+\end{frame}
 
 \section{Cohn-Umans Framework}
 
@@ -80,6 +148,8 @@ mathserif,xcolor=dvipsnames]{beamer}
 
 \begin{myframe}{Warm-up: Polynomial Multiplication}
 
+  Probably need to skip most of this and next few slides.
+  
 \end{myframe}
 
 \subsection{Group-Theoretic Matrix Multiplication}
@@ -120,9 +190,7 @@ mathserif,xcolor=dvipsnames]{beamer}
 
 \section{Verification}
 
-\begin{myframe}{Outline}
-
-\end{myframe}
+\againframe{outline}
 
 \subsection{Brute Force}
 
@@ -140,6 +208,8 @@ mathserif,xcolor=dvipsnames]{beamer}
 
 \begin{myframe}{Reduction to 3D Matching -- I}
 
+Remark on symmetry
+  
 \end{myframe}
 
 \begin{myframe}{Reduction to 3D Matching -- II}
@@ -168,6 +238,9 @@ mathserif,xcolor=dvipsnames]{beamer}
 
 \begin{myframe}{Results -- I}
 
+  Generate data?
+  Heuristics?
+  
 \end{myframe}
 
 \begin{myframe}{Results -- II}
@@ -177,9 +250,7 @@ mathserif,xcolor=dvipsnames]{beamer}
 
 \section{Search}
 
-\begin{myframe}{Outline}
-
-\end{myframe}
+\againframe{outline}
 
 \subsection{BFS \& DFS}
 
@@ -213,6 +284,8 @@ mathserif,xcolor=dvipsnames]{beamer}
 
 \begin{myframe}{Results -- I}
 
+  Examples + table
+  
 \end{myframe}
 
 \begin{myframe}{Results -- II}
@@ -220,6 +293,8 @@ mathserif,xcolor=dvipsnames]{beamer}
 \end{myframe}
 
 \section{Lessons}
+
+\againframe{outline}
 
 \begin{myframe}{Lessons}
  
