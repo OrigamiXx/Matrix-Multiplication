@@ -77,9 +77,11 @@ int main(int argc, char* argv[]){
   
   puzzle * p1 = create_puzzle_from_file("puzzles/14-6-1.puz");
   //puzzle * p2 = create_puzzle_from_file("puzzles/14-6-2.puz");
-  puzzle * p2 = create_puzzle(3,3);
+  puzzle * p2 = create_puzzle(8,5);
   random_usp(p2);
 
+  print_puzzle(p2);
+  
   puzzle * p = create_puzzle_product(p1,p2);
 
   print_puzzle(p);
