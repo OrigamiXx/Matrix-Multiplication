@@ -68,12 +68,18 @@ void construct_reduction(puzzle * p, GRBmodel * model) {
 
   int s = p -> s;
   puzzle_row num_vars = s * s * s;
-
+  
   compute_tdm(p);
   
+  int * ind = (int *)malloc(sizeof(int) * num_vars);
+  double * val = (double *)malloc(sizeof(double) * num_vars);
+  char * vtype = (char *)malloc(sizeof(char) * num_vars);
+
+  /* // num_var can get too big for stack allocation 
   int ind[num_vars];
   double val[num_vars];
   char vtype[num_vars];
+  */
 
   // Add s^3 binary variables {0, ... , s^3-1} to model.
   for (unsigned int i = 0; i < num_vars; i++){
@@ -140,7 +146,10 @@ void construct_reduction(puzzle * p, GRBmodel * model) {
   }
   GRBaddconstr(model, s, ind, val, GRB_LESS_EQUAL, (double)(s - 1), NULL);
 
-
+  free(ind);
+  free(val);
+  free(vtype);
+  
 }
 
 // Checks whether p is a strong USP, using the provided Gurobi model.
@@ -198,9 +207,8 @@ check_t check_MIP(puzzle *p){
   GRBmodel * model = NULL;
   GRBnewmodel(env, &model, "3DM_to_MIP", 0, NULL, NULL, NULL, NULL, NULL);
 
-
   check_t res = check_MIP(p, model);
-
+  
   GRBfreemodel(model);
 
   return res;
@@ -244,7 +252,7 @@ void * MIP(void * arguments){
 
     // Deallocate model.
     GRBfreemodel(model);
-
+    
     args -> complete = true;
     sem_post(args -> complete_sem);
 

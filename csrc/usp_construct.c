@@ -78,6 +78,65 @@ int ss[8] = {0,   1,   2,     3,      5,      8,    13,    21};
 int ns[8] = {0, 100, 500, 10000,     500,   100,   10,     1};
 
 
+puzzle * create_puzzle_paired(puzzle * p1){
+
+  int s1 = p1 -> s;
+  int k1 = p1 -> k;
+  int s = s1 * (s1 - 1);
+  int k = 2 * k1;
+
+  puzzle * p = create_puzzle(s, k);
+  int row = 0;
+  
+  for (int i = 0; i < s1; i++){
+    for (int j = i; j < s1; j++){
+
+      for (int m = 0; m < k; m++){
+
+	if (m < k1) 
+	  set_entry(p, row, m, get_entry(p1,i,m));
+	else		      
+	  set_entry(p, row, m, get_entry(p1,j,m-k1));
+      }
+      
+      row++;
+    }
+  }
+  
+  return p;
+
+}
+
+puzzle * create_puzzle_product(puzzle * p1, puzzle * p2){
+
+  int s1 = p1 -> s;
+  int s2 = p2 -> s;
+  int k1 = p1 -> k;
+  int k2 = p2 -> k;
+  int s = s1 * s2;
+  int k = k1 + k2;
+
+  puzzle * p = create_puzzle(s, k);
+  int row = 0;
+  
+  for (int i = 0; i < s1; i++){
+    for (int j = 0; j < s2; j++){
+
+      for (int m = 0; m < k; m++){
+
+	if (m < k1) 
+	  set_entry(p, row, m, get_entry(p1,i,m));
+	else		      
+	  set_entry(p, row, m, get_entry(p2,j,m-k1));
+      }
+      
+      row++;
+    }
+  }
+  
+  return p;
+}
+
 bool puzzle_has_at_least_n_two_columns(puzzle * p, int n){
 
   int found = 0;
@@ -648,7 +707,7 @@ void populate(int iter, int max_k, bool display){
     
   }
 }
-
+/*
 int main(int argc, char * argv[]){
 
   if (argc != 6 && argc != 3 && argc != 2 && argc != 1) {
@@ -783,3 +842,4 @@ int main(int argc, char * argv[]){
   return 0;
  
 }
+*/

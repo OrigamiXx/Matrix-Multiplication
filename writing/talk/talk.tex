@@ -140,27 +140,43 @@ mathserif,xcolor=dvipsnames]{beamer}
 
 \section{Cohn-Umans Framework}
 
+\newcommand\FFT{\mathrm{FFT}}
+\newcommand\CC{\mathbb{C}}
+
 \begin{myframe}{Cohn-Umans Framework}
 
-\end{myframe}
+  In 2003, Cohn and Umans proposed an approach for improving the upper
+  bound on $\omega$.
 
-\subsection{Warm-up: Fast Polynomial Multiplication}
+  \begin{itemize}
+  \item Inspired by the $\Theta(n \log n)$ FFT-based algorithm for
+    multiplying two degree $n$ univariate polynomial, c.f., e.g.,
+    [CLRS 2009, Chap 30].
 
-\begin{myframe}{Warm-up: Polynomial Multiplication}
+    $$ A \times B = C\text{ becomes }  \FFT^{-1}(\FFT(A) * \FFT(B)) = C$$
 
-  Probably need to skip most of this and next few slides.
+  \end{itemize}
+
+  \structure{Idea} determine a suitable group $G$ to embed
+  multiplication into the group algebra $\CC[G]$ using sets $X, Y, Z
+  \sse G$, with $|X| = |Y| = |Z| = n$.
+
+  $$\bar{A} = \sum_{i, j \in [n]} (x_i^{-1} y_j) A_{i,j}, \quad \bar{B} =
+  \sum_{j, k \in [n]} (y_j^{-1} z_k) B_{j,k}, \quad \bar{C} = \sum_{i, k \in
+    [n]} (x_i^{-1} z_k) C_{i,k}$$
+
+  where \structure{triple product property} holds: $\forall x,x'
+  \in X, \forall y,y' \in Y, \forall z,z' \in Z,$
+
+  $$x^{-1} y y'^{-1} z = x'^{-1} z' \text{ iff } x = x', y = y', z =
+  z'.$$
+  
+  $\omega$ implied by $G$ depends on $|G|$ and aspects of its
+  representation.
   
 \end{myframe}
 
-\subsection{Group-Theoretic Matrix Multiplication}
 
-\begin{myframe}{Group-Theoretic Matrix Multiplication}
-
-\end{myframe}
-
-\begin{myframe}{Triple Product Property}
-
-\end{myframe}
 
 \subsection{Strong Uniquely Solvable Puzzles}
 
@@ -277,18 +293,22 @@ mathserif,xcolor=dvipsnames]{beamer}
 
   \end{definition}
 
-  No good physical intuition for the ``exactly two'' part.
-    
+  No good intuition for the ``exactly two'' part, but a useful
+  implication.
+
+  \begin{lemma}[{[Cohn et al 2005, Corollary 3.6]}]
+    For an integer $m \ge 3$, if there is a strong uniquely solvable
+    $(s,k)$-puzzle, 
+
+    $$\omega \le \frac{3 \log m}{\log(m-1)} - \frac{3 \log s!}{sk \log(m-1)}.$$
+  \end{lemma}
   
 \end{myframe}
 
-\begin{myframe}{Properties of Strong USPs -- I}
+\begin{myframe}{Properties of Strong USPs}
 
 \end{myframe}
 
-\begin{myframe}{Properties of Strong USPs -- II}
-
-\end{myframe}
 
 \begin{myframe}{Our Goals \& Approach}
 
@@ -416,10 +436,29 @@ Remark on symmetry
 %%
 %% ======================================================
 
+\begin{comment}
+
 \section{Bonus Slides}
  
+\subsection{Warm-up: Fast Polynomial Multiplication}
 
+\begin{myframe}{Warm-up: Polynomial Multiplication}
 
+  Probably need to skip most of this and next few slides.
+  
+\end{myframe}
+
+\subsection{Group-Theoretic Matrix Multiplication}
+
+\begin{myframe}{Group-Theoretic Matrix Multiplication}
+
+\end{myframe}
+
+\begin{myframe}{Triple Product Property}
+
+\end{myframe}
+
+\end{comment}
 
 
 

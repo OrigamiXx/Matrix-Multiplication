@@ -14,5 +14,7 @@
 
 puzzle * create_random_twist(puzzle * p1, puzzle * p2, int iter);
 puzzle * create_full_twist(puzzle * p1, puzzle * p2);  
+puzzle * create_puzzle_product(puzzle * p1, puzzle * p2);
+puzzle * create_puzzle_paired(puzzle * p1);
 
 #endif
