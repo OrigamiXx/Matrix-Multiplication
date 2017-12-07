@@ -36,6 +36,20 @@ mathserif,xcolor=dvipsnames]{beamer}
 
 %\setbeamertemplate{footline}[page number]
 
+\tikzset{
+  every overlay node/.style={
+    draw=white,fill=white,rounded corners,anchor=north west,
+  },
+}
+% Usage:
+% \tikzoverlay at (-1cm,-5cm) {content};
+% or
+% \tikzoverlay[text width=5cm] at (-1cm,-5cm) {content};
+\def\tikzoverlay{%
+   \tikz[baseline,overlay]\node[every overlay node]
+}%
+
+
 \newcommand{\QQ}{\ensuremath{\mathbb{Q}}}
 
 \title{\textbf{Computer-Aided Search for \\ Matrix Multiplication Algorithms}}
@@ -186,23 +200,40 @@ mathserif,xcolor=dvipsnames]{beamer}
     An $(s,k)$-\emph{\structure{puzzle}} is a subset $P \sse U_k = \set{1,2,3}^k$ with $|P| = s$.
   \end{definition}
 
-  Consider $P = \set{(1,2,3), (2, 3, 2)} \sse \set{1,2,3}^3$.
+  \medskip
+  
+  Consider
+  \begin{equation*}
+    \begin{aligned}
+      P = \{&(3,1,3,2), (1,2,3,2), (1,1,1,3),\\ &(3,2,1,3),(3,3,2,3)\} \hspace{50ex}
+    \end{aligned}
+  \end{equation*}
   
   \begin{itemize}
-  \item $P$ is a (2,3)-puzzle.
-  \item $P$ has two \emph{rows} $(1,2,3)$ and $(2,3,2)$.
-  \item $P$ has three \emph{columns}.
+  \item $P$ is a (5,4)-puzzle.
+  \item $P$ has five \emph{rows}.
+  \item $P$ has four \emph{columns}.
   \end{itemize}
 
+  \tikzoverlay[text width=3cm] at (7.5cm,3.5cm) {
+    $P$\\[.5ex]
+    \begin{tabular}{|c|c|c|c|}
+      \hline
+      3&1&3&2 \\ \hline
+      1&2&3&2 \\ \hline
+      1&1&1&3 \\ \hline 
+      3&2&1&3 \\ \hline 
+      3&3&2&3 \\ \hline
+    \end{tabular}
+  };
+  
   Note that:
   \begin{itemize}
   \item The columns are ordered.
   \item The rows are unordered (as $P$ is a set).
-  \item It sometimes helps to consider elements of $U_k$ as ordered
-    lexicographically.
+  %\item It sometimes helps to consider elements of $U_k$ as ordered lexicographically.
   \end{itemize}
 
-  XXX - insert diagram to right and format.
   
 \end{myframe}
 
@@ -296,7 +327,7 @@ mathserif,xcolor=dvipsnames]{beamer}
   No good intuition for the ``exactly two'' part, but a useful
   implication.
 
-  \begin{lemma}[{[Cohn et al 2005, Corollary 3.6]}]
+  \begin{lemma}[{[CKSU 05, Corollary 3.6]}]
     For an integer $m \ge 3$, if there is a strong uniquely solvable
     $(s,k)$-puzzle, 
 
@@ -305,13 +336,67 @@ mathserif,xcolor=dvipsnames]{beamer}
   
 \end{myframe}
 
-\begin{myframe}{Properties of Strong USPs}
+\begin{myframe}{Useful Strong Uniquely Solvable Puzzles}
 
+  \begin{lemma}[{[CKSU 05, Proposition 3.8]}]
+   There is an infinite family of SUSP that acheive $\omega < 2.48$.
+  \end{lemma}
+
+  \medskip
+  There are group-theoretic constructions derived from [Strassen 86]
+  and [Coppersmith-Winograd 87] that acheive the $\omega$'s of those
+  works.
+
+  \bigskip
+  
+  \begin{lemma}[{[BCCGU 16]}]
+  SUSP cannot show $\omega < 2 + \epsilon$, for some $\epsilon >
+  0$.
+  \end{lemma}
+  \begin{itemize}
+  \item This was conditionally true if the Erd\"{o}-Szemeredi
+    sunflower conjecture held [Alon-Shpilka-Umans 2013].
+  \item Recent progress on cap sets and arithmetic progressions made
+    this unconditional [Ellenberg 2016, Croot-Lev-Pach, 2016].
+  \end{itemize}
+
+  
 \end{myframe}
 
 
 \begin{myframe}{Our Goals \& Approach}
 
+  \structure{Goal} Find strong uniquely solvable puzzles (SUSP) that imply smaller $\omega$.
+
+  \medskip
+  
+  \structure{Approach} 
+  \begin{itemize}
+  \item For fixed width $k$, the larger height $s$ of a SUSP is, the
+    smaller $\omega$ is implied. We want to determine for small values
+    of $k$, the maximum $s$ that can be achieved.  Hopefully, this
+    leads to an improvement in $\omega$.
+  \item Develop software platform to explore and experiment with SUSP.
+  \item \structure{Algorithm Design}
+    \begin{itemize}
+    \item Verifying that a puzzle is a SUSP.
+    \item Searching for large SUSP.
+    \end{itemize}
+  \item \structure{Implementation}
+    \begin{itemize}
+    \item Targeted mainly desktop but also HPC environments.
+    \end{itemize}
+  \item We only need to find one sufficiently large puzzle to acheive
+    a new algorithm -- worst-case performance isn't a good metric!
+  \end{itemize}
+
+  \medskip
+  
+  \structure{Secondary Goal} Develop a theory research program that
+  undergraduates can meaningfully participate in.
+  
+  
+  
 \end{myframe}
 
 \section{Verification}
@@ -406,18 +491,7 @@ Remark on symmetry
 
 \end{myframe}
 
-\tikzset{
-  every overlay node/.style={
-    draw=white,fill=white,rounded corners,anchor=north west,
-  },
-}
-% Usage:
-% \tikzoverlay at (-1cm,-5cm) {content};
-% or
-% \tikzoverlay[text width=5cm] at (-1cm,-5cm) {content};
-\def\tikzoverlay{%
-   \tikz[baseline,overlay]\node[every overlay node]
-}%
+
 
 \subsection{Results}
 
@@ -541,12 +615,21 @@ Remark on symmetry
 \begin{myframe}{Lessons}
 
   \begin{itemize}
-  \item Asymptotic $!=$ for small $n$.
+  \item Problem transformation is effective in theory and in practice.
+  \item It's easy to experimentally invalidate specific hypotheses.
+  \item It's hard to find patterns in mountains of data.  
+  \item It's hard to turn patterns from data into proofs.
+  \item Domain knowledge is useful for pruning.
+  \item Superlinear memory requirements are problematic.
+  \item Communication is computationally expensive in HPC.
+  \item Asymptotic $\neq$ for small inputs.
+  \item Write good documentation.
+  \item Practical performance $\neq$ worse case performance.
   \end{itemize}
   
 \end{myframe}
 
-\begin{myframe}{Future Work}
+\begin{myframe}{Future Work / Conjectures}
 
 
   
