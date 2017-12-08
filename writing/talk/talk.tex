@@ -237,6 +237,7 @@ mathserif,xcolor=dvipsnames]{beamer}
   
 \end{myframe}
 
+\begin{comment}
 \begin{myframe}{\uline{Uniquely Solvable} Puzzles -- Intuition}
 
   % XXX - cut this slide and just say this on the next slide?  Include
@@ -274,29 +275,32 @@ mathserif,xcolor=dvipsnames]{beamer}
   \end{itemize}
   
 \end{myframe}
+\end{comment}
 
 
 \begin{myframe}{Uniquely Solvable Puzzles -- Intuition}
 
+  We're interested in puzzles that are \structure{uniquely solvable}.
+  
   \medskip
   
-  \includegraphics<1>[width=\linewidth]{figs/usp1.eps}
-  \includegraphics<2>[width=\linewidth]{figs/usp2.eps}
-  \includegraphics<3>[width=\linewidth]{figs/usp3.eps}
-  \includegraphics<4>[width=\linewidth]{figs/usp4.eps}
-  \includegraphics<5>[width=\linewidth]{figs/usp5.eps}
-  \includegraphics<6>[width=\linewidth]{figs/usp6.eps}
+  \includegraphics<2>[width=\linewidth]{figs/usp1.eps}
+  \includegraphics<3>[width=\linewidth]{figs/usp2.eps}
+  \includegraphics<4>[width=\linewidth]{figs/usp3.eps}
+  \includegraphics<5>[width=\linewidth]{figs/usp4.eps}
+  \includegraphics<6>[width=\linewidth]{figs/usp5.eps}
+  \includegraphics<7>[width=\linewidth]{figs/usp6.eps}
 
-  \medskip
+  \smallskip
   
   \begin{itemize}
-  \item<1->This puzzle is not uniquely solvable. \medskip
-  \item<4->Permutations witnessing this: \\
+  \item<2->This puzzle is not uniquely solvable. \smallskip
+  \item<5->Can be witnessed by three permutations: \\
     $\pi_1 = (1)(2)(3)(4)(5)$\\
     $\pi_2 = (1)(2\;3\;5)(4)$\\
-    $\pi_3 = (1)(2\;5\;3)(4)$\\ \medskip
-  \item<6->Original puzzle has row (1,1,3,2), but the resulting
-    puzzle does not.
+    $\pi_3 = (1)(2\;5\;3)(4)$\\ \smallskip
+  \item<7->Since the resulting puzzles is not the same as the original
+    puzzle (even reordering rows), the puzzle is not \structure{uniquely solvable}.
   \end{itemize}
   
     
@@ -324,7 +328,15 @@ mathserif,xcolor=dvipsnames]{beamer}
   Basically, for every way of non-trivial way of reordering the 1-,
   2-, 3-pieces according to $\pi_1, \pi_2, \pi_3$, they cannot all fit
   together.
-    
+
+  \begin{itemize}
+  \item This is a natural property that holds of ``good'' real-world puzzles:
+    \begin{itemize}
+    \item jigsaw puzzles (locally), and
+    \item sudoku puzzles (globally).
+    \end{itemize}
+  \end{itemize}
+  
   
 \end{myframe}
 
