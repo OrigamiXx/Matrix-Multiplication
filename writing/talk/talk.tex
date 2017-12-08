@@ -649,7 +649,7 @@ mathserif,xcolor=dvipsnames]{beamer}
   Current implementation is hybrid of several algorithms.
   \begin{itemize}
   \item Brute force for very small instances, $k \le3$.
-  \item Dynamic programming bidirectional for moderate instances $k
+  \item Bidirectional Dynamic programming for moderate instances $k
     \le 6$.
   \item SAT for large instances with $k > 6$ and $s < 40$.
   \item IP for all bigger instances.
@@ -660,10 +660,12 @@ mathserif,xcolor=dvipsnames]{beamer}
   We implemented a number of heuristics that are not always conclusive,
   but frequently can determine the result early.
   \begin{itemize}
-  \item Randomly or greedily generating 3D matchings.
+  \item Briefly trying to randomly or greedily generate 3D matchings.
   \item Verifying that all pairs of rows or triples of rows form a SUSP.
   \item Testing whether the puzzle is uniquely solvable using the graph
     isomorphism library Nauty: \url{http://users.cecs.anu.edu.au/~bdm/nauty/}
+  \item Simplifying the 3D matching instance using properties of the
+    puzzle, e.g., using that a column only contains two of $\set{1,2,3}$.
   \end{itemize}
   
 \end{myframe}
@@ -693,12 +695,6 @@ mathserif,xcolor=dvipsnames]{beamer}
 \subsection{BFS \& DFS}
 
 \begin{myframe}{BFS \& DFS}
-
-\end{myframe}
-
-\subsection{Bidirectional Search}
-
-\begin{myframe}{Bidirection Search}
 
 \end{myframe}
 
@@ -807,22 +803,22 @@ mathserif,xcolor=dvipsnames]{beamer}
   \begin{center}
   \begin{tabular}{|c|r|r|r|r|}
     \hline
-    & \multicolumn{2}{|c|}{[CKSU05]} & \multicolumn{2}{|c|}{Us} \\
+    & \multicolumn{2}{|c|}{[CKSU05]} & \multicolumn{2}{|c|}{This work} \\
     \hline
     Width & Height & $\omega^*$~ & Height & $\omega^*$~\\
     \hline
-    1 & & & $=1$ & 3.000 \\
-    2 & & & $=2$ & 2.670 \\
-    3 & $\ge 3$ & 2.642 & $=3$ & 2.642\\
-    4 & & & $=5$ & 2.585 \\
-    5 & & & $=8$ & 2.562 \\
-    6 & $\ge 10$ & 2.615 &$\ge14$ & 2.521\\
-    7 & & & $\ge21$ & 2.531\\
-    8 & & & $\ge30$ & 2.547 \\
-    9 & $\ge 36$ & 2.592 &$\ge42$ & 2.563 \\
-    10 & & & $\ge64$ & 2.562 \\
-    11 & & & $\ge112$ & 2.540 \\
-    12 & $\ge 136$ & 2.573 &$\ge196$ & 2.521 \\
+    1 & $\le 1$ & & $1=$ & 3.000 \\
+    2 & $\le 3$ & & $2=$ & 2.670 \\
+    3 & $3 \ldots 6$ & 2.642 & $3=$ & 2.642\\
+    4 & $\le 12$ & & $5=$ & 2.585 \\
+    5 & $\le 24$ & & $8=$ & 2.562 \\
+    6 & $\alert{10} \ldots 45$ & \alert{2.615} &$\alert{14}\le$ & \alert{2.521}\\
+    7 & $\le 86$ & & $21\le$ & 2.531\\
+    8 & $\le 162$ & & $30\le$ & 2.547 \\
+    9 & $36 \ldots 307$ & 2.592 &$42\le$ & 2.563 \\
+    10 & $\le 581$ & & $64\le$ & 2.562 \\
+    11 & $\le 1098$ & & $112\le$ & 2.540 \\
+    12 & $136 \ldots 2075$ & 2.573 &$196\le$ & 2.521 \\
     \hline
   \end{tabular}
   \end{center}
