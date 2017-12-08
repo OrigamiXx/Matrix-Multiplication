@@ -541,8 +541,9 @@ int main(int argc, char * argv[]) {
     checkers.push_back(h_row_triples);
     Checker h_2d_matching(&heuristic_2d_matching, "2d_matching");
     checkers.push_back(h_2d_matching);
-    Checker h_ga(&heuristic_graph_automorphism, "ga");
-    checkers.push_back(h_ga);
+    // XXX - GA seems broken.
+    //Checker h_ga(&heuristic_graph_automorphism, "ga");
+    //checkers.push_back(h_ga);
   }
   
   // Initialize Logging.

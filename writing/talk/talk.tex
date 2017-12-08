@@ -238,6 +238,9 @@ mathserif,xcolor=dvipsnames]{beamer}
 \end{myframe}
 
 \begin{myframe}{\uline{Uniquely Solvable} Puzzles -- Intuition}
+
+  % XXX - cut this slide and just say this on the next slide?  Include
+  % the last remark on the following slide.
   
   It helps to think of each row of a puzzle as consisting of
   \structure{three} pieces corresponding to the coordinates of the row
@@ -275,8 +278,28 @@ mathserif,xcolor=dvipsnames]{beamer}
 
 \begin{myframe}{Uniquely Solvable Puzzles -- Intuition}
 
-  XXX - diagram of uniquely solvable, and not.
+  \medskip
   
+  \includegraphics<1>[width=\linewidth]{figs/usp1.eps}
+  \includegraphics<2>[width=\linewidth]{figs/usp2.eps}
+  \includegraphics<3>[width=\linewidth]{figs/usp3.eps}
+  \includegraphics<4>[width=\linewidth]{figs/usp4.eps}
+  \includegraphics<5>[width=\linewidth]{figs/usp5.eps}
+  \includegraphics<6>[width=\linewidth]{figs/usp6.eps}
+
+  \medskip
+  
+  \begin{itemize}
+  \item<1->This puzzle is not uniquely solvable. \medskip
+  \item<4->Permutations witnessing this: \\
+    $\pi_1 = (1)(2)(3)(4)(5)$\\
+    $\pi_2 = (1)(2\;3\;5)(4)$\\
+    $\pi_3 = (1)(2\;5\;3)(4)$\\ \medskip
+  \item<6->Original puzzle has row (1,1,3,2), but the resulting
+    puzzle does not.
+  \end{itemize}
+  
+    
 \end{myframe}
 
 
@@ -339,12 +362,12 @@ mathserif,xcolor=dvipsnames]{beamer}
 \begin{myframe}{Useful Strong Uniquely Solvable Puzzles}
 
   \begin{lemma}[{[CKSU 05, Proposition 3.8]}]
-   There is an infinite family of SUSP that acheive $\omega < 2.48$.
+   There is an infinite family of SUSP that achieve $\omega < 2.48$.
   \end{lemma}
 
   \medskip
   There are group-theoretic constructions derived from [Strassen 86]
-  and [Coppersmith-Winograd 87] that acheive the $\omega$'s of those
+  and [Coppersmith-Winograd 87] that achieve the $\omega$'s of those
   works.
 
   \bigskip
@@ -386,7 +409,7 @@ mathserif,xcolor=dvipsnames]{beamer}
     \begin{itemize}
     \item Targeted mainly desktop but also HPC environments.
     \end{itemize}
-  \item We only need to find one sufficiently large puzzle to acheive
+  \item We only need to find one sufficiently large puzzle to achieve
     a new algorithm -- worst-case performance isn't a good metric!
   \end{itemize}
 
@@ -451,7 +474,7 @@ mathserif,xcolor=dvipsnames]{beamer}
   \item Served as a reference implementation for debugging.
   \item Good for getting students feet wet with relevant issues with
     implementation and mathematical objects.
-  \item It will be more convient to think about evaluating the complement formula.
+  \item It will be more convenient to think about evaluating the complement formula.
   \end{itemize}
 
   ~\\[-5ex]
@@ -494,7 +517,7 @@ mathserif,xcolor=dvipsnames]{beamer}
   \begin{itemize}
   \item Results in an equivalent formula because the rows of a puzzle
     are unordered.
-  \item Removes a $s!$ factor from runtime, acheiving $O((s!)^2 \cdot
+  \item Removes a $s!$ factor from runtime, achieving $O((s!)^2 \cdot
     \poly(s,k))$.
   \end{itemize}
 
@@ -758,7 +781,7 @@ mathserif,xcolor=dvipsnames]{beamer}
   %%   is a strong uniquely solvable puzzle.
   %% \end{lemma}
 
-  We've noticed the following behavior of SUSPs under set concatentation:
+  We've noticed the following behavior of SUSPs under set concatenation:
   
   \begin{obs}[Experimental]
     Let $P_1$ and $P_2$ be \uline{``distinct''} strong uniquely solvable
@@ -769,7 +792,7 @@ mathserif,xcolor=dvipsnames]{beamer}
 
   \begin{itemize}
   \item Here ``distinct'' means that $P_1$ and $P_2$ each decompose
-    into the concatentation of pairwise non-equivalent indecomposible
+    into the concatenation of pairwise non-equivalent indecomposible
     SUSPs.
   \item Useful for constructing larger puzzles from smaller ones.
   \item No loss in implied $\omega$.

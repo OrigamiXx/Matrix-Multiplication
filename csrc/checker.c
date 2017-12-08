@@ -648,9 +648,11 @@ check_t check(puzzle * p){
   if (res != UNDET_USP)
     return res;
 
+  /* XXX - broken?
   res = heuristic_graph_automorphism(p);
   if (res != UNDET_USP)
     return res;
+  */
 
   if (s < 10){
     simplify_tdm(p);
