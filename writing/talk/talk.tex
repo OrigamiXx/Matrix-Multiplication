@@ -73,7 +73,7 @@ mathserif,xcolor=dvipsnames]{beamer}
 \begin{myframe}{Matrix Multiplication}
 
   \begin{problem}%[Square Matrix Multiplication]
-    \textbf{Input:} $A \in \F^{n \times n}$, $B \in \F^{n \times n}$ \\
+    \textbf{Input:} $A \in \F^{n \times n}$, $B \in \F^{n \times n}$ \\[1ex]
     \textbf{Output:} $C = A \times B \in \F^{n\times n}$.    
   \end{problem}
 
@@ -273,17 +273,17 @@ mathserif,xcolor=dvipsnames]{beamer}
 \end{myframe}
 
 
-\begin{myframe}{Uniquely Solvable Puzzle -- Intuition}
+\begin{myframe}{Uniquely Solvable Puzzles -- Intuition}
 
   XXX - diagram of uniquely solvable, and not.
   
 \end{myframe}
 
 
-\begin{myframe}{Uniquely Solvable Puzzle -- Formal}
+\begin{myframe}{Uniquely Solvable Puzzles -- Formal}
   
   \begin{definition}[Uniquely Solvable Puzzle]
-    An $(s,k)$-puzzle $P$ is called \emph{\structure{uniquely solvable}} if
+    An $(s,k)$-puzzle $P$ is \emph{\structure{uniquely solvable}} if
     $\forall \pi_1, \pi_2, \pi_3 \in \Sym{P}:$
     \begin{enumerate}
     \item either $\pi_1 = \pi_2 = \pi_3$, or
@@ -309,7 +309,7 @@ mathserif,xcolor=dvipsnames]{beamer}
 
   \begin{definition}[Strong Uniquely Solvable Puzzle]
 
-    An $(s,k)$-puzzle $P$ is called \emph{\structure{strong uniquely solvable}} if
+    An $(s,k)$-puzzle $P$ is \emph{\structure{strong uniquely solvable}} if
     $\forall \pi_1, \pi_2, \pi_3 \in \Sym{P}:$
     \begin{enumerate}
     \item either $\pi_1 = \pi_2 = \pi_3$, or
@@ -403,58 +403,277 @@ mathserif,xcolor=dvipsnames]{beamer}
 
 \againframe{outline}
 
+\newcommand\coNP{\ensuremath{\mathrm{coNP}}}
+
 \begin{myframe}{Verification}
 
+  \begin{problem}[SUSP-Verification]
+    \textbf{Input:} A $(s,k)$-puzzle $P$. \\[1ex]
+    \textbf{Output:} True iff $P$ is a strong uniquely solvable puzzle.
+  \end{problem}
+
+  It suffices to evaluate the following formula for a puzzle $P$:\\[-2ex]
+  \begin{equation*}
+    \begin{aligned}
+      \forall \pi_1&,\pi_2, \pi_3 \in \Sym{P}.\\ &~~~\pi_1 = \pi_2 = \pi_3 \\ &\vee \exists r \in P. \exists i \in [k]. ((\pi_1(r))_i = 1) + ((\pi_2(r))_i = 2) + ((\pi_3(r))_i = 3) = 2
+    \end{aligned}
+  \end{equation*}
+  
+  \begin{itemize}
+  \item That a $P$ is not a SUSP is be witnessed by permutations
+    $\pi_1, \pi_2, \pi_3$.
+  \item SUSP-Verification is in \coNP.
+  \item When we only want to verify uniquely solvability it is
+    reducible to graph automorphism.
+  \item It is not clear whether SUSP-Verification is \coNP-hard.
+  \end{itemize}
+
+  
 \end{myframe}
 
 \subsection{Brute Force}
 
 \begin{myframe}{Brute Force}
 
+  ~\\[-7ex]
+  \begin{equation*}
+    \begin{aligned}
+      \forall \pi_1&,\pi_2, \pi_3 \in \Sym{P}.\\
+      &~~~\pi_1 = \pi_2 = \pi_3\\
+      &\vee \exists r \in P. \exists i \in [k]. ((\pi_1(r))_i = 1) + ((\pi_2(r))_i = 2) + ((\pi_3(r))_i = 3) = 2
+    \end{aligned}
+  \end{equation*}
+  
+  \begin{itemize}
+  \item Brute force evaluation takes $O((s!)^3\cdot\poly(s,k))$ time.
+  \item Easy to implement.
+  \item Run time makes it practically useless for puzzles with width $k > 4$.
+  \item Served as a reference implementation for debugging.
+  \item Good for getting students feet wet with relevant issues with
+    implementation and mathematical objects.
+  \item It will be more convient to think about evaluating the complement formula.
+  \end{itemize}
+
+  ~\\[-5ex]
+  \begin{equation*}
+    \begin{aligned}
+      \exists \pi_1&,\pi_2, \pi_3 \in \Sym{P}.\\
+      &~~~\pi_1, \pi_2, \pi_3 \text{ not all equal}\\
+      &\wedge \forall r \in P. \forall i \in [k]. ((\pi_1(r))_i = 1) + ((\pi_2(r))_i = 2) + ((\pi_3(r))_i = 3) \neq 2
+    \end{aligned}
+  \end{equation*}
+  
 \end{myframe}
 
-\subsection{Pruning}
+\subsection{Pruning \& Preprocessing}
 
 \begin{myframe}{Pruning}
 
+  ~\\[-5ex]
+  \begin{equation*}
+    \begin{aligned}
+      \exists \alert{\pi_1}&,\pi_2, \pi_3 \in \Sym{P}.\\
+      &~~~\alert{\pi_1}, \pi_2, \pi_3 \text{ not all equal}\\
+      &\wedge \forall r \in P. \forall i \in [k]. (\alert{(\pi_1(r))_i} = 1) + ((\pi_2(r))_i = 2) + ((\pi_3(r))_i = 3) \neq 2
+    \end{aligned}
+  \end{equation*}
+
+  \begin{itemize}
+  \item Force $\pi_1 = 1$ to get:
+  \end{itemize}
+
+  ~\\[-5ex]
+  \begin{equation*}
+    \begin{aligned}
+      \exists \pi_2,&\pi_3 \in \Sym{P}.\\
+      &~~~\alert{1}, \pi_2, \pi_3 \text{ not all equal}\\
+      &\wedge \forall r \in P. \forall i \in [k]. (\alert{r_i} = 1) + ((\pi_2(r))_i = 2) + ((\pi_3(r))_i = 3) \neq 2
+    \end{aligned}
+  \end{equation*}
+  
+  \begin{itemize}
+  \item Results in an equivalent formula because the rows of a puzzle
+    are unordered.
+  \item Removes a $s!$ factor from runtime, acheiving $O((s!)^2 \cdot
+    \poly(s,k))$.
+  \end{itemize}
+
+
+  
+\end{myframe}
+
+\begin{myframe}{Preprocessing}
+  
+  ~\\[-5ex]
+  \begin{equation*}
+    \begin{aligned}
+      \exists \pi_2,&\pi_3 \in \Sym{P}.\\
+      &~~~\pi_2, \pi_3 \text{ not both } 1\\
+      &\wedge \forall r \in P. \alert{\forall i \in [k]. (r_i = 1) + ((\pi_2(r))_i = 2) + ((\pi_3(r))_i = 3) \neq 2}
+    \end{aligned}
+  \end{equation*}
+
+
+  \begin{itemize}
+  \item The innermost $\exists$ can be precomputed in $O(s^3k)$ time
+    by creating a Boolean relation $T_P \in P \times P \times P$, where
+    $$(p,q,r) \in T_P \Leftrightarrow \forall i \in [k]. (r_i = 1) + ((\pi_2(r))_i = 2) + ((\pi_3(r))_i = 3) \neq 2.$$
+
+  \item This simplifies the formula we are evaluating to:
+    $$\exists \pi_2,\pi_3 \in \Sym{P}. \pi_2, \pi_3 \text{ not both } 1 \wedge
+    \forall r \in P. \alert{(r,\pi_2(r),\pi_3(r)) \in T_P}.$$
+  \item This makes the dominant term of the running time independent
+    of $k$ and is useful for the next step.
+  \end{itemize}
+  
 \end{myframe}
 
 \subsection{Reduction to 3D Matching}
 
-\begin{myframe}{Reduction to 3D Matching -- I}
 
-Remark on symmetry
+\begin{myframe}{Reduction to 3D Matching}
+
+  This results in the formula below which is true iff $P$ is not a SUSP.\\[-3ex]
+  
+  $$\exists \pi_2,\pi_3 \in \Sym{P}. \pi_2, \pi_3 \text{ not both } 1 \wedge
+  \forall r \in P. (r,\pi_2(r),\pi_3(r)) \in T_P.$$
+
+  \medskip
+  
+  This is an instance of a natural \NP problem.
+
+  \medskip
+  
+  \begin{problem}[3D Matching]
+    \textbf{Input:} A 3-hypergraph $G = \langle V, E \sse V \times V
+    \times V\rangle$. \\[1ex] \textbf{Output:} True iff $\exists M
+    \sse E$ with $|M| = |V|$ and $\forall e_1 \neq e_2 \in M$, for
+    each coordinate $e_1$ and $e_2$ are vertex disjoint.
+  \end{problem}
+
+  \medskip
+  
+  We can reduce verifying $P$ is not a SUSP to 3D matching.
+  \begin{itemize}
+  \item Consider $G_P = \langle P, T_P\rangle$.
+  \item Observe that $P$ is a not a SUSP iff $G_P$ has a 3D matching
+    that isn't the identity matching, i.e., $M = \set{(r_1,r_1,r_1),
+      \ldots, (r_s,r_s,r_s)}$.
+  \item That $M$ isn't identity matching is necessary, but not
+    interesting so we won't talk about it anymore.
+  \end{itemize}
   
 \end{myframe}
 
-\begin{myframe}{Reduction to 3D Matching -- II}
+\subsubsection{Dynamic Programming and Bidirectional Search}
 
+
+\begin{myframe}{Dynamic Programming}
+
+  We can determine 3D matchings using dynamic programming.
+
+  \begin{itemize}
+  \item Fix some ordering of $P$: $r_1,\ldots,r_s$.
+  \item Consider iteratively constructing a matching $M$ of $G_P$
+    where in the $i^{th}$ step you select an edge $(r_i,*,*) \in T_P$.
+  \item After the $i^{th}$ step, the remaining edges that can be
+    selected are $$T_P^{X,Y} = T_P \cap (\set{r_{i+1},\ldots,r_s} \times (P - Y)
+    \times (P - Z))$$ where $Y$ and $Z$ are the vertices that have
+    already be selected for the second and third coordinate
+    respectively and $|Y| = |Z| = i$.
+  \item Call $S(i, X, Y)$ the subproblem of whether a 3D matching can be
+    completed on $T_P^{X,Y}$ and $i = |X| = |Y|$.
+  \item Observe that $S(i,X,Y)$ has a 3D matching iff there exists
+    $(r_{i+1},p,q) \in T_P^{X,Y}$ and $S(i+1, X \cup \set{a},Y \cup
+    \set{b})$ has a 3D matching.
+  \end{itemize}
+  This gives an $O(2^{2s} s^2)$ algorithm via dynamic programming.
+  
 \end{myframe}
 
-\subsubsection{Bidirectional Search}
+\begin{myframe}{Dynamic Programming + Bidirectional Search}
 
-\begin{myframe}{Bidirectional Search}
+  Perform two searches using dynamic programming:
+  \begin{itemize}
+  \item The first selects edges whose first coordinates are
+    $r_1,r_2,\ldots,r_{\lfloor s/2\rfloor}$.
+  \item The second selects edges whose first coordinates are
+    $r_s,r_{s-1},\ldots,r_{\lfloor s/2\rfloor+1}$.
+  \item The searches use the other's memoization table in the last
+    step.
+  \end{itemize}
 
+  \bigskip
+  
+  This improves performance by about a squareroot.
+  \begin{itemize}
+  \item The worst-case running time becomes $O(2^s s^2)$.
+  \item The worst-case memory usage is $O(2^s s)$.
+  \end{itemize}
+
+  \bigskip
+  
+  These are the best worst-case bounds we could bounds we could devise.
+  
+  
 \end{myframe}
 
-\subsubsection{Reduction to SAT}
+\subsubsection{Other Reductions}
 
-\begin{myframe}{Reduction to SAT}
+\begin{myframe}{Other Reductions}
 
+  We tried reducing 3D matching to CNF satisfiability.
+  \begin{itemize}
+  \item Reduced satisfiability instance had $2s^2$ variables and
+    $O(s^3)$ clauses.
+  \item Used an open-source conflict-driven clause-learning SAT solver
+    MapleCOMSPS that won the general category of the 2016 SAT
+    Competition.  Solver written in part by Jia Hui Liang, Vijay
+    Ganesh, and Chanseok Oh.  \\\url{http://www.satcompetition.org}
+  \end{itemize}
+
+  \bigskip
+
+  We tried reducing 3D matching to 0-1 integer programming.
+  \begin{itemize}
+  \item Reduced IP instance had $s^3$ variables and
+    $O(s^3)$ equations.
+  \item Used a close-source optimization library Gurobi.
+    \url{http://www.gurobi.com}
+  \end{itemize}
+  
 \end{myframe}
 
-\subsubsection{Reduction to IP}
+\begin{myframe}{Implementation}
 
-\begin{myframe}{Reduction to IP}
+  Current implementation is hybrid of several algorithms.
+  \begin{itemize}
+  \item Brute force for very small instances, $k \le3$.
+  \item Dynamic programming bidirectional for moderate instances $k
+    \le 6$.
+  \item SAT for large instances with $k > 6$ and $s < 40$.
+  \item IP for all bigger instances.
+  \end{itemize}
 
+  \bigskip
+
+  We implemented a number of heuristics that are not always conclusive,
+  but frequently can determine the result early.
+  \begin{itemize}
+  \item Randomly or greedily generating 3D matchings.
+  \item Verifying that all pairs of rows or triples of rows form a SUSP.
+  \item Testing whether the puzzle is uniquely solvable using the graph
+    isomorphism library Nauty: \url{http://users.cecs.anu.edu.au/~bdm/nauty/}
+  \end{itemize}
+  
 \end{myframe}
+
 
 \subsection{Results}
 
 \begin{myframe}{Results -- I}
 
   Generate data?
-  Heuristics?
   
 \end{myframe}
 
@@ -590,7 +809,7 @@ Remark on symmetry
     \hline
     & \multicolumn{2}{|c|}{[CKSU05]} & \multicolumn{2}{|c|}{Us} \\
     \hline
-    Width & Height & Implied $\omega$ & Height & Implied $\omega$\\
+    Width & Height & $\omega^*$~ & Height & $\omega^*$~\\
     \hline
     1 & & & $=1$ & 3.000 \\
     2 & & & $=2$ & 2.670 \\
@@ -609,9 +828,10 @@ Remark on symmetry
   \end{center}
   
   \begin{itemize}
+  \item $\omega^*$ is the approximate $\omega$ in the limit of
+    composing puzzles of these dimensions via direct product.
   \item \;[CKSU05]'s construction asymptotically implies $\omega <
     2.48$.
-  \item XXX need to define ``Implied $\omega$''. 
   \end{itemize}
   
 \end{myframe}
