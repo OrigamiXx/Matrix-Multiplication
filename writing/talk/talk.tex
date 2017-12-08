@@ -690,28 +690,93 @@ mathserif,xcolor=dvipsnames]{beamer}
 
 \begin{myframe}{Search}
 
+  \begin{problem}[SUSP-Search]
+    \textbf{Input:} $k \in \NN$ \\[1ex] \textbf{Output:} The maximum
+    $s\in \NN$ such that there exists a $(s,k)$-puzzle that is a strong
+    uniquely solvable puzzle.
+  \end{problem}
+
+  \begin{itemize}
+  \item Considered constructive approaches to solving this
+    problem that use SUSP-Verification as a subroutine.
+  \item $(s,k)$-puzzles have $sk$ entries and there are $3^{sk}$ such puzzles.
+  \item Even eliminating symmetries, searching the full space for $k >
+    4$ is infeasible.
+  \item Density of SUSPs quickly approaches 0.
+  \item Our approaches are ad hoc and use domain knowledge for heuristics.
+  \end{itemize}
+
+  
 \end{myframe}
 
-\subsection{BFS \& DFS}
+\begin{myframe}{Tree Search}
 
-\begin{myframe}{BFS \& DFS}
+  \begin{lemma}
+    If $P$ is a SUSP and $P' \sse P$, then $P'$ is a SUSP.
+  \end{lemma}
 
+  \begin{itemize}
+  \item This lemma allows us to construct SUSP from the bottom up.
+
+
+    \medskip
+  \item BFS allowed us to explore the set of all SUSP for $k
+    \le 5$.
+    \begin{itemize}
+    \item Implement a sequential desktop version and a parallel
+      version to run on Union's $\approx$900-node HPC cluster.
+    \item Parallel version used MPI and Map-Reduce to maintain the
+      search frontier and support faster verification via lookup.
+    \item Searching $k = 5$ originally required the cluster, but
+      improvements to the verification algorithm made it
+      unnecessary.
+    \item Searching $k = 6$ would have exceeded cluster's $32$TB memory.
+    \end{itemize}
+
+    \medskip
+  \item For $k \ge 6$ we implemented gradient descent for a variety of
+    metrics:
+    \begin{itemize}
+    \item \# of (single, pairs, triples of) rows $P$ could be extended by.
+    \item Density of the graph $G_p$.
+    \item \# of columns of $P$ which only have two entries from
+      $\set{1,2,3}$.
+    \item Size of interval spanned by the rows of $P$ in lexicographic
+      order.
+    \end{itemize}
+  \end{itemize}
+  
 \end{myframe}
 
-\subsection{Parallel BFS + DP Querying}
+\subsection{}
 
-\begin{myframe}{Parallel BFS}
+\begin{myframe}{Combining SUSP}
+   
+  %% \begin{lemma}[CSKU 05, Lemma 6.1]
+  %%   Let $P$ be a strong uniquely solvable $(s,k)$-puzzle, then
+  %%   $$Q = \condset{ \pi(r_1) \circ\pi(r_2) \circ \ldots \circ \pi(r_s)}{\pi \in \Sym{P}}$$
+  %%   is a strong uniquely solvable puzzle.
+  %% \end{lemma}
 
-\end{myframe}
+  We've noticed the following behavior of SUSPs under set concatentation:
+  
+  \begin{obs}[Experimental]
+    Let $P_1$ and $P_2$ be \uline{``distinct''} strong uniquely solvable
+    puzzles, then
+    $$P_1 \circ P_2 = \condset{r_1 \circ r_2}{r_1 \in P_1, r_2 \in
+      P_2}$$ is a strong uniquely solvable puzzle.
+  \end{obs}
 
-\begin{myframe}{Parallel BFS + DP Querying}
+  \begin{itemize}
+  \item Here ``distinct'' means that $P_1$ and $P_2$ each decompose
+    into the concatentation of pairwise non-equivalent indecomposible
+    SUSPs.
+  \item Useful for constructing larger puzzles from smaller ones.
+  \item No loss in implied $\omega$.
+  \end{itemize}
 
-\end{myframe}
 
-\subsection{Greedy}
-
-\begin{myframe}{Greedy}
-
+  
 \end{myframe}
 
 
@@ -801,24 +866,24 @@ mathserif,xcolor=dvipsnames]{beamer}
 \begin{myframe}{Strong USP Found -- Trends and Comparison}
 
   \begin{center}
-  \begin{tabular}{|c|r|r|r|r|}
+  \begin{tabular}{|c|r|r|r|r|c|}
     \hline
-    & \multicolumn{2}{|c|}{[CKSU05]} & \multicolumn{2}{|c|}{This work} \\
+    & \multicolumn{2}{|c|}{[CKSU05]} & \multicolumn{3}{|c|}{This work} \\
     \hline
-    Width & Height & $\omega^*$~ & Height & $\omega^*$~\\
+    Width & Height & $\omega^*$~ & Height & $\omega^*$ & Search Algo~\\
     \hline
-    1 & $\le 1$ & & $1=$ & 3.000 \\
-    2 & $\le 3$ & & $2=$ & 2.670 \\
-    3 & $3 \ldots 6$ & 2.642 & $3=$ & 2.642\\
-    4 & $\le 12$ & & $5=$ & 2.585 \\
-    5 & $\le 24$ & & $8=$ & 2.562 \\
-    6 & $\alert{10} \ldots 45$ & \alert{2.615} &$\alert{14}\le$ & \alert{2.521}\\
-    7 & $\le 86$ & & $21\le$ & 2.531\\
-    8 & $\le 162$ & & $30\le$ & 2.547 \\
-    9 & $36 \ldots 307$ & 2.592 &$42\le$ & 2.563 \\
-    10 & $\le 581$ & & $64\le$ & 2.562 \\
-    11 & $\le 1098$ & & $112\le$ & 2.540 \\
-    12 & $136 \ldots 2075$ & 2.573 &$196\le$ & 2.521 \\
+    1 & $\le 1$ & & $1=$ & 3.000 & BFS \\
+    2 & $\le 3$ & & $2=$ & 2.670 & BFS\\
+    3 & $3 \ldots 6$ & 2.642 & $3=$ & 2.642 & BFS\\
+    4 & $\le 12$ & & $5=$ & 2.585 & BFS\\
+    5 & $\le 24$ & & $8=$ & 2.562 & BFS \\
+    6 & $\alert{10} \ldots 45$ & \alert{2.615} &$\alert{14}\le$ & \alert{2.521} & Gradient\\
+    7 & $\le 86$ & & $21\le$ & 2.531 & Gradient\\
+    8 & $\le 162$ & & $30\le$ & 2.547 & Gradient\\
+    9 & $36 \ldots 307$ & 2.592 &$42\le$ & 2.563 & Concat \\
+    10 & $\le 581$ & & $64\le$ & 2.562 & Concat \\
+    11 & $\le 1098$ & & $112\le$ & 2.540 & Concat\\
+    12 & $136 \ldots 2075$ & 2.573 &$196\le$ & 2.521 & Concat \\
     \hline
   \end{tabular}
   \end{center}
@@ -855,7 +920,30 @@ mathserif,xcolor=dvipsnames]{beamer}
 
 \begin{myframe}{Future Work / Conjectures}
 
+  \begin{conj}
+    There is a construction that takes SUSPs of size $(s_1,k_1)$ and
+    $(s_2,k_2)$ and produces a $(s_1+s_2,\max(k_1,k_2)+1)$-puzzle that
+    is a SUSP.
+  \end{conj}
+  \begin{itemize}
+  \item Would imply $\omega < 2.445$.
+  \item Consistent with the SUSP we found for $k = 1\ldots 7$.
+  \end{itemize}
 
+  \structure{Search}
+  \begin{itemize}
+  \item The current bottleneck.
+  \item Try iterated local search.
+  \item Try repair from concatenated puzzles.
+  \end{itemize}
+
+  \structure{Verification}
+
+  \begin{itemize}
+  \item Look for reductions with $o(s^3)$ size -- no more 3D matching.
+  \item Verify $P$ is SUSP by multiplying random matrices using $P$.
+  \end{itemize}
+  
   
 \end{myframe}
 
