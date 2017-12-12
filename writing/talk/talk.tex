@@ -133,7 +133,7 @@ mathserif,xcolor=dvipsnames]{beamer}
     \structure{$2.\uline{3}75477$} & Coppersmith \& Winograd 1987 \\
     \structure{$2.37\uline{4}$} & Stothers 2010 \\
     \structure{$2.37\uline{2}8642$} & Williams 2011 \\
-    \structure{$2.37286\uline{3}9$} & François Le Gall 2014
+    \structure{$2.37286\uline{3}9$} & Le Gall 2014
   \end{tabular}
   }
   \end{center}
@@ -639,6 +639,13 @@ mathserif,xcolor=dvipsnames]{beamer}
   
 \end{myframe}
 
+\begin{myframe}{Practical Running Time -- Dynamic Programming}
+
+  Average checking time versus puzzle height for 50,000 (8,*)-puzzles.
+  \hspace*{-9ex}\includegraphics[width=1.28\linewidth, trim={.5in 2in 1in 1in}, clip]{figs/plotuni.pdf}
+ 
+\end{myframe}
+
 \begin{myframe}{Dynamic Programming + Bidirectional Search}
 
   Perform two searches using dynamic programming:
@@ -666,6 +673,13 @@ mathserif,xcolor=dvipsnames]{beamer}
   
 \end{myframe}
 
+\begin{myframe}{Practical Running Time -- Bidirectional}
+
+  Average checking time versus puzzle height for 50,000 (8,*)-puzzles.
+  \hspace*{-9ex}\includegraphics[width=1.28\linewidth, trim={.5in 2in 1in 1in}, clip]{figs/plotbi.pdf}
+ 
+\end{myframe}
+
 \subsubsection{Other Reductions}
 
 \begin{myframe}{Other Reductions}
@@ -691,6 +705,14 @@ mathserif,xcolor=dvipsnames]{beamer}
   \end{itemize}
   
 \end{myframe}
+
+\begin{myframe}{Practical Running Time -- SAT / IP}
+
+  Average checking time versus puzzle height for 50,000 (8,*)-puzzles.
+  \hspace*{-9ex}\includegraphics[width=1.28\linewidth, trim={.5in 2in 1in 1in}, clip]{figs/plotsat.pdf}
+ 
+\end{myframe}
+
 
 \begin{myframe}{Implementation}
 
@@ -721,10 +743,17 @@ mathserif,xcolor=dvipsnames]{beamer}
 
 \subsection{Results}
 
-\begin{myframe}{Running Time in Practice}
+\begin{myframe}{Practical Running Time -- Final}
 
   Average checking time versus puzzle height for 50,000 (8,*)-puzzles.
-  \hspace*{-8ex}\includegraphics[width=1.25\linewidth, trim={.5in 0.75in 0 1in}, clip]{figs/plot.pdf}
+  \hspace*{-9ex}\includegraphics[width=1.28\linewidth, trim={.5in 2in 1in 1in}, clip]{figs/plotheuristic.pdf}
+ 
+\end{myframe}
+
+\begin{myframe}{Practical Running Time -- Final}
+
+  Average checking time versus puzzle height for 50,000 (8,*)-puzzles.
+  \hspace*{-9ex}\includegraphics[width=1.28\linewidth, trim={.5in 2in 1in 1in}, clip]{figs/plotfull.pdf}
  
 \end{myframe}
 
@@ -979,6 +1008,7 @@ mathserif,xcolor=dvipsnames]{beamer}
   \item The current bottleneck.
   \item Try iterated local search.
   \item Try repair from concatenated puzzles.
+  \item Try to derive better upper bounds.
   \end{itemize}
 
   \structure{Check}
