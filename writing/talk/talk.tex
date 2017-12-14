@@ -641,7 +641,7 @@ mathserif,xcolor=dvipsnames]{beamer}
 
 \begin{myframe}{Practical Running Time -- Dynamic Programming}
 
-  Average checking time versus puzzle height for 50,000 (8,*)-puzzles.
+  Average checking time versus puzzle height for 50,000 (*,8)-puzzles.
   \hspace*{-9ex}\includegraphics[width=1.28\linewidth, trim={.5in 2in 1in 1in}, clip]{figs/plotuni.pdf}
  
 \end{myframe}
@@ -675,7 +675,7 @@ mathserif,xcolor=dvipsnames]{beamer}
 
 \begin{myframe}{Practical Running Time -- Bidirectional}
 
-  Average checking time versus puzzle height for 50,000 (8,*)-puzzles.
+  Average checking time versus puzzle height for 50,000 (*,8)-puzzles.
   \hspace*{-9ex}\includegraphics[width=1.28\linewidth, trim={.5in 2in 1in 1in}, clip]{figs/plotbi.pdf}
  
 \end{myframe}
@@ -708,7 +708,7 @@ mathserif,xcolor=dvipsnames]{beamer}
 
 \begin{myframe}{Practical Running Time -- SAT / IP}
 
-  Average checking time versus puzzle height for 50,000 (8,*)-puzzles.
+  Average checking time versus puzzle height for 50,000 (*,8)-puzzles.
   \hspace*{-9ex}\includegraphics[width=1.28\linewidth, trim={.5in 2in 1in 1in}, clip]{figs/plotsat.pdf}
  
 \end{myframe}
@@ -745,14 +745,14 @@ mathserif,xcolor=dvipsnames]{beamer}
 
 \begin{myframe}{Practical Running Time -- Final}
 
-  Average checking time versus puzzle height for 50,000 (8,*)-puzzles.
+  Average checking time versus puzzle height for 50,000 (*,8)-puzzles.
   \hspace*{-9ex}\includegraphics[width=1.28\linewidth, trim={.5in 2in 1in 1in}, clip]{figs/plotheuristic.pdf}
  
 \end{myframe}
 
 \begin{myframe}{Practical Running Time -- Final}
 
-  Average checking time versus puzzle height for 50,000 (8,*)-puzzles.
+  Average checking time versus puzzle height for 50,000 (*,8)-puzzles.
   \hspace*{-9ex}\includegraphics[width=1.28\linewidth, trim={.5in 2in 1in 1in}, clip]{figs/plotfull.pdf}
  
 \end{myframe}
@@ -810,7 +810,7 @@ mathserif,xcolor=dvipsnames]{beamer}
 
     \pause
     \medskip
-  \item For $k \ge 6$ we implemented ``gradient descent'' for a variety of
+  \item For $k \ge 6$ we implemented ``greedy'' algorithms for a variety of
     metrics:
     \begin{itemize}
     \item \# of (single, pairs, triples of) rows $P$ could be extended by.
@@ -953,9 +953,9 @@ mathserif,xcolor=dvipsnames]{beamer}
     3 & $3 \ldots 6$ & 2.642 & $3=$ & 2.642 & BFS\\
     4 & $\le 12$ & & $5=$ & 2.585 & BFS\\
     5 & $\le 24$ & & $8=$ & 2.562 & BFS \\
-    6 & $\alert{10} \ldots 45$ & \alert{2.615} &$\alert{14}\le$ & \alert{2.521} & Gradient\\
-    7 & $\le 86$ & & $21\le$ & 2.531 & Gradient\\
-    8 & $\le 162$ & & $30\le$ & 2.547 & Gradient\\
+    6 & $\alert{10} \ldots 45$ & \alert{2.615} &$\alert{14}\le$ & \alert{2.521} & Greedy\\
+    7 & $\le 86$ & & $21\le$ & 2.531 & Greedy\\
+    8 & $\le 162$ & & $30\le$ & 2.547 & Greedy\\
     9 & $36 \ldots 307$ & 2.592 &$42\le$ & 2.563 & Concat \\
     10 & $\le 581$ & & $64\le$ & 2.562 & Concat \\
     11 & $\le 1098$ & & $112\le$ & 2.540 & Concat\\
