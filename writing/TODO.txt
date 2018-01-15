@@ -1,0 +1,19 @@
+Matt:
+Introduction
+Preliminaries
+Heuristics
+Searching
+Conclusion
+
+Jerry:
+Naive Approach (Previous Summer)
+3DM to 3SAT
+
+Introduction
+intuition
+formal explanation
+
+Data
+*Searhing
+
+3DM to MIP (Anthony)
