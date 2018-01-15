@@ -1,4 +1,16 @@
-\begin{thebibliography}{CU03}
+\begin{thebibliography}{CKSU05}
+
+\bibitem[ASU13]{asu13}
+Noga Alon, Amir Shpilka, and Christopher Umans.
+\newblock On sunflowers and matrix multiplication.
+\newblock {\em computational complexity}, 22(2):219--243, 2013.
+
+\bibitem[CKSU05]{cksu05}
+H.~Cohn, R.~Kleinberg, B.~Szegedy, and C.~Umans.
+\newblock \href {http://dx.doi.org/10.1109/SFCS.2005.39} {Group-theoretic
+  algorithms for matrix multiplication}.
+\newblock In {\em {46th Annual IEEE Symposium on Foundations of Computer
+  Science (FOCS'05)}}, pages 379--388, Oct 2005.
 
 \bibitem[CU03]{cu03}
 H.~Cohn and C.~Umans.

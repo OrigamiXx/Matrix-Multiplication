@@ -36,6 +36,8 @@
 \newcommand{\MFnote}[1]{\textcolor{DarkOrchid}{MF: #1}}
 
 \newcommand*\samethanks[1][\value{footnote}]{\footnotemark[#1]}
+\newcommand\sse{\subseteq}
+\newcommand\Sym[1]{\ensuremath{\mathrm{Sym}_{#1}}}
 
 %\onehalfspacing
 \date{}
@@ -72,18 +74,121 @@ combinatorial property.
 \section{Preliminaries}
 \label{sec:prelim}
 
-\subsection{Operations on Puzzles}
-\label{subsec:ops}
+We use $[n]$ to denote the set $\set{0,1,2,\ldots, n-1}$.
+\cite{cksu05} introduced the idea of a \emph{puzzle}.  For a set $Q$,
+$\Sym{Q}$ denotes the symmetric group on the elements of $Q$.
 
-We use $[n]$ to denote the set $\set{0,1,2,\ldots, n-1}$.  For $s, k
-\in \Natural$, a $(s,k)$-puzzle is $s$-by-$k$ matrix whose entries are
-in $[2]$
+\begin{definition}[Puzzle]
+  For $s, k \in \Natural$, an $(s,k)$-\emph{puzzle} is a
+  subset $P \sse U_k = \set[2]^k$ with $|P| = s$.
+\end{definition}
 
-\paragraph{Tensor product}
+We say that an $(s,k)$-puzzle has $s$ rows and $k$ columns.  The
+columns are inherent ordered and indexed by $[k]$.  The rows are not
+inherently ordered, however, it is often convienent to assume that the
+rows are arbitrarily ordered and indexed by $[s]$.
+
+\cite{cksu05} also establish a particular combinatorial property of
+such puzzles that can derive groups that matrix multiplication can be
+embedded into.  Such puzzles are called \emph{strong} uniquely
+solvable puzzles.  However, to give some intuition we first explain a
+simpler version of the property called \emph{uniquely solvable
+  puzzles}.
+
+\begin{definition}[Uniquely Solvable Puzzle (USP)]
+  ~\\An $(s,k)$-puzzle $P$ is \emph{uniquely solvable} if
+  $\forall \pi_0, \pi_1, \pi_2 \in \Sym{P}:$
+  \begin{enumerate}
+  \item either $\pi_0 = \pi_1 = \pi_2$, or
+  \item $\exists r \in P, \exists i \in [k]$ such that at least two
+    of the following hold:
+    \begin{enumerate}
+    \item $(\pi_0(r))_i = 0$,
+    \item $(\pi_1(r))_i = 1$,
+    \item $(\pi_2(r))_i = 2$.
+    \end{enumerate}
+  \end{enumerate}
+\end{definition}
+
+Informally a puzzle is \textbf{not} uniquely solvable if each row of
+the puzzle can be broken into zeros, ones, and twos pieces and then
+the rows can be reassembled in a different way so that each new row is
+a combination of a zeroes, a ones, and twos piece where there is
+exactly element of $[2]$ for each column.  Observe that uniquely
+solvable puzzles can have at most $2^k$ rows because each zeroes
+piece, ones piece, and two piece must be unique, as otherwise the
+duplicate pieces can be swapped making the puzzle not uniquely
+solvable.  The definition of \emph{strong} uniquely solvable puzzle is
+below, it is nearly the same except that it requires that there be a
+collision on a column between exactly two pieces, not two or more
+pieces like in the original definition.
+
+\begin{definition}[Strong Uniquely Solvable Puzzle]
+  ~\\
+  An $(s,k)$-puzzle $P$ is \emph{strong uniquely solvable} if
+  $\forall \pi_0, \pi_1, \pi_2 \in \Sym{P}:$
+  \begin{enumerate}
+  \item either $\pi_0 = \pi_1 = \pi_2$, or
+  \item $\exists r \in P, \exists i \in [k]$ such that exactly two
+    of the following hold:
+    \begin{enumerate}
+    \item $(\pi_0(r))_i = 0$,
+    \item $(\pi_1(r))_i = 1$,
+    \item $(\pi_2(r))_i = 2$.
+    \end{enumerate}
+  \end{enumerate}
+  
+\end{definition}
+
+Observe that the properties of uniquely solvable and strong uniquely
+solvable are invariant to the ordering of the rows or columns of a
+puzzle.  We will use this fact implicitly.  Also note that these
+properties are invariant to permutations of puzzle cells from
+\Sym{[2]}.
+
+Cohn et al.~ show the following connection between the existence of
+strong uniquely solvable puzzles and an upper bound on the exponent of
+matrix multiplication $\omega$.
+
+\begin{lemma}[{\cite[Corollary 3.6]{cksu05}}]
+  If there is a strong uniquely solvable $(s,k)$-puzzle,
+  $$\omega \le \min_{m \ge 3, m \in \Natural} \frac{3 \log m}{\log(m-1)} - \frac{3 \log s!}{sk \log(m-1)}.$$
+\end{lemma}
+
+In the same article, the authors also demonstrate the existence of an
+infinite family of strong uniquely solvable puzzles that achieves a
+non-trivial bound on $\omega$.
+
+\begin{lemma}[{\cite[Proposition 3.8]{cksu05}}]
+  There is an infinite family of strong uniquely solvable puzzles that
+  achieves $\omega < 2.48$.
+\end{lemma}
+
+Finally, they conjecture that strong uniquely solvable puzzles provide
+a root to achieving quadratic time matrix multiplication.
+
+\begin{conjecture}[{\cite{cksu05}}]
+There exists a family of strong uniquely solvable puzzles that implies
+$\omega = 2$.
+\end{conjecture}
+
+Unfortunately, this conjecture was recently shown to be false.
+
+\begin{lemma}[\cite{bccgu16}]
+  Strong uniquely solvable puzzles cannot show $\omega < 2 +
+  \epsilon$, for some $\epsilon > 0$.
+\end{lemma}
+
+This result is a consequence of a recent breakthrough arithmetic
+progressions in cap sets \cite{e16,clp16} combined with a conditional
+result on the Erdös-Szemeredi sunflower conjecture \cite{asu13}.
+
 
 
 \section{Checking for Strong USPs}
 \label{sec:check}
+
+
 
 \section{Heuristics for Strong USPs}
 \label{sec:heuristic}
@@ -102,6 +207,8 @@ in $[2]$
 
 \section{Conclusions}
 \label{sec:conclusion}
+
+
 
 \bibliographystyle{customurlbst/alphaurlpp} \bibliography{references}
 
