@@ -66,19 +66,83 @@ Anthony Yang Xu\samethanks[1]
 \section{Introduction}
 \label{sec:intro}
 
+% Context
+
+An optimal algorithm for matrix multiplication is elusive, despite the
+substantial amount of work on this problem.  We focus on the square
+variant of the matrix multiplication problem, that is, given two
+$n$-by-$n$ matrices $A$ and $B$ over a field $\F$, the goal is to
+compute the matrix product $C = A \times B$.  The question that arised
+is: How many field operations are required to compute $C$.  The
+na\"{i}ve algorithm, based on the mathematical definition of matrix
+product, runs in time $O(n^3)$, and for a time it was thought to be
+the optimal algorithm.  It was surprising when Strassen showed that
+matrix multiplication can be done in time $O(n^{2.808})$ \cite{str69},
+using a divide-and-conquer approach.  A long sequence of work
+concluding with Coppersmith and Winograd's laser method that reduced
+the running time to $O(2^{2.376})$
+\cite{pan78,b79,sch81,cw82,str86,cw87}. Recent refinements of
+Coppersmith and Winograd's work done independentally by Stothers,
+Vassilevska-Williams, and Le Gall further reduced the exponent to
+2.3728639 \cite{sto10,vas11,leg14}.
+
+There are some lower bounds on the time complexity of matrix
+multiplication.  Na\"{i}ely, the dimensions of the output matrix $C$
+imply that the problem requires at least $\Omega(n^2)$ time.  Slightly
+better lower bounds are also known for specialized models of
+computation, like bounded-depth arithmetic circuits \cite{XXX}.  There
+are also lower bounds known for a variety of algorithmic approaches
+for matrix multiplication.  Ambainis et al showed that the laser
+method, the approach of Coppersmith-Winograd and subsequent
+refinements, cannot alone achieve an algorithm with $O(n^{2.3078})$
+running time \cite{afl14}.
+
+
+
+
+
+
+% Tensor rank approach
+% - Lower bounds
+% - Impossibility
+%
+
+
+
+
+
+From the na\"{i}ve
+$O(n^3)$
+
 Cohn and Umans \cite{cu03} introduced an approach for developing
 faster algorithms for matrix multiplication by reducing this question
-to a search for group-theoretic groups that satisfy a certain
-combinatorial property.  
+to a search for subsets of groups that satisfy a certain combinatorial
+property.
+
+% Motivation
+
+
+% Approach
+
+Tried many algorithmic approaches to check whether puzzles are strong USP.
+
+% Results
+
+Experimental results suggest that Proposition 3.8 of \cite{cksu05} can
+be improved.
+
+% Organization
+
+
 
 \section{Preliminaries}
 \label{sec:prelim}
 
 \newcommand\ordset[1]{\ensuremath{[#1]}}
 
-We use $\ordset{n}$ to denote the set $\set{0,1,2,\ldots, n-1}$.
-\cite{cksu05} introduced the idea of a \emph{puzzle}.  For a set $Q$,
-$\Sym{Q}$ denotes the symmetric group on the elements of $Q$.
+We use $\ordset{n}$ to denote the set $\set{0,1,2,\ldots, n-1}$.  For
+a set $Q$, $\Sym{Q}$ denotes the symmetric group on the elements of
+$Q$.  \cite{cksu05} introduced the idea of a \emph{puzzle}.
 
 \begin{definition}[Puzzle]
   For $s, k \in \Natural$, an $(s,k)$-\emph{puzzle} is a
