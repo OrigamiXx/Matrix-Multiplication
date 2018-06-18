@@ -31,3 +31,5 @@ depend.mk
 *.fls
 *.tar.gz
 nauty26r7/*g
+*.gephi
+local-mpi-script
