@@ -1,10 +1,14 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
-#include "usp_construct.h"
+#include "construct.h"
 #include "checker.h"
 #include "3DM_to_MIP.h"
 #include "3DM_to_SAT.h"
+
+// Scratch test:
+//  For temporary local testing.
+//  Don't put permanent code in here.
 
 int main(int argc, char* argv[]){
 

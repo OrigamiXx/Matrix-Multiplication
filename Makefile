@@ -11,18 +11,22 @@ RMFLAGS=-f
 NAUTY=nauty.o nautil.o nausparse.o naugraph.o schreier.o naurng.o
 NAUTYDIR=nauty26r7
 # Put additional object sources in list below.
-OBJ-SOURCES=checker.c permutation.c puzzle.c set.c matching.c 3DM_to_SAT.c timing.c heuristic.c usp_construct.c
+OBJ-SOURCES=checker.c permutation.c puzzle.c set.c matching.c 3DM_to_SAT.c timing.c heuristic.c construct.c
 # Put additional executable sources in list below.
-EXE-SOURCES=permutation_tester.c puzzle_tester.c set_tester.c generate_puzzle.c usp_exp.c matching_tester.c test.c usp_test_file.c usp_tester.c 3DM_to_SAT_tester.c usp_greedy.c usp_ils.c tester.c clique.c search.c
+TESTER-SOURCES=test_3DM_to_SAT.c test_permutation.c test_puzzle.c test_set.c test_matching.c test_scratch.c
+UTIL-SOURCES=util_check_benchmark.c util_check_file.c util_timer.c util_generate_puzzle.c util_join.c
+SEARCH-SOURCES=search_greedy.c search_ils.c search_clique.c search_astar.c
+EXE-SOURCES=$(TESTER-SOURCES) $(UTIL-SOURCES) $(SEARCH-SOURCES)
+
 ifdef GUROBI_HOME
 OBJ-SOURCES+= 3DM_to_MIP.c
-EXE-SOURCES+= 3DM_to_MIP_tester.c
+EXE-SOURCES+= test_3DM_to_MIP.c
 LDFLAGS+= -lgurobi_c++ -lgurobi75
 CFLAGS+=-D__GUROBI_INSTALLED__
 endif
 
 # Put additional parallel / cluster executable sources in list below, must end with "_para".
-PARA-SOURCES=usp_para.c usp_batch_para.c
+PARA-SOURCES=search_para.c search_batch_para.c
 
 OBJDIR=objs
 BINDIR=bin

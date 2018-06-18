@@ -5,8 +5,8 @@
  * Author: Matt.
  */
 
-#ifndef __USP_GREEDY_H__
-#define __USP_GREEDY_H__
+#ifndef __SEARCH_GREEDY_H__
+#define __SEARCH_GREEDY_H__
 
 #include <stdio.h>
 #include <stdlib.h>
