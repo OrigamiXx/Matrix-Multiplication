@@ -5,6 +5,9 @@ Last updated: 06-22-17
   csrc/    *.c & *.h files contain c++ source code for our project
   docs/    Misc documentation
   bin/     Compiled binary executables + minisat
+   + test_* = Tests for modules.
+   + search_* = Strong USP search algorithms
+   + util_* = Utilities 
   objs/    Compiled binary object files
   out/     Output of various runs
   MRMPI/   Source code of MapReduceMPI library
