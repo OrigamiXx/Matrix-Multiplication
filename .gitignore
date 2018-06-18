@@ -30,3 +30,4 @@ depend.mk
 *.fdb_latexmk
 *.fls
 *.tar.gz
+nauty26r7/*g

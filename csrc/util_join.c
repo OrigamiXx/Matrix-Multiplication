@@ -69,7 +69,7 @@ void explore_joint(puzzle * p1, puzzle * p2){
       printf("\r %lu %d",curr, num_found);
       fflush(stdout);
     }
-    check_t res = check_usp_bi(joint);
+    check_t res = check(joint);
     //    printf("check_usp_bi:  %d\n", is_usp);
     if (res == IS_USP) {
       num_found++;

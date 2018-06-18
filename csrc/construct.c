@@ -11,9 +11,9 @@
 #include "permutation.h"
 #include "checker.h"
 #include "heuristic.h"
+#include "construct.h"
 
 using namespace std;
-
 
 /* This file explores an experimental recursive construction of strong
    USPs we call "twisting".
@@ -72,11 +72,10 @@ int const N_SPECIAL_COLS = 3;
 // Number of iterations to perform randomized twisting before giving up.
 int const POP_ITER = 1000;
 
-// Sizes vs. k of strong USPs that exists (except for 21-by-7 that is just conjectured);
+// Sizes vs. k of strong USPs that exists:
 int ss[8] = {0,   1,   2,     3,      5,      8,    13,    21};
 // Number of strong USPs to generate for each k
-int ns[8] = {0, 100, 500, 10000,     500,   100,   10,     1};
-
+int ns[8] = {0, 100, 500,  1000, 100000,  10000,   100,     1};
 
 puzzle * create_puzzle_paired(puzzle * p1){
 
@@ -158,9 +157,9 @@ bool puzzle_has_at_least_n_two_columns(puzzle * p, int n){
 void compute_twist_params(puzzle * p, puzzle *p1, puzzle *p2, int *num_last,
 			  int *num_arb, int *num_perm, int *num_el_perm){
 
-  int s = p -> s;
-  int k = p -> k;
-  puzzle_row * puz = p -> puzzle;
+  // int s = p -> s;
+  // int k = p -> k;
+  // puzzle_row * puz = p -> puzzle;
   int k1 = p1 -> k;
   int s1 = p1 -> s;
   int k2 = p2 -> k;
@@ -196,14 +195,14 @@ void compute_twist_params(puzzle * p, puzzle *p1, puzzle *p2, int *num_last,
 
 bool apply_twist(puzzle * p, puzzle * p1, puzzle * p2, int last, int arb, int perm_id, int el_perm_id) {
   
-  int s = p -> s;
+  // int s = p -> s;
   int k = p -> k;
   puzzle_row * puz = p -> puzzle;
   int k1 = p1 -> k;
   int s1 = p1 -> s;
   int k2 = p2 -> k;
   int s2 = p2 -> s;
-  int dk = k1 - p2 -> k;
+  // int dk = k1 - p2 -> k;
 
 
   
@@ -334,11 +333,11 @@ bool apply_twist(puzzle * p, puzzle * p1, puzzle * p2, int last, int arb, int pe
   if (!puzzle_has_at_least_n_two_columns(p, (k < N_SPECIAL_COLS ? k : N_SPECIAL_COLS)))
     return false;
 
-  if (UNDET_USP == heuristic_row_triples(p)){
-    if (IS_USP == check(p)) {
-      return true;
-    }
+  //if (UNDET_USP == heuristic_row_triples(p)){
+  if (IS_USP == check(p)) {
+    return true;
   }
+  //}
 
   return false;
 
@@ -374,11 +373,11 @@ bool full_twist(puzzle * p, puzzle * p1, puzzle * p2){
   compute_twist_params(p, p1, p2, &num_last, &num_arb, &num_perm, &num_el_perm);
 
   for (int last = 0; last < num_last; last++) {
-    //printf("\r %8.4f%%", (last) / (double)(num_last) * 100.0);
-    //fflush(stdout);
+    //fprintf(stderr,"\r %8.4f%%", (last) / (double)(num_last) * 100.0);
+    //flush(stderr);
     for (int arb = 0; arb < num_arb; arb++) {
-      printf("\r %8.4f%%", (last * num_arb + arb) / (double)(num_last * num_arb) * 100.0);
-      fflush(stdout);
+      //fprintf(stderr,"\r %8.4f%%", (last * num_arb + arb) / (double)(num_last * num_arb) * 100.0);
+      //fflush(stderr);
       for (int perm_id = 0; perm_id < num_perm; perm_id++) {
 	for (int el_perm_id = 0; el_perm_id < num_el_perm; el_perm_id++) {
 	  if (apply_twist(p, p1, p2, last, arb, perm_id, el_perm_id)){
@@ -507,31 +506,32 @@ void construct_table_usp(puzzle * p, int iter){
   if (s <= 2) {
     random_usp(p);
   } else {
-    int s1, s2, k1, k2;
+    //int s1 = 0, s2 = 0;
+    int k1 = 0, k2 = 0;
     if (k == 3) {
-      s1 = 2;
+      //s1 = 2;
       k1 = 2;
-      s2 = 1;
+      //s2 = 1;
       k2 = 1;
     } else if (k == 4){
-      s1 = 3;
+      //s1 = 3;
       k1 = 3;
-      s2 = s - s1;
+      //s2 = s - s1;
       k2 = 2;
     } else if (k == 5){
-      s1 = 5;
+      //s1 = 5;
       k1 = 4;
-      s2 = s - s1;
+      //s2 = s - s1;
       k2 = 3;
     } else if (k == 6){
-      s1 = 8;
+      //s1 = 8;
       k1 = 5;
-      s2 = s - s1;
+      //s2 = s - s1;
       k2 = 4;
     } else if (k == 7){
-      s1 = 13;
+      //s1 = 13;
       k1 = 6;
-      s2 = s - s1;
+      //s2 = s - s1;
       k2 = 5;
     } else {
       assert(k <= 7);
@@ -618,11 +618,10 @@ void print_graph(map<string, puzzle_meta *> * t1, map<string, puzzle_meta *> * t
     int ix1 = init_n + 0;
 
     for (it1 = t1 -> begin(); it1 != t1 -> end(); it1++){
-      //if (random_twist(p, it2 -> second -> p, it1 -> second -> p, POP_ITER)) {
-      //      bool r_res = random_twist(p, it2 -> second -> p, it1 -> second -> p, POP_ITER);
-      bool f_res = full_twist(p, it2 -> second -> p, it1 -> second -> p);
+      //bool res = random_twist(p, it2 -> second -> p, it1 -> second -> p, POP_ITER);
+      bool res = full_twist(p, it2 -> second -> p, it1 -> second -> p);
       //      assert(r_res <= f_res);
-      if (f_res){
+      if (res){
 	printf("%d;%d\n",ix1,ix2);
       }
       ix1++;
@@ -639,6 +638,13 @@ void print_graph(map<string, puzzle_meta *> * t1, map<string, puzzle_meta *> * t
   fprintf(stderr,"\rGraph print completed.\n");
 }
 
+void print_graph(int k){
+  int offset = 0;
+  for (int i = 1; i <= k-2; i++){
+    print_graph(table[i], table[i+1], i+2, ss[i+2], offset);
+    offset += table[i] -> size();
+  }
+}
 
 void print_outliers(int k){
 
@@ -707,139 +713,4 @@ void populate(int iter, int max_k, bool display){
     
   }
 }
-/*
-int main(int argc, char * argv[]){
 
-  if (argc != 6 && argc != 3 && argc != 2 && argc != 1) {
-    fprintf(stderr, "usp_construct [<k> | <file1> <file2> | <s1> <k1> <s2> <k2> <iter>]\n");
-    return -1;
-  }
-  
-  if (argc == 1){
-
-    // Mode 1: Randomly builds a table of strong USPs up to k = 6,
-    // based on the twist constants and the sizes in ns.  Displays
-    // puzzles which are "useful" to stdout with some statistics.
-    // Uses randomized twisting.
-    
-    srand48(time(NULL));
-    populate(POP_ITER, 6, true);
-
-
-  } else if (argc == 2){
-
-    // Mode 2: Randomly builds a table of strong USPs up to k =
-    // atoi(argv[1]), based on the twist constants and the sizes in
-    // ns.  Displays a graph (as adjency list CSV to stdout) of USPs
-    // found for k-1, k-2, k-3 with edges between those that can be
-    // (deterministically) twisted together.
-    
-    int k = atoi(argv[1]);
-    assert(3 <= k && k <= 6);
-    populate(POP_ITER, k-1, false);
-
-    int offset = 0;
-    for (int i = 1; i <= k-2; i++){
-      print_graph(table[i], table[i+1], i+2, ss[i+2], offset);
-      offset += table[i] -> size();
-    }
-    
-  } else if (argc == 3){
-
-    // Mode 3: Takes two files containing USPs and attempts to twist
-    // them together.
-    
-    puzzle * p1 = create_puzzle_from_file(argv[1]);
-    if (p1 == NULL) {
-      fprintf(stderr, "Error: Puzzle One does not exist or is incorrectly formated.\n");
-      return -1;
-    }
-    
-    puzzle * p2 = create_puzzle_from_file(argv[2]);
-    if (p1 == NULL) {
-      fprintf(stderr, "Error: Puzzle Two does not exist or is incorrectly formated.\n");
-      return -1;
-    }
-    
-    if (!check(p1)){
-      fprintf(stderr, "Warning: Puzzle One is not a strong USP.\n");
-    }
-    
-    if (!check(p2)){
-      fprintf(stderr, "Warning: Puzzle Two is not a strong USP.\n");
-    }
-    
-    // Make p1 the wider of the two.
-    if (p1 -> k < p2 -> k){
-      puzzle * tmp = p1;
-      p1 = p2;
-      p2 = tmp;
-    }
-    
-    puzzle * p = create_puzzle(p1 -> s + p2 -> s, p1 -> k + 1);
-    randomize_puzzle(p);
-    
-    if (full_twist(p,p1,p2)){
-      printf("Twisting successful:\n");
-      print_puzzle(p);
-    } else {
-      printf("No twisted puzzle found.\n");
-    }
-    
-    destroy_puzzle(p1);
-    destroy_puzzle(p2);
-    
-  } else if (argc == 6){
-
-    // Mode 6: Attempts to deterministically twist randomly generated
-    // USPs of the specified sizes.  Displays statistics.
-    
-    int s1 = atoi(argv[1]);
-    int k1 = atoi(argv[2]);
-    int s2 = atoi(argv[3]);
-    int k2 = atoi(argv[4]);
-    int iter = atoi(argv[5]);
-
-    if (k1 < k2){
-      int tmpk = k1;
-      int tmps = s1;
-      k1 = k2;
-      s1 = s2;
-      k2 = tmpk;
-      s2 = tmps;
-    }
-    
-    puzzle * p1 = create_puzzle(s1,k1);
-    puzzle * p2 = create_puzzle(s2,k2);
-
-    puzzle * p = create_puzzle(p1 -> s + p2 -> s, p1 -> k + 1);
-    randomize_puzzle(p);
-    
-    srand48(time(NULL));
-    
-    int found = 0;
-
-    for (int i = 0; i < iter; i++){
-
-      random_usp(p1);
-      random_usp(p2);
-
-      bool ret = full_twist(p, p1, p2);
-      if (ret)
-	found++;
-      printf("Found = %d / %d\n", found, i+1);
-      
-    }
-
-    printf("Found = %d / %d\n", found, iter);
-
-    destroy_puzzle(p1);
-    destroy_puzzle(p2);
-    destroy_puzzle(p);
-    
-  }
-
-  return 0;
- 
-}
-*/
