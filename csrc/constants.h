@@ -31,4 +31,7 @@
 #define DEBUG3_PRINTF(...) (void)0
 #endif
 
+#define MIN(A,B) ((A) < (B)) ? (A) : (B)
+#define MAX(A,B) ((A) > (B)) ? (A) : (B)
+
 #endif
