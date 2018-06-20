@@ -283,6 +283,21 @@ void print_puzzle(puzzle * p){
   fprint_puzzle(stdout, p);
 }
 
+
+// Print a puzzle to the specified open file.
+void fprint_row(FILE * f, puzzle_row row, int k){
+  int c;
+  for(c = 0; c < k; c++)
+    fprintf(f, "%d", get_column_from_row(row, c));
+  
+}
+
+
+// Print a puzzle to the console.
+void print_row(puzzle_row row, int k){
+  fprint_row(stdout, row, k);
+}
+
 // Print a puzzle's 3DM instance to the specified open file.
 void fprint_tdm(FILE * f, puzzle * p){
   int s = p -> s;

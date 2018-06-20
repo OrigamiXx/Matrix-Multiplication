@@ -167,6 +167,13 @@ void fprint_puzzle(FILE * f, puzzle * p);
 // Print a puzzle to the console.
 void print_puzzle(puzzle * p);
 
+// Print a puzzle row to the specified open file.
+void fprint_row(FILE * f, puzzle_row row, int k);
+// Print a puzzle to the console.
+void print_row(puzzle_row row, int k);
+
+
+
 // Print a puzzle's 3DM instance to the specified open file.
 void fprint_tdm(FILE * f, puzzle * p);
 // Print a puzzle's 3DM instance to the console.

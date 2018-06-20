@@ -33,3 +33,4 @@ depend.mk
 nauty26r7/*g
 *.gephi
 local-mpi-script
+mrmpi.kv.*
