@@ -248,7 +248,8 @@ int search(puzzle * p, int prev_best, next_data* prePossible, int n){
 
 int main(int argc, char ** argv){
 
-  puzzle * p = create_puzzle_from_index(1,3,0);
+  int k = 5;
+  puzzle * p = create_puzzle_from_index(1,k,0);
   int index = p->max_row;
   next_data* possible  = (next_data *) malloc(sizeof(next_data)*index);
   bzero(possible, sizeof(next_data)*index);

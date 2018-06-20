@@ -44,7 +44,7 @@ int main(int argc, char ** argv){
 
   int s = 1;
   int k = 4;
-  int maxs = 65;
+  int maxs = 57; // 57 is upper bound for k = 4.
 
   puzzle_row r = 0;
 

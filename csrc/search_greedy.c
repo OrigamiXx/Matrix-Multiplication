@@ -7,6 +7,7 @@
 
 
 #define MAX_S 100
+#define STRIDE_FACTOR 8.0
 
 int count_special_columns(puzzle * p){
 
@@ -195,7 +196,7 @@ puzzle * create_usp_greedy(int s, int k, int stride_init, int special, puzzle * 
 	     skipping / (double)max_row * 100.0);    
 
     if (stride_init != 0) {
-      stride = (int)(sqrt(max * stride) / 4.0);
+      stride = (int)(sqrt(max * stride) / STRIDE_FACTOR);
       if (stride < 1)
 	stride = 1;
     }

@@ -40,6 +40,21 @@ puzzle * create_puzzle_from_puzzle(puzzle * p, puzzle_row row){
   return result;
 }
 
+//Creates a copy of puzzle p without the ith row.
+puzzle * create_row_minor_puzzle(puzzle * p, int i){
+
+  assert(0 <= i && i < p -> s);
+  puzzle * result = create_puzzle(p -> s - 1, p -> k);
+
+  if (i > 0)
+    memcpy(result -> puzzle, p -> puzzle, sizeof(puzzle_row) * i);
+  if (i < p -> s - 1)
+    memcpy(&(result -> puzzle[i]), &(p -> puzzle[i+1]), sizeof(puzzle_row) * (p -> s - i - 1));
+  
+
+  return result;
+}
+
 //read a puzzle from a file.
 puzzle * create_puzzle_from_file(const char * filename){
 
