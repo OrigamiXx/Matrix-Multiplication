@@ -63,10 +63,8 @@ int nullity_search(puzzle * p, bool skip[], int skip_count, int best, int which,
       }
 
     } else {
-      // printf("pre heuristic\n");
       // heuristic_results[U[s]] = nullity_h(new_puzzle, local_skip, skip_count, which);
       heuristic_results[U[s]] = generic_h(new_puzzle, local_skip, skip_count, which, heuristic_type);
-      // printf("post heuristic\n");
       heuristic_rows[U[s]] = U[s];
     }
   }
@@ -77,8 +75,8 @@ int nullity_search(puzzle * p, bool skip[], int skip_count, int best, int which,
 
 
   // fix from using selection sort
-  while (working_max_index != -1 && heuristic_results[working_max_index] > 0) {
-
+  while (working_max_index != -1 && heuristic_results[working_max_index] >= 0) {
+    
     if (best >= heuristic_results[working_max_index] + p->s + 1){
       // printf("better than heuristic\n");
       return best;
@@ -90,7 +88,6 @@ int nullity_search(puzzle * p, bool skip[], int skip_count, int best, int which,
 
 
     int search_result = nullity_search(new_puzzle, local_skip, skip_count, best, which, heuristic_type);
-    // int search_result = brute_force(new_puzzle, local_skip, skip_count, 6);
 
     // best = MAX(best, search_result);
     if (search_result > best) {
@@ -109,23 +106,17 @@ int nullity_search(puzzle * p, bool skip[], int skip_count, int best, int which,
     working_max_index = nullity_index_of_max(heuristic_results, new_puzzle->max_row);
   }
 
-  if (working_max_index != -1 && heuristic_results[working_max_index] == 0) {
-    best = MAX(best, p->s+1);
-  }
-  
-  if (best > best_best) {
-    best_best = best;
-    printf("c) BEST BEST UPDATED TO %d \n", best_best);
-  }
-
-  // printf("postwhile\n");
+  // if (working_max_index != -1 && heuristic_results[working_max_index] == 0) {
+  //   best += 1;
+  //   if (best > best_best) {
+  //     best_best = best;
+  //     printf("fucking bested besty %d\n", best_best);
+  //   }
+  // }
 
   destroy_puzzle(new_puzzle);
 
-
   return best;
-
-
 }
 
 int generic_h(puzzle * p, bool skip[], int skip_count, int which, int heuristic_type) {
@@ -133,7 +124,8 @@ int generic_h(puzzle * p, bool skip[], int skip_count, int which, int heuristic_
     case 1:
       return nullity_h(p, skip, skip_count, which, heuristic_type);
     case 2:
-      return clique_h(p, skip, skip_count, which, heuristic_type);
+      //return clique_h(p, skip, skip_count, which, heuristic_type);
+      return clique_h(p, 1, (bool*) NULL, (bool*) NULL);
     default:
       fprintf(stderr, "Invalid heuristic type used\n");
       assert(false);
@@ -181,8 +173,193 @@ int nullity_h(puzzle * p, bool skip[], int skip_count, int which, int heuristic_
 
 }
 
-int clique_h(puzzle * p, bool skip[], int skip_count, int which, int heuristic_type) {
-  return 0;
+static int ipow(int base, int exp) {
+  int result = 1;
+  while (exp) {
+    if (exp & 1){
+      result *= base;
+    }
+    exp >>=1;
+    base *=base;
+  }
+
+  return result;
+}
+
+int clique_h(puzzle *p, int entries_per_vertex, bool * skip_list, bool * hit_list) {
+
+  // do similar to skip list
+
+  int current_max_clique = 0;
+
+  int k = p->k;
+  puzzle_row max_index = ipow(ipow(3, k), entries_per_vertex);
+
+  // Extend the puzzle by 2 so that we can play with the last 2 rows when testing
+  puzzle * temp_puzzle = create_puzzle_from_puzzle(p, 0);
+  puzzle * test_puzzle = create_puzzle_from_puzzle(temp_puzzle, 0);
+  int last_index = test_puzzle->s - 1;
+  destroy_puzzle(temp_puzzle);
+
+  // Start at previous highest +1 since the puzzle is ordered
+  puzzle_row next_start = test_puzzle->puzzle[last_index-1] + 1;
+
+  /*
+  Equivalent to making bool graph[max_index][max_index], 
+  and defaulting everything to false
+  */
+  bool ** graph = (bool **) malloc(sizeof(bool *) * max_index);
+  bzero(graph, sizeof(graph));
+  for (int i = 0; i < max_index; i++) {
+    graph[i] = (bool *) malloc(sizeof(bool) * max_index);
+    bzero(graph[i], sizeof(graph[i]));
+    for (int j = 0; j < max_index; j++) {
+      graph[i][j] = false;
+    }
+  }
+
+  /*
+  Start u at next_start so we don't waste time - the puzzle is ordered
+  */
+  for (puzzle_row u = next_start; u < max_index; u ++) {
+    /*
+    Start v at u+1 since it's an ordered USP
+    */
+    for (puzzle_row v = u+1; v < max_index; v ++) {
+
+      /*
+      Save a check => if u == v then it won't be a SUSP
+      Shouldn't ever actually happen but... just in case
+      */
+      if (u == v) {
+        graph[u][v] = false;
+      } else {
+        test_puzzle->puzzle[last_index-1] = u;
+        test_puzzle->puzzle[last_index] = v;
+        
+        // Don't bother checking if we've got results there
+        if (graph[u][v] || graph[v][u]) {
+          /* If at least one is there, make sure it's mirrored */
+          graph[u][v] = true;
+          graph[v][u] = true;
+        // } else if (skip_list[u] || skip_list[v]) {
+          // printf("Skipped thanks to the skip list!")
+          // graph[u][v] = false;
+          // graph[v][u] = false;
+        } else if (IS_USP == check(test_puzzle)) { 
+          graph[u][v] = true;
+          graph[v][u] = true; /* Mirror to optimize */
+        } else {
+          graph[u][v] = false;
+          graph[v][u] = false;
+
+          /*
+          Set the skip_list appropriately and also keep it mirrored
+          */
+          // skip_list[u] = true;
+          // skip_list[v] = true;
+
+        }
+      }
+    }
+  }
+  
+  unsigned long * vertices = (unsigned long *) malloc(sizeof(unsigned long *) * max_index);
+  bzero(vertices, sizeof(vertices));
+  
+  bool found = false;
+  while (!found) {
+    /*
+    Count the connectness for each vertex
+    */
+    for (puzzle_row u = 0; u < max_index; u++ ){
+      vertices[u] = 0;
+      for (puzzle_row v = 0; u < max_index; u++) {
+        if (graph[u][v]) {
+          vertices[u] ++;
+        }
+      }
+    }
+
+    /*
+    A loop to reduce the graph down to a fully connected graph
+    */
+    bool changed = true;
+    while (changed) {
+      changed = false;
+
+      /*
+      Loop that goes through each set of vertices
+      If one set of vertices is "less connected" than the current max clique requires,
+      then remove that vertex from the graph
+      */
+      for (puzzle_row u = 0; u < max_index; u ++) {
+        if (vertices[u] < current_max_clique) {
+          // printf("dafuq %lu\n", vertices[u]);
+          for (puzzle_row v = 0; v < max_index; v ++) {
+            if (graph[u][v]) {
+              changed = true;
+              graph[u][v] = false;
+              graph[v][u] = false;
+            }
+          }
+        }
+      }
+
+      /*
+      Re-count the connectedness for each vertex
+      */
+      for (puzzle_row u = 0; u < max_index; u ++) {
+        vertices[u] = 0;
+
+        for (puzzle_row v = 0; v < max_index; v ++) {
+          if (graph[u][v]) {
+            vertices[u] ++;
+          }
+        }
+      }
+    }
+
+    /*
+    If the most connected vertex has 0 connections, the previous clique was the max clique
+    */
+    unsigned long max = vertices[0];
+    unsigned long nonzero_min = vertices[0];
+    for (puzzle_row i = 0; i < max_index; i ++) {
+      if (vertices[i] > max) {
+        max = vertices[i];
+      }
+
+      if (nonzero_min == 0 || (vertices[i] < nonzero_min && vertices[i] > 0)) {
+        nonzero_min = vertices[i];
+      }
+    }
+
+    if (max == 0) {
+      found = true;
+    } else {
+      // Easier and better (?) than binary search
+      current_max_clique = MAX(current_max_clique + 1, nonzero_min+1); 
+      if (current_max_clique > 100) {
+        current_max_clique = 100;
+        found = true;
+      }
+    }
+  }
+
+  // Free memory from storing vertex information
+  free(vertices);
+  
+  // Free memory from storing the graph
+  for (int i = 0; i < max_index; i++) {
+    free(graph[i]);
+  }
+  free(graph);
+
+  destroy_puzzle(test_puzzle);
+  printf("found a max clique %d\n", current_max_clique);
+  return current_max_clique;
+
 }
 
 int brute_force(puzzle * p, bool skip[], int skipping, int up_to_size){
