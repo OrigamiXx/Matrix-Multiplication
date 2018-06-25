@@ -10,8 +10,6 @@ int best_best = 0;
 
 static int nullity_index_of_max(int to_check[], int total_elems) {
 
-  //int total_elems = sizeof(*to_check) / sizeof(int);
-
   int curr_max = -1;
   int curr_max_index = -1;
 
@@ -23,10 +21,23 @@ static int nullity_index_of_max(int to_check[], int total_elems) {
   return curr_max_index;
 }
 
-int nullity_search(puzzle * p, bool skip[], int skip_count, int best, int which, int heuristic_type) {
+int nullity_search(puzzle * p, bool skip[], bool ** skip_2d, int skip_count, int best, int which, int heuristic_type) {
    
   bool local_skip[p->max_row];
   memcpy(local_skip, skip, sizeof(bool) * p->max_row);
+
+  /*
+  Make a local copy of the 2d skip table to use for this search and any deeper searches on this route
+   */
+  bool ** local_skip_2d = (bool **) malloc(sizeof(bool *) * p->max_row);
+  bzero(local_skip_2d, sizeof(local_skip_2d));
+  for (int i = 0; i < p->max_row; i++) {
+    local_skip_2d[i] = (bool *) malloc(sizeof(bool) * p->max_row);
+    bzero(local_skip_2d[i], sizeof(local_skip_2d[i]));
+    for (int j = 0; j < p->max_row; j++) {
+      local_skip_2d[i][j] = skip_2d[i][j];
+    }
+  }
 
   int s = p->s;
   int ret = s;
@@ -43,9 +54,6 @@ int nullity_search(puzzle * p, bool skip[], int skip_count, int best, int which,
   }
 
   puzzle * new_puzzle = create_puzzle_from_puzzle(p, 0);
-
-  // printf("best is %d and s is %d\n", best, new_puzzle->s);
-
   puzzle_row * U = new_puzzle->puzzle;
 
   int heuristic_results[new_puzzle->max_row];
@@ -64,15 +72,13 @@ int nullity_search(puzzle * p, bool skip[], int skip_count, int best, int which,
 
     } else {
       // heuristic_results[U[s]] = nullity_h(new_puzzle, local_skip, skip_count, which);
-      heuristic_results[U[s]] = generic_h(new_puzzle, local_skip, skip_count, which, heuristic_type);
+      heuristic_results[U[s]] = generic_h(new_puzzle, local_skip, local_skip_2d, skip_count, which, heuristic_type);
       heuristic_rows[U[s]] = U[s];
     }
   }
 
 
   int working_max_index = nullity_index_of_max(heuristic_results, new_puzzle->max_row);
-  // printf("prewhile %d \n", heuristic_results[working_max_index]);
-
 
   // fix from using selection sort
   while (working_max_index != -1 && heuristic_results[working_max_index] >= 0) {
@@ -87,7 +93,7 @@ int nullity_search(puzzle * p, bool skip[], int skip_count, int best, int which,
     U[s] = heuristic_rows[working_max_index];
 
 
-    int search_result = nullity_search(new_puzzle, local_skip, skip_count, best, which, heuristic_type);
+    int search_result = nullity_search(new_puzzle, local_skip, local_skip_2d, skip_count, best, which, heuristic_type);
 
     // best = MAX(best, search_result);
     if (search_result > best) {
@@ -114,28 +120,33 @@ int nullity_search(puzzle * p, bool skip[], int skip_count, int best, int which,
   //   }
   // }
 
+  for (int i = 0; i < p->max_row; i++) {
+    free(local_skip_2d[i]);
+  }
+  free(local_skip_2d);
+  
   destroy_puzzle(new_puzzle);
 
   return best;
 }
 
-int generic_h(puzzle * p, bool skip[], int skip_count, int which, int heuristic_type) {
+int generic_h(puzzle * p, bool skip[], bool ** skip_2d, int skip_count, int which, int heuristic_type) {
   switch (heuristic_type) {
+    case 0:
+      return nullity_h(p, skip, skip_2d, skip_count, which, heuristic_type);
     case 1:
-      return nullity_h(p, skip, skip_count, which, heuristic_type);
-    case 2:
       //return clique_h(p, skip, skip_count, which, heuristic_type);
-      return clique_h(p, 1, (bool*) NULL, (bool*) NULL);
+      return clique_h(p, 1, skip_2d, (bool*) NULL);
     default:
       fprintf(stderr, "Invalid heuristic type used\n");
       assert(false);
   }
 }
 
-int nullity_h(puzzle * p, bool skip[], int skip_count, int which, int heuristic_type) {
-  if (p->s < 8 || which >= 2){
-    return 99999;
-  }
+int nullity_h(puzzle * p, bool skip[], bool ** skip_2d, int skip_count, int which, int heuristic_type) {
+  // if (p->s < 8 || which >= 2){
+  //   return 99999;
+  // }
 
   bool local_skip[p->max_row];
   memcpy(local_skip, skip, sizeof(bool) * p->max_row);
@@ -165,7 +176,7 @@ int nullity_h(puzzle * p, bool skip[], int skip_count, int which, int heuristic_
 
   puzzle * blank_puzzle = create_puzzle(0, p->k);
 
-  int bbb = nullity_search(blank_puzzle, local_skip, skip_count, 0, which+1, heuristic_type);
+  int bbb = nullity_search(blank_puzzle, local_skip, skip_2d, skip_count, 0, which+1, heuristic_type);
   // printf("\rsearched and heuristic return %d", bbb);
   // fflush(stdout);
   destroy_puzzle(blank_puzzle);
@@ -186,7 +197,11 @@ static int ipow(int base, int exp) {
   return result;
 }
 
-int clique_h(puzzle *p, int entries_per_vertex, bool * skip_list, bool * hit_list) {
+int clique_h(puzzle *p, int entries_per_vertex, bool ** skip_2d, bool * hit_list) {
+
+  // if (p->s < 10) {
+  //   return 100;
+  // }
 
   // do similar to skip list
 
@@ -242,16 +257,20 @@ int clique_h(puzzle *p, int entries_per_vertex, bool * skip_list, bool * hit_lis
           /* If at least one is there, make sure it's mirrored */
           graph[u][v] = true;
           graph[v][u] = true;
-        // } else if (skip_list[u] || skip_list[v]) {
-          // printf("Skipped thanks to the skip list!")
-          // graph[u][v] = false;
-          // graph[v][u] = false;
+        } else if (skip_2d[u][v] || skip_2d[v][u]) {
+          // printf("Skipped thanks to the skip list!\n");
+          graph[u][v] = false;
+          graph[v][u] = false;
+          skip_2d[u][v] = true;
+          skip_2d[v][u] = true;
         } else if (IS_USP == check(test_puzzle)) { 
           graph[u][v] = true;
           graph[v][u] = true; /* Mirror to optimize */
         } else {
           graph[u][v] = false;
           graph[v][u] = false;
+          skip_2d[u][v] = true;
+          skip_2d[v][u] = true;
 
           /*
           Set the skip_list appropriately and also keep it mirrored
@@ -357,7 +376,7 @@ int clique_h(puzzle *p, int entries_per_vertex, bool * skip_list, bool * hit_lis
   free(graph);
 
   destroy_puzzle(test_puzzle);
-  printf("found a max clique %d\n", current_max_clique);
+  // printf("found a max clique %d\n", current_max_clique);
   return current_max_clique;
 
 }
@@ -365,7 +384,6 @@ int clique_h(puzzle *p, int entries_per_vertex, bool * skip_list, bool * hit_lis
 int brute_force(puzzle * p, bool skip[], int skipping, int up_to_size){
 
   bool local_skip[p->max_row];
-  
   // make a local copy of the skip table so that we don't corrupt the previous one
   memcpy(local_skip, skip, sizeof(bool) * p->max_row);
   
@@ -432,7 +450,25 @@ int main(int argc, char ** argv) {
   bzero(init_skip, sizeof(init_skip));
   // int result = brute_force(start_p, init_skip, 0, s);
 
-  int result = nullity_search(start_p, init_skip, 0, 0, 0, h_type);
+  bool ** skip_2d = (bool **) malloc(sizeof(bool *) * start_p->max_row);
+  bzero(skip_2d, sizeof(skip_2d));
+  for (int i = 0; i < start_p->max_row; i++) {
+    skip_2d[i] = (bool *) malloc(sizeof(bool) * start_p->max_row);
+    bzero(skip_2d[i], sizeof(skip_2d[i]));
+    for (int j = 0; j < start_p->max_row; j++) {
+      skip_2d[i][j] = false;
+    }
+  }
+
+  int result = nullity_search(start_p, init_skip, skip_2d, 0, 0, 0, h_type);
+
+  for (int i = 0; i < start_p->max_row; i++) {
+    skip_2d[i] = (bool *) malloc(sizeof(bool) * start_p->max_row);
+    bzero(skip_2d[i], sizeof(skip_2d[i]));
+    for (int j = 0; j < start_p->max_row; j++) {
+      skip_2d[i][j] = skip_2d[i][j];
+    }
+  }
 
   printf("Max rows found: %d\n", result);
 

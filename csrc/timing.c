@@ -12,7 +12,7 @@
 
 check_t time_check(checker_t checker, puzzle * p, double * time_ptr){
 
-  struct timespec begin={0,0}, end={0,0};  
+  struct timespec begin={0,0}, end={0,0};
 
   clockid_t clock_mode = CLOCK_MONOTONIC; //CLOCK_REALTIME; //CLOCK_PROCESS_CPUTIME_ID; 
   
