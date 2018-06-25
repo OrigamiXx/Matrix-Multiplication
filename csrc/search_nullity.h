@@ -7,7 +7,7 @@
 #include "checker.h"
 #include "puzzle.h"
 
-int nullity_search(puzzle * p, bool skip[], int skip_count, int best, int which, int heuristic_type);
+int nullity_search(puzzle * p, bool skip[], bool ** skip_2d, int skip_count, int best, int which, int heuristic_type);
 int generic_h(puzzle * p, bool skip[], bool ** skip_2d, int skip_count, int which, int heuristic_type);
 int nullity_h(puzzle * p, bool skip[], bool ** skip_2d, int skip_count, int which, int heuristic_type);
 // int clique_h(puzzle * p, bool skip[], int skip_count, int which, int heuristic_type);

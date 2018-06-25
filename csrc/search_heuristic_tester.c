@@ -6,6 +6,7 @@
 #include "puzzle.h"
 #include "search_nullity.h"
 #include "timing.h"
+#include "search_heuristic_tester.h"
 
 
 int time_check_heuristic(puzzle * p, bool skip[], bool ** skip_2d, int heuristic_num, double * time_ptr){
@@ -14,7 +15,9 @@ int time_check_heuristic(puzzle * p, bool skip[], bool ** skip_2d, int heuristic
     clockid_t clock_mode = CLOCK_MONOTONIC;
 
     clock_gettime(clock_mode, &begin);
-
+    
+    // int nullity_search(puzzle * p, bool skip[], int skip_count, int best, int which, int heuristic_type);
+    // int heuristic_result = nullity_search(p, skip, skip_2d, 0, 0, 0, heuristic_num);
     // int heuristic_result = generic_h(p, skip, skip_2d, 0, 0, heuristic_num);
     int heuristic_result = 0;
     clock_gettime(clock_mode, &end);
@@ -52,6 +55,8 @@ int main(int argc, char ** argv) {
     printf("Beginning tests on heuristics\n");
 
     puzzle * test_puzzle = create_puzzle(s, k);
+    randomize_puzzle(test_puzzle);
+    // random_usp(test_puzzle);
     // fill puzzle with random garbage
 
 
@@ -86,8 +91,7 @@ int main(int argc, char ** argv) {
         int heuristic_result = time_check_heuristic(test_puzzle, init_skip, skip_2d, h, time_ptr);
 
         printf("## Heuristic result returned for puzzle: %d\n", heuristic_result);
-        printf("## Heuristic time takane: %f\n", *time_ptr);
-
+        printf("## Heuristic time taken: %f\n", *time_ptr);
 
         for (int i = 0; i < test_puzzle->max_row; i++) {
             skip_2d[i] = (bool *) malloc(sizeof(bool) * test_puzzle->max_row);
@@ -98,6 +102,4 @@ int main(int argc, char ** argv) {
         }
 
     }
-
-
 }
