@@ -101,6 +101,9 @@ const puzzle_row MAX_ROWS[MAX_K+1] =
 //MWA: Rename to add_row_to_puzzle.
 puzzle * create_puzzle_from_puzzle(puzzle * p, puzzle_row row);
 
+// Extends a puzzle adding num_rows_to_add rows with value 0 at the end
+puzzle * extend_puzzle(puzzle * p, int num_rows_to_add);
+
 //Creates a copy of puzzle p without the ith row.
 puzzle * create_row_minor_puzzle(puzzle * p, int i);
 

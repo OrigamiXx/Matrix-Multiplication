@@ -40,6 +40,20 @@ puzzle * create_puzzle_from_puzzle(puzzle * p, puzzle_row row){
   return result;
 }
 
+// Extends a puzzle, adding blank rows to the end
+puzzle * extend_puzzle(puzzle * p, int num_rows_to_add) {
+  
+  puzzle * result = create_puzzle(p->s + num_rows_to_add, p->k);
+  memcpy(result->puzzle, p->puzzle, sizeof(puzzle_row) * p->s);
+
+  for (int i = p->s; i < result->s; i++) {
+    result->puzzle[i] = 0;
+  }
+
+  return result;
+
+}
+
 //Creates a copy of puzzle p without the ith row.
 puzzle * create_row_minor_puzzle(puzzle * p, int i){
 
