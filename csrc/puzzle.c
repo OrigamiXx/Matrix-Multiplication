@@ -368,7 +368,7 @@ void compute_tdm(puzzle * p){
   for (int r1 = 0; r1 < s; r1++)
     for (int r2 = 0; r2 < s; r2++)
       for (int r3 = 0; r3 < s; r3++)
-	set_tdm_entry(p, r1, r2, r3, !is_witness(p, r1, r2, r3));
+	      set_tdm_entry(p, r1, r2, r3, !is_witness(p, r1, r2, r3));
 
   validate_tdm(p);
 }

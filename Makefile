@@ -11,11 +11,11 @@ RMFLAGS=-f
 NAUTY=nauty.o nautil.o nausparse.o naugraph.o schreier.o naurng.o
 NAUTYDIR=nauty26r7
 # Put additional object sources in list below.
-OBJ-SOURCES=checker.c permutation.c puzzle.c set.c matching.c 3DM_to_SAT.c timing.c heuristic.c construct.c
+OBJ-SOURCES=checker.c permutation.c puzzle.c set.c matching.c 3DM_to_SAT.c timing.c heuristic.c construct.c searcher.c clique_to_mip.c
 # Put additional executable sources in list below.
 TESTER-SOURCES=test_3DM_to_SAT.c test_permutation.c test_puzzle.c test_set.c test_matching.c test_scratch.c search_heuristic_tester.c
 UTIL-SOURCES=util_check_benchmark.c util_check_file.c util_timer.c util_generate_puzzle.c util_join.c util_construct.c util_submodular.c
-SEARCH-SOURCES=search_greedy.c search_ils.c search_clique.c search_astar.c search_nullity.c
+SEARCH-SOURCES=search_greedy.c search_ils.c search_clique.c search_astar.c search_run.c 
 EXE-SOURCES=$(TESTER-SOURCES) $(UTIL-SOURCES) $(SEARCH-SOURCES)
 
 ifdef GUROBI_HOME

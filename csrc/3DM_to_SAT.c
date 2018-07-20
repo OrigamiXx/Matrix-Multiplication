@@ -52,11 +52,11 @@ void construct_reduction(puzzle * p, Solver * S){
     for (int r2 = 0; r2 < s; r2++) {
       int r2_var = var_num_x(r1, r2, s);
       for (int r3 = 0; r3 < s; r3++) {
-	int r3_var = var_num_y(r1, r3, s);
+	      int r3_var = var_num_y(r1, r3, s);
         if (!get_tdm_entry(p, r1, r2, r3)) {
-	  lits.clear();
-	  lits.push(~mkLit(r2_var));
-	  lits.push(~mkLit(r3_var));
+          lits.clear();
+          lits.push(~mkLit(r2_var));
+          lits.push(~mkLit(r3_var));
           S -> addClause_(lits);
         }
       }
@@ -70,16 +70,16 @@ void construct_reduction(puzzle * p, Solver * S){
       int r21_var = var_num_x(r1, a, s);
       int r31_var = var_num_y(r1, a, s);
       for (int b = 0; b < s; b++) {
-	int r22_var = var_num_x(r1, b, s);
-	int r32_var = var_num_y(r1, b, s);
-	if (r21_var < r22_var){ // Implies r31_var < r32_var
-	  lits.clear();
-	  lits.push(~mkLit(r21_var));
-	  lits.push(~mkLit(r22_var));
+        int r22_var = var_num_x(r1, b, s);
+        int r32_var = var_num_y(r1, b, s);
+        if (r21_var < r22_var){ // Implies r31_var < r32_var
+          lits.clear();
+          lits.push(~mkLit(r21_var));
+          lits.push(~mkLit(r22_var));
           S -> addClause_(lits);
-	  lits.clear();
-	  lits.push(~mkLit(r31_var));
-	  lits.push(~mkLit(r32_var));
+          lits.clear();
+          lits.push(~mkLit(r31_var));
+          lits.push(~mkLit(r32_var));
           S -> addClause_(lits);
         }
       }
@@ -93,16 +93,16 @@ void construct_reduction(puzzle * p, Solver * S){
       int r21_var = var_num_x(r11, r, s);
       int r31_var = var_num_y(r11, r, s);
       for (int r12 = 0; r12 < s; r12++){
-	int r22_var = var_num_x(r12, r, s);
-	int r32_var = var_num_y(r12, r, s);
-	if (r21_var < r22_var){ // Implies r31_var < r32_var
-	  lits.clear();
-	  lits.push(~mkLit(r21_var));
-	  lits.push(~mkLit(r22_var));
+        int r22_var = var_num_x(r12, r, s);
+        int r32_var = var_num_y(r12, r, s);
+        if (r21_var < r22_var){ // Implies r31_var < r32_var
+          lits.clear();
+          lits.push(~mkLit(r21_var));
+          lits.push(~mkLit(r22_var));
           S -> addClause_(lits);
-	  lits.clear();
-	  lits.push(~mkLit(r31_var));
-	  lits.push(~mkLit(r32_var));
+          lits.clear();
+          lits.push(~mkLit(r31_var));
+          lits.push(~mkLit(r32_var));
           S -> addClause_(lits);
         }
       }

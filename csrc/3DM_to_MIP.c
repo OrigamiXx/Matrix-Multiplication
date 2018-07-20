@@ -93,7 +93,7 @@ void construct_reduction(puzzle * p, GRBmodel * model) {
     for (int r2 = 0; r2 < s; r2++)
       for (int r3 = 0; r3 < s; r3++)
         if (!get_tdm_entry(p, r1, r2, r3)){
-	  val[0] = 1;
+	        val[0] = 1;
           ind[0] = coord_to_var(s, r1, r2, r3);
           GRBaddconstr(model, 1, ind, val, GRB_EQUAL, 0.0, NULL);
         }
@@ -104,9 +104,9 @@ void construct_reduction(puzzle * p, GRBmodel * model) {
     int counter = 0;
     for(int r2 = 0; r2 < s; r2++){
       for(int r3 = 0; r3 < s; r3++){
-	val[counter] = 1;
-	ind[counter] = coord_to_var(s, r1, r2, r3);
-	counter++;
+        val[counter] = 1;
+        ind[counter] = coord_to_var(s, r1, r2, r3);
+        counter++;
       }
     }
     GRBaddconstr(model, counter, ind, val, GRB_EQUAL, 1.0, NULL);
@@ -117,9 +117,9 @@ void construct_reduction(puzzle * p, GRBmodel * model) {
     int counter = 0;
     for(int r1 = 0; r1 < s; r1++){
       for(int r3 = 0; r3 <s; r3++){
-	val[counter] = 1;
-	ind[counter] = coord_to_var(s, r1, r2, r3);
-	counter++;
+        val[counter] = 1;
+        ind[counter] = coord_to_var(s, r1, r2, r3);
+        counter++;
       }
     }
     GRBaddconstr(model, counter, ind, val, GRB_EQUAL, 1.0, NULL);
@@ -130,9 +130,9 @@ void construct_reduction(puzzle * p, GRBmodel * model) {
     int counter = 0;
     for(int r1 = 0; r1 < s; r1++){
       for(int r2 = 0; r2 <s; r2++){
-	val[counter] = 1;
-	ind[counter] = coord_to_var(s, r1, r2, r3);
-	counter++;
+        val[counter] = 1;
+        ind[counter] = coord_to_var(s, r1, r2, r3);
+        counter++;
       }
     }
     GRBaddconstr(model, counter, ind, val, GRB_EQUAL, 1.0, NULL);

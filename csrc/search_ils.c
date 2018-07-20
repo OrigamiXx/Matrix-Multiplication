@@ -42,7 +42,7 @@ puzzle * reduce_puzzle_greedy(puzzle * p){
     for (p->puzzle[r] = 0; p->puzzle[r] < p->max_row; p->puzzle[r]++){
 
       if (check(p) == IS_USP){
-	count++;
+	      count++;
       }
 
     }
