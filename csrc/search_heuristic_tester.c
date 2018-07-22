@@ -56,7 +56,7 @@ int time_check_heuristic(puzzle * p, bool skip[], int max_s, int heuristic_num, 
                         found_heuristic_result = inline_search(p, init_graph, skip, 0, 0, 0, heuristic_num, max_s);
                         break;
                     }
-                
+
             }
             break;
     }
@@ -144,7 +144,6 @@ int main(int argc, char ** argv) {
             {
                 for (int n = 1; n < number_of_trials; n++) {
                     for (int h = 0; h < number_of_heuristics; h++){
-                        printf("NUMBER CHECKING %d\n", h);
                         bool init_skip[test_puzzle->max_row];
                         bzero(init_skip, sizeof(init_skip));
 
@@ -153,7 +152,7 @@ int main(int argc, char ** argv) {
                         double * time_ptr = (double *) malloc(sizeof(double));
                         int heuristic_result = time_check_heuristic(test_puzzle, init_skip, s, h, test_type, time_ptr);
                         // seems we don't care about the heuristic result any more?
-                        
+
                         time_results[h].t_max = MAX(time_results[h].t_max, *time_ptr);
                         time_results[h].t_min = MIN(time_results[h].t_min, *time_ptr);
                         time_results[h].t_total += *time_ptr;
@@ -163,11 +162,13 @@ int main(int argc, char ** argv) {
 
                         // progress bar
                         double progress_percent = (double) (((n * number_of_heuristics) + h) / (double) (number_of_trials * number_of_heuristics)) * 100;
-                        printf("\r%.1f%% complete", progress_percent);
-                        printf("\r");
+                        printf("\r%f%% complete", progress_percent);
+                        fflush(stdout);
 
                     }
                 }
+                printf("\r");
+                fflush(stdout);
 
                 printf("\n");
 
@@ -201,7 +202,7 @@ int main(int argc, char ** argv) {
         case 3:
             {
                 for (int h = 0; h < number_of_heuristics; h++) {
-                    
+
                 }
             }
             break;
@@ -209,6 +210,6 @@ int main(int argc, char ** argv) {
     }
 
 
-    
+
 
 }
