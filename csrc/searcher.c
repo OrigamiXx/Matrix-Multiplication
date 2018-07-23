@@ -496,12 +496,15 @@ int mip_clique_h(puzzle * p, bool skip[], int skip_count, int which, int heurist
   puzzle_row max_index = ipow2(3, p->k);
   puzzle_row next_start = p->puzzle[p->s-1] + 1;
 
+  printf("--------\n");
+  print_puzzle(p);
+  printf("--------\n");
   // printf("Gonna make a graph\n");
   int graph_size;
-  bool ** graph = make_graph_from_puzzle(p, skip, next_start, max_index-1, max_index, which, heuristic_type);
+  bool ** graph = make_graph_from_puzzle(p, skip, next_start, max_index, which, heuristic_type);
   // printf("Made a graph\n");
-
-  int current_max_clique = max_clique_mip(graph, max_index);
+  
+  int current_max_clique = (max_index > 0 ? max_clique_mip(graph, max_index) : 0);
 
   free_2d_bool_array(graph, max_index);
 
@@ -693,22 +696,23 @@ void free_2d_bool_array(bool ** arr_2d, unsigned long max_index) {
  * Tests on the next final two rows to make a graph of edges between u and v
  * The first row is tested between start_u and max_u, the second row is tested between (first_row + 1) and max_v
  */
-bool ** make_graph_from_puzzle(puzzle * p, bool skip[], puzzle_row start_u, puzzle_row max_u, puzzle_row max_v, int which, int heuristic_type) {
+bool ** make_graph_from_puzzle(puzzle * p, bool skip[], puzzle_row start_u, puzzle_row &max_index, int which, int heuristic_type) {
 
   if (which >= 0) {
     start_graph_timer(heuristic_type, which);
   }
 
-  bool local_skip[MAX(max_u, max_v)];
-  memcpy(local_skip, skip, sizeof(bool) * MAX(max_u, max_v));
+  bool local_skip[max_index];
+  memcpy(local_skip, skip, sizeof(bool) * max_index);
 
   puzzle * testing_puzzle = extend_puzzle(p, 2);
   puzzle * inner_testing_puzzle = extend_puzzle(p, 1);
 
-  bool ** graph = make_2d_bool_array(MAX(max_u, max_v));
   int last_index = testing_puzzle->s - 1;
 
-  for (puzzle_row u = start_u; u < max_u; u ++) {
+  int not_skipped = 0;
+  
+  for (puzzle_row u = start_u; u < max_index; u ++) {
     
     if (local_skip[u]) continue;
 
@@ -717,59 +721,45 @@ bool ** make_graph_from_puzzle(puzzle * p, bool skip[], puzzle_row start_u, puzz
       local_skip[u] = true;
       continue;
     }
+    not_skipped++;
+  }
+
+  printf("not_skipped = %d\n", not_skipped);
+
+  bool ** graph = make_2d_bool_array(not_skipped);
+
+  int u_i = -1;
+  for (puzzle_row u = start_u; u < max_index; u++) {
     
+    if (local_skip[u]) continue;
+    u_i++;
     /*
     Start v at u+1 since it's an ordered puzzle
     */
-    for (puzzle_row v = u+1; v < max_v; v ++) {
+    int v_i = -1;
+    for (puzzle_row v = u+1; v < max_index; v++) {
 
+      if (local_skip[v]) continue;
+      v_i++;
+      
       testing_puzzle->puzzle[last_index-1] = u;
       testing_puzzle->puzzle[last_index] = v;
-      /*
-      Save a check => if u == v then it won't be a SUSP
-      Shouldn't ever actually happen but... just in case
-      */
-      if (u == v) {
-        graph[u][v] = false;
-        graph[v][u] = false;
-
-        local_skip[u] = true;
-        local_skip[v] = true;
-      } else if (local_skip[u] || local_skip[v]) {
-        graph[u][v] = false;
-        graph[v][u] = false;
-
-        local_skip[u] = true;
-        local_skip[v] = true;
-      } else if (graph[u][v] || graph[v][u]) {
-        graph[u][v] = true;
-        graph[v][u] = true;
-      } else if (IS_USP == check(testing_puzzle)) {
-        graph[u][v] = true;
-        graph[v][u] = true;
+      
+      if (IS_USP == check(testing_puzzle)) {
+	// Edge present.
+        graph[u_i][v_i] = true;
+        graph[v_i][u_i] = true;
+	//printf("Edge got added\n");
       } else {
-        /*
-        Set the skip_list appropriately and also keep it mirrored
-        */
-        graph[u][v] = false;
-        graph[v][u] = false;
-
-        printf("add a skip %lu %lu\n", u, v);
-
-        local_skip[u] = true;
-        local_skip[v] = true;
-
-        /* 
-        Want to continue to the next u not just the next v 
-        */
-        v = max_v;
+	// No edge present.
+        graph[u_i][v_i] = false;
+        graph[v_i][u_i] = false;
       }
     }
   }
 
   /*
-  Count how many rows and columns the graph actually needs
-  */
+  //Count how many rows and columns the graph actually needs
   int graph_rows_cols = 0;
   for (puzzle_row u = start_u; u < max_u; u++) {
     for (puzzle_row v = u+1; v < max_v; v++) {
@@ -783,8 +773,11 @@ bool ** make_graph_from_puzzle(puzzle * p, bool skip[], puzzle_row start_u, puzz
     //   printf("skip\n");
     // }
   }
+  */
 
-  printf("row col %d vs orig of %lu\n", graph_rows_cols, MAX(max_u, max_v));
+  printf("row col %d vs orig of %lu\n", not_skipped, max_index);
+  // Update graph size.
+  max_index = not_skipped; 
   // bool ** final_graph = make_2d_bool_array(graph_rows_cols);
   // int current_add_index = 0;
   // for (puzzle_row u = start_u; u < max_u; u++) {
@@ -876,32 +869,39 @@ int clique_h(puzzle * p, bool skip[], int skip_count, int which, int heuristic_t
   // Start at previous highest +1 since the puzzle is ordered
   puzzle_row next_start = p->puzzle[p->s-1] + 1; // start at the last element of the original puzzle + 1
 
-  bool ** graph = make_graph_from_puzzle(p, skip, next_start, max_index-1, max_index, which, heuristic_type);
+  unsigned long num_verts = max_index;
+  
+  bool ** graph = make_graph_from_puzzle(p, skip, next_start, num_verts, which, heuristic_type);
 
-  unsigned long * good_vertices = (unsigned long *) malloc(sizeof(unsigned long) * max_index);
-  bzero(good_vertices, sizeof(unsigned long) * max_index);
+  if (num_verts == 0){
+    free_2d_bool_array(graph, num_verts);
+    return 0;
+  }
 
-  bool node_exists = count_vertices(good_vertices, graph, max_index);
+  unsigned long * good_vertices = (unsigned long *) malloc(sizeof(unsigned long) * num_verts);
+  bzero(good_vertices, sizeof(unsigned long) * num_verts);
 
-  unsigned long * test_vertices = (unsigned long *) malloc(sizeof(unsigned long *) * max_index);
-  memcpy(test_vertices, good_vertices, sizeof(unsigned long *) * max_index);
+  bool node_exists = count_vertices(good_vertices, graph, num_verts);
 
-  bool ** test_graph = make_2d_bool_array(max_index);
+  unsigned long * test_vertices = (unsigned long *) malloc(sizeof(unsigned long *) * num_verts);
+  memcpy(test_vertices, good_vertices, sizeof(unsigned long *) * num_verts);
+
+  bool ** test_graph = make_2d_bool_array(num_verts);
 
   bool found = false;
   while (!found) {
 
-    copy_2d_bool_array_contents(test_graph, graph, max_index);
+    copy_2d_bool_array_contents(test_graph, graph, num_verts);
 
     // Reduce the graph to a fully connected graph
     bool changed = true;
     while (changed) {
-      changed = remove_too_unconnected(current_test_clique, test_vertices, test_graph, max_index);
+      changed = remove_too_unconnected(current_test_clique, test_vertices, test_graph, num_verts);
     }
 
     // If most connected is now connected to 0, then the previous upper bound was the max max clique
     unsigned long max = test_vertices[0];
-    for (puzzle_row i = 0; i < max_index; i ++) {
+    for (puzzle_row i = 0; i < num_verts; i ++) {
       if (test_vertices[i] > max) {
         max = test_vertices[i];
       }
@@ -909,11 +909,11 @@ int clique_h(puzzle * p, bool skip[], int skip_count, int which, int heuristic_t
 
     if (max == 0) {
       curr_upper_bound = current_test_clique;
-      memcpy(test_vertices, good_vertices, sizeof(unsigned long *) * max_index);
+      memcpy(test_vertices, good_vertices, sizeof(unsigned long *) * num_verts);
     } else {
       curr_lower_bound = current_test_clique;
       curr_upper_bound = MIN(curr_upper_bound, max);
-      memcpy(test_vertices, good_vertices, sizeof(unsigned long *) * max_index);
+      memcpy(test_vertices, good_vertices, sizeof(unsigned long *) * num_verts);
     }
 
     if (curr_upper_bound - curr_lower_bound >= 0 && curr_upper_bound - curr_lower_bound <= 1) {
@@ -931,8 +931,8 @@ int clique_h(puzzle * p, bool skip[], int skip_count, int which, int heuristic_t
   free(good_vertices);
 
   // Free memory from storing the graph
-  free_2d_bool_array(test_graph, max_index);
-  free_2d_bool_array(graph, max_index);
+  free_2d_bool_array(test_graph, num_verts);
+  free_2d_bool_array(graph, num_verts);
 
   // printf("Found the bound -- upper: %lu -- lower: %lu\n", curr_upper_bound, curr_lower_bound);
   return curr_upper_bound;

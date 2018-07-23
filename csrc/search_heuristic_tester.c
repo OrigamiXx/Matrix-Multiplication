@@ -18,7 +18,8 @@ extern int number_of_heuristics;
 int time_check_heuristic(puzzle * p, bool skip[], int max_s, int heuristic_num, int test_type, double * time_ptr){
 
     int heuristic_results[p->max_row];
-    bool ** init_graph = make_graph_from_puzzle(p, skip, 0, ipow2(3, p->k)-1, ipow2(3, p->k), -1, -1);
+    puzzle_row max_index = ipow2(3, p->k);
+    bool ** init_graph = make_graph_from_puzzle(p, skip, 0, max_index, -1, -1);
 
     int found_heuristic_result;
     std::priority_queue<heuristic_result> heuristic_queue;

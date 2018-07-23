@@ -5,7 +5,7 @@
 
 MPICC=mpic++
 CC=g++
-CCFLAGS=-c -Wall -O3 -pg -ggdb
+CCFLAGS=-c -Wall -O3 -pg -ggdb -std=c++11
 LDFLAGS=-lm -pg -pthread
 RMFLAGS=-f
 NAUTY=nauty.o nautil.o nausparse.o naugraph.o schreier.o naurng.o

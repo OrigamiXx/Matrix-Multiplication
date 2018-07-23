@@ -68,23 +68,22 @@ Anthony Yang Xu\samethanks[1]
 
 % Context
 
-An optimal algorithm for matrix multiplication is elusive, despite the
-substantial amount of work on this problem.  We focus on the square
-variant of the matrix multiplication problem, that is, given two
-$n$-by-$n$ matrices $A$ and $B$ over a field $\F$, the goal is to
-compute the matrix product $C = A \times B$.  The question that arised
-is: How many field operations are required to compute $C$.  The
-na\"{i}ve algorithm, based on the mathematical definition of matrix
-product, runs in time $O(n^3)$, and for a time it was thought to be
-the optimal algorithm.  It was surprising when Strassen showed that
-matrix multiplication can be done in time $O(n^{2.808})$ \cite{str69},
-using a divide-and-conquer approach.  A long sequence of work
-concluding with Coppersmith and Winograd's laser method that reduced
-the running time to $O(2^{2.376})$
-\cite{pan78,b79,sch81,cw82,str86,cw87}. Recent refinements of
-Coppersmith and Winograd's work done independentally by Stothers,
-Vassilevska-Williams, and Le Gall further reduced the exponent to
-2.3728639 \cite{sto10,vas11,leg14}.
+An optimal algorithm for matrix multiplication is remains elusive
+despite substantial effort.  We focus on the square variant of the
+matrix multiplication problem, that is, given two $n$-by-$n$ matrices
+$A$ and $B$ over a field $\F$, the goal is to compute the matrix
+product $C = A \times B$.  The question that arised is: How many field
+operations are required to compute $C$.  The na\"{i}ve algorithm,
+based on the mathematical definition of matrix product, runs in time
+$O(n^3)$, and for a time it was thought to be the optimal algorithm.
+It was surprising when Strassen showed that matrix multiplication can
+be done in time $O(n^{2.808})$ \cite{str69}, using a
+divide-and-conquer approach.  A long sequence of work concluding with
+Coppersmith and Winograd's laser method that reduced the running time
+to $O(2^{2.376})$ \cite{pan78,b79,sch81,cw82,str86,cw87}. Recent
+computer-aided refinements of Coppersmith and Winograd's work done by
+Stothers, Vassilevska-Williams, and Le Gall further reduced the
+exponent to $\omega \le 2.3728639$ \cite{sto10,vas11,leg14}.
 
 There are some lower bounds on the time complexity of matrix
 multiplication.  Na\"{i}ely, the dimensions of the output matrix $C$
@@ -94,45 +93,104 @@ computation, like bounded-depth arithmetic circuits \cite{XXX}.  There
 are also lower bounds known for a variety of algorithmic approaches
 for matrix multiplication.  Ambainis et al showed that the laser
 method, the approach of Coppersmith-Winograd and subsequent
-refinements, cannot alone achieve an algorithm with $O(n^{2.3078})$
-running time \cite{afl14}.
+refinements, cannot alone achieve an algorithm with $\omega \le
+2.3078$ running time \cite{afl14}.
 
-
-
-
-
-
+% Other lower bounds?
 % Tensor rank approach
 % - Lower bounds
 % - Impossibility
-%
-
-
-
-
-
-From the na\"{i}ve
-$O(n^3)$
-
-Cohn and Umans \cite{cu03} introduced an approach for developing
-faster algorithms for matrix multiplication by reducing this question
-to a search for subsets of groups that satisfy a certain combinatorial
-property.
 
 % Motivation
 
+Cohn and Umans \cite{cu03} introduced a program for developing faster
+algorithms for matrix multiplication by reducing this question to a
+search for groups with subsets that satisfy a certain algebraic
+property called the \emph{triple-product property} that allows matrix
+multiplication to be embed in the group algebra.  Subsequent work
+\cite{cksu05} elaborated on this idea and developed the notion of
+\emph{strong uniquely solvable puzzles} (SUSP) whose existence would
+also imply faster matrix multiplication algorithms.
+
+A \emph{width}-$k$ puzzle $P$ is a subset of $U_k = \set{0,1,2}^k$,
+and the cardinality of $P$ is the puzzle's \emph{size}.  Each element
+of $P$ is called a \emph{row} of $P$, and each row consists of three
+\emph{subrows} which are elements of $\set{0,*}^k$, $\set{1,*}^k$,
+$\set{2,*}^k$ respectively.  Informally, a puzzle $P$ is a uniquely
+solvable puzzle if there is no way to permute the subrows of $P$
+without overlap to form a distinct puzzle $P'$.  A uniquely solvable
+puzzle is \emph{strong} if stronger condition for non-overlapping is
+applied. For a fixed width $k$, the larger the size of a puzzle $P$,
+the faster matrix multiplication algorithm it implies if $P$ is a SUSP
+\cite[Corollary 3.6]{cksu05}.  In fact Cohn et al.~show that there
+exist an infinite family of SUSP that achieve $w < 2.48$
+\cite[Proposition 3.8]{cksu05}.
 
 % Approach
 
-Tried many algorithmic approaches to check whether puzzles are strong USP.
+We follow Cohn and Umans' program simulateneously from theoretical and
+experimental perspectives.  We explore properties of SUSP, develop
+\emph{verification} algorithms for determining whether a puzzle is a
+SUSP, develop \emph{search} algorithms for searching for large SUSP,
+and implement these algorithms in desktop and high performance
+computing settings.  From the computational complexity perspective the
+algorithms we develop to verify and search for SUSP are not efficient
+as they run in exponential or doubly exponential time in the natural
+parameters.  However, as the goal is to find a sufficiently large SUSP
+which in turn produces a fast matrix multiplication algorithm, the
+inefficiency of our algorithms does not directly impact the efficiency
+of the matrix multiplication algorithms.  Rather, it indirectly
+impacts the efficiency by limiting the search space of puzzles that we
+can practically examine.
 
 % Results
 
-Experimental results suggest that Proposition 3.8 of \cite{cksu05} can
-be improved.
+In addition to the various theoretical results, we have experimental
+results that bound the size of the largest SUSP for small width
+puzzles.  For small constant width the bounds are tight, though the
+tightness of the results decreases as width increases.  Lower bounds
+on size are witnessed by examples of SUSP we found via search and
+constructions that compose SUSP of small width into SUSP of larger
+width while maintaining the relative size of the SUSP.  Upper bounds
+are determined computationally by evaluating admissible heuristics on
+the initial levels of the puzzle search tree.  Although our current
+experimental results do not beat Proposition 3.8 of \cite{cksu05} for
+unbounded $k$, they do suggest there is considerable room for
+improvement.
 
 % Organization
+\paragraph{Organization}
+We begin with formal definitions and properties of puzzles and strong
+uniquely solvable puzzles in Section~\ref{sec:prelim}.  In
+Section~\ref{sec:check} we discuss our algorithms for verifying that a
+puzzle is a SUSP.  In Section~\ref{sec:heuristic} we describe fast,
+but incomplete, heuristics for verifying SUSP.
+Section~\ref{sec:search} explains our search algorithms.
+Section~\ref{sec:results} discuss our implementation, experiments, and
+the experimental results.
 
+\section{Checking for Strong USPs}
+\label{sec:check}
+
+\subsection{3DM to 3SAT}
+\label{subsec:3sat}
+
+\section{Heuristics for Strong USPs}
+\label{sec:heuristic}
+
+\section{Searching for Strong USPs}
+\label{sec:search}
+
+\section{Experimental Results}
+\label{sec:results}
+
+\subsection{Strong USPs Found}
+\label{subsec:usps_found}
+
+\subsection{Algorithm Performance}
+\label{subsec:performance}
+
+\section{Conclusions}
 
 
 \section{Preliminaries}

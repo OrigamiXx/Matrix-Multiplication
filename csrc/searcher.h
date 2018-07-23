@@ -64,7 +64,7 @@ bool ** make_2d_bool_array(unsigned long max_index);
 void copy_2d_bool_array_contents(bool ** dest, bool ** src, unsigned long max_index);
 void free_2d_bool_array(bool ** arr_2d, unsigned long max_index);
 bool count_vertices(unsigned long vertex_counter[], bool ** graph, puzzle_row max_graph_row);
-bool ** make_graph_from_puzzle(puzzle * p, bool skip[], puzzle_row start_u, puzzle_row max_u, puzzle_row max_v, int which, int heuristic_type);
+bool ** make_graph_from_puzzle(puzzle * p, bool skip[], puzzle_row start_u, puzzle_row &max_index, int which, int heuristic_type);
 
 int nullity_search(puzzle * p, bool skip[], int skip_count, int best, int which, int heuristic_type);
 int search(puzzle * p, bool skip[], int skip_count, int best, int which, int heuristic_type, int stop_at_s, bool stats_enabled, int heuristic_stage);
