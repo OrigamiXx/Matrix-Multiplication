@@ -28,6 +28,14 @@ puzzle * create_puzzle(int s, int k){
   return p;
 }
 
+puzzle * create_puzzle_copy(puzzle * p) {
+  puzzle * result = create_puzzle(p->s, p->k);
+  
+  memcpy(result->puzzle, p->puzzle, sizeof(puzzle_row) * p->s);
+  
+  return result;
+}
+
 //create a puzzle that has one more row and same width as the input puzzle
 // according to the given row_index
 puzzle * create_puzzle_from_puzzle(puzzle * p, puzzle_row row){

@@ -14,15 +14,29 @@
 
 clockid_t clock_mode = CLOCK_MONOTONIC;
 
+std::priority_queue<level_heuristic> heuristics_at_level;
+
 // proper mental, innit?
-
-// also count time making graphs
-
 int number_of_heuristics = 5;
 int best_best = 0;
 cumulative_tracker * heuristic_details = NULL;
 
 // highest bound after x
+
+void move_results_global(std::priority_queue<heuristic_result> heuristic_queue, puzzle * puzzle) {
+
+  while (!heuristic_queue.empty()) {
+    heuristic_result current_heur = heuristic_queue.top();
+    heuristic_queue.pop();
+
+    level_heuristic global_heur;
+    global_heur.total_heuristic = puzzle->s + current_heur.result;
+    global_heur.level_puzzle = create_puzzle_copy(puzzle);
+
+    heuristics_at_level.push(global_heur);
+  }
+
+}
 
 void check_extend_heuristic_details(int heuristic_type, int current_level) {
   if (heuristic_details == NULL) {
@@ -133,7 +147,7 @@ void stop_graph_timer(int heuristic_type, int current_level) {
 }
 
 // Assumes puzzle already has extra row to play with
-void calculate_heuristics(puzzle * p, std::priority_queue<heuristic_result> * h_queue, bool skip[], int * skip_count, int which, int heuristic_type, int stop_at_s) {
+void calculate_heuristics(puzzle * p, std::priority_queue<heuristic_result> * h_queue, bool skip[], int * skip_count, int which, int heuristic_type, int stop_at_s, int heuristic_stage) {
   int heuristic_results[p->max_row];
   bzero(heuristic_results, sizeof(heuristic_results));
 
@@ -157,7 +171,7 @@ void calculate_heuristics(puzzle * p, std::priority_queue<heuristic_result> * h_
     if (!skip[U[s]]) {
       // printf("\r%f", ((double) U[s] / (double) p->max_row) * 100);
       // fflush(stdout);
-      heuristic_results[U[s]] = generic_h(p, skip, *skip_count, which, heuristic_type, stop_at_s);
+      heuristic_results[U[s]] = generic_h(p, skip, *skip_count, which, heuristic_type, stop_at_s, heuristic_stage);
     }
   }
   // printf("\r");
@@ -246,7 +260,7 @@ void extend_graph_from_puzzle(bool ** graph, puzzle * p, bool skip[], puzzle_row
 
 }
 
-int inline_search(puzzle * p, bool ** graph, bool skip[], int skip_count, int best, int which, int heuristic_type, int stop_at_s) {
+int inline_search(puzzle * p, bool ** graph, bool skip[], int skip_count, int best, int which, int heuristic_type, int stop_at_s, int heuristic_stage) {
   check_extend_heuristic_details(heuristic_type, which);
   add_level_instance(heuristic_type, which);
   start_timer(heuristic_type, which);
@@ -283,30 +297,36 @@ int inline_search(puzzle * p, bool ** graph, bool skip[], int skip_count, int be
   std::priority_queue<heuristic_result> heuristic_queue;
   inline_h(new_puzzle, local_graph, &heuristic_queue, local_skip, local_skip_count, which, heuristic_type);
 
+  if (best >= stop_at_s && heuristic_stage == 1) {
+    move_results_global(heuristic_queue, new_puzzle);
+    printf("Moving some stuff\n");
+  } else {
+    /* FURTHER SEARCHING BEGINS HERE */
+    while (!heuristic_queue.empty() && best < stop_at_s) {
 
-  /* FURTHER SEARCHING BEGINS HERE */
-  while (!heuristic_queue.empty() && best < stop_at_s) {
+      heuristic_result current_heur = heuristic_queue.top();
+      heuristic_queue.pop();
 
-    heuristic_result current_heur = heuristic_queue.top();
-    heuristic_queue.pop();
+      if (best >= current_heur.result + p->s + 1) {
+        stop_timer(heuristic_type, which);
+        return best;
+      }
 
-    if (best >= current_heur.result + p->s + 1) {
+      U[s] = current_heur.value;
       stop_timer(heuristic_type, which);
-      return best;
+      int search_result = inline_search(new_puzzle, local_graph, local_skip, skip_count, best, which+1, heuristic_type, stop_at_s, heuristic_stage);
+      start_timer(heuristic_type, which);
+
+      best = MAX(best, search_result);
+      if (best > best_best) {
+        best_best = best;
+        // printf("b) BEST BEST UPDATED TO %d \n", best_best);
+      }
+
     }
-
-    U[s] = current_heur.value;
-    stop_timer(heuristic_type, which);
-    int search_result = inline_search(new_puzzle, local_graph, local_skip, skip_count, best, which+1, heuristic_type, stop_at_s);
-    start_timer(heuristic_type, which);
-
-    best = MAX(best, search_result);
-    if (best > best_best) {
-      best_best = best;
-      // printf("b) BEST BEST UPDATED TO %d \n", best_best);
-    }
-
   }
+
+  
 
   destroy_puzzle(new_puzzle);
   free_2d_bool_array(local_graph, new_max_index);
@@ -315,7 +335,7 @@ int inline_search(puzzle * p, bool ** graph, bool skip[], int skip_count, int be
   return best;
 }
 
-int search(puzzle * p, bool skip[], int skip_count, int best, int which, int heuristic_type, int stop_at_s, bool stats_enabled) {
+int search(puzzle * p, bool skip[], int skip_count, int best, int which, int heuristic_type, int stop_at_s, bool stats_enabled, int heuristic_stage) {
 
   check_extend_heuristic_details(heuristic_type, which);
   if (stats_enabled) {
@@ -344,35 +364,40 @@ int search(puzzle * p, bool skip[], int skip_count, int best, int which, int heu
   // printf("level is %d ; best is %d ; stop is %d ; p->s is %d\n", which, best, stop_at_s, p->s);
 
   std::priority_queue<heuristic_result> heuristic_queue;
-  calculate_heuristics(new_puzzle, &heuristic_queue, local_skip, &local_skip_count, which, heuristic_type, stop_at_s);
+  calculate_heuristics(new_puzzle, &heuristic_queue, local_skip, &local_skip_count, which, heuristic_type, stop_at_s, heuristic_stage);
 
-  while(!heuristic_queue.empty() && best < stop_at_s) {
-    heuristic_result current_heur = heuristic_queue.top();
-    heuristic_queue.pop();
-    if (best >= current_heur.result + p->s + 1) {
+  if (best >= stop_at_s && heuristic_stage == 1) {
+    move_results_global(heuristic_queue, new_puzzle);
+    printf("Moving some stuff\n");
+  } else {
+    while(!heuristic_queue.empty() && best < stop_at_s) {
+      heuristic_result current_heur = heuristic_queue.top();
+      heuristic_queue.pop();
+      if (best >= current_heur.result + p->s + 1) {
+        if (stats_enabled) {
+          stop_timer(heuristic_type, which);
+        }
+        return best;
+      }
+
+      U[s] = current_heur.value;
+
       if (stats_enabled) {
         stop_timer(heuristic_type, which);
       }
-      return best;
+
+      int search_result = search(new_puzzle, local_skip, skip_count, best, which+1, heuristic_type, stop_at_s, true, heuristic_stage);
+
+      if (stats_enabled) {
+        start_timer(heuristic_type, which);
+      }
+
+      best = MAX(best, search_result);
+      if (best > best_best) {
+        // printf("b) BEST BEST UPDATED TO %d \n", best_best);
+      }
+
     }
-
-    U[s] = current_heur.value;
-
-    if (stats_enabled) {
-      stop_timer(heuristic_type, which);
-    }
-
-    int search_result = search(new_puzzle, local_skip, skip_count, best, which+1, heuristic_type, stop_at_s, true);
-
-    if (stats_enabled) {
-      start_timer(heuristic_type, which);
-    }
-
-    best = MAX(best, search_result);
-    if (best > best_best) {
-      // printf("b) BEST BEST UPDATED TO %d \n", best_best);
-    }
-
   }
 
 
@@ -560,10 +585,10 @@ void inline_h(puzzle * p, bool ** graph, std::priority_queue<heuristic_result> *
   // return heuristic_queue;
 }
 
-int generic_h(puzzle * p, bool skip[], int skip_count, int which, int heuristic_type, int stop_at_s) {
+int generic_h(puzzle * p, bool skip[], int skip_count, int which, int heuristic_type, int stop_at_s, int heuristic_stage) {
   switch (heuristic_type) {
     case 0:
-      return nullity_h(p, skip, skip_count, which, heuristic_type, stop_at_s);
+      return nullity_h(p, skip, skip_count, which, heuristic_type, stop_at_s, heuristic_stage);
     case 1:
       return clique_h(p, skip, skip_count, which, heuristic_type);
     case 4:
@@ -574,7 +599,7 @@ int generic_h(puzzle * p, bool skip[], int skip_count, int which, int heuristic_
   }
 }
 
-int nullity_h(puzzle * p, bool skip[], int skip_count, int which, int heuristic_type, int stop_at_s) {
+int nullity_h(puzzle * p, bool skip[], int skip_count, int which, int heuristic_type, int stop_at_s, int heuristic_stage) {
 
   bool local_skip[p->max_row];
   memcpy(local_skip, skip, sizeof(bool) * p->max_row);
@@ -602,7 +627,7 @@ int nullity_h(puzzle * p, bool skip[], int skip_count, int which, int heuristic_
 
   puzzle * blank_puzzle = create_puzzle(0, p->k);
 
-  int bbb = search(blank_puzzle, local_skip, skip_count, 0, which+1, heuristic_type, stop_at_s, false);
+  int bbb = search(blank_puzzle, local_skip, skip_count, 0, which+1, heuristic_type, stop_at_s, false, heuristic_stage);
   // int bbb = search(blank_puzzle, local_skip, skip_count, 0, -1, heuristic_type, stop_at_s);
   destroy_puzzle(blank_puzzle);
   return bbb;

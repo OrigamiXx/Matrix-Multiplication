@@ -33,10 +33,10 @@ int time_check_heuristic(puzzle * p, bool skip[], int max_s, int heuristic_num, 
         case 4:
             switch (test_type) {
                 case 0:
-                    found_heuristic_result = generic_h(p, skip, 0, 0, heuristic_num, 999);
+                    found_heuristic_result = generic_h(p, skip, 0, 0, heuristic_num, 999, 0);
                     break;
                 case 1:
-                    found_heuristic_result = search(p, skip, 0, 0, 0, heuristic_num, max_s, true);
+                    found_heuristic_result = search(p, skip, 0, 0, 0, heuristic_num, max_s, true, 0);
                     break;
 
             }
@@ -53,7 +53,7 @@ int time_check_heuristic(puzzle * p, bool skip[], int max_s, int heuristic_num, 
                     }
                 case 1:
                     {
-                        found_heuristic_result = inline_search(p, init_graph, skip, 0, 0, 0, heuristic_num, max_s);
+                        found_heuristic_result = inline_search(p, init_graph, skip, 0, 0, 0, heuristic_num, max_s, 0);
                         break;
                     }
 

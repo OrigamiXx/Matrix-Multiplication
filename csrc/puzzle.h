@@ -95,6 +95,8 @@ const puzzle_row MAX_ROWS[MAX_K+1] =
   };
 
 
+puzzle * create_puzzle_copy(puzzle * p);
+
 //create a puzzle that has one more row and same width as the input puzzle
 // according to the given row_inde
 //Again, this row_index is the trinary index

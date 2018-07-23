@@ -39,11 +39,11 @@ int main(int argc, char ** argv) {
     case 0:
     case 1:
     case 4:
-      result = search(start_p, init_skip, 0, 0, 0, h_type, s, true);
+      result = search(start_p, init_skip, 0, 0, 0, h_type, s, true, 0);
       break;
     case 2:
     case 3:
-      result = inline_search(start_p, init_graph, init_skip, 0, 0, 0, h_type, s);
+      result = inline_search(start_p, init_graph, init_skip, 0, 0, 0, h_type, s, 0);
       break;
   }
 

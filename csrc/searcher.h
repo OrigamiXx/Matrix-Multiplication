@@ -13,6 +13,16 @@
 #include "puzzle.h"
 #include "searcher.h"
 
+struct level_heuristic {
+  int total_heuristic; // puzzle size + heuristic value
+  puzzle * level_puzzle;
+
+  bool operator<(const level_heuristic & rhs) const
+  {
+    return total_heuristic < rhs.total_heuristic;
+  }
+};
+
 struct heuristic_result {
   int result;
   puzzle_row value;
@@ -57,11 +67,11 @@ bool count_vertices(unsigned long vertex_counter[], bool ** graph, puzzle_row ma
 bool ** make_graph_from_puzzle(puzzle * p, bool skip[], puzzle_row start_u, puzzle_row max_u, puzzle_row max_v, int which, int heuristic_type);
 
 int nullity_search(puzzle * p, bool skip[], int skip_count, int best, int which, int heuristic_type);
-int search(puzzle * p, bool skip[], int skip_count, int best, int which, int heuristic_type, int stop_at_s, bool stats_enabled);
-int generic_h(puzzle * p, bool skip[], int skip_count, int which, int heuristic_type, int stop_at_s);
-int inline_search(puzzle * p, bool ** graph, bool skip[], int skip_count, int best, int which, int heuristic_type, int stop_at_s);
+int search(puzzle * p, bool skip[], int skip_count, int best, int which, int heuristic_type, int stop_at_s, bool stats_enabled, int heuristic_stage);
+int generic_h(puzzle * p, bool skip[], int skip_count, int which, int heuristic_type, int stop_at_s, int heuristic_stage);
+int inline_search(puzzle * p, bool ** graph, bool skip[], int skip_count, int best, int which, int heuristic_type, int stop_at_s, int heuristic_stage);
 void inline_h(puzzle * p, bool ** graph, std::priority_queue<heuristic_result> * h_queue, bool skip[], int skip_count, int which, int heuristic_type);
-int nullity_h(puzzle * p, bool skip[], int skip_count, int which, int heuristic_type, int stop_at_s);
+int nullity_h(puzzle * p, bool skip[], int skip_count, int which, int heuristic_type, int stop_at_s, int heuristic_stage);
 int brute_force(puzzle * p, bool skip[], int skipping, int up_to_size);
 
 int clique_h(puzzle *p, bool skip[], int skip_count, int which, int heuristic_type); 
