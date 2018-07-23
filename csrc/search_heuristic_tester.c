@@ -142,7 +142,7 @@ int main(int argc, char ** argv) {
         case 0:
         case 1:
             {
-                for (int n = 1; n < number_of_trials; n++) {
+                for (int n = 0; n < number_of_trials; n++) {
                     for (int h = 0; h < number_of_heuristics; h++){
                         bool init_skip[test_puzzle->max_row];
                         bzero(init_skip, sizeof(init_skip));

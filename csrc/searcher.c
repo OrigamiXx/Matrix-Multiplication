@@ -39,8 +39,9 @@ void move_results_global(std::priority_queue<heuristic_result> heuristic_queue, 
 }
 
 void check_extend_heuristic_details(int heuristic_type, int current_level) {
-  if (heuristic_details == NULL) {
+  static int malloc_count = 0;
 
+  if (heuristic_details == NULL) {
     heuristic_details = (cumulative_tracker *) malloc(sizeof(cumulative_tracker) * number_of_heuristics);
 
     bzero(heuristic_details, sizeof(cumulative_tracker) * number_of_heuristics);
@@ -52,6 +53,8 @@ void check_extend_heuristic_details(int heuristic_type, int current_level) {
 
   }
   if (heuristic_details[heuristic_type].details == NULL || (current_level+1) > heuristic_details[heuristic_type].num_details) {
+
+    malloc_count ++;
 
     cumulative_counts * new_heuristic_details = (cumulative_counts *) malloc(sizeof(cumulative_counts) * (current_level+1));
     bzero(new_heuristic_details, sizeof(cumulative_counts) * (current_level+1));
@@ -82,6 +85,8 @@ void check_extend_heuristic_details(int heuristic_type, int current_level) {
     free(heuristic_details[heuristic_type].details);
     heuristic_details[heuristic_type].details = new_heuristic_details;
     heuristic_details[heuristic_type].num_details = (current_level+1);
+
+    printf("Malloc'd again ... %d\n", malloc_count);
 
   }
 }
@@ -492,6 +497,7 @@ int mip_clique_h(puzzle * p, bool skip[], int skip_count, int which, int heurist
   puzzle_row next_start = p->puzzle[p->s-1] + 1;
 
   // printf("Gonna make a graph\n");
+  int graph_size;
   bool ** graph = make_graph_from_puzzle(p, skip, next_start, max_index-1, max_index, which, heuristic_type);
   // printf("Made a graph\n");
 
@@ -693,12 +699,25 @@ bool ** make_graph_from_puzzle(puzzle * p, bool skip[], puzzle_row start_u, puzz
     start_graph_timer(heuristic_type, which);
   }
 
+  bool local_skip[MAX(max_u, max_v)];
+  memcpy(local_skip, skip, sizeof(bool) * MAX(max_u, max_v));
+
   puzzle * testing_puzzle = extend_puzzle(p, 2);
+  puzzle * inner_testing_puzzle = extend_puzzle(p, 1);
 
   bool ** graph = make_2d_bool_array(MAX(max_u, max_v));
   int last_index = testing_puzzle->s - 1;
 
   for (puzzle_row u = start_u; u < max_u; u ++) {
+    
+    if (local_skip[u]) continue;
+
+    inner_testing_puzzle->puzzle[last_index-1] = u;
+    if (NOT_USP == check(inner_testing_puzzle)){
+      local_skip[u] = true;
+      continue;
+    }
+    
     /*
     Start v at u+1 since it's an ordered puzzle
     */
@@ -713,9 +732,15 @@ bool ** make_graph_from_puzzle(puzzle * p, bool skip[], puzzle_row start_u, puzz
       if (u == v) {
         graph[u][v] = false;
         graph[v][u] = false;
-      } else if (skip[u] || skip[v]) {
+
+        local_skip[u] = true;
+        local_skip[v] = true;
+      } else if (local_skip[u] || local_skip[v]) {
         graph[u][v] = false;
         graph[v][u] = false;
+
+        local_skip[u] = true;
+        local_skip[v] = true;
       } else if (graph[u][v] || graph[v][u]) {
         graph[u][v] = true;
         graph[v][u] = true;
@@ -728,10 +753,61 @@ bool ** make_graph_from_puzzle(puzzle * p, bool skip[], puzzle_row start_u, puzz
         */
         graph[u][v] = false;
         graph[v][u] = false;
+
+        printf("add a skip %lu %lu\n", u, v);
+
+        local_skip[u] = true;
+        local_skip[v] = true;
+
+        /* 
+        Want to continue to the next u not just the next v 
+        */
+        v = max_v;
       }
     }
   }
 
+  /*
+  Count how many rows and columns the graph actually needs
+  */
+  int graph_rows_cols = 0;
+  for (puzzle_row u = start_u; u < max_u; u++) {
+    for (puzzle_row v = u+1; v < max_v; v++) {
+      if (!local_skip[u] && !local_skip[v]) {
+        graph_rows_cols ++;
+      }
+    }
+    // if (!local_skip[u]) {
+    //   graph_rows_cols ++;
+    // } else {
+    //   printf("skip\n");
+    // }
+  }
+
+  printf("row col %d vs orig of %lu\n", graph_rows_cols, MAX(max_u, max_v));
+  // bool ** final_graph = make_2d_bool_array(graph_rows_cols);
+  // int current_add_index = 0;
+  // for (puzzle_row u = start_u; u < max_u; u++) {
+  //   if (!local_skip[u]) {
+  //     for (puzzle_row v = u+1; v < max_v; v++){
+  //       if(!local_skip[v]) {
+  //         assert(current_add_index < graph_rows_cols);
+          
+  //         final_graph[u][v] = graph[u][v];
+  //         current_add_index ++;
+  //         printf("added to new graph => %d / %d\n", current_add_index, graph_rows_cols);
+
+  //       }
+  //     }
+  //   }
+  // }
+
+
+  // fill in the slots
+
+
+
+  destroy_puzzle(inner_testing_puzzle);
   destroy_puzzle(testing_puzzle);
 
   if (which >= 0) {
