@@ -185,14 +185,14 @@ int main(int argc, char ** argv) {
                     printf(" ~~ Statistics for each level:\n");
                     for (int i = 0; i < heuristic_details[h].num_details; i ++) {
                         printf(" ~~ At level %d:\n", i);
-                        printf("  ~ max heuristic: %f\n", heuristic_details[h].details[i].max_heuristic);
-                        printf("  ~ min heuristic: %f\n", heuristic_details[h].details[i].min_heuristic);
-                        printf("  ~ average heuristic: %f\n", (heuristic_details[h].details[i].total_heuristic / (double) heuristic_details[h].details[i].num_heuristics));
-                        printf("  ~ total time: %f\n", heuristic_details[h].details[i].total_time_at_level);
-                        printf("  ~ graph making time: %f\n", heuristic_details[h].details[i].graph_time_at_level);
+                        printf("  ~ max heuristic: %e\n", heuristic_details[h].details[i].max_heuristic);
+                        printf("  ~ min heuristic: %e\n", heuristic_details[h].details[i].min_heuristic);
+                        printf("  ~ average heuristic: %e\n", (heuristic_details[h].details[i].total_heuristic / (double) heuristic_details[h].details[i].num_heuristics));
+                        printf("  ~ total time: %e\n", heuristic_details[h].details[i].total_time_at_level);
+                        printf("  ~ graph making time: %e\n", heuristic_details[h].details[i].graph_time_at_level);
                         printf("  ~ with %d instances:\n", heuristic_details[h].details[i].total_instances_at_level);
-                        printf("    ~ average time per instance of: %f\n", (heuristic_details[h].details[i].total_time_at_level / (double) heuristic_details[h].details[i].total_instances_at_level));
-                        printf("    ~ average graph making time of: %f\n", (heuristic_details[h].details[i].graph_time_at_level / (double) heuristic_details[h].details[i].total_instances_at_level));
+                        printf("    ~ average time per instance of: %e\n", (heuristic_details[h].details[i].total_time_at_level / (double) heuristic_details[h].details[i].total_instances_at_level));
+                        printf("    ~ average graph making time of: %e\n", (heuristic_details[h].details[i].graph_time_at_level / (double) heuristic_details[h].details[i].total_instances_at_level));
                     }
                 }
 
