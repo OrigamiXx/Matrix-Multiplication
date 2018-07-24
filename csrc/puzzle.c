@@ -77,6 +77,63 @@ puzzle * create_row_minor_puzzle(puzzle * p, int i){
   return result;
 }
 
+
+//read a puzzle from a file.
+puzzle * create_puzzle_from_string(char * str){
+
+  puzzle * p = (puzzle *) (malloc(sizeof(puzzle)));
+
+  if (str == NULL)
+    return NULL;
+
+  int offset = 0;
+  char buff[256];
+
+  int element;
+  //first check whether this file is able to turn into a puzzle
+  int bytes_read = sscanf(str + offset,"%s\n",buff);
+  assert(bytes_read > 0);
+
+  unsigned int k = strlen(buff);
+  int s = 0;
+  
+  do {
+
+    bytes_read = sscanf(str + offset,"%s\n",buff);
+    for(unsigned int i = 0; i < k; i++){
+      element = buff[i] - '0';
+      if(element != 1 &&  element != 2 && element != 3){
+	fprintf(stderr, "Error: Puzzle entries can only be 1 or 2 or 3.\n");
+	return NULL;
+      }
+    }
+    s++;
+    offset += k + 1;
+    
+  } while (str[offset] != '\0');
+  
+  p = create_puzzle(s, k);
+  offset = 0;
+  int r = 0;
+  
+  do {
+
+    bytes_read = sscanf(str + offset,"%s\n",buff);
+    p -> puzzle[r] = (puzzle_row) 0;
+    for (unsigned int c = 0; c < k; c++){
+      set_entry(p, r, c, buff[c] - '0');
+    }
+    r++;
+    offset += k + 1;
+    
+  } while (str[offset] != '\0');
+
+  assert(s == r);
+
+  return p;
+}
+
+
 //read a puzzle from a file.
 puzzle * create_puzzle_from_file(const char * filename){
 

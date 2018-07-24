@@ -112,6 +112,8 @@ puzzle * create_row_minor_puzzle(puzzle * p, int i);
 //Creat an empty puzzle with given row and cols length
 puzzle * create_puzzle(int s, int k);
 
+puzzle * create_puzzle_from_string(char * str);
+
 //Read a file and return a puzzle. If the arguement is not a right file for
 //puzzle, then do nothing
 //Notice that the puzzle in the file is record as 1,2 or 3 since its for
