@@ -13,6 +13,8 @@
 \usepackage{lipsum}
 \usepackage{setspace}
 \usepackage{mdframed}
+\usepackage{multicol}
+\usepackage{graphicx}
 \usepackage{tikz}
 \usetikzlibrary{decorations.pathreplacing,backgrounds}
 
@@ -169,29 +171,6 @@ Section~\ref{sec:search} explains our search algorithms.
 Section~\ref{sec:results} discuss our implementation, experiments, and
 the experimental results.
 
-\section{Checking for Strong USPs}
-\label{sec:check}
-
-\subsection{3DM to 3SAT}
-\label{subsec:3sat}
-
-\section{Heuristics for Strong USPs}
-\label{sec:heuristic}
-
-\section{Searching for Strong USPs}
-\label{sec:search}
-
-\section{Experimental Results}
-\label{sec:results}
-
-\subsection{Strong USPs Found}
-\label{subsec:usps_found}
-
-\subsection{Algorithm Performance}
-\label{subsec:performance}
-
-\section{Conclusions}
-
 
 \section{Preliminaries}
 \label{sec:prelim}
@@ -329,12 +308,112 @@ $\omega = 2$ using the Cohn and Umans' approach.
 \section{Searching for Strong USPs}
 \label{sec:search}
 
-\section{Results}
+\section{Experimental Results}
 \label{sec:results}
 
 \subsection{Strong USPs Found}
 \label{subsec:usps_found}
 
+\begin{figure}
+  \label{fig:examples}
+  \begin{multicols}{4}
+  (1,1):\\[.5ex]
+  \begin{tabular}{|c|}
+    \hline
+    1 \\ \hline
+  \end{tabular}\\[6ex]
+
+  (2,2):\\[.5ex]
+  \begin{tabular}{|c|c|}
+    \hline
+    1&3 \\ \hline
+    2&1 \\ \hline
+  \end{tabular}\\[16ex]
+
+  (3,3):\\[.5ex]
+  \begin{tabular}{|c|c|c|}
+    \hline
+    1&1&1 \\ \hline
+    3&2&1 \\ \hline
+    3&3&2 \\ \hline
+    \end{tabular}\\[2ex]
+
+  (5,4):\\[.5ex]
+  \begin{tabular}{|c|c|c|c|}
+    \hline
+    3&1&3&2 \\ \hline
+    1&2&3&2 \\ \hline
+    1&1&1&3 \\ \hline 
+    3&2&1&3 \\ \hline 
+    3&3&2&3 \\ \hline
+  \end{tabular}\\[10ex]
+
+  (8,5):\\[.5ex]
+  \begin{tabular}{|c|c|c|c|c|}
+    \hline
+    3&3&3&1&1 \\ \hline
+    1&1&2&2&1 \\ \hline
+    2&1&3&3&2 \\ \hline
+    3&2&2&2&3 \\ \hline
+    2&1&2&1&3 \\ \hline
+    2&2&3&1&2 \\ \hline
+    3&2&3&2&1 \\ \hline
+    3&1&2&1&1 \\ \hline
+  \end{tabular}\\[16ex]
+    
+  (14,6):\\[.5ex]
+  \begin{tabular}{|c|c|c|c|c|c|}
+    \hline
+    2&3&3&1&1&1 \\ \hline
+    2&1&1&2&1&1 \\ \hline
+    3&3&1&2&1&1 \\\hline
+    3&2&2&2&1&1 \\\hline
+    2&3&1&1&2&1 \\\hline
+    2&2&3&1&2&1 \\\hline
+    3&3&1&3&2&1 \\\hline
+    3&2&3&3&2&1 \\\hline
+    2&1&1&3&1&2 \\\hline
+    2&3&1&3&2&2 \\\hline
+    3&1&1&1&1&3 \\\hline
+    3&3&2&3&1&3 \\\hline
+    3&3&2&1&2&3 \\\hline
+    2&2&3&2&2&3 \\\hline
+  \end{tabular}
+  \end{multicols}
+  \caption{Respresentative examples of the largest strong uniquely
+    solvable $(s,k)$-puzzles found from width $k = 1$ to $6$.}
+\end{figure}
+
+Table~\ref{table:compare} summarizes our main results which are
+improved bounds on the maximum size of strong uniquely solvable
+puzzles and compares them to bounds from \cite{cksu05}.  XXX
+\begin{table}
+  \label{table:compare}
+  \begin{center}
+  \begin{tabular}{|c|r|r|r|r|}
+    \hline
+    & \multicolumn{2}{|c|}{[CKSU05]} & \multicolumn{2}{|c|}{This work} \\
+    \hline
+    $k$ & Maximum $s$ & $\omega^*$~ & Maximum $s$ & $\omega^*$~\\
+    \hline
+    1 & $s\le ~~~~1$ & & $1=s$ & $3.000$  \\
+    2 & $s\le ~~~~3$ & & $2=s$ & $2.670$ \\
+    3 & $3 \le s \le ~~~~6$ & $2.642$ & $3=s$ & $2.642$ \\
+    4 & $s\le ~~12$ & & $5=s$ & $2.585$ \\
+    5 & $s\le ~~24$ & & $8=s$ & $2.562$  \\
+    6 & $10 \le s \le ~~45$ & $2.615$ &$14\le s$ & $2.521$\\
+    7 & $s\le ~~86$ & & $21\le s$ & $2.531$ \\
+    8 & $s\le 162$ & & $30\le s$ & $2.547$ \\
+    9 & $36 \le s \le 307$ & $2.592$ &$42\le s$ & $2.563$  \\
+    \hline
+  \end{tabular}
+  \end{center}
+  \caption{Comparison of bounds on maximum size of strong uniquely
+    solvable $(s,k)$-puzzles with \cite{cksu05}.  $\omega^*$ is the
+    $\omega$ in the limit of composing puzzles of these dimensions via
+    direct product.}
+\end{table}
+  
 \subsection{Algorithm Performance}
 \label{subsec:performance}
 

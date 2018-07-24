@@ -5,7 +5,7 @@
 
 MPICC=mpic++
 CC=g++
-CCFLAGS=-c -Wall -O3 -pg -ggdb -std=c++11
+CCFLAGS=-c -Wall -O3 -pg -ggdb 
 LDFLAGS=-lm -pg -pthread
 RMFLAGS=-f
 NAUTY=nauty.o nautil.o nausparse.o naugraph.o schreier.o naurng.o
@@ -15,7 +15,7 @@ OBJ-SOURCES=checker.c permutation.c puzzle.c set.c matching.c 3DM_to_SAT.c timin
 # Put additional executable sources in list below.
 TESTER-SOURCES=test_3DM_to_SAT.c test_permutation.c test_puzzle.c test_set.c test_matching.c test_scratch.c search_heuristic_tester.c
 UTIL-SOURCES=util_check_benchmark.c util_check_file.c util_timer.c util_generate_puzzle.c util_join.c util_construct.c util_submodular.c
-SEARCH-SOURCES=search_greedy.c search_ils.c search_clique.c search_astar.c search_run.c 
+SEARCH-SOURCES=search_greedy.c search_ils.c search_clique.c search_astar.c search_run.c search_MIP.c
 EXE-SOURCES=$(TESTER-SOURCES) $(UTIL-SOURCES) $(SEARCH-SOURCES)
 
 ifdef GUROBI_HOME
