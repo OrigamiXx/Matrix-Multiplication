@@ -112,6 +112,7 @@ int get_max_clique_mip(bool ** graph, puzzle_row graph_max_index, GRBmodel * mod
   GRBsetintparam(menv, "Threads", 6);
   GRBsetintparam(menv, GRB_INT_PAR_MIPFOCUS, 1);
   GRBsetintparam(menv, "OutputFlag", 0);
+  GRBsetintparam(menv, "LogFile", 1);
 
   // GRBsetintparam(menv, "SolutionLimit", 1);
 
@@ -143,16 +144,18 @@ int get_max_clique_mip(bool ** graph, puzzle_row graph_max_index, GRBmodel * mod
   assert(opt_status == GRB_OPTIMAL || opt_status == GRB_TIME_LIMIT);
 
   double clique_val;
+  double clique_bound;
 
   switch(opt_status) {
     case GRB_OPTIMAL:
       error = GRBgetdblattr(model, GRB_DBL_ATTR_OBJVAL, &clique_val);
-      printf("Found optimal solution => %f\n", clique_val);
+      printf("Gurobi found optimal solution => %f\n", clique_val);
       break;
 
     case GRB_TIME_LIMIT:
-      error = GRBgetdblattr(model, GRB_DBL_ATTR_OBJBOUND, &clique_val);
-      printf("Timed out, bound is => %f\n", clique_val);      
+      error = GRBgetdblattr(model, GRB_DBL_ATTR_OBJVAL, &clique_val);
+      error = GRBgetdblattr(model, GRB_DBL_ATTR_OBJBOUND, &clique_bound);
+      printf("Gurobi timed out, bound is => %f ; search was at %f\n", clique_bound, clique_val);      
       break;
   }
 

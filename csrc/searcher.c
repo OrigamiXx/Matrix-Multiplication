@@ -43,12 +43,14 @@ void init_log(char * given_name) {
   clock_gettime(clock_mode, &init_log_time);
   last_log_time = init_log_time;
 
-  time_t t = time(NULL);
-  struct tm tm = *localtime(&t);
   FILE * log_file;
   log_file = fopen(log_file_name, "w");
+
+  time_t t = time(NULL);
+  struct tm tm = *localtime(&t);
+
   fprintf(log_file, "Log started at time %d-%d-%d %d:%d:%d\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
-  fprintf(log_file, "heuristic_type,level|graph_time,total_time,num_heuristics_gathered,average_heuristic_depth,max_depth\n");
+  fprintf(log_file, "heuristic_type,level|graph_time,total_time,num_heuristics_gathered,total_heuristic_depth,average_heuristic_depth,max_heuristic_depth\n");
   fclose(log_file);
 
 
@@ -56,7 +58,7 @@ void init_log(char * given_name) {
 
 void log_current_results(bool force_log) {
 
-  double logging_interval_seconds = 60 * 0.1;
+  double logging_interval_seconds = 60 * 3;
   
   if (heuristic_details != NULL) {
     
@@ -83,17 +85,19 @@ void log_current_results(bool force_log) {
           double g_time = heuristic_details[h_type].details[level].graph_time_at_level;
           double t_time = heuristic_details[h_type].details[level].total_time_at_level;
           int num_h = heuristic_details[h_type].details[level].num_heuristics;
-          double ave_d = heuristic_details[h_type].details[level].total_depth / MAX(1, heuristic_details[h_type].details[level].num_heuristics);
-          double max_d = (num_h == 0 ? level : heuristic_details[h_type].details[level].max_depth);
+          double ave_d = ((double) (heuristic_details[h_type].details[level].total_depth)) / ((double) (MAX(1, heuristic_details[h_type].details[level].num_heuristics)));
+          // double max_d = (num_h == 0 ? level : heuristic_details[h_type].details[level].max_depth);
+          double max_d = heuristic_details[h_type].details[level].max_depth;
+          double tot_d = heuristic_details[h_type].details[level].total_depth;
 
-          printf("LOGGING MAX D OF %e for level %d which also has max heuristic of %e\n", max_d, level, heuristic_details[h_type].details[level].max_heuristic);
-
-          fprintf(log_file, "%d,%d|%e,%e,%d,%e,%e,%e\n", h_type, level, g_time, t_time, num_h, ave_d, max_d);
+          //              | graph_time | total_time | heuristics_gathered | average_depth | max_depth | min_depth
+          // htype, level | 
+          fprintf(log_file, "%d,%d|%e,%e,%d,%e,%e, %e\n", h_type, level, g_time, t_time, num_h, tot_d, ave_d, max_d);
 
         }
       }
 
-      fprintf(log_file, "-------- Logging complete --------\n");
+      fprintf(log_file, "-------- Logging iteration complete --------\n");
       fclose(log_file);
 
       last_log_time = current_log_time;
@@ -118,6 +122,16 @@ void move_results_global(std::priority_queue<heuristic_result> heuristic_queue, 
     heuristics_at_level.push(global_heur);
   }
 
+}
+
+void wipe_statistics() {
+
+  for (int h_type = 0; h_type < number_of_heuristics; h_type ++) {
+    free(heuristic_details[h_type].details);
+  }
+
+  free(heuristic_details);
+  heuristic_details = NULL;
 }
 
 void check_extend_heuristic_details(int heuristic_type, int current_level) {
@@ -274,15 +288,15 @@ void calculate_heuristics(puzzle * p, std::priority_queue<heuristic_result> * h_
       heuristic_details[heuristic_type].details[which].max_heuristic = MAX(heuristic_results[u], heuristic_details[heuristic_type].details[which].max_heuristic);
       heuristic_details[heuristic_type].details[which].min_heuristic = (heuristic_details[heuristic_type].details[which].min_heuristic == 0 ? heuristic_results[u] : MIN(heuristic_details[heuristic_type].details[which].min_heuristic, heuristic_results[u]));
 
-      double depth_with_heuristic = p->s-1 + heuristic_results[u];
-      printf("DEPTH VS WHICH IS %d vs %d\n", p->s-1, which);
+      double depth_with_heuristic = p->s + heuristic_results[u];
+      // printf("DEPTH VS WHICH IS %d vs %d\n", p->s-1, which);
       heuristic_details[heuristic_type].details[which].total_depth += depth_with_heuristic;
       heuristic_details[heuristic_type].details[which].max_depth = MAX(heuristic_details[heuristic_type].details[which].max_depth, depth_with_heuristic);
       heuristic_details[heuristic_type].details[which].min_depth = (heuristic_details[heuristic_type].details[which].min_depth == 0 ? depth_with_heuristic : MIN(heuristic_details[heuristic_type].details[which].min_depth, depth_with_heuristic));
 
-      printf("Depth with heuristic found is %e\n", depth_with_heuristic);
+      // printf("Depth with heuristic found is %e\n", depth_with_heuristic);
       // printf("Max depth is now %e\n", curr_details.max_depth);
-      printf("Double check %e\n", heuristic_details[heuristic_type].details[which].max_depth);
+      // printf("Double check %e\n", heuristic_details[heuristic_type].details[which].max_depth);
 
 
       struct heuristic_result this_result;
@@ -293,18 +307,10 @@ void calculate_heuristics(puzzle * p, std::priority_queue<heuristic_result> * h_
     }
   }
 
-
-  float average_heur;
   if (num_to_check == 0) {
-    average_heur = 0;
-  } else {
-    average_heur = (float) total_heur / (float) num_to_check;
+    // If there's nothing to explore, the max depth is still at least the puzzle without the new row.
+    heuristic_details[heuristic_type].details[which].max_depth = MAX(p->s-1, heuristic_details[heuristic_type].details[which].max_depth);
   }
-
-  // printf("Currently at level %d ; ", which);
-  // printf("will explore %ld paths with an average heuristic of %f\n", num_to_check, average_heur);
-
-  // return heuristic_queue;
 
 }
 
@@ -389,11 +395,15 @@ int inline_search(puzzle * p, bool ** graph, bool skip[], int skip_count, int be
   extend_graph_from_puzzle(local_graph, p, local_skip, next_start, new_max_index-1, new_max_index, which, heuristic_type);
 
   std::priority_queue<heuristic_result> heuristic_queue;
+  printf("-----------------------\n");
+  printf("About to calculate heuristics for puzzle\n");
+  printf("Current heuristic is %s\n", heuristic_names[heuristic_type]);
+  print_puzzle(p);
+  printf("-----------------------\n");
   inline_h(new_puzzle, local_graph, &heuristic_queue, local_skip, local_skip_count, which, heuristic_type);
 
   if (best >= stop_at_s && heuristic_stage == 1) {
     move_results_global(heuristic_queue, new_puzzle);
-    printf("Moving some stuff\n");
   } else {
     /* FURTHER SEARCHING BEGINS HERE */
     while (!heuristic_queue.empty() && best < stop_at_s) {
@@ -407,6 +417,15 @@ int inline_search(puzzle * p, bool ** graph, bool skip[], int skip_count, int be
       }
 
       U[s] = current_heur.value;
+
+      //TOPRINT puzzle and heuristic that we're searching it for\
+
+      printf("-----------------------\n");
+      printf("Searching on puzzle with heuristic value %f\n", current_heur.result);
+      printf("Current heuristic is %s\n", heuristic_names[heuristic_type]);
+      print_puzzle(new_puzzle);
+      printf("-----------------------\n");
+
       stop_timer(heuristic_type, which);
       int search_result = inline_search(new_puzzle, local_graph, local_skip, skip_count, best, which+1, heuristic_type, stop_at_s, heuristic_stage);
       start_timer(heuristic_type, which);
@@ -458,11 +477,15 @@ int search(puzzle * p, bool skip[], int skip_count, int best, int which, int heu
   // printf("level is %d ; best is %d ; stop is %d ; p->s is %d\n", which, best, stop_at_s, p->s);
 
   std::priority_queue<heuristic_result> heuristic_queue;
+  printf("-----------------------\n");
+  printf("About to calculate heuristics for puzzle\n");
+  printf("Current heuristic is %s\n", heuristic_names[heuristic_type]);
+  print_puzzle(p);
+  printf("-----------------------\n");
   calculate_heuristics(new_puzzle, &heuristic_queue, local_skip, &local_skip_count, which, heuristic_type, stop_at_s, heuristic_stage);
 
   if (best >= stop_at_s && heuristic_stage == 1) {
     move_results_global(heuristic_queue, new_puzzle);
-    printf("Moving some stuff\n");
   } else {
     while(!heuristic_queue.empty() && best < stop_at_s) {
       heuristic_result current_heur = heuristic_queue.top();
@@ -475,6 +498,15 @@ int search(puzzle * p, bool skip[], int skip_count, int best, int which, int heu
       }
 
       U[s] = current_heur.value;
+
+      //TOPRINT puzzle and heuristic that we're searching it for
+
+      printf("-----------------------\n");
+      printf("Searching on puzzle with heuristic value %f\n", current_heur.result);
+      printf("Current heuristic is %s\n", heuristic_names[heuristic_type]);
+      print_puzzle(new_puzzle);
+      printf("-----------------------\n");
+      
 
       if (stats_enabled) {
         stop_timer(heuristic_type, which);
@@ -586,13 +618,12 @@ int mip_clique_h(puzzle * p, bool skip[], int skip_count, int which, int heurist
   puzzle_row next_start = p->puzzle[p->s-1] + 1;
 
 
-  printf("--------\n");
-  print_puzzle(p);
-  printf("--------\n");
-  // printf("Gonna make a graph\n");
+  // printf("--------\n");
+  // print_puzzle(p);
+  // printf("--------\n");
+
   int graph_size;
   bool ** graph = make_graph_from_puzzle(p, skip, next_start, max_index, which, heuristic_type);
-  // printf("Made a graph\n");
   
   int current_max_clique = (max_index > 0 ? max_clique_mip(graph, max_index) : 0);
 
@@ -669,7 +700,7 @@ void inline_h(puzzle * p, bool ** graph, std::priority_queue<heuristic_result> *
       heuristic_details[heuristic_type].details[which].max_heuristic = MAX(heuristic_results[u], heuristic_details[heuristic_type].details[which].max_heuristic);
       heuristic_details[heuristic_type].details[which].min_heuristic = (heuristic_details[heuristic_type].details[which].min_heuristic == 0 ? heuristic_results[u] : MIN(heuristic_details[heuristic_type].details[which].min_heuristic, heuristic_results[u]));
 
-      double depth_with_heuristic = p->s-1 + heuristic_results[u];
+      double depth_with_heuristic = p->s + heuristic_results[u];
       heuristic_details[heuristic_type].details[which].total_depth += depth_with_heuristic;
       heuristic_details[heuristic_type].details[which].max_depth = MAX(heuristic_details[heuristic_type].details[which].max_depth, depth_with_heuristic);
       heuristic_details[heuristic_type].details[which].min_depth = (heuristic_details[heuristic_type].details[which].min_depth == 0 ? depth_with_heuristic : MIN(heuristic_details[heuristic_type].details[which].min_depth, depth_with_heuristic));
@@ -682,17 +713,11 @@ void inline_h(puzzle * p, bool ** graph, std::priority_queue<heuristic_result> *
     }
   }
 
-  long average_heur;
   if (num_to_check == 0) {
-    average_heur = 0;
-  } else {
-    average_heur = total_heur / num_to_check;
+    // If there's nothing to explore, the max depth is still at least the puzzle without the new row.
+    heuristic_details[heuristic_type].details[which].max_depth = MAX(p->s-1, heuristic_details[heuristic_type].details[which].max_depth);
   }
 
-  // printf("Currently at level %d ; ", which);
-  // printf("will explore %ld paths with an average heuristic of %ld\n", num_to_check, average_heur);
-
-  // return heuristic_queue;
 }
 
 int generic_h(puzzle * p, bool skip[], int skip_count, int which, int heuristic_type, int stop_at_s, int heuristic_stage) {

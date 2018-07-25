@@ -64,6 +64,7 @@ struct cumulative_tracker {
 
 void log_current_results(bool force_log);
 void init_log(char * given_name);
+void wipe_statistics();
 int ipow2(int base, int exp);
 bool ** make_2d_bool_array(unsigned long max_index);
 void copy_2d_bool_array_contents(bool ** dest, bool ** src, unsigned long max_index);
