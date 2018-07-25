@@ -25,21 +25,25 @@
 #include "nauty.h"
 #include "canonization.h"
 
-#define VERT(r,c) ((r) * s + (c) + (s + k))
+#define VERT(r,c) ((r) * k + (c) + (s + k))
 
 using namespace std;
 
 void canonize_puzzle(puzzle * p, int s, int k, int n, int * lab, graph * canon_g){
- 
-  graph g[n * n];
+
+  /* The nauty parameter m is a value such that an array of m setwords
+     is sufficient to hold n bits.  The type setword is defined in
+     nauty.h.  The number of bits in a setword is WORDSIZE, which is
+     16, 32 or 64.  Here we calculate m = ceiling(n/WORDSIZE).  */
+  int m = SETWORDSNEEDED(n);
+
+  graph g[m * n];
   //graph * canon_g = (graph *)malloc(sizeof(graph) * n * n);//[n * n];
   //graph canon_g[n * n];
   //int lab[n],
   int ptn[n], orbits[n];
   static DEFAULTOPTIONS_GRAPH(options);
   statsblk stats;
-  
-  int m;
   
   /* Default options are set by the DEFAULTOPTIONS_GRAPH macro above.
      Here we change those options that we want to be different from
@@ -49,12 +53,6 @@ void canonize_puzzle(puzzle * p, int s, int k, int n, int * lab, graph * canon_g
   options.writeautoms = FALSE;
   options.defaultptn = FALSE;
   options.getcanon = TRUE;
-
-  /* The nauty parameter m is a value such that an array of m setwords
-     is sufficient to hold n bits.  The type setword is defined in
-     nauty.h.  The number of bits in a setword is WORDSIZE, which is
-     16, 32 or 64.  Here we calculate m = ceiling(n/WORDSIZE).  */
-  m = SETWORDSNEEDED(n);
   
   /* The following optional call verifies that we are linking
      to compatible versions of the nauty routines.            */  
@@ -107,7 +105,14 @@ void canonize_puzzle(puzzle * p, int s, int k, int n, int * lab, graph * canon_g
     if (i == s - 1 || i == s + k - 1 || i == pendex[0] - 1 || i == n - 1)
       ptn[i] = 0;
   }
-  
+
+  /*
+  for (int i = 0; i < n; i++){
+    printf("%d: \t %016lx\n", i, g[i]);
+
+  }
+  */
+
   //printf("start nauty\n");
   densenauty(g,lab,ptn,orbits,&options,&stats,m,n,canon_g);
   //printf("end nauty\n");
@@ -125,16 +130,31 @@ bool have_seen_isomorph(puzzle * p){
   int n = s * k + 3 * (1 + 4) + (s + k);
 
   int lab[n];
-  graph canon_g[n * n];
+  int m = SETWORDSNEEDED(n);
+  size_t graph_size = sizeof(graph) * m * n;
+  graph canon_g[m * n];
+  bzero(canon_g, graph_size);
   
   canonize_puzzle(p, s, k, n, lab, canon_g);
-
-  int m = SETWORDSNEEDED(n);
-
-  size_t graph_size = WORDSIZE / 8 * m * n;
-
+  /*
+  printf("m = %d\n", m);
+  printf("WORDSIZE = %d\n", WORDSIZE);
+  printf("sizeof(graph) = %d\n", sizeof(graph));
+  */
+  
   string key((char *)canon_g, graph_size);
 
+  /*
+  //cout << key << endl;
+  printf("graph_size = %d\n", graph_size);
+  
+  for(int j = 0; j < graph_size; j++)
+    
+    printf(" %d: %X", j, key[j]);
+
+  printf("\n");
+  */
+  
   map<string, bool>::const_iterator iter = seen_isomorphs.find(key);
   if (iter != seen_isomorphs.end()){
     return true;
@@ -146,6 +166,13 @@ bool have_seen_isomorph(puzzle * p){
   return false;
 }
 
+// Reset the set of previously seen isomorphs.
+void reset_isomorphs(){
+  seen_isomorphs.erase(seen_isomorphs.begin(), seen_isomorphs.end());
+  assert(seen_isomorphs.size() == 0);
+}
+
+
 // Replace p with its canonical isomorph.
 void canonize_puzzle(puzzle * p){
 
@@ -154,7 +181,8 @@ void canonize_puzzle(puzzle * p){
   int n = s * k + 3 * (1 + 4) + (s + k);
 
   int lab[n];
-  graph canon_g[n * n];
+  int m = SETWORDSNEEDED(n);
+  graph canon_g[m * n];
   
   canonize_puzzle(p, s, k, n, lab, canon_g);
 
@@ -202,3 +230,32 @@ void canonize_puzzle(puzzle * p){
 
 }
 
+// Replace p with its canonical isomorph.
+bool are_isomorphs(puzzle * p1, puzzle * p2){
+
+  assert(p1 -> k == p2 -> k);
+  assert(p1 -> s == p2 -> s);
+  
+  int s = p1 -> s;
+  int k = p1 -> k;
+  int n = s * k + 3 * (1 + 4) + (s + k);
+
+  int lab[n];
+  int m = SETWORDSNEEDED(n);
+  graph canon_g1[m * n];
+  graph canon_g2[m * n];
+  
+  canonize_puzzle(p1, s, k, n, lab, canon_g1);
+  canonize_puzzle(p2, s, k, n, lab, canon_g2);
+
+  for (int i = 0 ; i < m * n; i++)
+    if (canon_g1[i] != canon_g2[i])
+      return false;
+
+  return true;
+
+}
+
+size_t get_num_isomorphs(){
+  return seen_isomorphs.size();
+}
