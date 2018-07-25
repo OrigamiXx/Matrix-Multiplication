@@ -164,7 +164,7 @@ int main(int argc, char ** argv) {
                     
                     int log_buffer_size = 75;
                     char log_name[log_buffer_size];
-                    snprintf(log_name, log_buffer_size, "search_logs/t#%d--search_run--max_s=%d-k= %d", n, s, k);
+                    snprintf(log_name, log_buffer_size, "search_logs/t#%d--search_run--max_s=%d-k=%d", n, s, k);
                     init_log(log_name);
 
                     for (int h = 1; h < number_of_heuristics; h++){
