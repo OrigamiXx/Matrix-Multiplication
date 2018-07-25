@@ -38,9 +38,6 @@ void canonize_puzzle(puzzle * p, int s, int k, int n, int * lab, graph * canon_g
   int m = SETWORDSNEEDED(n);
 
   graph g[m * n];
-  //graph * canon_g = (graph *)malloc(sizeof(graph) * n * n);//[n * n];
-  //graph canon_g[n * n];
-  //int lab[n],
   int ptn[n], orbits[n];
   static DEFAULTOPTIONS_GRAPH(options);
   statsblk stats;
@@ -113,10 +110,7 @@ void canonize_puzzle(puzzle * p, int s, int k, int n, int * lab, graph * canon_g
   }
   */
 
-  //printf("start nauty\n");
   densenauty(g,lab,ptn,orbits,&options,&stats,m,n,canon_g);
-  //printf("end nauty\n");
-  
   
 }
 
@@ -136,24 +130,8 @@ bool have_seen_isomorph(puzzle * p){
   bzero(canon_g, graph_size);
   
   canonize_puzzle(p, s, k, n, lab, canon_g);
-  /*
-  printf("m = %d\n", m);
-  printf("WORDSIZE = %d\n", WORDSIZE);
-  printf("sizeof(graph) = %d\n", sizeof(graph));
-  */
   
   string key((char *)canon_g, graph_size);
-
-  /*
-  //cout << key << endl;
-  printf("graph_size = %d\n", graph_size);
-  
-  for(int j = 0; j < graph_size; j++)
-    
-    printf(" %d: %X", j, key[j]);
-
-  printf("\n");
-  */
   
   map<string, bool>::const_iterator iter = seen_isomorphs.find(key);
   if (iter != seen_isomorphs.end()){
