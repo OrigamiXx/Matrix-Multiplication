@@ -40,15 +40,19 @@ struct cumulative_counts {
   struct timespec graph_start_time;
   bool graph_is_timing;
 
-
   double graph_time_at_level;
   double total_time_at_level;
   int total_instances_at_level;
 
-  int num_heuristics;
+  // int num_heuristics;
   double total_heuristic;
   double max_heuristic;
   double min_heuristic;
+
+  int num_heuristics;
+  double total_depth;
+  double max_depth;
+  double min_depth;
 
 };
 
@@ -58,7 +62,9 @@ struct cumulative_tracker {
 };
 
 
-
+void log_current_results(bool force_log);
+void init_log(char * given_name);
+void wipe_statistics();
 int ipow2(int base, int exp);
 bool ** make_2d_bool_array(unsigned long max_index);
 void copy_2d_bool_array_contents(bool ** dest, bool ** src, unsigned long max_index);

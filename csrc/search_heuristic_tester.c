@@ -13,6 +13,7 @@
 
 extern cumulative_tracker * heuristic_details;
 extern int number_of_heuristics;
+extern const char * heuristic_names[];
 
 
 int time_check_heuristic(puzzle * p, bool skip[], int max_s, int heuristic_num, int test_type, double * time_ptr){
@@ -128,7 +129,7 @@ int main(int argc, char ** argv) {
     }
 
 
-    int number_of_trials = 10;
+    int number_of_trials = 1;
     // int number_of_heuristics = 4;
     /*
     Heuristic 0 = nullity_h
@@ -143,8 +144,33 @@ int main(int argc, char ** argv) {
         case 0:
         case 1:
             {
+                int time_log_buffer_size = 75;
+                char time_log_name[time_log_buffer_size];
+                snprintf(time_log_name, time_log_buffer_size, "search_logs/time_results--max_s=%d-k=%d", s, k);
+
+
+                FILE * time_log;
+                time_log = fopen(time_log_name, "w");
+
+                time_t t = time(NULL);
+                struct tm tm = *localtime(&t);
+
+                fprintf(time_log, "Time log started at time %d-%d-%d %d:%d:%d\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+                fprintf(time_log, "heuristic_type,k,time_taken,s_result\n");
+                fclose(time_log);
+  
+
                 for (int n = 0; n < number_of_trials; n++) {
-                    for (int h = 0; h < number_of_heuristics; h++){
+                    
+                    int log_buffer_size = 75;
+                    char log_name[log_buffer_size];
+                    snprintf(log_name, log_buffer_size, "search_logs/t#%d--search_run--max_s=%d-k=%d", n, s, k);
+                    init_log(log_name);
+
+                    for (int h = 1; h < number_of_heuristics; h++){
+
+                        printf("----- BEGINNING SEARCH WITH HEURISTIC %s FOR WIDTH %d -----\n", heuristic_names[h], k);
+
                         bool init_skip[test_puzzle->max_row];
                         bzero(init_skip, sizeof(init_skip));
 
@@ -154,47 +180,64 @@ int main(int argc, char ** argv) {
                         int heuristic_result = time_check_heuristic(test_puzzle, init_skip, s, h, test_type, time_ptr);
                         // seems we don't care about the heuristic result any more?
 
-                        time_results[h].t_max = MAX(time_results[h].t_max, *time_ptr);
-                        time_results[h].t_min = MIN(time_results[h].t_min, *time_ptr);
-                        time_results[h].t_total += *time_ptr;
-                        time_results[h].num_trials ++;
+                        // time_results[h].t_max = MAX(time_results[h].t_max, *time_ptr);
+                        // time_results[h].t_min = MIN(time_results[h].t_min, *time_ptr);
+                        // time_results[h].t_total += *time_ptr;
+                        // time_results[h].num_trials ++;
+
+                        // progress bar
+                        // double progress_percent = (double) (((n * number_of_heuristics) + h) / (double) (number_of_trials * number_of_heuristics)) * 100;
+                        // printf("\r%f%% complete", progress_percent);
+                        // fflush(stdout);
+
+                        printf("----- COMPLETED SEARCH WITH HEURISTIC %s FOR WIDTH %d -----\n", heuristic_names[h], k);
+
+                        // h_type,k|total_time ==> TO LOG FILE
+
+                        time_log = fopen(time_log_name, "a");
+                        fprintf(time_log, "heuristic_type,k,time_taken,heuristic_result_returned");
+                        fprintf(time_log, "%d,%d,%e,%d\n", h, k, *time_ptr, heuristic_result);
+                        fclose(time_log);
 
                         free(time_ptr);
 
-                        // progress bar
-                        double progress_percent = (double) (((n * number_of_heuristics) + h) / (double) (number_of_trials * number_of_heuristics)) * 100;
-                        printf("\r%f%% complete", progress_percent);
-                        fflush(stdout);
-
+                        log_current_results(true);
                     }
+
+                    log_current_results(true);
+                    wipe_statistics();
+
                 }
-                printf("\r");
-                fflush(stdout);
+                // printf("\r");
+                // fflush(stdout);
 
                 printf("\n");
+                
 
-                printf(" ## RESULTS ## \n");
-                // print out results here
-                for (int h = 0; h < number_of_heuristics; h++) {
-                    printf("~~ Heuristic number %d:\n", h);
-                    printf(" ~ total time taken: %f\n", time_results[h].t_total);
-                    printf(" ~ average time taken: %f\n", (time_results[h].t_total / time_results[h].num_trials));
-                    printf(" ~ max time taken: %f\n", time_results[h].t_max);
-                    printf(" ~ min time taken: %f\n", time_results[h].t_min);
+                // STILL NEED SOME SHIT FROM THE TIME 
 
-                    printf(" ~~ Statistics for each level:\n");
-                    for (int i = 0; i < heuristic_details[h].num_details; i ++) {
-                        printf(" ~~ At level %d:\n", i);
-                        printf("  ~ max heuristic: %f\n", heuristic_details[h].details[i].max_heuristic);
-                        printf("  ~ min heuristic: %f\n", heuristic_details[h].details[i].min_heuristic);
-                        printf("  ~ average heuristic: %f\n", (heuristic_details[h].details[i].total_heuristic / (double) heuristic_details[h].details[i].num_heuristics));
-                        printf("  ~ total time: %f\n", heuristic_details[h].details[i].total_time_at_level);
-                        printf("  ~ graph making time: %f\n", heuristic_details[h].details[i].graph_time_at_level);
-                        printf("  ~ with %d instances:\n", heuristic_details[h].details[i].total_instances_at_level);
-                        printf("    ~ average time per instance of: %f\n", (heuristic_details[h].details[i].total_time_at_level / (double) heuristic_details[h].details[i].total_instances_at_level));
-                        printf("    ~ average graph making time of: %f\n", (heuristic_details[h].details[i].graph_time_at_level / (double) heuristic_details[h].details[i].total_instances_at_level));
-                    }
-                }
+                // printf(" ## RESULTS ## \n");
+                // // print out results here
+                // for (int h = 0; h < number_of_heuristics; h++) {
+                //     printf("~~ Heuristic number %d:\n", h);
+                //     printf(" ~ total time taken: %f\n", time_results[h].t_total);
+                //     printf(" ~ average time taken: %f\n", (time_results[h].t_total / time_results[h].num_trials));
+                //     printf(" ~ max time taken: %f\n", time_results[h].t_max);
+                //     printf(" ~ min time taken: %f\n", time_results[h].t_min);
+
+                //     printf(" ~~ Statistics for each level:\n");
+                //     for (int i = 0; i < heuristic_details[h].num_details; i ++) {
+                //         printf(" ~~ At level %d:\n", i);
+                //         printf("  ~ max heuristic: %e\n", heuristic_details[h].details[i].max_heuristic);
+                //         printf("  ~ min heuristic: %e\n", heuristic_details[h].details[i].min_heuristic);
+                //         printf("  ~ average heuristic: %e\n", (heuristic_details[h].details[i].total_heuristic / (double) heuristic_details[h].details[i].num_heuristics));
+                //         printf("  ~ total time: %e\n", heuristic_details[h].details[i].total_time_at_level);
+                //         printf("  ~ graph making time: %e\n", heuristic_details[h].details[i].graph_time_at_level);
+                //         printf("  ~ with %d instances:\n", heuristic_details[h].details[i].total_instances_at_level);
+                //         printf("    ~ average time per instance of: %e\n", (heuristic_details[h].details[i].total_time_at_level / (double) heuristic_details[h].details[i].total_instances_at_level));
+                //         printf("    ~ average graph making time of: %e\n", (heuristic_details[h].details[i].graph_time_at_level / (double) heuristic_details[h].details[i].total_instances_at_level));
+                //     }
+                // }
 
             }
             break;

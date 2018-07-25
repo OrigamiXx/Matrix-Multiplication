@@ -109,9 +109,10 @@ int get_max_clique_mip(bool ** graph, puzzle_row graph_max_index, GRBmodel * mod
 
   GRBenv * menv = GRBgetenv(model);
 
-  GRBsetintparam(menv, "Threads", 6);
+  GRBsetintparam(menv, "Threads", 8);
   GRBsetintparam(menv, GRB_INT_PAR_MIPFOCUS, 1);
-  GRBsetintparam(menv, "OutputFlag", 1);
+  GRBsetintparam(menv, "OutputFlag", 0);
+  // GRBsetstrparam(menv, "LogFile", "gurobioutput.out");
 
   // GRBsetintparam(menv, "SolutionLimit", 1);
 
@@ -123,6 +124,7 @@ int get_max_clique_mip(bool ** graph, puzzle_row graph_max_index, GRBmodel * mod
   res = res | GRBsetdblparam(menv, "MIPGapAbs", 0);
   res = res | GRBsetdblparam(menv, "OptimalityTol", 1e-9);
   res = res | GRBsetdblparam(menv, "PSDTol", 0);
+  res = res | GRBsetdblparam(menv, "TimeLimit", 60);
 
   error = GRBsetintattr(model, GRB_INT_ATTR_MODELSENSE, GRB_MAXIMIZE);
   if (error) {
@@ -138,28 +140,30 @@ int get_max_clique_mip(bool ** graph, puzzle_row graph_max_index, GRBmodel * mod
 
   int opt_status;
   GRBgetintattr(model, GRB_INT_ATTR_STATUS, &opt_status);
-  // printf("Opt status is %d\n", opt_status);
-
-  // // check for solution
-  // if (opt_status == GRB_INFEASIBLE)
-  //   printf("infeasible\n");
-  // else if (opt_status == GRB_OPTIMAL)
-  //   printf("optimal\n");
-  // else
-  //   printf("undetermined\n");
-
-  assert(opt_status == GRB_OPTIMAL);
+ 
+  assert(opt_status == GRB_OPTIMAL || opt_status == GRB_TIME_LIMIT);
 
   double clique_val;
-  error = GRBgetdblattr(model, GRB_DBL_ATTR_OBJVAL, &clique_val);
+  double clique_bound;
+
+  switch(opt_status) {
+    case GRB_OPTIMAL:
+      error = GRBgetdblattr(model, GRB_DBL_ATTR_OBJVAL, &clique_val);
+      printf("Gurobi found optimal solution => %f\n", clique_val);
+      break;
+
+    case GRB_TIME_LIMIT:
+      error = GRBgetdblattr(model, GRB_DBL_ATTR_OBJVAL, &clique_val);
+      error = GRBgetdblattr(model, GRB_DBL_ATTR_OBJBOUND, &clique_bound);
+      printf("Gurobi timed out, bound is => %f ; search was at %f\n", clique_bound, clique_val);      
+      break;
+  }
+
   if (error) {
     printf("error: %s %d\n", GRBgeterrormsg(clique_mip_env), error);
     assert(false);
   }
 
-  // printf("max clique %f\n", clique_val);
-
-  // assert(0);
   return clique_val;
 
 }
