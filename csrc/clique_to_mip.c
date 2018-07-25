@@ -109,10 +109,10 @@ int get_max_clique_mip(bool ** graph, puzzle_row graph_max_index, GRBmodel * mod
 
   GRBenv * menv = GRBgetenv(model);
 
-  GRBsetintparam(menv, "Threads", 6);
+  GRBsetintparam(menv, "Threads", 8);
   GRBsetintparam(menv, GRB_INT_PAR_MIPFOCUS, 1);
   GRBsetintparam(menv, "OutputFlag", 0);
-  GRBsetintparam(menv, "LogFile", 1);
+  // GRBsetstrparam(menv, "LogFile", "gurobioutput.out");
 
   // GRBsetintparam(menv, "SolutionLimit", 1);
 
