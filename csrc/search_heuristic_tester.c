@@ -146,7 +146,7 @@ int main(int argc, char ** argv) {
             {
                 int time_log_buffer_size = 75;
                 char time_log_name[time_log_buffer_size];
-                snprintf(time_log_name, time_log_buffer_size, "search_logs/time_results <max_s= %d> <k= %d>", s, k);
+                snprintf(time_log_name, time_log_buffer_size, "search_logs/time_results--max_s=%d-k=%d", s, k);
 
 
                 FILE * time_log;
@@ -156,7 +156,7 @@ int main(int argc, char ** argv) {
                 struct tm tm = *localtime(&t);
 
                 fprintf(time_log, "Time log started at time %d-%d-%d %d:%d:%d\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
-                fprintf(time_log, "heuristic_type,k|time_taken,s_result\n");
+                fprintf(time_log, "heuristic_type,k,time_taken,s_result\n");
                 fclose(time_log);
   
 
@@ -164,10 +164,10 @@ int main(int argc, char ** argv) {
                     
                     int log_buffer_size = 75;
                     char log_name[log_buffer_size];
-                    snprintf(log_name, log_buffer_size, "search_logs/t#%d search_run <max_s= %d> <k= %d>", n, s, k);
+                    snprintf(log_name, log_buffer_size, "search_logs/t#%d--search_run--max_s=%d-k= %d", n, s, k);
                     init_log(log_name);
 
-                    for (int h = 0; h < number_of_heuristics; h++){
+                    for (int h = 1; h < number_of_heuristics; h++){
 
                         printf("----- BEGINNING SEARCH WITH HEURISTIC %s FOR WIDTH %d -----\n", heuristic_names[h], k);
 
@@ -195,7 +195,8 @@ int main(int argc, char ** argv) {
                         // h_type,k|total_time ==> TO LOG FILE
 
                         time_log = fopen(time_log_name, "a");
-                        fprintf(time_log, "%d,%d|%e,%d\n", h, k, *time_ptr, heuristic_result);
+                        fprintf(time_log, "heuristic_type,k,time_taken,heuristic_result_returned");
+                        fprintf(time_log, "%d,%d,%e,%d\n", h, k, *time_ptr, heuristic_result);
                         fclose(time_log);
 
                         free(time_ptr);

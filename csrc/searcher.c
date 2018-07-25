@@ -50,7 +50,7 @@ void init_log(char * given_name) {
   struct tm tm = *localtime(&t);
 
   fprintf(log_file, "Log started at time %d-%d-%d %d:%d:%d\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
-  fprintf(log_file, "heuristic_type,level|graph_time,total_time,num_heuristics_gathered,total_heuristic_depth,average_heuristic_depth,max_heuristic_depth\n");
+  fprintf(log_file, "heuristic_type,level,graph_time,total_time,num_heuristics_gathered,total_heuristic_depth,average_heuristic_depth,max_heuristic_depth\n");
   fclose(log_file);
 
 
@@ -79,6 +79,13 @@ void log_current_results(bool force_log) {
 
       fprintf(log_file, "Logging details at time %d-%d-%d %d:%d:%d\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
       fprintf(log_file, "Time since last log: %e ; logging interval: %e\n", time_since_last_log, logging_interval_seconds);
+      fprintf(log_file, "heuristics: ");
+      for (int i = 0; i < number_of_heuristics; i++) {
+        fprintf(log_file, " # %d = %s ;", i, heuristic_names[i]);
+      }
+
+
+      fprintf(log_file, "heuristic_type,level,graph_time,total_time,num_heuristics_gathered,total_heuristic_depth,average_heuristic_depth,max_heuristic_depth\n");
       for (int h_type = 0; h_type < number_of_heuristics; h_type++) {
         for (int level = 0; level < heuristic_details[h_type].num_details; level++) {
 
@@ -92,7 +99,7 @@ void log_current_results(bool force_log) {
 
           //              | graph_time | total_time | heuristics_gathered | average_depth | max_depth | min_depth
           // htype, level | 
-          fprintf(log_file, "%d,%d|%e,%e,%d,%e,%e, %e\n", h_type, level, g_time, t_time, num_h, tot_d, ave_d, max_d);
+          fprintf(log_file, "%d,%d,%e,%e,%d,%e,%e, %e\n", h_type, level, g_time, t_time, num_h, tot_d, ave_d, max_d);
 
         }
       }
