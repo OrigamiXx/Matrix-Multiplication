@@ -66,10 +66,10 @@ void log_current_results(bool force_log);
 void init_log(char * given_name);
 void wipe_statistics();
 int ipow2(int base, int exp);
-bool ** make_2d_bool_array(unsigned long max_index);
-void copy_2d_bool_array_contents(bool ** dest, bool ** src, unsigned long max_index);
-void free_2d_bool_array(bool ** arr_2d, unsigned long max_index);
-bool count_vertices(unsigned long vertex_counter[], bool ** graph, puzzle_row max_graph_row);
+bool ** make_2d_bool_array(puzzle_row max_index);
+void copy_2d_bool_array_contents(bool ** dest, bool ** src, puzzle_row max_index);
+void free_2d_bool_array(bool ** arr_2d, puzzle_row max_index);
+bool count_vertices(puzzle_row vertex_counter[], bool ** graph, puzzle_row max_graph_row);
 bool ** make_graph_from_puzzle(puzzle * p, bool skip[], puzzle_row start_u, puzzle_row &max_index, int which, int heuristic_type);
 
 int nullity_search(puzzle * p, bool skip[], int skip_count, int best, int which, int heuristic_type);

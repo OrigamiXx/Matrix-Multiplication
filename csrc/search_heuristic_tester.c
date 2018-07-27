@@ -10,6 +10,7 @@
 #include "timing.h"
 #include "search_heuristic_tester.h"
 #include "searcher.h"
+#include "canonization.h"
 
 extern cumulative_tracker * heuristic_details;
 extern int number_of_heuristics;
@@ -202,6 +203,8 @@ int main(int argc, char ** argv) {
                         free(time_ptr);
 
                         log_current_results(true);
+
+                        reset_isomorphs();
                     }
 
                     log_current_results(true);

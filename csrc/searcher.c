@@ -12,6 +12,7 @@
 #include "searcher.h"
 #include "timing.h"
 #include "clique_to_mip.h"
+#include "canonization.h"
 
 clockid_t clock_mode = CLOCK_MONOTONIC;
 
@@ -72,8 +73,6 @@ void log_current_results(bool force_log) {
 
     if (force_log || time_since_last_log > logging_interval_seconds) {
       
-      // printf("Logging details at time %d-%d-%d %d:%d:%d\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
-
       FILE * log_file;
       log_file = fopen(log_file_name, "a");
 
@@ -83,7 +82,7 @@ void log_current_results(bool force_log) {
       for (int i = 0; i < number_of_heuristics; i++) {
         fprintf(log_file, " # %d = %s ;", i, heuristic_names[i]);
       }
-
+      fprintf(log_file, "\n");
 
       fprintf(log_file, "heuristic_type,level,graph_time,total_time,num_heuristics_gathered,total_heuristic_depth,average_heuristic_depth,max_heuristic_depth\n");
       for (int h_type = 0; h_type < number_of_heuristics; h_type++) {
@@ -258,7 +257,7 @@ void calculate_heuristics(puzzle * p, std::priority_queue<heuristic_result> * h_
 
   for (U[s] = 0; U[s] < p->max_row; U[s]++) {
 
-    if ((U[s] < U[s-1] + 1 && s > 0) || skip[U[s]] || IS_USP != check(p)) {
+    if ((U[s] < U[s-1] + 1 && s > 0) || skip[U[s]] || IS_USP != check(p) || !have_seen_isomorph(p)) {
       heuristic_results[U[s]] = -1;
 
       if (!skip[U[s]]){
@@ -323,6 +322,14 @@ void calculate_heuristics(puzzle * p, std::priority_queue<heuristic_result> * h_
 
 void extend_graph_from_puzzle(bool ** graph, puzzle * p, bool skip[], puzzle_row start_u, puzzle_row max_u, puzzle_row max_v, int which, int heuristic_type) {
 
+  static bool seen = false;
+  if(seen) {
+    printf("seen\n");
+    return;
+    assert(0);
+  } else {
+    printf("not seen\n");
+  }
   if(which >= 0) {
     start_graph_timer(heuristic_type, which);
   }
@@ -332,6 +339,8 @@ void extend_graph_from_puzzle(bool ** graph, puzzle * p, bool skip[], puzzle_row
 
   for (puzzle_row u = start_u; u < max_u; u++) {
     for (puzzle_row v = u+1; v < max_v; v++) {
+      seen = true;
+      
       testing_puzzle->puzzle[last_index-1] = u;
       testing_puzzle->puzzle[last_index] = v;
 
@@ -542,7 +551,7 @@ int search(puzzle * p, bool skip[], int skip_count, int best, int which, int heu
   return best;
 }
 
-bool inline_remove_too_unconnected(unsigned long test_clique, unsigned long * vertices, bool ** graph, unsigned long max_graph_index, int which, int * heuristic_results) {
+bool inline_remove_too_unconnected(puzzle_row test_clique, puzzle_row * vertices, bool ** graph, puzzle_row max_graph_index, int which, int * heuristic_results) {
   bool changed = false;
   for (puzzle_row u = 0; u < max_graph_index; u ++) {
     if (vertices[u] < test_clique) {
@@ -569,16 +578,16 @@ bool inline_remove_too_unconnected(unsigned long test_clique, unsigned long * ve
   return changed;
 }
 
-void inline_clique_h(puzzle * p, bool ** graph, unsigned long * start_vertices, bool skip[], int which, int * heuristic_results){
+void inline_clique_h(puzzle * p, bool ** graph, puzzle_row * start_vertices, bool skip[], int which, int * heuristic_results){
   puzzle_row max_index = ipow2(3, p->k);
 
-  unsigned long curr_lower_bound = 0;
-  unsigned long curr_upper_bound = max_index;
+  puzzle_row curr_lower_bound = 0;
+  puzzle_row curr_upper_bound = max_index;
 
-  unsigned long current_test_clique = (curr_lower_bound + curr_upper_bound) / 2;
+  puzzle_row current_test_clique = (curr_lower_bound + curr_upper_bound) / 2;
 
-  unsigned long * test_vertices = (unsigned long *) malloc(sizeof(unsigned long) * max_index);
-  bzero(test_vertices, sizeof(unsigned long) * max_index);
+  puzzle_row * test_vertices = (puzzle_row *) malloc(sizeof(puzzle_row) * max_index);
+  bzero(test_vertices, sizeof(puzzle_row) * max_index);
 
   bool ** test_graph = make_2d_bool_array(max_index);
 
@@ -591,7 +600,7 @@ void inline_clique_h(puzzle * p, bool ** graph, unsigned long * start_vertices, 
       changed = inline_remove_too_unconnected(current_test_clique, test_vertices, test_graph, max_index, which, heuristic_results);
     }
 
-    unsigned long max = test_vertices[0];
+    puzzle_row max = test_vertices[0];
     for (puzzle_row i = 0; i < max_index; i ++) {
       if (test_vertices[i] > max) {
         max = test_vertices[i];
@@ -600,15 +609,16 @@ void inline_clique_h(puzzle * p, bool ** graph, unsigned long * start_vertices, 
 
     if (max == 0) {
       curr_upper_bound = current_test_clique;
-      memcpy(test_vertices, start_vertices, sizeof(unsigned long) * max_index);
+      memcpy(test_vertices, start_vertices, sizeof(puzzle_row) * max_index);
     } else {
       curr_lower_bound = current_test_clique;
       curr_upper_bound = MIN(curr_upper_bound, max);
-      memcpy(test_vertices, start_vertices, sizeof(unsigned long) * max_index);
+      memcpy(test_vertices, start_vertices, sizeof(puzzle_row) * max_index);
     }
 
     if (curr_upper_bound - curr_lower_bound >= 0 && curr_upper_bound - curr_lower_bound <= 1) {
       found = true;
+      memcpy(start_vertices, test_vertices, sizeof(puzzle_row) * max_index);
     } else {
       current_test_clique = (curr_upper_bound + curr_lower_bound) / 2;
     }
@@ -646,8 +656,8 @@ void inline_h(puzzle * p, bool ** graph, std::priority_queue<heuristic_result> *
   bzero(heuristic_results, sizeof(heuristic_results));
 
   puzzle_row max_index = ipow2(3, p->k);
-  unsigned long * the_vertices = (unsigned long *) malloc(sizeof(unsigned long) * max_index);
-  bzero(the_vertices, sizeof(unsigned long) * max_index);
+  puzzle_row * the_vertices = (puzzle_row *) malloc(sizeof(puzzle_row) * max_index);
+  bzero(the_vertices, sizeof(puzzle_row) * max_index);
 
   bool node_exists = count_vertices(the_vertices, graph, max_index);
 
@@ -655,8 +665,8 @@ void inline_h(puzzle * p, bool ** graph, std::priority_queue<heuristic_result> *
   int s = p->s - 1;
 
   for (U[s] = 0; U[s] < p->max_row; U[s]++) {
-    if ((U[s] < U[s-1] + 1 && s > 0) || skip[U[s]] || IS_USP != check(p)) {
-      heuristic_results [U[s]] = -1;
+    if ((U[s] < U[s-1] + 1 && s > 0) || skip[U[s]] || IS_USP != check(p) || !have_seen_isomorph(p)) {
+      heuristic_results[U[s]] = -1;
 
       if(!skip[U[s]]) {
         skip[U[s]] = true;
@@ -711,6 +721,11 @@ void inline_h(puzzle * p, bool ** graph, std::priority_queue<heuristic_result> *
       heuristic_details[heuristic_type].details[which].total_depth += depth_with_heuristic;
       heuristic_details[heuristic_type].details[which].max_depth = MAX(heuristic_details[heuristic_type].details[which].max_depth, depth_with_heuristic);
       heuristic_details[heuristic_type].details[which].min_depth = (heuristic_details[heuristic_type].details[which].min_depth == 0 ? depth_with_heuristic : MIN(heuristic_details[heuristic_type].details[which].min_depth, depth_with_heuristic));
+
+      // if (heuristic_details[heuristic_type].details[which].max_depth > heuristic_details[heuristic_type].details[which-1].max_depth) {
+      //   U[s] = 
+      //   assert(false);
+      // }
 
       struct heuristic_result this_result;
       this_result.value = u;
@@ -793,13 +808,13 @@ int ipow2(int base, int exp) {
  * Makes a 2d bool array with each layer size max_index
  * Each element is defaulted to false
  */
-bool ** make_2d_bool_array(unsigned long max_index) {
+bool ** make_2d_bool_array(puzzle_row max_index) {
   bool ** arr_2d = (bool **) malloc(sizeof(bool *) * max_index);
   bzero(arr_2d, sizeof(bool *) * max_index);
-  for (unsigned long i = 0; i < max_index; i++) {
+  for (puzzle_row i = 0; i < max_index; i++) {
     arr_2d[i] = (bool *) malloc(sizeof(bool) * max_index);
     bzero(arr_2d[i], sizeof(bool) * max_index);
-    for (unsigned long j = 0; j < max_index; j++) {
+    for (puzzle_row j = 0; j < max_index; j++) {
       arr_2d[i][j] = false;
     }
   }
@@ -807,8 +822,8 @@ bool ** make_2d_bool_array(unsigned long max_index) {
   return arr_2d;
 }
 
-void copy_2d_bool_array_contents(bool ** dest, bool ** src, unsigned long max_index) {
-  for (unsigned long i = 0; i < max_index; i++) {
+void copy_2d_bool_array_contents(bool ** dest, bool ** src, puzzle_row max_index) {
+  for (puzzle_row i = 0; i < max_index; i++) {
     memcpy(dest[i], src[i], sizeof(bool) * max_index);
   }
 }
@@ -817,8 +832,8 @@ void copy_2d_bool_array_contents(bool ** dest, bool ** src, unsigned long max_in
  * Frees each element in a 2d bool array
  * and then frees the array itself
  */
-void free_2d_bool_array(bool ** arr_2d, unsigned long max_index) {
-  for (unsigned long i = 0; i < max_index; i++) {
+void free_2d_bool_array(bool ** arr_2d, puzzle_row max_index) {
+  for (puzzle_row i = 0; i < max_index; i++) {
     free(arr_2d[i]);
   }
   free(arr_2d);
@@ -909,7 +924,7 @@ bool ** make_graph_from_puzzle(puzzle * p, bool skip[], puzzle_row start_u, puzz
  * Counts the connectedness of each vertex in a given graph
  * Returns a boolean representing whether or not any vertices at all exist
  */
-bool count_vertices(unsigned long vertex_counter[], bool ** graph, puzzle_row max_graph_row) {
+bool count_vertices(puzzle_row vertex_counter[], bool ** graph, puzzle_row max_graph_row) {
   bool node_exists = false;
   for (puzzle_row u = 0; u < max_graph_row; u++ ){
     vertex_counter[u] = 0;
@@ -929,7 +944,7 @@ bool count_vertices(unsigned long vertex_counter[], bool ** graph, puzzle_row ma
  * If one of the vertices is "less connected" than the clique we're testing for,
  * then remove that vertex from the graph and updates vertices appropriately
 */
-bool remove_too_unconnected(unsigned long test_clique, unsigned long * vertices, bool ** graph, unsigned long max_graph_index) {
+bool remove_too_unconnected(puzzle_row test_clique, puzzle_row * vertices, bool ** graph, puzzle_row max_graph_index) {
   bool changed = false;
   for (puzzle_row u = 0; u < max_graph_index; u ++) {
     if (vertices[u] < test_clique) {
@@ -950,20 +965,20 @@ bool remove_too_unconnected(unsigned long test_clique, unsigned long * vertices,
 
 int clique_h(puzzle * p, bool skip[], int skip_count, int which, int heuristic_type) {
 
-  int k = p->k;
-  puzzle_row max_index = ipow2(3, k);
+  // int k = p->k;
+  puzzle_row max_index = ipow2(3, p->k);
 
   /* SET THE INITIAL BOUNDS TO SEARCH BETWEEN */
-  long unsigned curr_lower_bound = 0;
-  long unsigned curr_upper_bound = max_index;
+  puzzle_row curr_lower_bound = 0;
+  puzzle_row curr_upper_bound = max_index;
 
   /* START SEARCHING ON ... */
-  long unsigned current_test_clique = (curr_lower_bound + curr_upper_bound) / 2;
+  puzzle_row current_test_clique = (curr_lower_bound + curr_upper_bound) / 2;
 
   // Start at previous highest +1 since the puzzle is ordered
   puzzle_row next_start = p->puzzle[p->s-1] + 1; // start at the last element of the original puzzle + 1
 
-  unsigned long num_verts = max_index;
+  puzzle_row num_verts = max_index;
   
   bool ** graph = make_graph_from_puzzle(p, skip, next_start, num_verts, which, heuristic_type);
 
@@ -972,13 +987,13 @@ int clique_h(puzzle * p, bool skip[], int skip_count, int which, int heuristic_t
     return 0;
   }
 
-  unsigned long * good_vertices = (unsigned long *) malloc(sizeof(unsigned long) * num_verts);
-  bzero(good_vertices, sizeof(unsigned long) * num_verts);
+  puzzle_row * good_vertices = (puzzle_row *) malloc(sizeof(puzzle_row) * num_verts);
+  bzero(good_vertices, sizeof(puzzle_row) * num_verts);
 
   bool node_exists = count_vertices(good_vertices, graph, num_verts);
 
-  unsigned long * test_vertices = (unsigned long *) malloc(sizeof(unsigned long *) * num_verts);
-  memcpy(test_vertices, good_vertices, sizeof(unsigned long *) * num_verts);
+  puzzle_row * test_vertices = (puzzle_row *) malloc(sizeof(puzzle_row *) * num_verts);
+  memcpy(test_vertices, good_vertices, sizeof(puzzle_row *) * num_verts);
 
   bool ** test_graph = make_2d_bool_array(num_verts);
 
@@ -994,7 +1009,7 @@ int clique_h(puzzle * p, bool skip[], int skip_count, int which, int heuristic_t
     }
 
     // If most connected is now connected to 0, then the previous upper bound was the max max clique
-    unsigned long max = test_vertices[0];
+    puzzle_row max = test_vertices[0];
     for (puzzle_row i = 0; i < num_verts; i ++) {
       if (test_vertices[i] > max) {
         max = test_vertices[i];
@@ -1003,11 +1018,11 @@ int clique_h(puzzle * p, bool skip[], int skip_count, int which, int heuristic_t
 
     if (max == 0) {
       curr_upper_bound = current_test_clique;
-      memcpy(test_vertices, good_vertices, sizeof(unsigned long *) * num_verts);
+      memcpy(test_vertices, good_vertices, sizeof(puzzle_row *) * num_verts);
     } else {
       curr_lower_bound = current_test_clique;
       curr_upper_bound = MIN(curr_upper_bound, max);
-      memcpy(test_vertices, good_vertices, sizeof(unsigned long *) * num_verts);
+      memcpy(test_vertices, good_vertices, sizeof(puzzle_row *) * num_verts);
     }
 
     if (curr_upper_bound - curr_lower_bound >= 0 && curr_upper_bound - curr_lower_bound <= 1) {
