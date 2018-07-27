@@ -1,3 +1,9 @@
+/*
+  Testing code for graph module.
+
+  Author: Matt.
+*/
+
 #include "Graph.hpp"
 #include "ExtensionGraph.hpp"
 #include <cstdio>
