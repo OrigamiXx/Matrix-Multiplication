@@ -44,7 +44,7 @@ class Graph {
     
     labels = new unsigned long[n];
     degrees = new unsigned long[n];
-    for (int i = 0; i < n; i++) {
+    for (unsigned long i = 0; i < n; i++) {
       labels[i] = i;
       degrees[i] = 0;
     }
@@ -164,12 +164,12 @@ class Graph {
     graph * new_g = new graph[new_m * new_n];
 
     int new_u = 0;
-    for (int u = 0; u < n; u++){
+    for (unsigned long u = 0; u < n; u++){
       if (not_valid[u]) continue;
       new_labels[new_u] = labels[u];
       new_degrees[new_u] = degrees[u];
       int new_v = 0;
-      for (int v = 0; v < n; v++){
+      for (unsigned long v = 0; v < n; v++){
 	if (not_valid[v]) continue;
 	
 	if (hasEdge(u,v)) ADDONEEDGE(new_g, new_u, new_v, new_m);
@@ -197,8 +197,8 @@ class Graph {
   void reduceEdges(bool (*func)(unsigned long, unsigned long, void *),
 		   void * user_data = NULL){
   
-    for (int u = 0; u < n; u++)
-      for (int v = u; v < n; v++)
+    for (unsigned long u = 0; u < n; u++)
+      for (unsigned long v = u; v < n; v++)
 	if (hasEdge(u,v) && !func(labels[u],labels[v], user_data))
 	  removeEdge(u,v);
     
@@ -213,8 +213,8 @@ class Graph {
   void mapEdges(bool (*func)(bool, unsigned long, unsigned long, void *),
 		void * user_data = NULL){
     
-    for (int u = 0; u < n; u++)
-      for (int v = u; v < n; v++)
+    for (unsigned long u = 0; u < n; u++)
+      for (unsigned long v = u; v < n; v++)
 	if (func(hasEdge(u,v), labels[u],labels[v], user_data))
 	  addEdge(u,v);
 	else
@@ -225,16 +225,16 @@ class Graph {
   // Prints the graph to the console.
   void print(){
 
-    for (int u = 0; u < n; u++)
+    for (unsigned long u = 0; u < n; u++)
       printf("%5ld ", labels[u]);
     printf("\n");
 
-    for (int u = 0; u < n; u++)
+    for (unsigned long u = 0; u < n; u++)
       printf("%5ld ", degrees[u]);
     printf("\n");
       
-    for (int u = 0; u < n; u++){
-      for (int v = 0; v < n; v++){
+    for (unsigned long u = 0; u < n; u++){
+      for (unsigned long v = 0; v < n; v++){
 	if (hasEdge(u,v))
 	  printf("1");
 	else
