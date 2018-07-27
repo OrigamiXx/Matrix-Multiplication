@@ -13,14 +13,17 @@
 #include "timing.h"
 #include "clique_to_mip.h"
 #include "canonization.h"
+#include "search_heuristic.h"
 
 clockid_t clock_mode = CLOCK_MONOTONIC;
 
 std::priority_queue<level_heuristic> heuristics_at_level;
 
+/*
 #define TIME(c, depth, heuristic, label) start_timer(...); c stop_timer(...);
 
 #define DISABLE_NEW_TIME(c) disable_timer(...); c enable_timer(...);
+*/
 
 int best_best = 0;
 cumulative_tracker * heuristic_details = NULL;
@@ -368,6 +371,7 @@ void extend_graph_from_puzzle(bool ** graph, puzzle * p, bool skip[], puzzle_row
 
 }
 
+/*
 search_heuristic_t get_heuristic(heuristic_t h){
 
   return heuristics[h];
@@ -422,7 +426,7 @@ int generic_search(puzzle * p, ExtensionGraph * eg, heuristic_policy_t hp, int b
   return best;
 }
 
-
+*/
 
 int inline_search(puzzle * p, bool ** graph, bool skip[], int skip_count, int best, int which, int heuristic_type, int stop_at_s, int heuristic_stage) {
   log_current_results(false);

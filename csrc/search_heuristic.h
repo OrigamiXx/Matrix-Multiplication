@@ -1,7 +1,8 @@
 #include "searcher.h"
 #include <queue>
 #include "puzzle.h"
-#include "Graph.hpp"
+#include "ExtensionGraph.hpp"
+
 
 typedef enum heuristic_val {
   NULLITY,
@@ -24,6 +25,7 @@ const char * heuristic_names[] = {
   "clique_mip"
 };
 
+/*
 search_heuristic_t heuristics[5] = {
   nullity_h,
   clique_h,
@@ -31,6 +33,6 @@ search_heuristic_t heuristics[5] = {
   inline_degree_h,
   mip_clique_h
 }
-
+*/
 
 
