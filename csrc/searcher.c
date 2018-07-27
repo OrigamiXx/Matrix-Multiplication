@@ -17,15 +17,9 @@ clockid_t clock_mode = CLOCK_MONOTONIC;
 
 std::priority_queue<level_heuristic> heuristics_at_level;
 
-// proper mental, innit?
-int number_of_heuristics = 5;
-const char * heuristic_names[] = {
-  "nullity",
-  "clique_approximation",
-  "inline_vertex_degree",
-  "inline_clique_approximation",
-  "clique_mip"
-};
+#define TIME(c, depth, heuristic, label) start_timer(...); c stop_timer(...);
+
+#define DISABLE_NEW_TIME(c) disable_timer(...); c enable_timer(...);
 
 int best_best = 0;
 cumulative_tracker * heuristic_details = NULL;
@@ -364,6 +358,62 @@ void extend_graph_from_puzzle(bool ** graph, puzzle * p, bool skip[], puzzle_row
   }
 
 }
+
+search_heuristic_t get_heuristic(heuristic_t h){
+
+  return heuristics[h];
+
+}
+
+int generic_search(int k, heuristic_policy_t hp){
+
+  int best = 0;
+
+  puzzle * p = create_puzzle(0, k);
+  ExtensionGraph eg(p);
+
+  TIME(
+       best = generic_search(p, eg, hp, best));,
+       p2 -> s,
+       hp(p, eg),
+       "SEARCH"
+       )
+       
+  return best;
+
+}
+
+int generic_search(puzzle * p, ExtensionGraph * eg, heuristic_policy_t hp, int best){
+
+  std::priority_queue<heuristic_result> * q = get_heuristic(hp(p,eg))(p, eg);
+  log_heuristics(q, hp(p, eg), p -> s);
+
+  for (element in q){
+
+    Extend p with element to p2;
+    
+    ExtensionGraph new_eg(eg);
+    TIME(
+	 new_eg.update(p2);,
+	 p2 -> s,
+	 hp(p, eg),
+	 "GRAPH");
+
+    TIME(
+	 best = max(best, generic_search(p2, new_eg, hp, best));,
+	 p2 -> s,
+	 hp(p, eg),
+	 "SEARCH"
+	 )
+    break if no better in q;
+  }
+
+  delete q;
+  
+  return best;
+}
+
+
 
 int inline_search(puzzle * p, bool ** graph, bool skip[], int skip_count, int best, int which, int heuristic_type, int stop_at_s, int heuristic_stage) {
   log_current_results(false);
@@ -776,6 +826,7 @@ int nullity_h(puzzle * p, bool skip[], int skip_count, int which, int heuristic_
 
 }
 
+// MAX_ROWS[k] or p -> max_row
 int ipow2(int base, int exp) {
   int result = 1;
   while (exp) {

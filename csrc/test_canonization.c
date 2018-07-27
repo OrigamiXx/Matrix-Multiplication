@@ -8,7 +8,6 @@
 #include "puzzle.h"
 #include "canonization.h"
 
-
 void verify_isomorphs(const char * s1, const char * s2, bool isomorphic){
 
   reset_isomorphs();
@@ -16,12 +15,12 @@ void verify_isomorphs(const char * s1, const char * s2, bool isomorphic){
   puzzle * p1 = create_puzzle_from_string((char *)s1);
   puzzle * p2 = create_puzzle_from_string((char *)s2);
 
-  assert(!have_seen_isomorph(p1));
-  assert((isomorphic ? have_seen_isomorph(p2) : !have_seen_isomorph(p2)));
+  assert(!have_seen_isomorph(p1,true));
+  assert((isomorphic ? have_seen_isomorph(p2,true) : !have_seen_isomorph(p2,true)));
   canonize_puzzle(p1);
   canonize_puzzle(p2);
-  assert(have_seen_isomorph(p1));
-  assert(have_seen_isomorph(p2));
+  assert(have_seen_isomorph(p1,true));
+  assert(have_seen_isomorph(p2,true));
   
   destroy_puzzle(p1);
   destroy_puzzle(p2);
@@ -48,7 +47,7 @@ int main(int argc, char * argv[]){
   int num_unique_usp = 0;
   for (int i = 0; i < num; i++){
     randomize_puzzle(p);
-    if (!have_seen_isomorph(p)){
+    if (!have_seen_isomorph(p,true)){
       num_unique++;
       if (IS_USP == check(p)){
 	num_unique_usp++;
@@ -72,8 +71,8 @@ int main(int argc, char * argv[]){
   reset_isomorphs();
 
 
-  int s = 3;
-  int k = 6;
+  int s = 8;
+  int k = 5;
   puzzle * p = create_puzzle(s, k);
   
   int num = 0;
@@ -86,31 +85,34 @@ int main(int argc, char * argv[]){
     p -> puzzle[0] = r1;
     
     p -> s = 1;
-    if (have_seen_isomorph(p)) continue;
+    if (have_seen_isomorph(p,true)) continue;
     p -> s = 2;
 
     for (puzzle_row r2 = r1+1; r2 < p -> max_row; r2++){
 
+      
       p -> puzzle[1] = r2;
 
       p -> s = 2;
-      if (have_seen_isomorph(p)) continue;
       if (NOT_USP == check(p)) continue;
+      if (have_seen_isomorph(p,true)) continue;
       p -> s = 3;
-      
+
       for (puzzle_row r3 = r2+1; r3 < p -> max_row; r3++){
 	num++;
-
+	printf("\r%14.8f%%", (float)(r1 * p -> max_row * p -> max_row + r2 * p -> max_row + r3) / (p -> max_row * p -> max_row * p -> max_row) * 100.0);
+	fflush(stdout);
+	
 	p -> puzzle[2] = r3;
 	
 	if (IS_USP == check(p)) num_usp++;
-	if (!have_seen_isomorph(p)){
-	  assert(have_seen_isomorph(p));
+	if (!have_seen_isomorph(p,true)){
+	  assert(have_seen_isomorph(p,true));
 	  num_unique++;
 	  if (IS_USP == check(p)){
 	    num_unique_usp++;
 	    assert(IS_USP == check(p));
-	    assert(have_seen_isomorph(p));
+	    assert(have_seen_isomorph(p,true));
 	    //print_puzzle(p);
 	    //printf("----------------\n");
 	  }
@@ -118,8 +120,9 @@ int main(int argc, char * argv[]){
       }
     }
   }
-
-  printf("Num puzzles: %ld\n", MAX_ROWS[k] * MAX_ROWS[k] * MAX_ROWS[k]);
+  
+  printf("\r  100.00000000%%\n");
+  printf("Num puzzles: %ld\n", MAX_ROWS[k] * MAX_ROWS[k] * MAX_ROWS[k] * MAX_ROWS[k] * MAX_ROWS[k]);
   printf("Unique %d / %d\n", num_unique, num); 
   printf("SUSP   %d / %d\n", num_unique_usp, num_usp);
   printf("Stored isomorphs %ld\n", get_num_isomorphs());

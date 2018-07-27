@@ -4,7 +4,7 @@
 
 #include "checker.h"
 #include "puzzle.h"
-
+#include "canonization.h"
 
 #define MAX_S 100
 #define STRIDE_FACTOR 8.0
@@ -36,33 +36,52 @@ bool puzzle_has_at_least_n_special(puzzle * p, int n){
   
 }
 
-int brute_force(puzzle * p, bool skip[], int skipping, int max_row, int n){
+int brute_force_greedy(puzzle * p, bool skip[], int skipping, int best){
 
-  bool local_skip[max_row];
-  memcpy(local_skip, skip, sizeof(bool) * max_row);
-  int s = p -> s;
-  int ret = s;
-
-  puzzle_row * U = p -> puzzle;
-  p -> s++;
+  static unsigned long call = 0;
+  static unsigned int min_since_best = 0;
+  call++;
+  printf("\r%lu\t%2d\t%2d", call, p -> s, min_since_best);
+  fflush(stdout);
   
-  for (U[s] = 0; U[s] < max_row; U[s]++){
+  //if (have_seen_isomorph(p, true))
+  //    return best;
+  
+  bool local_skip[p -> max_row];
+  memcpy(local_skip, skip, sizeof(bool) * p -> max_row);
+  int s = p -> s;
+  if (s > best) {
+    best = s;
+    min_since_best = best;
+    printf("\nbest = %d\n", best);
+  } 
+    
+  puzzle_row * U = p -> puzzle;
+  
+  for (U[s] = (s > 0 ? (U[s-1] + 1) : 0); U[s] < p -> max_row; U[s]++){
 
     if (local_skip[U[s]]) continue;
 
-    if (puzzle_has_at_least_n_special(p, n) && IS_USP == check(p)){
+    p -> s = s + 1;
+    if (IS_USP == check(p) && !have_seen_isomorph(p, true)){
 
-      int res = brute_force(p, local_skip, skipping, max_row, n);
-      ret = (res > ret ? res : ret);
+      int res = brute_force_greedy(p, local_skip, skipping, best);
+      if (res > best){
+	best = res;
+	min_since_best = best;
+	printf("\nbest = %d\n", best);
+      } 
 
     } else {
       local_skip[U[s]] = true;
       skipping++;
     }
+
+    min_since_best = (s < min_since_best ? s : min_since_best);
     
   }
 
-  return ret;
+  return best;
 
 }
 
@@ -111,7 +130,9 @@ puzzle * create_usp_greedy(int s, int k, int stride_init, int special, puzzle * 
 	
       if (skip[puz[r]]) continue;
 
-      if (puzzle_has_at_least_n_special(p, special) && IS_USP == check(p)){
+      bool seen = have_seen_isomorph(p, true);
+      
+      if (puzzle_has_at_least_n_special(p, special) && !seen && IS_USP == check(p)){
 
 	int tdm_lower_thresh = 300;
 	int tdm_upper_thresh = 27;
@@ -165,8 +186,10 @@ puzzle * create_usp_greedy(int s, int k, int stride_init, int special, puzzle * 
 	/*printf("density = %8.4f%%, count = %d\n",
 	  count_tdm(p) / pow(p -> s, 3) * 100.0, fitness[puz[r]]);*/
       } else {
-	skip[puz[r]] = true;
-	skipping++;
+	if (!seen) {
+	  skip[puz[r]] = true;
+	  skipping++;
+	}
       }
       
     }
@@ -274,7 +297,14 @@ int main(int argc, char *argv[])
     }
   }
 
-  puzzle * p = create_usp_greedy(s, k, stride_init, special, start_p, true);
+  //puzzle * p = create_usp_greedy(s, k, stride_init, special, start_p, true);
+
+  puzzle * p = create_puzzle(s,k);
+  p -> s = 0;
+  bool skip[MAX_ROWS[k]];
+  bzero(skip, MAX_ROWS[k] * sizeof(bool));
+  int skipping = 0;
+  printf("best = %d\n", brute_force_greedy(p, skip, skipping, 0));
 
   if (start_p != NULL)
     destroy_puzzle(start_p);

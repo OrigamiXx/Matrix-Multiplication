@@ -52,7 +52,7 @@ int main(int argc, char ** argv) {
     case 0:
     case 1:
     case 4:
-      result = search(start_p, init_skip, 0, 0, 0, h_type, s, true, 0);
+      result = search(start_p, init_skip, 0, 0, 0, h_type, s, false, 0);
       break;
     case 2:
     case 3:

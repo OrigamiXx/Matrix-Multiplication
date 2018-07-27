@@ -149,7 +149,7 @@ int get_max_clique_mip(bool ** graph, puzzle_row graph_max_index, GRBmodel * mod
   switch(opt_status) {
     case GRB_OPTIMAL:
       error = GRBgetdblattr(model, GRB_DBL_ATTR_OBJVAL, &clique_val);
-      printf("Gurobi found optimal solution => %f\n", clique_val);
+      //printf("Gurobi found optimal solution => %f\n", clique_val);
       break;
 
     case GRB_TIME_LIMIT:

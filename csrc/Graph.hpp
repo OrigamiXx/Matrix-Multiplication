@@ -1,3 +1,4 @@
+#pragma once
 #include "nauty.h"
 #include <cassert>
 #include <cstdio>
@@ -10,6 +11,7 @@ class Graph {
   graph * g;
   unsigned long n;
   unsigned long * labels;
+  unsigned long * degrees;
   int m;
 
  public:
@@ -25,36 +27,50 @@ class Graph {
     EMPTYGRAPH(g,m,n);
     
     labels = new unsigned long[n];
-    for (int i = 0; i < n; i++)
+    degrees = new unsigned long[n];
+    for (int i = 0; i < n; i++) {
       labels[i] = i;
+      degrees[i] = 0;
+    }
 
+  }
+  
+  Graph(const Graph &G)
+    : n(G.n), m(G.m)
+  {
+    g = new graph[m * n];
+    memcpy(g, G.g, sizeof(graph) * m * n);
+    labels = new unsigned long[n];
+    memcpy(labels, G.labels, sizeof(unsigned long) * n);
+    degrees = new unsigned long[n];
+    memcpy(degrees, G.degrees, sizeof(unsigned long) * n);
   }
   
   ~Graph(){
     
     delete g;
     delete labels;
+    delete degrees;
     
   }
 
- Graph(const Graph &G)
-   : n(G.n), m(G.m)
-  {
-    g = new graph[m * n];
-    memcpy(g, G.g, sizeof(graph) * m * n);
-    labels = new unsigned long[n];
-    memcpy(labels, G.labels, sizeof(unsigned long) * n);
-  }
-  
   void addEdge(unsigned long u, unsigned long v){
-    assert(u < n && v < n);
-    ADDONEEDGE(g, u, v, m);
+    if (!hasEdge(u,v)){
+      ADDONEEDGE(g, u, v, m);
+      degrees[u]++;
+      if (u != v)
+	degrees[v]++;
+    }
   }
 
   void removeEdge(unsigned long u, unsigned long v){
-    assert(u < n && v < n);
-    DELELEMENT(GRAPHROW(g, u, m), v);
-    DELELEMENT(GRAPHROW(g, v, m), u);
+    if (hasEdge(u,v)){
+      DELELEMENT(GRAPHROW(g, u, m), v);
+      DELELEMENT(GRAPHROW(g, v, m), u);
+      degrees[u]--;
+      if (u != v)
+	degrees[v]--;
+    }
   }
 
   bool hasEdge(unsigned long u, unsigned long v){
@@ -66,21 +82,41 @@ class Graph {
     return n;
   }
 
-  void mapDeleteVertices(bool (*func)(unsigned long, void *), void * user_data){
+  void removeEdges(unsigned long u){
+    for (unsigned long v = 0; v < n; v++)
+      removeEdge(u,v);
+  }
 
+  unsigned long getDegree(unsigned long u){
+    return degrees[u];
+  }
+
+  unsigned long getLabel(unsigned long u){
+    return labels[u];
+  }
+  
+  void reduceVertices(bool (*func)(unsigned long, unsigned long, void *), void * user_data = NULL, bool reach_fixed_point = false){
 
     bool not_valid[n];
     unsigned long count = 0;
     bzero(not_valid, sizeof(bool) * n);
 
-    for (unsigned long u = 0; u < n; u++)
-      if (func(labels[u], user_data)){
-	not_valid[u] = true;
-	count++;
+    bool progress = false;
+    do {
+      progress = false;
+      for (unsigned long u = 0; u < n; u++){
+	if (!not_valid[u] && !func(labels[u], degrees[u], user_data)){
+	  removeEdges(u);
+	  not_valid[u] = true;
+	  count++;
+	  progress = true;
+	}
       }
+    } while (reach_fixed_point && progress);
 
     unsigned long new_n = n - count;
     unsigned long * new_labels = new unsigned long[new_n];
+    unsigned long * new_degrees = new unsigned long[new_n];
     int new_m = SETWORDSNEEDED(new_n);
     graph * new_g = new graph[new_m * new_n];
 
@@ -88,6 +124,7 @@ class Graph {
     for (int u = 0; u < n; u++){
       if (not_valid[u]) continue;
       new_labels[new_u] = labels[u];
+      new_degrees[new_u] = degrees[u];
       int new_v = 0;
       for (int v = 0; v < n; v++){
 	if (not_valid[v]) continue;
@@ -103,20 +140,21 @@ class Graph {
     n = new_n;
     m = new_m;
     labels = new_labels;
+    degrees = new_degrees;
     g = new_g;
-
+    
   }
-  
-  void mapDeleteEdges(bool (*func)(unsigned long, unsigned long, void *), void * user_data){
+
+  void reduceEdges(bool (*func)(unsigned long, unsigned long, void *), void * user_data = NULL){
   
     for (int u = 0; u < n; u++)
       for (int v = u; v < n; v++)
-	if (hasEdge(u,v) && func(labels[u],labels[v], user_data))
+	if (hasEdge(u,v) && !func(labels[u],labels[v], user_data))
 	  removeEdge(u,v);
     
   }
   
-  void mapEdges(bool (*func)(bool, unsigned long, unsigned long, void *), void * user_data){
+  void mapEdges(bool (*func)(bool, unsigned long, unsigned long, void *), void * user_data = NULL){
     
     for (int u = 0; u < n; u++)
       for (int v = u; v < n; v++)
@@ -130,7 +168,11 @@ class Graph {
   void print(){
 
     for (int u = 0; u < n; u++)
-      printf("%ld ", labels[u]);
+      printf("%5ld ", labels[u]);
+    printf("\n");
+
+    for (int u = 0; u < n; u++)
+      printf("%5ld ", degrees[u]);
     printf("\n");
       
     for (int u = 0; u < n; u++){
@@ -146,4 +188,5 @@ class Graph {
     
  private:
 
+  
 };

@@ -10,7 +10,7 @@
 #define MAX_ISOMORPHS -1
 
 // Returns true iff no isomorphs of p have been previously seen.
-bool have_seen_isomorph(puzzle * p);
+bool have_seen_isomorph(puzzle * p, bool remember);
 
 // Reset the set of previously seen isomorphs.
 void reset_isomorphs();
