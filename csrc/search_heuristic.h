@@ -9,8 +9,8 @@ typedef enum heuristic_val {
   CLIQUE,
   INLINE_CLIQUE,
   INLINE_DEGREE,
-  MIP_CLIQUE}
-  heuristic_t;
+  MIP_CLIQUE
+} heuristic_t;
 
 typedef std::priority_queue<heuristic_result> (*search_heuristic_t)(puzzle *, ExtensionGraph *);
 

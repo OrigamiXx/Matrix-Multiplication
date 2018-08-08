@@ -2,7 +2,7 @@
 #define __PUZZLE_H__
 
 #include <string.h>
-
+#include <stdio.h>
 
 
 
