@@ -9,16 +9,20 @@ heuristic_t nullity_only_policy(puzzle * p, ExtensionGraph * eg){
 }
 
 bool nullity_vertex_reduce(unsigned long label_u, unsigned long degree_u, void * user_data){
+
   printf("reducing\n");
   heuristic_data * hd = (heuristic_data *)user_data;
   printf("did some stuff with hd again\n"); 
   puzzle * hp = hd->p;
   printf("local pointer to puzzle\n");
-  std::priority_queue<heuristic_result> hhr = hd->hr;
+  std::priority_queue<heuristic_result> * hrq = hd->hrq;
   printf("local pointer to the queue\n");
   ExtensionGraph * heg = hd->eg;
   printf("local pointer to the eg\n");
   // Set the last row of the puzzle to be the incoming row from the vertex reduction.
+  if (hp -> s > 1 && label_u <= hp -> puzzle[hp -> s - 2])
+    return false;
+  
   hp->puzzle[hp->s-1] = label_u;
   
   if (IS_USP != check(hp)){
@@ -33,7 +37,7 @@ bool nullity_vertex_reduce(unsigned long label_u, unsigned long degree_u, void *
   res.result = generic_search(bp, heg, nullity_only_policy, 0);
   printf("doing another search\n");
 
-  hhr.push(res);
+  hrq -> push(res);
   printf("reduced\n");
   return true;
 }
@@ -45,24 +49,27 @@ bool nullity_vertex_reduce(unsigned long label_u, unsigned long degree_u, void *
   );*/
   
 
-std::priority_queue<heuristic_result> nullity_h(puzzle * p, ExtensionGraph * eg){
+std::priority_queue<heuristic_result> * nullity_h(puzzle * p, ExtensionGraph * eg){
   printf("heuristic start\n");
+
   puzzle * p2 = extend_puzzle(p, 1);
+  printf("pointer is going to %x\n", &p2);
   printf("made a puzzle\n");
-  std::priority_queue<heuristic_result> hrq;
+  std::priority_queue<heuristic_result> * hrq = new std::priority_queue<heuristic_result>();
   printf("made a queue\n");
   ExtensionGraph neg(*eg);
   printf("made an eg\n");
 
-  heuristic_data * hd = (heuristic_data *) malloc(sizeof(heuristic_data));
+  heuristic_data hd;
   printf("got some hd\n");
-  hd->p = p2;
-  hd->eg = &neg;
-  hd->hr = hrq;
+  hd.p = p2;
+  hd.eg = &neg;
+  hd.hrq = hrq; 
   printf("set some hd details\n");
 
-  eg->reduceVertices(nullity_vertex_reduce, hd, false); 
-  free(hd);
+  eg->reduceVertices(nullity_vertex_reduce, &hd, false); 
   printf("heuristic end\n");
+  destroy_puzzle(p2);
+
   return hrq; 
 }

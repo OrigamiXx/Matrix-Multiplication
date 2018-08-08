@@ -42,6 +42,7 @@ heuristic_t generic_policy(puzzle * p, ExtensionGraph * eg){
 }
 
 search_heuristic_t get_heuristic(heuristic_t ht){
+  assert(ht < sizeof(heuristic_functions));
   return heuristic_functions[ht]; 
 }
 
@@ -63,66 +64,71 @@ int generic_search(int k, heuristic_policy_t hp){
   
   printf("-1");
   best = generic_search(p, &eg, hp, best);
+  destroy_puzzle(p);
 
   return best;
 }
 
 int generic_search(puzzle * p, ExtensionGraph * eg, heuristic_policy_t hp, int best){
+  printf("current best is %d\n", best);
+  
+  //if (have_seen_isomorph(p, true)) return best;
+
+  // Copy then extend the graph.
+  ExtensionGraph new_eg(*eg); // Should this be timed?
+  /*TIME(
+    new_eg.update(p2);,
+    p2->s,
+    hp(p, eg),
+    "GRAPH"
+    );*/
+  new_eg.update(p);
+
+  assert(new_eg.size() < eg->size() || p->s == 0);
+  assert(new_eg.size() >= 0 && new_eg.size() <= p->max_row);
+  assert(p->s <= p->max_row);
+  
   
   printf("0");
-  heuristic_t h_type = hp(p, eg);
+  heuristic_t h_type = hp(p, &new_eg);
   printf("1");
   search_heuristic_t h = get_heuristic(h_type);
   printf("2");
-  std::priority_queue<heuristic_result> q = (*h)(p, eg);
+  std::priority_queue<heuristic_result> * q = (*h)(p, &new_eg);
   printf("3");
   printf("made it at least here\n");
-  // std::priority_queue<heuristic_result> q = (*get_heuristic(hp(p, eg)))(p, eg);
-
+  best = MAX(best, p -> s);
+  
   puzzle * p2 = extend_puzzle(p, 1);
 
-  bool best_better_than_heuristics = false;
-  while(!q.empty() && !best_better_than_heuristics){
+  while(!q -> empty()){
     printf("popped one\n");  
-    heuristic_result hr = q.top();
-    q.pop();
-
+    heuristic_result hr = q -> top();
+    q -> pop();
+    
     // Max expected from heuristic is (new puzzle size + heuristic result).
     // If our best is already better, there's not much point searching. 
-    if (best >= hr.result + p2->s) {
-      best_better_than_heuristics = true;
-    } else {
-      
-      // Update the last row of p2 accordingly.
-      p2->puzzle[(p2->s)-1] = hr.value;
-
-      // Copy then extend the graph.
-      ExtensionGraph new_eg(*eg); // Should this be timed?
-      /*TIME(
-          new_eg.update(p2);,
-          p2->s,
-          hp(p, eg),
-          "GRAPH"
-          );*/
-
-      new_eg.update(p2);
-      
-
-      // Recursively search.
-      /*TIME(
-          best = max(best, generic_search(p2, new_eg, hp, best));,
-          p2->s,
-          hp(p, eg),
-          "SEARCH"
-          );*/
-      printf("about to search again\n");
-      best = max(best, generic_search(p2, &new_eg, hp, best));
-      printf("searched again\n");
-    }
+    if (best >= hr.result + p2->s)
+      break;
     
-    destroy_puzzle(p2);
-
+    // Update the last row of p2 accordingly.
+    p2->puzzle[(p2->s)-1] = hr.value;
+    
+    // Recursively search.
+    /*TIME(
+      best = max(best, generic_search(p2, new_eg, hp, best));,
+      p2->s,
+      hp(p, eg),
+      "SEARCH"
+      );*/
+    printf("about to search again\n");
+    best = MAX(best, generic_search(p2, &new_eg, hp, best));
+    printf("searched again\n");
   }
+
+  destroy_puzzle(p2);
+  delete q;
+  printf("returning %d as best\n", best);
   return best;
 }
 

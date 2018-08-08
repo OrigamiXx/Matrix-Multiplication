@@ -24,7 +24,7 @@ typedef struct heuristic_result {
 } heuristic_result;
 
 // Heuristic definitions must follow this function outline.
-typedef std::priority_queue<heuristic_result> (*search_heuristic_t)(puzzle *, ExtensionGraph *);
+typedef std::priority_queue<heuristic_result> *(*search_heuristic_t)(puzzle *, ExtensionGraph *);
 // Heuristic policies must follow this function outline.
 typedef heuristic_t (*heuristic_policy_t)(puzzle *, ExtensionGraph *);
 
@@ -41,7 +41,7 @@ typedef struct heuristic_data {
 
   puzzle * p;
   ExtensionGraph * eg;
-  std::priority_queue<heuristic_result> hr;
+  std::priority_queue<heuristic_result> * hrq;
 
 } heuristic_data;
 
@@ -53,7 +53,7 @@ std::priority_queue<heuristic_result> individual_heuristics(puzzle * p, Extensio
 heuristic_t nullity_policy(puzzle * p, ExtensionGraph * eg);
 int single_nullity_h(puzzle * p, ExtensionGraph * eg);
 bool nullity_vertex_reduce(unsigned long label_u, unsigned long degree_u, void * user_data);
-std::priority_queue<heuristic_result> nullity_h(puzzle *p, ExtensionGraph * eg);
+std::priority_queue<heuristic_result> * nullity_h(puzzle *p, ExtensionGraph * eg);
 
 // CLIQUE_APPROXIMATION => clique_approximation_h
 int single_clique_approximation_h(puzzle *, ExtensionGraph *);
