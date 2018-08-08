@@ -71,14 +71,20 @@ int main(int argc, char * argv[]){
   reset_isomorphs();
 
 
-  int s = 8;
-  int k = 5;
+  int s = 4;
+  int k = 6;
   puzzle * p = create_puzzle(s, k);
   
   int num = 0;
   int num_usp = 0;
   int num_unique = 0;
   int num_unique_usp = 0;
+
+  char filename[100];
+  sprintf(filename, "%d-by-%d.puz", s, k);
+  FILE * fd = fopen(filename, "w");
+  fprintf(fd, "%d\n",s);
+  fprintf(fd, "%d\n",k);
   
   for (puzzle_row r1 = 0; r1 < p -> max_row; r1++){
     
@@ -99,24 +105,43 @@ int main(int argc, char * argv[]){
       p -> s = 3;
 
       for (puzzle_row r3 = r2+1; r3 < p -> max_row; r3++){
-	num++;
 	printf("\r%14.8f%%", (float)(r1 * p -> max_row * p -> max_row + r2 * p -> max_row + r3) / (p -> max_row * p -> max_row * p -> max_row) * 100.0);
 	fflush(stdout);
-	
+
 	p -> puzzle[2] = r3;
 	
+	p -> s = 3;
+	if (NOT_USP == check(p)) continue;
+	if (have_seen_isomorph(p,true)) continue;
+	p -> s = 4;
+	
+	
+      for (puzzle_row r4 = r3+1; r4 < p -> max_row; r4++){
+	num++;
+	p -> puzzle[3] = r4;
+	
+
 	if (IS_USP == check(p)) num_usp++;
 	if (!have_seen_isomorph(p,true)){
 	  assert(have_seen_isomorph(p,true));
 	  num_unique++;
+	  puzzle * p_tmp = create_puzzle_copy(p);
+	  canonize_puzzle(p_tmp);
 	  if (IS_USP == check(p)){
 	    num_unique_usp++;
 	    assert(IS_USP == check(p));
 	    assert(have_seen_isomorph(p,true));
 	    //print_puzzle(p);
 	    //printf("----------------\n");
+	    fprintf(fd, "IS_USP\n");
+	  } else {
+	    fprintf(fd, "NOT_USP\n");
+
 	  }
+	  fprint_puzzle(fd, p);
+	  destroy_puzzle(p_tmp);
 	}
+      }
       }
     }
   }

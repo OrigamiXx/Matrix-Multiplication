@@ -34,7 +34,6 @@ nauty26r7/*g
 *.gephi
 local-mpi-script
 mrmpi.kv.*
-search_run*
 nauty*/dreadnaut
 nauty*/dretodot
 nauty*/genbgL
