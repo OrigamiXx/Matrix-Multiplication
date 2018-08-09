@@ -8,7 +8,7 @@ typedef enum heuristic_val {
   NULLITY,
   CLIQUE,
   INLINE_CLIQUE,
-  INLINE_DEGREE,
+  VERTEX_DEGREE,
   MIP_CLIQUE
 } heuristic_t;
 
@@ -56,5 +56,9 @@ bool nullity_vertex_reduce(unsigned long label_u, unsigned long degree_u, void *
 std::priority_queue<heuristic_result> * nullity_h(puzzle *p, ExtensionGraph * eg);
 
 // CLIQUE_APPROXIMATION => clique_approximation_h
-int single_clique_approximation_h(puzzle *, ExtensionGraph *);
+int single_clique_approximation_h(puzzle * p, ExtensionGraph * eg);
 std::priority_queue<heuristic_result> clique_approximation_h(puzzle *, ExtensionGraph *);
+
+heuristic_t vertex_degree_only_policy(puzzle * p, ExtensionGraph * eg);
+bool vertex_degree_reduce(unsigned long label_u, unsigned long degree_u, void * user_data);
+std::priority_queue<heuristic_result> * vertex_degree_h(puzzle * p, ExtensionGraph * eg);

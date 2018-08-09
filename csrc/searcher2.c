@@ -22,16 +22,17 @@ const char * heuristic_names[number_of_heuristics] = {
   "nullity",
   "clique",
   "inline_clique",
-  "inline_degree",
+  "vertex_degree",
   "mip_clique"
 };
 
 const search_heuristic_t heuristic_functions[] = {
   
-  nullity_h
-  /*clique_approximation_h,
-  inline_vertex_degree_h,
-  inline_clique_approximation_h,
+  nullity_h,
+  nullity_h,
+  nullity_h,
+  vertex_degree_h
+  /*inline_clique_approximation_h,
   clique_mip_h*/
   
 };
@@ -62,7 +63,7 @@ int generic_search(int k, heuristic_policy_t hp){
       "SEARCH"
       );*/
   
-  printf("-1");
+  //printf("-1");
   best = generic_search(p, &eg, hp, best);
   destroy_puzzle(p);
 
@@ -70,7 +71,7 @@ int generic_search(int k, heuristic_policy_t hp){
 }
 
 int generic_search(puzzle * p, ExtensionGraph * eg, heuristic_policy_t hp, int best){
-  printf("current best is %d\n", best);
+  //printf("current best is %d\n", best);
   
   //if (have_seen_isomorph(p, true)) return best;
 
@@ -89,20 +90,24 @@ int generic_search(puzzle * p, ExtensionGraph * eg, heuristic_policy_t hp, int b
   assert(p->s <= p->max_row);
   
   
-  printf("0");
+  //printf("0");
   heuristic_t h_type = hp(p, &new_eg);
-  printf("1");
+  //printf("1");
   search_heuristic_t h = get_heuristic(h_type);
-  printf("2");
+  //printf("2");
   std::priority_queue<heuristic_result> * q = (*h)(p, &new_eg);
-  printf("3");
-  printf("made it at least here\n");
+  //printf("3");
+  //printf("made it at least here\n");
+  if (p->s > best) {
+    printf("best updated to %d\n", p->s);
+  }
   best = MAX(best, p -> s);
   
+ 
   puzzle * p2 = extend_puzzle(p, 1);
 
   while(!q -> empty()){
-    printf("popped one\n");  
+    //printf("popped one\n");  
     heuristic_result hr = q -> top();
     q -> pop();
     
@@ -121,14 +126,14 @@ int generic_search(puzzle * p, ExtensionGraph * eg, heuristic_policy_t hp, int b
       hp(p, eg),
       "SEARCH"
       );*/
-    printf("about to search again\n");
+    //printf("about to search again\n");
     best = MAX(best, generic_search(p2, &new_eg, hp, best));
-    printf("searched again\n");
+    //printf("searched again\n");
   }
 
   destroy_puzzle(p2);
   delete q;
-  printf("returning %d as best\n", best);
+  //printf("returning %d as best\n", best);
   return best;
 }
 
