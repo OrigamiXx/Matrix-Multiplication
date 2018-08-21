@@ -6,7 +6,8 @@
 #include "puzzle.h"
 #include "constants.h"
 #include "gurobi_c++.h"
+#include "ExtensionGraph.hpp"
 
-int max_clique_mip(bool ** graph, puzzle_row graph_max_index);
+int max_clique_mip(ExtensionGraph * eg);
 
 #endif

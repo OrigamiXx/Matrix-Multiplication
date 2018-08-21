@@ -9,7 +9,8 @@ typedef enum heuristic_val {
   //CLIQUE,
   //INLINE_CLIQUE,
   VERTEX_DEGREE,
-  //MIP_CLIQUE
+  GREEDY_CLIQUE,
+  MIP_CLIQUE
 } heuristic_t;
 
 

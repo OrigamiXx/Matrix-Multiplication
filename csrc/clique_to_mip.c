@@ -30,36 +30,29 @@ bool ensure_clique_env_loaded_quiet(void){
 }
 
 
-void construct_clique_mip_reduction(bool ** graph, puzzle_row graph_max_index, GRBmodel * model) {
-  puzzle_row num_vars = graph_max_index + 1; // +1 for our extra counter
+void construct_clique_mip_reduction(ExtensionGraph * eg, GRBmodel * model) {
+  unsigned long num_vars = eg -> size() + 1; // +1 for our extra counter
 
-  char * vtype = (char *) malloc(sizeof(char) * num_vars); //malloc(sizeof(char) * num_vars+1)
+  char * vtype = (char *) malloc(sizeof(char) * num_vars); 
 
   vtype[num_vars - 1] = GRB_INTEGER;
 
-  for (puzzle_row i = 0; i < num_vars - 1; i++) {
+  for (unsigned long i = 0; i < num_vars - 1; i++) {
     vtype[i] = GRB_BINARY;
   }
 
-  //vtype[num_vars] = GRB_INTEGER;
-
-
   // objective function to maximize the first variable
   double * obj = (double *) malloc(sizeof(double) * num_vars);
-  //bzero
-  obj[num_vars - 1] = 1;
-  for (puzzle_row i = 0; i < num_vars - 1; i++) {
-    obj[i] = 0;
-  }
+  bzero(obj, sizeof(double) * num_vars);
 
   GRBaddvars(model, num_vars, 0, NULL, NULL, NULL, obj, NULL, NULL, vtype, NULL);
 
   int * ind = (int *) malloc (sizeof(int) * 2);
   double * val = (double *) malloc(sizeof(double) * 2);
 
-  for (puzzle_row u = 0; u < graph_max_index-1; u++){
-    for (puzzle_row v = u+1; v < graph_max_index; v++){
-      if (!graph[u][v]) {
+  for (unsigned long u = 0; u < eg -> size() - 1; u++){
+    for (unsigned long v = u+1; v < eg -> size(); v++){
+      if (!eg -> hasEdge(u,v)) {
         ind[0] = u;
         ind[1] = v;
 
@@ -81,7 +74,7 @@ void construct_clique_mip_reduction(bool ** graph, puzzle_row graph_max_index, G
 
   ind_all[num_vars - 1] = num_vars - 1;
   val_all[num_vars - 1] = 1;
-  for (puzzle_row u = 0; u < graph_max_index; u++) {
+  for (unsigned long u = 0; u < eg -> size(); u++) {
     ind_all[u] = u;
     val_all[u] = -1;
   }
@@ -103,7 +96,7 @@ void construct_clique_mip_reduction(bool ** graph, puzzle_row graph_max_index, G
 
 }
 
-int get_max_clique_mip(bool ** graph, puzzle_row graph_max_index, GRBmodel * model) {
+int get_max_clique_mip(ExtensionGraph * eg, GRBmodel * model) {
 
   int error;
 
@@ -131,7 +124,7 @@ int get_max_clique_mip(bool ** graph, puzzle_row graph_max_index, GRBmodel * mod
     printf("error: %s\n", GRBgeterrormsg(clique_mip_env));
   }
 
-  construct_clique_mip_reduction(graph, graph_max_index, model);
+  construct_clique_mip_reduction(eg, model);
 
   error = GRBoptimize(model);
   if (error) {
@@ -169,19 +162,13 @@ int get_max_clique_mip(bool ** graph, puzzle_row graph_max_index, GRBmodel * mod
 }
 
 
-int max_clique_mip(bool ** graph, puzzle_row graph_max_index) {
+int max_clique_mip(ExtensionGraph *eg) {
   assert(ensure_clique_env_loaded_quiet());
 
   GRBmodel * model = NULL;
   GRBnewmodel(clique_mip_env, &model, "clique_to_mip", 0, NULL, NULL, NULL, NULL, NULL);
 
-  // construct_clique_mip_reduction(graph, graph_max_index, model);
-
-  // int max_clique = check_clique_mip_result(graph_max_index, model);
-
-  int max_clique = get_max_clique_mip(graph, graph_max_index, model);
-
-  // printf("max clique found %d\n", max_clique);
+  int max_clique = get_max_clique_mip(eg, model);
 
   GRBfreemodel(model);
 

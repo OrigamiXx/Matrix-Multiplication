@@ -13,6 +13,7 @@
 #include <cassert>
 #include <cstdio>
 #include <string>
+#include "constants.h"
 
 using namespace std;
 
@@ -124,7 +125,25 @@ class Graph {
   unsigned long getDegree(unsigned long u){
     return degrees[u];
   }
+  
+  // Returns the minimum degree
+  unsigned long getMinDegree(){
+    unsigned long min_degree = degrees[0];
+    for (unsigned long u = 1; u < n; u++)
+      min_degree = MIN(min_degree, degrees[u]);
+    return min_degree;
+  }
+  
+  // Returns the minimum degree
+  unsigned long getMaxDegree(){
+    unsigned long max_degree = degrees[0];
+    for (unsigned long u = 1; u < n; u++)
+      max_degree = MAX(max_degree, degrees[u]);
+    return max_degree;
+  }
 
+  
+  
   // Returns the label of the vertex indexed by u.
   unsigned long getLabel(unsigned long u){
     return labels[u];
@@ -159,6 +178,8 @@ class Graph {
       }
     } while (reach_fixed_point && progress);
 
+    if (count == 0) return;
+    
     unsigned long new_n = n - count;
     unsigned long * new_labels = new unsigned long[new_n];
     unsigned long * new_degrees = new unsigned long[new_n];

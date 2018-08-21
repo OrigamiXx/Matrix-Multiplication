@@ -37,15 +37,13 @@ bool ensure_env_loaded_quiet(void){
 
   if (env == NULL) {
     char buf[20];
-    int saved_stdout = dup(1);
+    int static saved_stdout = dup(1);
     assert(freopen("/dev/null", "w", stdout));
     int res = GRBloadenv(&env, NULL);
     sprintf(buf, "/dev/fd/%d", saved_stdout);
     assert(freopen(buf, "w", stdout));
-    if (res != 0) {
-      env = NULL;
-      return false;
-    }
+    assert(!res);
+    assert(env != NULL);
   }
 
   return true;
@@ -54,10 +52,11 @@ bool ensure_env_loaded_quiet(void){
 // Deallocates the global Gurobi environment if allocated.
 void finalize_check_MIP(){
 
+  /*
   if (env != NULL) {
     GRBfreeenv(env);
     env = NULL;
-  }
+    }*/
 }
 
 // Builds a mixed integer program in the Gurobi model, which is
@@ -211,6 +210,8 @@ check_t check_MIP(puzzle *p){
   
   GRBfreemodel(model);
 
+  assert(env != NULL);
+  
   return res;
 
 }
@@ -225,7 +226,8 @@ int interrupt_callback(GRBmodel *model, void *cbdata, int where, void *usrdata){
     GRBterminate(model);
     *interrupt = false;
   }
-
+  assert(env != NULL);
+  
   return 0;
 }
 
@@ -239,7 +241,6 @@ void * MIP(void * arguments){
   thread_args * args = (thread_args *)arguments;
 
   check_t res = UNDET_USP;
-
   if (ensure_env_loaded_quiet()){
 
     // Allocate model.
@@ -255,8 +256,9 @@ void * MIP(void * arguments){
     
     args -> complete = true;
     sem_post(args -> complete_sem);
-
+    
   }
 
+  assert(env != NULL);
   pthread_exit((void*)res);
 }
