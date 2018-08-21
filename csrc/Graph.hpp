@@ -104,10 +104,13 @@ class Graph {
   void removeEdge(unsigned long u, unsigned long v){
     if (hasEdge(u,v)){
       DELELEMENT(GRAPHROW(g, u, m), v);
-      DELELEMENT(GRAPHROW(g, v, m), u);
+      assert(degrees[u] > 0);
       degrees[u]--;
-      if (u != v)
+      if (u != v){
+	DELELEMENT(GRAPHROW(g, v, m), u);
+	assert(degrees[v] > 0);
 	degrees[v]--;
+      }
     }
   }
 
@@ -161,6 +164,7 @@ class Graph {
     unsigned long * new_degrees = new unsigned long[new_n];
     int new_m = SETWORDSNEEDED(new_n);
     graph * new_g = new graph[new_m * new_n];
+    bzero(new_g, sizeof(graph) * new_m * new_n);
 
     int new_u = 0;
     for (unsigned long u = 0; u < n; u++){
@@ -179,6 +183,7 @@ class Graph {
 
     delete labels;
     delete g;
+    delete degrees;
     n = new_n;
     m = new_m;
     labels = new_labels;

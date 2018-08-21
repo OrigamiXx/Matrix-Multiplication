@@ -66,11 +66,13 @@ search_heuristic_t get_heuristic(heuristic_t ht){
 // cache.
 int generic_search(puzzle * p, ExtensionGraph * eg, heuristic_policy_t hp, int best){
 
-  // Stop if we've already searched on an isomorph of this puzzle.
-  if (have_seen_isomorph(p, true)) return best;
-
   // Possibly update best seen.
   best = MAX(best, p -> s);
+  
+  // Stop if we've already searched on an isomorph of this puzzle.
+  if (have_seen_isomorph(p, true)) {
+    return best;
+  }
   
   // Copy then extend the graph.
   ExtensionGraph new_eg(*eg);
@@ -110,6 +112,7 @@ int generic_search(puzzle * p, ExtensionGraph * eg, heuristic_policy_t hp, int b
 
     // Recursively search and record new better value.
     best = MAX(best, generic_search(p2, &new_eg, hp, best));
+  
   }
 
   // Clean up.
@@ -163,7 +166,14 @@ priority_queue<heuristic_result> * degree_h(puzzle * p, ExtensionGraph * eg){
   
   // Helper function that sets heuristic result for every vertex in eg
   // to its degree.  No vertices are deleted.
-  auto reduce_helper = [hrq](unsigned long label_u, unsigned long degree_u) -> bool{
+  auto reduce_helper = [p,hrq](unsigned long label_u, unsigned long degree_u) -> bool{
+    puzzle * p2 = extend_puzzle(p, 1);
+    p2->puzzle[(p2->s)-1] = label_u;    
+    if (check(p2) != IS_USP)
+      return false;
+    //printf("degree = %lu\n", degree_u);
+    destroy_puzzle(p2);
+    
     heuristic_result res = {.result = degree_u, .value = label_u};
     hrq->push(res);
     return true;

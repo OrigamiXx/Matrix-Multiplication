@@ -48,7 +48,7 @@ export MROOT=$(shell pwd)/SAT/
 $(MRMPI_L):
 	make -e -C $(MRMPI_SRC_PATH)  mpicc
 
-$(OBJDIR)/%.o : $(SRCDIR)/%.c 
+$(OBJDIR)/%.o : $(SRCDIR)/%.c  $(SRCDIR)/%.h
 	$(CC) -I $(NAUTYDIR)/ -I $(GUROBI_HOME)/include -I ./SAT $(CFLAGS) $(CCFLAGS) $< -o $@
 
 

@@ -8,9 +8,10 @@ heuristic_t search_run_policy(puzzle * p, ExtensionGraph * eg){
 
 int main(int argc, char ** argv){
 
-  // TODO: make it use command line arguments for size and policy
-  int res = generic_search(4, search_run_policy);
+  int k = 5;
+  int s = generic_search(k, search_run_policy);
 
-  printf("hello we here %d \n", res);
+  printf("Found a (%d, %d) strong USP.\n", s, k);
 
+  
 }
