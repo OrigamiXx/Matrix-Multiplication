@@ -13,8 +13,9 @@ typedef enum heuristic_val {
 } heuristic_t;
 
 
+
 typedef struct heuristic_result {
-  int result;
+  unsigned long result;
   puzzle_row value;
 
   bool operator<(const heuristic_result & rhs) const
@@ -28,24 +29,11 @@ typedef std::priority_queue<heuristic_result> *(*search_heuristic_t)(puzzle *, E
 // Heuristic policies must follow this function outline.
 typedef heuristic_t (*heuristic_policy_t)(puzzle *, ExtensionGraph *);
 
-
-heuristic_t generic_policy(puzzle * p, ExtensionGraph * eg);
-search_heuristic_t get_heuristic(heuristic_t ht);
-
-// This function can be called externally
+// Takes a puzzle width k and an admissible heuristic policy hp and
+// performs A* search.  Returns the size of the largest width-k strong
+// uniquely solvable puzzle.  Warning: Has side effect of clearing
+// isomorph cache.
 int generic_search(int k, heuristic_policy_t hp);
-int generic_search(puzzle * p, ExtensionGraph * eg, heuristic_policy_t hp, int best);
-
-
-typedef struct heuristic_data {
-
-  puzzle * p;
-  ExtensionGraph * eg;
-  std::priority_queue<heuristic_result> * hrq;
-
-} heuristic_data;
-
-std::priority_queue<heuristic_result> individual_heuristics(puzzle * p, ExtensionGraph * eg, heuristic_t ht);
 
 // Puzzle will come into heuristics extended by 0 as default
 // All heuristic definitions go below here.

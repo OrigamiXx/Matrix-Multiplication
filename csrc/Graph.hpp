@@ -129,15 +129,14 @@ class Graph {
 
   
   // Takes a function called func whose argument will be the label and
-  // degree of a vertex, and some user specified data.  reduceVertices
-  // calls func(label_u,degree_u,user_data) on every vertex u.  If
-  // func returns false, vertex u is removed from the graph.  If
-  // reach_fixed_point is set to true, this process repeats until no
-  // vertices are removed.  This function will shrink the size of the
-  // graph when vertices are removed.  WARNING: When the graph shrinks
-  // vertex labels are not changed, but vertex indexes may changed.
-  void reduceVertices(bool (*func)(unsigned long, unsigned long, void *),
-		      void * user_data = NULL,
+  // degree of a vertex.  reduceVertices calls func(label_u,degree_u)
+  // on every vertex u.  If func returns false, vertex u is removed
+  // from the graph.  If reach_fixed_point is set to true, this
+  // process repeats until no vertices are removed.  This function
+  // will shrink the size of the graph when vertices are removed.
+  // WARNING: When the graph shrinks vertex labels are not changed,
+  // but vertex indexes may changed.
+  void reduceVertices(auto func, //bool (*func)(unsigned long, unsigned long),
 		      bool reach_fixed_point = false){
 
     bool not_valid[n];
@@ -148,7 +147,7 @@ class Graph {
     do {
       progress = false;
       for (unsigned long u = 0; u < n; u++){
-	if (!not_valid[u] && !func(labels[u], degrees[u], user_data)){
+	if (!not_valid[u] && !func(labels[u], degrees[u])){
 	  removeEdges(u);
 	  not_valid[u] = true;
 	  count++;
@@ -189,33 +188,29 @@ class Graph {
   }
 
   // Takes a function called func whose argument will be the labels of
-  // two vertices which have an edge between them, and some user
-  // specified data.  reduceEdges calls
-  // func(label_u,label_v,user_data) on every pair of vertices u and v
+  // two vertices which have an edge between them.  reduceEdges calls
+  // func(label_u,label_v) on every pair of vertices u and v
   // who have an edge between them.  The edge is removed if func
   // returns false.
-  void reduceEdges(bool (*func)(unsigned long, unsigned long, void *),
-		   void * user_data = NULL){
+  void reduceEdges(auto func){//bool (*func)(unsigned long, unsigned long)){
   
     for (unsigned long u = 0; u < n; u++)
       for (unsigned long v = u; v < n; v++)
-	if (hasEdge(u,v) && !func(labels[u],labels[v], user_data))
+	if (hasEdge(u,v) && !func(labels[u],labels[v]))
 	  removeEdge(u,v);
     
   }
 
   // Takes a function called func whose argument will be the labels of
-  // two vertices, whether there is an edge between the vertices, and
-  // some user specified data.  reduceEdges calls
-  // func(has_edge,label_u,label_v,user_data) on every pair of
-  // vertices u and v.  The edge is added if func returns true and
-  // removed if func returns false.
-  void mapEdges(bool (*func)(bool, unsigned long, unsigned long, void *),
-		void * user_data = NULL){
+  // two vertices, whether there is an edge between the vertices.
+  // reduceEdges calls func(has_edge,label_u,label_v) on
+  // every pair of vertices u and v.  The edge is added if func
+  // returns true and removed if func returns false.
+  void mapEdges(auto func){//bool (*func)(bool, unsigned long, unsigned long)){
     
     for (unsigned long u = 0; u < n; u++)
       for (unsigned long v = u; v < n; v++)
-	if (func(hasEdge(u,v), labels[u],labels[v], user_data))
+	if (func(hasEdge(u,v), labels[u],labels[v]))
 	  addEdge(u,v);
 	else
 	  removeEdge(u,v);

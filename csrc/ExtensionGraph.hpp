@@ -51,45 +51,30 @@ class ExtensionGraph : public Graph {
 
     puzzle * p_tmp = extend_puzzle(p, 2);
     p_tmp -> s--;
-    reduceVertices(ExtensionGraph::validVertex, p_tmp, false);
+
+    reduceVertices(
+		   [p_tmp](unsigned long label, unsigned long degree) -> bool{
+		     p_tmp -> puzzle[p_tmp -> s - 1] = (puzzle_row) label;
+		     return IS_USP == check(p_tmp);});
     p_tmp -> s++;
+    
     if (full)
-      mapEdges(ExtensionGraph::validEdgeB, p_tmp);
+      mapEdges(
+	       [p_tmp](bool edge, unsigned long label1, unsigned long label2) -> bool{
+		 p_tmp -> puzzle[p_tmp -> s - 2] = (puzzle_row) label1;
+		 p_tmp -> puzzle[p_tmp -> s - 1] = (puzzle_row) label2;
+		 return IS_USP == check(p_tmp);
+	       });
     else
-      reduceEdges(ExtensionGraph::validEdge, p_tmp);
+      reduceEdges(
+		  [p_tmp](unsigned long label1, unsigned long label2) -> bool{
+		    p_tmp -> puzzle[p_tmp -> s - 2] = (puzzle_row) label1;
+		    p_tmp -> puzzle[p_tmp -> s - 1] = (puzzle_row) label2;
+		    return IS_USP == check(p_tmp);
+		  });
+
     destroy_puzzle(p_tmp);
 
   }
-  
-  // Returns true iff the puzzle which is data can be extended by row label.
-  static bool validVertex(unsigned long label, unsigned long degree, void * data){
-
-    puzzle * p_tmp = (puzzle *)data;
-
-    p_tmp -> puzzle[p_tmp -> s - 1] = (puzzle_row) label;
-
-    return IS_USP == check(p_tmp);
-
-  }
-
-    // Returns true iff the puzzle which is data can be extended by row label.
-  static bool validEdgeB(bool edge, unsigned long label1, unsigned long label2, void * data){
-
-    return validEdge(label1, label2, data);
-    
-  }
-
-  // Returns true iff the puzzle which is data can be extended by rows label1 and label2.
-  static bool validEdge(unsigned long label1, unsigned long label2, void * data){
-
-    puzzle * p_tmp = (puzzle *) data;
-
-    p_tmp -> puzzle[p_tmp -> s - 2] = (puzzle_row) label1;
-    p_tmp -> puzzle[p_tmp -> s - 1] = (puzzle_row) label2;
-  
-    return IS_USP == check(p_tmp);
-    
-  }
-  
 
 };

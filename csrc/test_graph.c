@@ -13,18 +13,6 @@
 
 using namespace std;
 
-bool randomEdge(bool edge, unsigned long label_u, unsigned long label_v, void * data){
-
-  return lrand48() % 2 == 0;
-
-}
-
-bool removeGiven(unsigned long label, unsigned long degree, void * data){
-
-  return label != (unsigned long)data;
-
-}
-
 int main(int argc, char * argv[]){
 
   srand48(time(NULL));
@@ -41,34 +29,47 @@ int main(int argc, char * argv[]){
   g.addEdge(1,2);
   g.print();
   printf("==========\n");
+
+  unsigned long target = 0;
   
-  g.reduceVertices(removeGiven, (void *)2L);
+  auto removeTarget =
+    [&target](unsigned long label, unsigned long degree) -> bool{
+    return label != target;
+  };
+
+  auto randomEdge = [](bool edge, unsigned long label_u, unsigned long label_v) -> bool{
+    return lrand48() % 2 == 0;
+  };
+  
+  target = 2L;
+  g.reduceVertices(removeTarget);
 
   g.print();
   printf("==========\n");
 
-  g.reduceVertices(removeGiven, (void *)2L);
+  target = 3L;
+  g.reduceVertices(removeTarget);
 
   g.print();
   printf("==========\n");
 
-  g.reduceVertices(removeGiven, (void *)3L);
+  g.reduceVertices(removeTarget);
 
   g.print();
   printf("==========\n");
 
-  g.reduceVertices(removeGiven, (void *)1L);
+  target = 1L;
+  g.reduceVertices(removeTarget);
 
   g.print();
   printf("==========\n");
   
-
-  g.mapEdges(randomEdge, NULL);
+  g.mapEdges(randomEdge);
 
   g.print();
   printf("==========\n");
 
-  g.mapEdges(randomEdge, NULL);
+  g.mapEdges(randomEdge);
 
   g.print();
   printf("==========\n");
@@ -78,7 +79,8 @@ int main(int argc, char * argv[]){
   g2.print();
   printf("==========\n");
 
-  g2.reduceVertices(removeGiven, (void *)8L);
+  target = 8L;
+  g2.reduceVertices(removeTarget);
 
   g.print();
   printf("==========\n");

@@ -8,7 +8,7 @@
 
 // Returns the number of rows of the largest subpuzzle of p containing
 // rows indexed > max_i that is a strong USP.
-int rank(puzzle * p, int max_i, int best){
+int sub_rank(puzzle * p, int max_i, int best){
 
   if (IS_USP == check(p)){
     // Should return at least s >= 1.
@@ -20,27 +20,27 @@ int rank(puzzle * p, int max_i, int best){
   
   puzzle * q = create_row_minor_puzzle(p, max_i);
 
-  int a = rank(q, max_i - 1, best);
+  int a = sub_rank(q, max_i - 1, best);
   destroy_puzzle(q);
   if (a == p -> s - 1)
     return p -> s - 1;
 
-  int b = rank(p, max_i - 1, MAX(best, a));
+  int b = sub_rank(p, max_i - 1, MAX(best, a));
   return MAX(a, b);
 
 }
 
 // Returns the number of rows of the largest subpuzzle of p that is a
 // strong USP.
-int rank(puzzle *p){
-  return rank(p, p -> s - 1, 0);
+int sub_rank(puzzle *p){
+  return sub_rank(p, p -> s - 1, 0);
 }
 
 // Computes discrete derivative rank(row | p) = rank(p + row) - rank(p).
 int derivative(puzzle * p, puzzle_row row) {
 
   puzzle * q = create_puzzle_from_puzzle(p, row);
-  int result = rank(q) - rank(p);
+  int result = sub_rank(q) - sub_rank(p);
   destroy_puzzle(q);
   
   return result;
@@ -175,7 +175,7 @@ int search_continuous_greedy(int k){
 	  if (r[g] == 1) 
 	    p -> puzzle[h++] = g;
 
-	int max_s = rank(p);
+	int max_s = sub_rank(p);
 	best_found = MAX(max_s, best_found);
 	
 	if (r[j] == 1)
@@ -301,7 +301,7 @@ int main(int argc, char * argv[]){
   puzzle * p = create_puzzle(s,k);
   randomize_puzzle(p);
   print_puzzle(p);
-  printf("rank = %d\n", rank(p));
+  printf("sub_rank = %d\n", sub_rank(p));
   destroy_puzzle(p);
   */
   // Analyzes closeness to submodular.
