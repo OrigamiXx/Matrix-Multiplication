@@ -149,6 +149,16 @@ class Graph {
     return labels[u];
   }
 
+  // Returns the index of label of the vertex label by l.
+  unsigned long getIndex(unsigned long l){
+    for (unsigned long u = 0; u < n; u++)
+      if (labels[u] == l)
+	return u;
+    assert(0 == "Unreachable"); // Should be unreachable.
+  }
+
+  
+
   
   // Takes a function called func whose argument will be the label and
   // degree of a vertex.  reduceVertices calls func(label_u,degree_u)
@@ -169,7 +179,7 @@ class Graph {
     do {
       progress = false;
       for (unsigned long u = 0; u < n; u++){
-	if (!not_valid[u] && !func(labels[u], degrees[u])){
+	if (!not_valid[u] && !func(u, labels[u], degrees[u])){
 	  removeEdges(u);
 	  not_valid[u] = true;
 	  count++;

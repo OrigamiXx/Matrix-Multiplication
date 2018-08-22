@@ -77,27 +77,12 @@ int generic_search(puzzle * p, ExtensionGraph * eg, heuristic_policy_t hp, int b
     printf("New best = %d\n", p -> s);
   best = MAX(best, p -> s);
   
-  // Stop if we've already searched on an isomorph of this puzzle.
-  if (have_seen_isomorph(p, true)) {
-    return best;
-  }
-  
-  // Copy then extend the graph.
-  ExtensionGraph new_eg(*eg);
-  
-  // Update the extension graph because the puzzle was just updated
-  // (unless it's the top level puzzle).
-  new_eg.update(p);
 
-  // Sanity checks
-  assert(new_eg.size() < eg->size() || p->s == 0);
-  assert(new_eg.size() >= 0 && new_eg.size() <= p->max_row);
-  assert(p->s <= p->max_row);
 
   // Determine and apply heuristic to all elements at frontier and
   // produce a priority queue.
-  search_heuristic_t h = get_heuristic(hp(p, &new_eg));
-  std::priority_queue<heuristic_result> * q = (*h)(p, &new_eg);
+  search_heuristic_t h = get_heuristic(hp(p, eg));
+  std::priority_queue<heuristic_result> * q = (*h)(p, eg);
 
   // Iterate over all elements of the frontier in the priority queue
   // in decreasing order of heuristic value.
@@ -118,6 +103,21 @@ int generic_search(puzzle * p, ExtensionGraph * eg, heuristic_policy_t hp, int b
     // Update the last row of p2.
     p2->puzzle[(p2->s)-1] = hr.value;
 
+    // Skip if we've already searched on an isomorph of this puzzle.
+    if (have_seen_isomorph(p2, true)) 
+      continue;
+    
+    // Copy then extend the graph.
+    ExtensionGraph new_eg(*eg);
+    
+    // Update the extension graph because the puzzle was just updated
+    // (unless it's the top level puzzle).
+    new_eg.update(p2);
+
+    // Sanity checks
+    assert(new_eg.size() < eg->size());
+    assert(new_eg.size() >= 0 && new_eg.size() <= p2->max_row);
+    
     // Recursively search and record new better value.
     best = MAX(best, generic_search(p2, &new_eg, hp, best));
   
@@ -174,7 +174,7 @@ priority_queue<heuristic_result> * degree_h(puzzle * p, ExtensionGraph * eg){
 
   // Helper function that sets heuristic result for every vertex in eg
   // to its degree.  No vertices are deleted.
-  auto reduce_helper = [p,hrq](unsigned long label_u, unsigned long degree_u) -> bool{
+  auto reduce_helper = [p,hrq](unsigned long index_u, unsigned long label_u, unsigned long degree_u) -> bool{
     heuristic_result res = {.result = degree_u, .value = label_u};
     hrq->push(res);
     return true;
@@ -201,7 +201,7 @@ priority_queue<heuristic_result> * greedy_clique_h(puzzle * p, ExtensionGraph * 
   // Helper function that sets heuristic result for every vertex in eg
   // to its degree.  No vertices are deleted.
   auto reduce_helper =
-    [p, hrq, &curr_min, &next_min, max_degree, &prev_label](unsigned long label_u, unsigned long degree_u) -> bool
+    [p, hrq, &curr_min, &next_min, max_degree, &prev_label](unsigned long index_u, unsigned long label_u, unsigned long degree_u) -> bool
     {
       if (curr_min < 0 || prev_label >= label_u){
 	curr_min = next_min;
@@ -236,7 +236,7 @@ priority_queue<heuristic_result> * mip_clique_h(puzzle * p, ExtensionGraph * eg)
   
   // Helper function that sets heuristic result for every vertex in eg
   // to its degree.  No vertices are deleted.
-  auto reduce_helper = [p2,hrq,eg](unsigned long label_u, unsigned long degree_u) -> bool{
+  auto reduce_helper = [p2,hrq,eg](unsigned long index_u, unsigned long label_u, unsigned long degree_u) -> bool{
 
     ExtensionGraph new_eg(*eg);
     p2 -> puzzle[p2 -> s - 1] = label_u;

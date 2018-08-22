@@ -33,7 +33,7 @@ int main(int argc, char * argv[]){
   unsigned long target = 0;
   
   auto removeTarget =
-    [&target](unsigned long label, unsigned long degree) -> bool{
+    [&target](unsigned long index, unsigned long label, unsigned long degree) -> bool{
     return label != target;
   };
 

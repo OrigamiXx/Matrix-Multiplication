@@ -52,13 +52,32 @@ class ExtensionGraph : public Graph {
     puzzle * p_tmp = extend_puzzle(p, 2);
     p_tmp -> s--;
 
-    reduceVertices(
-		   [p_tmp](unsigned long label, unsigned long degree) -> bool{
-		     p_tmp -> puzzle[p_tmp -> s - 1] = (puzzle_row) label;
-		     return IS_USP == check(p_tmp);});
-    p_tmp -> s++;
-    
+    // Remove all vertices corresponding to rows that cannot extend puzzle.
     if (full)
+      // Check all rows.
+      reduceVertices(
+		     [p_tmp](unsigned long index, unsigned long label, unsigned long degree) -> bool{
+		       p_tmp -> puzzle[p_tmp -> s - 1] = (puzzle_row) label;
+		       return IS_USP == check(p_tmp);});
+    else {
+      // Use existing edges to determine.
+      assert(p -> s > 0);
+      unsigned long last_index = getIndex(p -> puzzle[p -> s - 1]);
+      bool edges[size()];
+      for (unsigned long u = 0; u < size(); u++)
+	edges[u] = hasEdge(last_index, u);
+
+      reduceVertices(
+		     [&edges](unsigned long index, unsigned long label, unsigned long degree) -> bool{
+		       return edges[index];
+		     });
+      
+    }
+    p_tmp -> s++;
+
+    // Place edges which correspond to double extensions.
+    if (full)
+      // Check all edges.
       mapEdges(
 	       [p_tmp](bool edge, unsigned long label1, unsigned long label2) -> bool{
 		 p_tmp -> puzzle[p_tmp -> s - 2] = (puzzle_row) label1;
@@ -66,6 +85,7 @@ class ExtensionGraph : public Graph {
 		 return IS_USP == check(p_tmp);
 	       });
     else
+      // Check only edges that previously existed.
       reduceEdges(
 		  [p_tmp](unsigned long label1, unsigned long label2) -> bool{
 		    p_tmp -> puzzle[p_tmp -> s - 2] = (puzzle_row) label1;
