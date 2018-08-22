@@ -37,6 +37,7 @@
 #include "3DM_to_MIP.h"
 #endif
 #include "heuristic.h"
+#include "canonization.h"
 
 using namespace std;
 
@@ -629,6 +630,11 @@ check_t check_SAT_MIP(puzzle * p){
  */
 check_t check(puzzle * p){
 
+  /*
+  if (have_seen_isomorph(p, false))
+    return IS_USP;
+  */
+  
   invalidate_tdm(p);
   
   int s = p -> s;

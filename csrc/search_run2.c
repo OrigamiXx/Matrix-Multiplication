@@ -4,7 +4,7 @@ heuristic_t current_heuristic = MIP_CLIQUE;//VERTEX_DEGREE;//GREEDY_CLIQUE;//VER
 
 heuristic_t search_run_policy(puzzle * p, ExtensionGraph * eg){
 
-  if (p -> s > 10){
+  if (p -> s <= 0 || p -> s == 4 || p -> s == 5){
     return MIP_CLIQUE;
   } else {
     return VERTEX_DEGREE;
@@ -22,5 +22,5 @@ int main(int argc, char ** argv){
 
   printf("Found a (%d, %d) strong USP.\n", s, k);
 
-  
+  return 0;
 }

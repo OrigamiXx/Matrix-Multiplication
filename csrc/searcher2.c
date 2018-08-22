@@ -246,6 +246,8 @@ priority_queue<heuristic_result> * mip_clique_h(puzzle * p, ExtensionGraph * eg)
       result = new_eg.size();
     else
       result = max_clique_mip(&new_eg);
+
+    assert(result <= new_eg.size());
     
     heuristic_result res = {.result = result, .value = label_u};
     hrq->push(res);

@@ -11,19 +11,18 @@
 
 GRBenv * clique_mip_env = NULL;
 
+#define SAFE_GUROBI(e) {int __result = (e); if (__result) { fprintf(stderr,"%s %d\n", GRBgeterrormsg(clique_mip_env), __result); assert(false);}}
+
+
 bool ensure_clique_env_loaded_quiet(void){
 
   if (clique_mip_env == NULL) {
     char buf[20];
     int saved_stdout = dup(1);
     assert(freopen("/dev/null", "w", stdout));
-    int res = GRBloadenv(&clique_mip_env, NULL);
+    SAFE_GUROBI(GRBloadenv(&clique_mip_env, NULL));
     sprintf(buf, "/dev/fd/%d", saved_stdout);
     assert(freopen(buf, "w", stdout));
-    if (res != 0) {
-      clique_mip_env = NULL;
-      return false;
-    }
   }
 
   return true;
@@ -37,20 +36,21 @@ void construct_clique_mip_reduction(ExtensionGraph * eg, GRBmodel * model) {
 
   vtype[num_vars - 1] = GRB_INTEGER;
 
-  for (unsigned long i = 0; i < num_vars - 1; i++) {
-    vtype[i] = GRB_BINARY;
+  for (unsigned long u = 0; u < num_vars - 1; u++) {
+    vtype[u] = GRB_BINARY;  // X_u in {0,1}
   }
 
   // objective function to maximize the first variable
   double * obj = (double *) malloc(sizeof(double) * num_vars);
   bzero(obj, sizeof(double) * num_vars);
+  obj[num_vars - 1] = 1.0;
 
-  GRBaddvars(model, num_vars, 0, NULL, NULL, NULL, obj, NULL, NULL, vtype, NULL);
+  SAFE_GUROBI(GRBaddvars(model, num_vars, 0, NULL, NULL, NULL, obj, NULL, NULL, vtype, NULL));
 
-  int * ind = (int *) malloc (sizeof(int) * 2);
-  double * val = (double *) malloc(sizeof(double) * 2);
-
-  for (unsigned long u = 0; u < eg -> size() - 1; u++){
+  int ind[2];
+  double val[2];
+  
+  for (unsigned long u = 0; u < eg -> size(); u++){
     for (unsigned long v = u+1; v < eg -> size(); v++){
       if (!eg -> hasEdge(u,v)) {
         ind[0] = u;
@@ -59,9 +59,8 @@ void construct_clique_mip_reduction(ExtensionGraph * eg, GRBmodel * model) {
         val[0] = 1.0;
         val[1] = 1.0;
 
-        // Xu + Xv <= 1
-        // Xu + Xv >= 0
-        GRBaddconstr(model, 2, ind, val, GRB_LESS_EQUAL, 1.0, NULL);
+        // X_u + X_v <= 1
+        SAFE_GUROBI(GRBaddconstr(model, 2, ind, val, GRB_LESS_EQUAL, 1.0, NULL));
       }
     }
   }
@@ -79,18 +78,10 @@ void construct_clique_mip_reduction(ExtensionGraph * eg, GRBmodel * model) {
     val_all[u] = -1;
   }
 
-
-  int error;
-  error = GRBaddconstr(model, num_vars, ind_all, val_all, GRB_EQUAL, 0.0, NULL);
-  if (error) {
-    printf("error: %s %d\n", GRBgeterrormsg(clique_mip_env), error);
-    assert(false);
-  }
+  SAFE_GUROBI(GRBaddconstr(model, num_vars, ind_all, val_all, GRB_EQUAL, 0.0, NULL));
 
   free(vtype);
-  free(ind);
   free(obj);
-  free(val);
   free(ind_all);
   free(val_all);
 
@@ -102,34 +93,27 @@ int get_max_clique_mip(ExtensionGraph * eg, GRBmodel * model) {
 
   GRBenv * menv = GRBgetenv(model);
 
-  GRBsetintparam(menv, "Threads", 8);
-  GRBsetintparam(menv, GRB_INT_PAR_MIPFOCUS, 1);
-  GRBsetintparam(menv, "OutputFlag", 0);
-  // GRBsetstrparam(menv, "LogFile", "gurobioutput.out");
+  SAFE_GUROBI(GRBsetintparam(menv, "Threads", 8));
+  SAFE_GUROBI(GRBsetintparam(menv, GRB_INT_PAR_MIPFOCUS, 1));
+  SAFE_GUROBI(GRBsetintparam(menv, "OutputFlag", 0));
+  // SAFE_GUROBI(GRBsetstrparam(menv, "LogFile", "gurobioutput.out"));
 
-  // GRBsetintparam(menv, "SolutionLimit", 1);
+  // SAFE_GUROBI(GRBsetintparam(menv, "SolutionLimit", 1));
 
-  int res = 0;
-  res = res | GRBsetdblparam(menv, "FeasibilityTol",1e-6);
-  res = res | GRBsetdblparam(menv, "IntFeasTol",1e-6);
-  res = res | GRBsetdblparam(menv, "MarkowitzTol",1e-4);
-  res = res | GRBsetdblparam(menv, "MIPGap", 0);
-  res = res | GRBsetdblparam(menv, "MIPGapAbs", 0);
-  res = res | GRBsetdblparam(menv, "OptimalityTol", 1e-9);
-  res = res | GRBsetdblparam(menv, "PSDTol", 0);
-  res = res | GRBsetdblparam(menv, "TimeLimit", 60);
+  SAFE_GUROBI(GRBsetdblparam(menv, "FeasibilityTol",1e-6));
+  SAFE_GUROBI(GRBsetdblparam(menv, "IntFeasTol",1e-6));
+  SAFE_GUROBI(GRBsetdblparam(menv, "MarkowitzTol",1e-4));
+  SAFE_GUROBI(GRBsetdblparam(menv, "MIPGap", 0));
+  SAFE_GUROBI(GRBsetdblparam(menv, "MIPGapAbs", 0));
+  SAFE_GUROBI(GRBsetdblparam(menv, "OptimalityTol", 1e-9));
+  SAFE_GUROBI(GRBsetdblparam(menv, "PSDTol", 0));
+  SAFE_GUROBI(GRBsetdblparam(menv, "TimeLimit", 60));
 
-  error = GRBsetintattr(model, GRB_INT_ATTR_MODELSENSE, GRB_MAXIMIZE);
-  if (error) {
-    printf("error: %s\n", GRBgeterrormsg(clique_mip_env));
-  }
+  SAFE_GUROBI(GRBsetintattr(model, GRB_INT_ATTR_MODELSENSE, GRB_MAXIMIZE));
 
   construct_clique_mip_reduction(eg, model);
 
-  error = GRBoptimize(model);
-  if (error) {
-    printf("error: %s\n", GRBgeterrormsg(clique_mip_env));
-  }
+  SAFE_GUROBI(GRBoptimize(model));
 
   int opt_status;
   GRBgetintattr(model, GRB_INT_ATTR_STATUS, &opt_status);
@@ -141,23 +125,18 @@ int get_max_clique_mip(ExtensionGraph * eg, GRBmodel * model) {
 
   switch(opt_status) {
     case GRB_OPTIMAL:
-      error = GRBgetdblattr(model, GRB_DBL_ATTR_OBJVAL, &clique_val);
+      SAFE_GUROBI(GRBgetdblattr(model, GRB_DBL_ATTR_OBJVAL, &clique_val));
       //printf("Gurobi found optimal solution => %f\n", clique_val);
       break;
 
     case GRB_TIME_LIMIT:
-      error = GRBgetdblattr(model, GRB_DBL_ATTR_OBJVAL, &clique_val);
-      error = GRBgetdblattr(model, GRB_DBL_ATTR_OBJBOUND, &clique_bound);
+      SAFE_GUROBI(GRBgetdblattr(model, GRB_DBL_ATTR_OBJVAL, &clique_val));
+      SAFE_GUROBI(GRBgetdblattr(model, GRB_DBL_ATTR_OBJBOUND, &clique_bound));
       printf("Gurobi timed out, bound is => %f ; search was at %f\n", clique_bound, clique_val);      
       break;
   }
 
-  if (error) {
-    printf("error: %s %d\n", GRBgeterrormsg(clique_mip_env), error);
-    assert(false);
-  }
-
-  return clique_val;
+  return (int)round(clique_val);
 
 }
 
@@ -166,11 +145,11 @@ int max_clique_mip(ExtensionGraph *eg) {
   assert(ensure_clique_env_loaded_quiet());
 
   GRBmodel * model = NULL;
-  GRBnewmodel(clique_mip_env, &model, "clique_to_mip", 0, NULL, NULL, NULL, NULL, NULL);
+  SAFE_GUROBI(GRBnewmodel(clique_mip_env, &model, "clique_to_mip", 0, NULL, NULL, NULL, NULL, NULL));
 
   int max_clique = get_max_clique_mip(eg, model);
 
-  GRBfreemodel(model);
+  SAFE_GUROBI(GRBfreemodel(model));
 
   return max_clique;
 }
