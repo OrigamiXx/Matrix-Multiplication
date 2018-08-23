@@ -21,8 +21,8 @@ typedef unsigned long puzzle_row;
 typedef struct puzzle {
   puzzle_row * puzzle;
   puzzle_row max_row;
-  int s;
-  int k;
+  unsigned int s;
+  unsigned int k;
   bool * tdm;
   bool tdm_valid;
 }puzzle;

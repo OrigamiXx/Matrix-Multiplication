@@ -14,12 +14,13 @@ typedef enum heuristic_val {
 
 
 typedef struct heuristic_result {
-  unsigned long result;
-  puzzle_row value;
+  unsigned long ideal;
+  puzzle * p;
+  ExtensionGraph * eg;
 
   bool operator<(const heuristic_result & rhs) const
   {
-    return result < rhs.result;
+    return ideal < rhs.ideal;
   }
 } heuristic_result;
 

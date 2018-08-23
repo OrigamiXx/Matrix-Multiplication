@@ -12,12 +12,12 @@ int main(int argc, char * argv[]){
   srand48(time(NULL));
   //const char * input_file = "puzzles/test.puz";
   int s = 10;
-  for (int k = 2; k <= MAX_K; k++){
+  for (unsigned int k = 2; k <= MAX_K; k++){
     puzzle * p = create_puzzle(s, k);
     printf("s = %d, k = %d, max_row = %lu\n", p -> s, p -> k, p -> max_row);
     randomize_puzzle(p);
-    for(int r = 0; r < p -> s; r++){
-      for(int c = 0; c < p -> k; c++){
+    for(unsigned int r = 0; r < p -> s; r++){
+      for(unsigned int c = 0; c < p -> k; c++){
 	fprintf(stdout, "%d", get_entry(p, r, c));
       }
       fprintf(stdout, "\n");

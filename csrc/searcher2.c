@@ -135,13 +135,13 @@ void record_stats(priority_queue<heuristic_result> * hrq, struct timespec start,
     new_hrq.pop();
     
     stat -> num_heur++;
-    stat -> max_heur = MAX(stat -> max_heur, res.result);
-    stat -> min_heur = MIN(stat -> min_heur, res.result);
-    stat -> tot_heur += res.result;
+    stat -> max_heur = MAX(stat -> max_heur, res.ideal);
+    stat -> min_heur = MIN(stat -> min_heur, res.ideal);
+    stat -> tot_heur += res.ideal;
     stat -> ave_heur = stat -> ave_heur * (1.0 - 1.0/stat -> num_heur)
-      + res.result / (double)(stat -> num_heur);
+      + res.ideal / (double)(stat -> num_heur);
     stat -> var_heur = stat -> var_heur * (1.0 - 1.0/stat -> num_heur)
-      + (res.result - stat -> ave_heur) * (res.result - stat -> ave_heur) / (double)(stat -> num_heur);
+      + (res.ideal - stat -> ave_heur) * (res.ideal - stat -> ave_heur) / (double)(stat -> num_heur);
   }
 
   double duration = diff_time(start, end);
@@ -213,7 +213,7 @@ void fprint_search_stats(FILE * f){
 // Returns the size of the largest strong uniquely solvable puzzle
 // that can be extended from p.  Warning: Updates and uses isomorph
 // cache.
-int generic_search(puzzle * p, ExtensionGraph * eg, heuristic_policy_t hp, int best){
+unsigned int generic_search(puzzle * p, ExtensionGraph * eg, heuristic_policy_t hp, unsigned int best){
 
   // Possibly update best seen.
   if (best < p -> s)
@@ -242,30 +242,15 @@ int generic_search(puzzle * p, ExtensionGraph * eg, heuristic_policy_t hp, int b
     // Max expected from heuristic is (new puzzle size + heuristic
     // result).  If our best is already better, there is no point in
     // continue to search this frontier.
-    if (best >= (int)(hr.result + p2->s))
+    if (best >= hr.ideal)
       break;
     
-    // Update the last row of p2.
-    p2->puzzle[(p2->s)-1] = hr.value;
-
-    // Skip if we've already searched on an isomorph of this puzzle.
-    //if (have_seen_isomorph(p2, true)) 
-    //  continue;
-    
-    // Copy then extend the graph.
-    ExtensionGraph new_eg(*eg);
-    
-    // Update the extension graph because the puzzle was just updated
-    // (unless it's the top level puzzle).
-    new_eg.update(p2);
-
-    // Sanity checks
-    assert(new_eg.size() < eg->size());
-    assert(new_eg.size() >= 0 && new_eg.size() <= p2->max_row);
-    
     // Recursively search and record new better value.
-    best = MAX(best, generic_search(p2, &new_eg, hp, best));
-  
+    best = MAX(best, generic_search(hr.p, hr.eg, hp, best));
+
+    destroy_puzzle(hr.p);
+    delete(hr.eg);
+    
   }
 
   // Clean up.
@@ -303,6 +288,86 @@ int generic_search(int k, heuristic_policy_t hp){
   return best;
 }
 
+
+//======================================================================
+//
+//  Global A* Search
+//
+//======================================================================
+
+// Takes a puzzle width k and an admissible heuristic policy hp and
+// performs A* search.  Returns the size of the largest width-k strong
+// uniquely solvable puzzle.  Warning: Has side effect of clearing
+// isomorph cache.
+unsigned int global_search(int k, heuristic_policy_t hp){
+
+  unsigned int best = 0;
+
+  // Clear the isomorph cache.
+  reset_isomorphs();
+
+  // Stores entire search frontier.
+  std::priority_queue<heuristic_result> frontier;
+
+  puzzle * p = create_puzzle(0, k);
+  ExtensionGraph * eg = new ExtensionGraph(p);
+  
+  // Add initial empty puzzle.
+  search_heuristic_t h = get_heuristic(hp(p, eg));
+  std::priority_queue<heuristic_result> * hrq = (*h)(p, eg);
+
+  while(!hrq -> empty()){
+    heuristic_result hr = hrq -> top();
+    hrq -> pop();
+    frontier.push(hr);
+  }
+  delete hrq;
+  
+  // Loop until frontier examined.
+  while(!frontier.empty()){
+
+    // Remove strongest candidate.
+    heuristic_result hr = frontier.top();
+    frontier.pop();
+
+    // Update best.
+    if (best < hr.p -> s)
+      printf("New best = %d\n", hr.p -> s);
+    best = MAX(best, hr.p -> s);
+
+    // We cannot do any better.
+    if (hr.ideal <= best)
+      break;
+
+    // Compute children heuristics and add to frontier.
+    h = get_heuristic(hp(hr.p, hr.eg));
+    hrq = (*h)(hr.p, hr.eg);
+    
+    while(!hrq -> empty()){
+      heuristic_result hr2 = hrq -> top();
+      hrq -> pop();
+      if (hr2.ideal > best)
+	frontier.push(hr2);
+      else{
+	destroy_puzzle(hr2.p);
+	delete hr.eg;
+      }
+    }
+    
+    delete hrq;
+
+    destroy_puzzle(hr.p);
+    delete hr.eg;
+    
+  }
+
+  // Clear the isomorph cache.
+  reset_isomorphs();
+  
+  return best;
+}
+
+
 //======================================================================
 //
 //  A* Search Heuristics
@@ -321,11 +386,15 @@ priority_queue<heuristic_result> * degree_h(puzzle * p, ExtensionGraph * eg){
   
   // Helper function that sets heuristic result for every vertex in eg
   // to its degree.  No vertices are deleted.
-  auto reduce_helper = [p2, hrq](unsigned long index_u, unsigned long label_u, unsigned long degree_u) -> bool{
+  auto reduce_helper = [eg, p2, hrq](unsigned long index_u, unsigned long label_u, unsigned long degree_u) -> bool{
 
     p2 -> puzzle[p2 -> s - 1] = label_u;
     if (!have_seen_isomorph(p2, true)){
-      heuristic_result res = {.result = degree_u, .value = label_u};
+
+      puzzle * new_p = create_puzzle_copy(p2);
+      ExtensionGraph * new_eg = new ExtensionGraph(*eg);
+      new_eg->update(new_p);
+      heuristic_result res = {.ideal = degree_u + p2 -> s, .p = new_p, .eg = new_eg};
       hrq->push(res);
     }
     return true;
@@ -356,7 +425,7 @@ priority_queue<heuristic_result> * greedy_clique_h(puzzle * p, ExtensionGraph * 
   // Helper function that sets heuristic result for every vertex in eg
   // to its degree.  No vertices are deleted.
   auto reduce_helper =
-    [p2, hrq, &curr_min, &next_min, max_degree, &prev_label](unsigned long index_u, unsigned long label_u, unsigned long degree_u) -> bool
+    [eg, p2, hrq, &curr_min, &next_min, max_degree, &prev_label](unsigned long index_u, unsigned long label_u, unsigned long degree_u) -> bool
     {
       if (prev_label >= label_u){
 	curr_min = next_min;
@@ -367,7 +436,11 @@ priority_queue<heuristic_result> * greedy_clique_h(puzzle * p, ExtensionGraph * 
       if (degree_u <= curr_min){
 	p2 -> puzzle[p2 -> s - 1] = label_u;
 	if (!have_seen_isomorph(p2, true)){
-	  heuristic_result res = {.result = curr_min, .value = label_u};
+
+	  puzzle * new_p = create_puzzle_copy(p2);
+	  ExtensionGraph * new_eg = new ExtensionGraph(*eg);
+	  new_eg->update(new_p);
+	  heuristic_result res = {.ideal = curr_min + p2 -> s, .p = new_p, .eg = new_eg};
 	  hrq->push(res);
 	}
 	return false;
@@ -398,17 +471,18 @@ priority_queue<heuristic_result> * mip_clique_h(puzzle * p, ExtensionGraph * eg)
 
     p2 -> puzzle[p2 -> s - 1] = label_u;
     if (!have_seen_isomorph(p2, true)){
-      ExtensionGraph new_eg(*eg);
-      new_eg.update(p2);
+      ExtensionGraph * new_eg = new ExtensionGraph(*eg);
+      new_eg -> update(p2);
       unsigned long result = 0;
-      if (new_eg.size() < 2)
-	result = new_eg.size();
+      if (new_eg->size() < 2)
+	result = new_eg->size();
       else
-	result = max_clique_mip(&new_eg);
+	result = max_clique_mip(new_eg);
       
-      assert(result <= new_eg.size());
-      
-      heuristic_result res = {.result = result, .value = label_u};
+      assert(result <= new_eg->size());
+
+      puzzle * new_p = create_puzzle_copy(p2);
+      heuristic_result res = {.ideal = result + p2 -> s, .p = new_p, .eg = new_eg};
       hrq->push(res);
     }
     return true;
@@ -437,17 +511,18 @@ priority_queue<heuristic_result> * mip_search_h(puzzle * p, ExtensionGraph * eg)
 
     p2 -> puzzle[p2 -> s - 1] = label_u;
     if (!have_seen_isomorph(p2, true)){
-      ExtensionGraph new_eg(*eg);
-      new_eg.update(p2);
+     ExtensionGraph * new_eg = new ExtensionGraph(*eg);
+      new_eg -> update(p2);
       unsigned long result = 0;
-      if (new_eg.size() < 2)
-	result = new_eg.size();
+      if (new_eg->size() < 2)
+	result = new_eg->size();
       else
-	result = mip_h(p2,&new_eg);
+	result = mip_h(p2,new_eg);
       
-      assert(result <= new_eg.size());
-      
-      heuristic_result res = {.result = result, .value = label_u};
+      assert(result <= new_eg->size());
+
+      puzzle * new_p = create_puzzle_copy(p2);
+      heuristic_result res = {.ideal = result + p2 -> s, .p = new_p, .eg = new_eg};
       hrq->push(res);
     }
     return true;
