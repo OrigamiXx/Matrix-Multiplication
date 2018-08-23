@@ -20,7 +20,7 @@ typedef struct heuristic_result {
 
   bool operator<(const heuristic_result & rhs) const
   {
-    return ideal < rhs.ideal;
+    return ideal < rhs.ideal || (ideal == rhs.ideal && p -> s < rhs.p -> s);
   }
 } heuristic_result;
 
@@ -34,6 +34,12 @@ typedef heuristic_t (*heuristic_policy_t)(puzzle *, ExtensionGraph *);
 // uniquely solvable puzzle.  Warning: Has side effect of clearing
 // isomorph cache.
 int generic_search(int k, heuristic_policy_t hp);
+
+// Takes a puzzle width k and an admissible heuristic policy hp and
+// performs A* search.  Returns the size of the largest width-k strong
+// uniquely solvable puzzle.  Warning: Has side effect of clearing
+// isomorph cache.
+unsigned int global_search(int k, heuristic_policy_t hp);
 
 
 void fprint_search_stats(FILE * f);

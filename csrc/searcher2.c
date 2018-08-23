@@ -171,13 +171,12 @@ void fprint_search_stats(FILE * f){
 
   int i = 0;
   fprintf(f,"-----------------\n");
-  fprintf(f,"   s,    num, num_search, num_heur, max_ideal, max_heur, min_heur, tot_heur,     ave_heur,     var_heur,     tot_time,     max_time,     min_time,     ave_time,     var_time\n");
+  fprintf(f,"   s,    num, num_search, num_heur, max_heur, min_heur, tot_heur,     ave_heur,     var_heur,     tot_time,     max_time,     min_time,     ave_time,     var_time\n");
   while(stats[i].num_search != 0){
     fprintf(f, "%4d, ", i);
     fprintf(f, "%6lu, ", stats[i].num);
     fprintf(f, "%10lu, ", stats[i].num_search);
     fprintf(f, "%8lu, ", stats[i].num_heur);
-    fprintf(f, "%9lu, ", i + stats[i].max_heur + 1);
     fprintf(f, "%8lu, ", stats[i].max_heur);
     fprintf(f, "%8lu, ", stats[i].min_heur);
     fprintf(f, "%8lu, ", stats[i].tot_heur);
@@ -330,9 +329,12 @@ unsigned int global_search(int k, heuristic_policy_t hp){
     heuristic_result hr = frontier.top();
     frontier.pop();
 
+    printf("\r%lu %lu",hr.ideal, frontier.size());
+    fflush(stdout);
+    
     // Update best.
     if (best < hr.p -> s)
-      printf("New best = %d\n", hr.p -> s);
+      printf("\nNew best = %d\n", hr.p -> s);
     best = MAX(best, hr.p -> s);
 
     // We cannot do any better.
@@ -346,6 +348,7 @@ unsigned int global_search(int k, heuristic_policy_t hp){
     while(!hrq -> empty()){
       heuristic_result hr2 = hrq -> top();
       hrq -> pop();
+      assert(hr2.ideal <= hr.ideal);
       if (hr2.ideal > best)
 	frontier.push(hr2);
       else{
@@ -437,6 +440,7 @@ priority_queue<heuristic_result> * greedy_clique_h(puzzle * p, ExtensionGraph * 
 	p2 -> puzzle[p2 -> s - 1] = label_u;
 	if (!have_seen_isomorph(p2, true)){
 
+	  // Something is broken here, causes seg fault on global search.
 	  puzzle * new_p = create_puzzle_copy(p2);
 	  ExtensionGraph * new_eg = new ExtensionGraph(*eg);
 	  new_eg->update(new_p);

@@ -15,7 +15,7 @@ heuristic_t search_run_policy(puzzle * p, ExtensionGraph * eg){
   }
   return MIP_SEARCH;
   */
-  return VERTEX_DEGREE;
+  //return VERTEX_DEGREE;
   /*
   if (p -> s <= 7)
     return MIP_CLIQUE;
@@ -24,7 +24,9 @@ heuristic_t search_run_policy(puzzle * p, ExtensionGraph * eg){
   else
     return VERTEX_DEGREE;
   */
-  //return MIP_CLIQUE;
+  //return VERTEX_DEGREE;
+  //return GREEDY_CLIQUE;
+  return MIP_CLIQUE;
   //return MIP_SEARCH;
 
 }
@@ -35,7 +37,7 @@ int main(int argc, char ** argv){
   if (argc > 1)
     k = atoi(argv[1]);
 
-  int s = generic_search(k, search_run_policy);
+  int s = global_search(k, search_run_policy);
 
   printf("Found a (%d, %d) strong USP.\n", s, k);
 
