@@ -46,7 +46,7 @@ int main(int argc, char ** argv){
   int k = 4;
   int maxs = 57; // 57 is upper bound for k = 4.
 
-  puzzle_row r = 0;
+  //puzzle_row r = 0;
 
   puzzle_row max_index = ipow(ipow(3,k),s);
   int vertices[max_index];
@@ -54,7 +54,7 @@ int main(int argc, char ** argv){
 
   // Allocate
   bool ** graph = (bool **) malloc(sizeof(bool *) * max_index);
-  for (int i = 0; i < max_index; i++){
+  for (unsigned int i = 0; i < max_index; i++){
     graph[i] = (bool *)malloc(sizeof(bool) * max_index);
   }
 

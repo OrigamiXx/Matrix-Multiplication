@@ -36,12 +36,12 @@ int main(int argc, char * argv[]){
   int row;
   int row_index;
   int time = 46800;
-  check_t thread_res, mip_res, sat_res, bi_res;
-  double thread_time, mip_time, sat_time, bi_time;
-  char csv_input[50];
-  char usp_num[10];
+  check_t thread_res, mip_res, sat_res;//, bi_res;
+  double thread_time, mip_time, sat_time;//, bi_time;
+  //char csv_input[50];
+  //char usp_num[10];
 
-  struct timespec begin={0,0}, end={0,0};
+  //struct timespec begin={0,0}, end={0,0};
   FILE * puzzles = fopen("data/13-by-6-big.txt", "r");
   //FILE * puzzles = fopen("1", "r");
   FILE * record = fopen("data/14-by-6-time-record.csv", "w");

@@ -52,7 +52,7 @@ long h_clique(puzzle * p){
   while (!found){
     int s = 1;
     int k = p->k;
-    puzzle_row r = 0;
+    //puzzle_row r = 0;
 
     puzzle_row max_index = ipow(ipow(3,k),s);
     int vertices[max_index];
@@ -60,7 +60,7 @@ long h_clique(puzzle * p){
 
     // Allocate
     bool ** graph = (bool **) malloc(sizeof(bool *) * max_index);
-    for (int i = 0; i < max_index; i++){
+    for (unsigned int i = 0; i < max_index; i++){
       graph[i] = (bool *)malloc(sizeof(bool) * max_index);
     }
 
@@ -157,12 +157,14 @@ long h_clique(puzzle * p){
       maxs++;
     }
   }
+  assert(false); // Shouldn't be reachable.
+  return -1;
 }
 
 long h(puzzle * p, next_data * prePossible, int n){
 
   long q = 0;
-  for (puzzle_row i=0; i < n; i++){
+  for (puzzle_row i=0; i < (puzzle_row)n; i++){
     puzzle * p1 = create_puzzle_from_puzzle(p, prePossible[i].r);
     if (check(p1) == IS_USP){
       q++;
@@ -192,7 +194,7 @@ int search(puzzle * p, int prev_best, next_data* prePossible, int n){
   // find out the possible Next
   int a = 0;
   long max_val = 0;
-  for (puzzle_row i = 0; i < n; i++){ // Ext: Loop over prev possible rows and update
+  for (puzzle_row i = 0; i < (puzzle_row)n; i++){ // Ext: Loop over prev possible rows and update
     puzzle * p1 = create_puzzle_from_puzzle(p, possible[i].r);
 
     if (check(p1) == IS_USP){

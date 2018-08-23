@@ -20,7 +20,7 @@ int main(int argc, char * argv[]){
   //printf("%d\n", 3^20);
 
 
-  for(index; index < pow(3, givenR * givenC) -1; index+=1){
+  for(; index < pow(3, givenR * givenC) -1; index+=1){
     puzzle * p;
     p = create_puzzle_from_index(givenR, givenC, index);
 

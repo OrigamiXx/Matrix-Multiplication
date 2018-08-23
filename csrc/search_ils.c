@@ -27,7 +27,7 @@ puzzle * reduce_puzzle_greedy(puzzle * p){
 
 
   int s = p->s;
-  int k = p->k;
+  //int k = p->k;
 
 
   int max_count = -1;

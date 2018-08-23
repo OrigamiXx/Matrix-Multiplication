@@ -84,9 +84,7 @@ void random_usps(int itask, KeyValue *kv, void *ptr){
 
 void row_one_keys(int itask, KeyValue *kv, void *ptr){
   
-   puzzle_row i, row = 1;
-
-   for(i = 0; i < max_poss_row; i++){
+   for(long i = 0; i < max_poss_row; i++){
      kv->add((char*)&i, sizeof(puzzle_row), NULL, 0);
    }
    

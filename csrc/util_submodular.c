@@ -196,9 +196,9 @@ int search_continuous_greedy(int k){
     while (progress) {
 
       progress = false;
-      puzzle_row best = -1;
+      puzzle_row best = p -> max_row;
       for (puzzle_row j = 0; j < n; j++)
-	if (r[j] != -1.0 && (best == -1 || w[j] > w[best])){
+	if (r[j] != -1.0 && (best == p -> max_row || w[j] > w[best])){
 	  best = j;
           progress = true;
 	}
@@ -292,7 +292,7 @@ int main(int argc, char * argv[]){
     return -1;
   }
 
-  int s = atoi(argv[1]);
+  //int s = atoi(argv[1]);
   int k = atoi(argv[2]);
 
   srand48(time(NULL));

@@ -70,11 +70,11 @@ int main(int argc, char * argv[]){
   //for (i = 1; i<=givenC; i++){
   for (j = givenR; j <= givenR; j++){
       int checked = 0;
-      double usp_total = 0;
-      double nonusp_total = 0;
+      //double usp_total = 0;
+      //double nonusp_total = 0;
       long usps = 0;
       long nonusps = 0;
-      double total = 0;
+      //double total = 0;
       struct timespec begin={0,0}, end={0,0};
 
       fprintf(nonUSP, "%d * %d\n", j, givenC);

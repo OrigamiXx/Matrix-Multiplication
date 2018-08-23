@@ -5,12 +5,10 @@
 #include "ExtensionGraph.hpp"
 
 typedef enum heuristic_val {
-  //NULLITY,
-  //CLIQUE,
-  //INLINE_CLIQUE,
   VERTEX_DEGREE,
   GREEDY_CLIQUE,
-  MIP_CLIQUE
+  MIP_CLIQUE,
+  MIP_SEARCH
 } heuristic_t;
 
 
@@ -36,15 +34,5 @@ typedef heuristic_t (*heuristic_policy_t)(puzzle *, ExtensionGraph *);
 // isomorph cache.
 int generic_search(int k, heuristic_policy_t hp);
 
-// Puzzle will come into heuristics extended by 0 as default
-// All heuristic definitions go below here.
-// NULLITY => nullity_h
-heuristic_t nullity_policy(puzzle * p, ExtensionGraph * eg);
-int single_nullity_h(puzzle * p, ExtensionGraph * eg);
-bool nullity_vertex_reduce(unsigned long label_u, unsigned long degree_u, void * user_data);
-std::priority_queue<heuristic_result> * nullity_h(puzzle *p, ExtensionGraph * eg);
 
-// CLIQUE_APPROXIMATION => clique_approximation_h
-int single_clique_approximation_h(puzzle * p, ExtensionGraph * eg);
-std::priority_queue<heuristic_result> clique_approximation_h(puzzle *, ExtensionGraph *);
-
+void fprint_search_stats(FILE * f);

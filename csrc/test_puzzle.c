@@ -10,7 +10,7 @@
 int main(int argc, char * argv[]){
 
   srand48(time(NULL));
-  const char * input_file = "puzzles/test.puz";
+  //const char * input_file = "puzzles/test.puz";
   int s = 10;
   for (int k = 2; k <= MAX_K; k++){
     puzzle * p = create_puzzle(s, k);

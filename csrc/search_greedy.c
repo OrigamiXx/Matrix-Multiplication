@@ -77,7 +77,7 @@ int brute_force_greedy(puzzle * p, bool skip[], int skipping, int best){
       skipping++;
     }
 
-    min_since_best = (s < min_since_best ? s : min_since_best);
+    min_since_best = ((unsigned int)s < min_since_best ? s : min_since_best);
     
   }
 
@@ -98,7 +98,7 @@ puzzle * create_usp_greedy(int s, int k, int stride_init, int special, puzzle * 
   puzzle * p = create_puzzle(s,k);
   if (p == NULL)
     return NULL;
-  int max_row = p -> max_row;
+  puzzle_row max_row = p -> max_row;
 
   int fitness[max_row];
   bool skip[max_row];
@@ -281,8 +281,8 @@ int main(int argc, char *argv[])
 
   int s = atoi(argv[1]);
   int k = atoi(argv[2]);
-  int special = atoi(argv[3]);
-  int stride_init = atoi(argv[4]);
+  //int special = atoi(argv[3]);
+  //int stride_init = atoi(argv[4]);
 
   long seed = time(NULL);
   printf("seed = %ld\n", seed);

@@ -595,7 +595,7 @@ int main(int narg, char **args)
     }
 
     int s = 2;
-    int initial_rows = 1;
+    //int initial_rows = 1;
     t_total = 0.0;
 
     MapReduce *mr = new MapReduce(MPI_COMM_WORLD);

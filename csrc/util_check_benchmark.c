@@ -243,15 +243,15 @@ class Puzzle_Tester {
     this -> name = name;
     char short_name[100];
     strcpy(short_name, name.c_str());
-    for (int j = 0; j < strlen(name.c_str()); j++){
+    for (unsigned int j = 0; j < strlen(name.c_str()); j++){
       if (short_name[j] == ',')
 	short_name[j] = '\0';
     }
     this -> short_name = string(short_name);
     
   }
-  virtual puzzle * next_puzzle(void) {};
-  virtual bool is_empty(void) {};
+  virtual puzzle * next_puzzle(void) { return NULL; }
+  virtual bool is_empty(void) { return true; }
 
   void set_short_name(){
 
@@ -294,20 +294,12 @@ class Puzzle_Tester {
       
       bool found_IS_USP = false;
       bool found_NOT_USP = false;
-      bool found_UNDET_USP = false;
-      bool found_INVALID = false;
-      bool found_uncheckable = false;
       for (i = 0; i < checkers -> size(); i++){
-	if (!checkable[i]) 
-	  found_uncheckable = true;
-	else if (results[i] == IS_USP)
+	if (results[i] == IS_USP)
 	  found_IS_USP = true;
 	else if (results[i] == NOT_USP)
 	  found_NOT_USP = true;
-	else if (results[i] == UNDET_USP)
-	  found_UNDET_USP = true;
-	else
-	  assert(false == "Can't get here.");
+	
       }
       
       bool consistent = !(found_IS_USP && found_NOT_USP);
@@ -484,7 +476,7 @@ class File_Tester : public Puzzle_Tester {
   
 void str_subs(char * str, char a, char b){
 
-  for (int i = 0; i < strlen(str); i++)
+  for (unsigned int i = 0; i < strlen(str); i++)
     if (str[i] == a)
       str[i] = b;
 

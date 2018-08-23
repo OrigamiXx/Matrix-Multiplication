@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "permutation.h"
+#include "assert.h"
 
 int main(){
 
@@ -17,7 +18,7 @@ int main(){
   
   printf("What size of permutation? ");
   int n;
-  scanf("%d", &n);
+  assert(scanf("%d", &n));
   perm * f = create_perm_identity(n);
   perm * g = create_last_perm(n);
 
@@ -30,7 +31,7 @@ int main(){
 
   printf("\nWhat number (must be less than the size) do you want to apply in the permutation? ");
   int x;
-  scanf("%d", &x);
+  assert(scanf("%d", &x));
   printf("\nThe output is: %d\n",apply_perm(f,x));
   printf("\nThe compose of g and f is:\n");
   print_perm_tabular(compose_perm(f,g));

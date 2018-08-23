@@ -207,13 +207,13 @@ int mip_h(puzzle * init_p, ExtensionGraph * eg, int s) {
   
   unsigned long num_vars = eg -> size() + 1;
   //  eg.print();
-  printf("num_vars = %ld\n",  num_vars);
+  //printf("num_vars = %ld\n",  num_vars);
   
   GRBenv * menv = GRBgetenv(model);
 
   SAFE_GUROBI(GRBsetintparam(menv, "Threads", 4));
   SAFE_GUROBI(GRBsetintparam(menv, GRB_INT_PAR_MIPFOCUS, 1));
-  SAFE_GUROBI(GRBsetintparam(menv, "OutputFlag", 1));
+  SAFE_GUROBI(GRBsetintparam(menv, "OutputFlag", 0));
   // SAFE_GUROBI(GRBsetintparam(menv, "SolutionLimit", 1));
 
   SAFE_GUROBI(GRBsetdblparam(menv, "FeasibilityTol",1e-6));
@@ -254,7 +254,7 @@ int mip_h(puzzle * init_p, ExtensionGraph * eg, int s) {
 
   int count = 0;
   puzzle * p = extend_puzzle(init_p, opt_val);
-  printf("opt_val = %f\n", opt_val);
+  //printf("opt_val = %f\n", opt_val);
   p -> s = init_p -> s;
   for (unsigned long u = 0; u < num_vars - 1; u++){
     if (sol[u] < 0.5) continue;
@@ -264,7 +264,7 @@ int mip_h(puzzle * init_p, ExtensionGraph * eg, int s) {
   }
   assert(count == floor(opt_val));
 
-  print_puzzle(p);
+  //print_puzzle(p);
   assert(check(p) == IS_USP);
 
   SAFE_GUROBI(GRBfreemodel(model));
