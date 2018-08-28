@@ -15,6 +15,7 @@
 \usepackage{mdframed}
 \usepackage{multicol}
 \usepackage{graphicx}
+\usepackage{comment}
 \usepackage{tikz}
 \usetikzlibrary{decorations.pathreplacing,backgrounds}
 
@@ -25,9 +26,10 @@
 
 \usepackage{algorithmicx}
 \usepackage{algorithm} % http://ctan.org/pkg/algorithms
-\usepackage{algpseudocode}
+\usepackage[noend]{algpseudocode}
 \renewcommand{\algorithmicensure}{\textbf{Output:}}
 \renewcommand{\algorithmicrequire}{\textbf{Input:}}
+
 
 \algrenewcommand\algorithmicindent{1.0em}%
 
@@ -40,6 +42,7 @@
 \newcommand*\samethanks[1][\value{footnote}]{\footnotemark[#1]}
 \newcommand\sse{\subseteq}
 \newcommand\Sym[1]{\ensuremath{\mathrm{Sym}_{#1}}}
+\newcommand\condset[2]{\set{#1 \;|\; #2}}
 
 %\onehalfspacing
 \date{}
@@ -312,17 +315,18 @@ heuristics that were fast to evaluate, but did not alway produce a
 definitive answer.  The heuristics output YES, NO, or MAYBE to whether
 a given puzzle $P$ was a strong USP.  We consider only Las Vegas
 algorithms here, that is, algorithms whose output of YES or NO is
-always correct.  To verify a puzzle $P$ we run a battery of fast
-heuristics and return early if any of the heuristics produce a
-definitive YES or NO.  When all the heuristics result in MAYBE then
-run one of the slower exact algorithms that were discussed in the
-previous section.  Most of the heuristics we considered were
-deterministic, but a few were randomized.  This is again in the Las
-Vegas sense: An output of YES or NO is always correct, but as function
-of the input and internal algorthmic randomness MAYBE can be also be
-output and can vary between independent runs.  The heuristics have
-several different forms, but all rely ultimately on structural
-properties of strong USP.
+always correct.  Further, all the heuristics we consider are one-sided
+in that they for all input they either return YES or MAYBE, or NO or
+MAYBE.  To verify a puzzle $P$ we run a battery of fast heuristics and
+return early if any of the heuristics produce a definitive YES or NO.
+When all the heuristics result in MAYBE then run one of the slower
+exact algorithms that were discussed in the previous section.  Most of
+the heuristics we considered were deterministic, but a few were
+randomized.  This is again in the Las Vegas sense: An output of YES or
+NO is always correct, but as function of the input and internal
+algorthmic randomness MAYBE can be also be output and can vary between
+independent runs.  The heuristics have several different forms, but
+all rely ultimately on structural properties of strong USP.
 
 \subsection{Downward Closed}
 
@@ -332,31 +336,32 @@ so is every subpuzzle $P' \sse P$.  This leads to practical heuristic
 that can determine that a puzzle is not a strong USP.
 
 \begin{algorithm}
-  \caption{: Downward-closed heuristic}
-  \label{alg:k-read-pit}
+  \caption{: Downward-closed Heuristic}
+  \label{alg:downward-closed}
 \begin{algorithmic}[1]
   \Require{an $(s,k)$-puzzle $P$, and size $s' \le s$.}
   \Ensure{NO, if $P$ has a set of $s'$ rows that do not form a strong USP, and MAYBE otherwise.}
   \For{$P' \sse P, |P'| = s'$}
-      \If{$P'$ is not a strong USP}
-          \Return{NO}
-      \EndIf
+      \If{$P'$ is not a strong USP} \Return{NO.} \EndIf
   \EndFor{}
-  \State{\Return{MAYBE}}
+  \State{\Return{MAYBE}.}
 \end{algorithmic}
 \end{algorithm}
 
-This algorithm runs in time $O(s^{s'} T(s', k))$ where $T(s',k)$ is
-the running time for exactly verifying a $(s',k)$-puzzle.  In practice
-we did not apply this heuristic for $s'$ larger than $3$, so the
-effective running time was $O(s^3 T(3,k))$, which is polynomial in $s$
-and $k$ using the verification algorithms from the previous section
-which eliminate dependence on $k$ for polynomial cost.  This heuristic
-can be made even more practical by caching the results for puzzles of
-size $s'$, reducing the verification time per iteration to constant in
-exchange for $O(2^{s'k}T(s',k))$ time to precompute the values for all
-puzzles of size $s'$.  There is also space overhead because the
-precomputed results are being cached.
+This algorithm runs in time $O(s^{s'} T_{Verify}(s', k))$ where
+$T_{Verify}(s',k)$ is the running time for exactly verifying a
+$(s',k)$-puzzle.  In practice we did not apply this heuristic for $s'$
+larger than $3$, so the effective running time was $O(s^3 T(3,k))$,
+which is polynomial in $s$ and $k$ using the verification algorithms
+from the previous section which eliminate dependence on $k$ for
+polynomial cost.  This heuristic can be made even more practical by
+caching the results for puzzles of size $s'$, reducing the
+verification time per iteration to constant in exchange for
+$O(2^{s'k}T(s',k))$ time to precompute the values for all puzzles of
+size $s'$.  There is also space overhead because the precomputed
+results are being cached.  We also note that for a puzzle $P$ that is
+a strong USP, the heuristic takes $\Theta(s^3 T(3,k))$ time without
+cache or $\Theta(s^3)$ with caching.
 
 Note that since our search algorithms typically start from a known
 strong USP and tries to add rows, looking a subsets of a puzzle that
@@ -373,7 +378,7 @@ verification as there are now many more values stored.
 \subsection{Random Greedy}
 
 This heuristic attempts to solve the 3D-Matching instance associated
-with verifying a puzzle $P$ (discussed in \auto{sec:3DM}).  The
+with verifying a puzzle $P$ (discussed in \autoref{sec:3DM}).  The
 heuristic proceeds iteratively, determining the layer of the 3DM
 instance with the least edges and randomly selecting an edge in that
 layer to put into the 3DM.  If the heuristic successfully contructs a
@@ -386,11 +391,123 @@ iterations because the time balances well with the other heuristics
 and effectively reduced the number of instances requiring a full
 verification.
 
+\begin{algorithm}
+  \caption{: Random Greedy Heuristic}
+  \label{alg:random-greedy}
+\begin{algorithmic}[1]
+  \Require{an $(s,k)$-puzzle $P$, and iteration bound $t$.}
+  \Ensure{NO, if a witness is found for $P$ not being a strong USP, and MAYBE otherwise.}
+  \State{Construct 3DM instance $G : [s] \times [s] \times [s] \rightarrow \set{0,1}$ using $P$.}
+  \For{$i = 1$ to $t$}
+    \For{$j = 1$ to $s$}
+      \State{$counts[j] =$ Number of edges incident vertex $j = \sum_{q,r} G(j,q,r)$.}
+    \EndFor
+    \State{Let $J,Q,R = \emptyset.$}
+    \State{$m = 1$}
+    \While{$m \le s$}
+      \State{\texttt{// Select edge to add.}}
+      \State{Select $j \in \condset{j \in \bar{J}}{counts[j] = \max_{q \in \bar{J}} counts[q]}$ uniformly at random.}
+      \If{$counts[j] \le 0$} break. \EndIf
+      \State{Select $(q,r) \in \condset{(q,r) \in \bar{Q} \times \bar{R}}{G(j,q,r) = 1}$ uniformly at random.}
+      \State{\texttt{// Update edges counts.}}
+      \For{$u = 1$ to $s$}
+        \For{$v = 1$ to $s$}
+          \If{$(u,v) \in \bar{Q} \times \bar{R}$ and $G(j,u,v) = 1$} $counts[j] = counts[j] - 1$. \EndIf
+          \If{$(u,v) \in \bar{J} \times \bar{R}$ and $G(u,q,v) = 1$ and $u \neq j$} $counts[u] = counts[u] - 1$. \EndIf
+          \If{$(u,v) \in \bar{J} \times \bar{Q}$ and $G(u,v,r) = 1$ and $u \neq j$ and $v \neq q$} $counts[u] = counts[u] - 1$. \EndIf 
+        \EndFor
+      \EndFor
+      \State{$J = J \cup \set{j}$.}
+      \State{$Q = Q \cup \set{q}$.}
+      \State{$R = R \cup \set{r}$.}
+      \State{$m = m + 1.$}
+      \EndWhile
+    \If {$m > s$} \Return{NO} \EndIf
+  \EndFor
+  \State{\Return{MAYBE}}
+\end{algorithmic}
+\end{algorithm}
+
+The array $counts$ is used to store the number of edges $counts[j]$
+that remain associated with vertex $j$ along the first coordinate.
+Much of the algorithm is devoted to maintaining this invariant.  The
+arrays $J,Q,R$ store the vertices along the three coordinates,
+respectively, that have already been incorporated into the partial 3D
+matching.  Like in our previous algorithms we do not store the
+matching itself, only the vertices involved.  The break at Line 10
+triggers when the partial 3D matching is a dead end and cannot be
+extended into a full 3D matching.  The condition of Line 22 is true
+when a full 3D matching has been constructed and causes the algorithm
+to return that $P$ is not a strong USP.
+
+The running time of this algorithm is $O(s^3 t + T_{3DM}(s,k))$, where
+$T_{3DM}(s,k)$ is the time required to construct 3D matching
+instances from $(s,k)$-puzzles.  This algorithm has the potential to
+be considerably slower than the downward-closure heuristic, especially
+when $t = s^3$.  However, the main loop can terminate early at Line 10
+when it fails to extend the 3D matching this permits the expected time
+to much less than the worst case.  For a puzzle $P$ that is a strong
+USP, the heuristic takes the full $\Omega(s^3 t + T_{3DM}(s,k))$ time.  
+
+\begin{comment}
 \subsection{Graph Automorphism}
 
+A strong uniquely-solvable puzzle must also be a uniquely-solvable
+puzzle.  Given a puzzle $P$ we can construct a graph $G_P$ such that
+$G_P$ is rigid iff $P$ is a uniquely-solvable puzzle.
 
+XXX - I don't think this idea worked out.  The code correctly
+implemented the approach, but the approach was flawed.  Probably
+remove this section or add to future work.
+
+\end{comment}
 
 \subsection{2D Matching}
+
+The final heuristic we present is one-sided in the opposite direction
+of the others, it may return YES or MAYBE.  In order for a hypergraph
+$G = \langle [s] \times [s] \times [s], E\rangle$ to have a 3D
+matching it must be the case that when any one of the three parts of
+vertices of $G$ is projected away the resulting bipartite graph has a
+perfect matching.  Thus we can witness that there is no 3D matching by
+determining that one of three projected bipartite graphs $G|_1, G|_2,
+G|_3$ does not have a perfect matching. 
+
+\begin{algorithm}
+  \caption{: 2D Matching Heuristic}
+  \label{alg:2dm}
+\begin{algorithmic}[1]
+  \Require{an $(s,k)$-puzzle $P$.}
+  \Ensure{YES, if $P$ is found to be strong USP, and MAYBE otherwise.}
+  \State{Construct 3DM instance $G : [s] \times [s] \times [s] \rightarrow \set{0,1}$ using $P$.}
+  \State{\texttt{// Construct projections.}}
+  \State{Define projection $G|_1(b,c) = \vee_{a \in [s]} G(a,b,c)$.}
+  \State{Define projection $G|_2(a,c) = \vee_{b \in [s]} G(a,b,c)$.}
+  \State{Define projection $G|_3(a,b) = \vee_{c \in [s]} G(a,b,c)$.}
+
+  \If{$G|_1, G|_2,$ and $G|_3$ have bipartite perfect matchings}
+  \State{\Return{MAYBE.}}
+  \Else
+  \State{\Return{YES.}}
+  \EndIf
+\end{algorithmic}
+\end{algorithm}
+
+We can efficiently decide bipartite perfect matching using the
+standard reduction to network flow and solve it using the
+Ford-Faulkerson augmenting flow algorithm.  This approach yields an
+algorithm that runs in time $O(s^3 + T_{3DM}(s,k))$, where
+$T_{3DM}(s,k)$ is the time required to construct 3D matching instances
+from $(s,k)$-puzzles.
+
+In practice we found this heuristic not to be effective because the
+projected $G|_i$ are typically dense graphs even if $G$ is not, and so
+they are likely to have perfect matchings independently of whether $G$
+has a 3D matching.
+
+
+
+
 
 
 
