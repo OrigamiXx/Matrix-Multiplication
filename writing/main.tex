@@ -163,12 +163,12 @@ improvement.
 % Organization
 \paragraph{Organization}
 We begin with formal definitions and properties of puzzles and strong
-uniquely solvable puzzles in Section~\ref{sec:prelim}.  In
-Section~\ref{sec:check} we discuss our algorithms for verifying that a
-puzzle is a SUSP.  In Section~\ref{sec:heuristic} we describe fast,
+uniquely solvable puzzles in \autoref{sec:prelim}.  In
+\autoref{sec:verify} we discuss our algorithms for verifying that a
+puzzle is a SUSP.  In \autoref{sec:heuristic} we describe fast,
 but incomplete, heuristics for verifying SUSP.
-Section~\ref{sec:search} explains our search algorithms.
-Section~\ref{sec:results} discuss our implementation, experiments, and
+\autoref{sec:search} explains our search algorithms.
+\autoref{sec:results} discuss our implementation, experiments, and
 the experimental results.
 
 
@@ -296,14 +296,103 @@ $\omega = 2$ using the Cohn and Umans' approach.
 
 
 
-\section{Checking for Strong USPs}
-\label{sec:check}
+\section{Verifying for Strong USPs}
+\label{sec:verify}
 
 \subsection{3DM to 3SAT}
 \label{subsec:3sat}
 
 \section{Heuristics for Strong USPs}
 \label{sec:heuristic}
+
+Despite our efforts devise an exact algorithm for verifying strong
+USPs, the performance of the final algorithm was not practical.  To
+speed the algorithm up we considered a number of verification
+heuristics that were fast to evaluate, but did not alway produce a
+definitive answer.  The heuristics output YES, NO, or MAYBE to whether
+a given puzzle $P$ was a strong USP.  We consider only Las Vegas
+algorithms here, that is, algorithms whose output of YES or NO is
+always correct.  To verify a puzzle $P$ we run a battery of fast
+heuristics and return early if any of the heuristics produce a
+definitive YES or NO.  When all the heuristics result in MAYBE then
+run one of the slower exact algorithms that were discussed in the
+previous section.  Most of the heuristics we considered were
+deterministic, but a few were randomized.  This is again in the Las
+Vegas sense: An output of YES or NO is always correct, but as function
+of the input and internal algorthmic randomness MAYBE can be also be
+output and can vary between independent runs.  The heuristics have
+several different forms, but all rely ultimately on structural
+properties of strong USP.
+
+\subsection{Downward Closed}
+
+The simplest heuristics we considered were based on the fact that
+strong USP are downward closed, that is, if $P$ is a strong USP, then
+so is every subpuzzle $P' \sse P$.  This leads to practical heuristic
+that can determine that a puzzle is not a strong USP.
+
+\begin{algorithm}
+  \caption{: Downward-closed heuristic}
+  \label{alg:k-read-pit}
+\begin{algorithmic}[1]
+  \Require{an $(s,k)$-puzzle $P$, and size $s' \le s$.}
+  \Ensure{NO, if $P$ has a set of $s'$ rows that do not form a strong USP, and MAYBE otherwise.}
+  \For{$P' \sse P, |P'| = s'$}
+      \If{$P'$ is not a strong USP}
+          \Return{NO}
+      \EndIf
+  \EndFor{}
+  \State{\Return{MAYBE}}
+\end{algorithmic}
+\end{algorithm}
+
+This algorithm runs in time $O(s^{s'} T(s', k))$ where $T(s',k)$ is
+the running time for exactly verifying a $(s',k)$-puzzle.  In practice
+we did not apply this heuristic for $s'$ larger than $3$, so the
+effective running time was $O(s^3 T(3,k))$, which is polynomial in $s$
+and $k$ using the verification algorithms from the previous section
+which eliminate dependence on $k$ for polynomial cost.  This heuristic
+can be made even more practical by caching the results for puzzles of
+size $s'$, reducing the verification time per iteration to constant in
+exchange for $O(2^{s'k}T(s',k))$ time to precompute the values for all
+puzzles of size $s'$.  There is also space overhead because the
+precomputed results are being cached.
+
+Note that since our search algorithms typically start from a known
+strong USP and tries to add rows, looking a subsets of a puzzle that
+have already been verified is wasteful -- these are skipped over in
+this setting.  From a practical point of view, running this heuristic
+is free for small constant $s'$, as the exact verification algorithms
+have a matching or higher polynomial running time.  Furthermore, since
+the algorithm can return early, its expected running time on random
+non-strong USPs is low.  There appeared to be dimenishing returns with
+increasing $s'$ as it substantially increases precompute time and
+storage while each stored value contributes relatively less to
+verification as there are now many more values stored.
+
+\subsection{Random Greedy}
+
+This heuristic attempts to solve the 3D-Matching instance associated
+with verifying a puzzle $P$ (discussed in \auto{sec:3DM}).  The
+heuristic proceeds iteratively, determining the layer of the 3DM
+instance with the least edges and randomly selecting an edge in that
+layer to put into the 3DM.  If the heuristic successfully contructs a
+3DM it returns NO indicating that the input puzzle $P$ is not a strong
+USP.  If the heuristic reaches point were prior commits have made the
+matching infeasible, the heuristic starts again from scratch.  This
+process is repeated some number of times before it gives up and
+returns MAYBE.  In our practical implementation we use $s^3$
+iterations because the time balances well with the other heuristics
+and effectively reduced the number of instances requiring a full
+verification.
+
+\subsection{Graph Automorphism}
+
+
+
+\subsection{2D Matching}
+
+
 
 \section{Searching for Strong USPs}
 \label{sec:search}
@@ -384,7 +473,7 @@ $\omega = 2$ using the Cohn and Umans' approach.
     solvable $(s,k)$-puzzles found from width $k = 1$ to $6$.}
 \end{figure}
 
-Table~\ref{table:compare} summarizes our main results which are
+\autoref{table:compare} summarizes our main results which are
 improved bounds on the maximum size of strong uniquely solvable
 puzzles and compares them to bounds from \cite{cksu05}.  XXX
 \begin{table}
