@@ -43,6 +43,8 @@
 \newcommand\sse{\subseteq}
 \newcommand\Sym[1]{\ensuremath{\mathrm{Sym}_{#1}}}
 \newcommand\condset[2]{\set{#1 \;|\; #2}}
+\renewcommand\NP{\ensuremath{\mathsf{NP}}}
+\newcommand\coNP{\ensuremath{\mathsf{coNP}}}
 
 %\onehalfspacing
 \date{}
@@ -331,9 +333,7 @@ vertex set $[s]^3$.  However, this transformation is not free because
 the instance size is now a function of the cube of $s$ rather than
 linear in $s$.
 
-\subsection{Naive Search}
-
-\subsubsection{Brute Force}
+\subsection{Brute Force}
 
 The obvious algorithm for verification comes directly from the
 definition of strong uniquely solvable puzzles
@@ -413,16 +413,17 @@ $3^{3k}$ term.  For this reason we rule out the later option and chose
 to represent the function $f$ specialized to $f_P$ for a given puzzle
 $P$.
 
-\subsubsection{Verification to 3D Matching}
+\subsection{Verification to 3D Matching}
 
 For verification it turns out to be more useful to work with $f_p$
 than with $P$.  It is convienent to think of $f_P$ from several
 perspectives: (i) as a function $f_P : P \times P \times P \rightarrow
-\set{0, 1}$, (ii) as an order three tensor $f_p \in \set{0,1}^{P \times P
-  \times P}$, and (iii) as the complement of the characteristic
-function of hyperedge relations of a tripartite hypergraph $H_P =
-\langle P \sqcup P \sqcup P, \bar{f_p}\rangle$ where the vertex set is the
-disjoint union of three copies of $P$.
+\set{0, 1}$, (ii) as an order three tensor $f_p \in \set{0,1}^{P
+  \times P \times P}$, and (iii) as the complement of the
+characteristic function of hyperedge relations of a tripartite
+hypergraph $H_P = \langle P \sqcup P \sqcup P, \bar{f_p}\rangle$ where
+the vertex set is the disjoint union of three copies of $P$.  The last
+of these, $H_P$, is the most useful.
 
 Let $G = \langle P \sqcup P \sqcup P, E \sse P^3\rangle$ be a
 tripartite 3-hypergraph.  We say that $G$ has a \emph{3D matching} iff
@@ -469,14 +470,79 @@ $\condset{(r,r,r)}{r \in P}$.
   hence $M \sse \bar{f_P}$.  Since $\pi_0$ is a permutation $|M| =
   |P|$.  Finally, observe that $M$ is nontrivial because not all of
   the permutations are identical and there must be some $r \in P$ with
-  $e(r)$ having non identical coordinates.
+  $e(r)$ having non identical coordinates.  Thus $M$ is a nontrivial
+  3D matching of $H_p$.
 \end{proof}
 
+Although 3D matching is an \NP-complete problem \cite{karp72},
+\autoref{lem:verify-to-3dm} does not immediately imply that
+verification of strong USP is \coNP-complete because $H_P$ is not an
+arbitrary hypergraph.  (That verification is in \coNP is immediate
+from \autoref{def:strong-USP}.)  Indeed, it seems difficult to define a
+puzzle $P$ that allows hyperedges in $H_P$ to be included
+independently.  It remains open whether verification is
+\coNP-complete, but our implementation and experimental data suggests
+that it is likely not to be the case.
+
+\autoref{lem:verify-to-3dm} implies that to verify $P$ is a strong USP
+it suffices to determine whether $H_P$ has a 3D matching.  In the
+subsequent sections we examine algorithms for the later problem.  We
+can also view \autoref{alg:brute-force} as algorithm for solving 3D
+matching.  Since we believe that verification is not \coNP-complete we
+will use properties of strong USP and puzzles to provide additional
+structure that algorithms can take advantage of.
+
+\subsection{Bidirectional Search}
+
+The realization that verification of strong USP is a variant of 3D
+matching quickly led to a linear exponential time algorithm which much
+more practical.  The reduction allows us to replace the permutations
+from $\Sym{P}$ with subsets of $P$ and effectively reduce the cost of
+the outer loops of \autoref{alg:brute-force} from $s! =
+\Theta(2^{s\log s}$ to $2^s$.  We now describe a recursive dynamic
+programming bidirectional strong USP verification algorithm that uses
+this observation.
+
+\begin{algorithm}
+  \caption{: Bidirectional}
+  \label{alg:bi}
+\begin{algorithmic}[1]
+  \Require{An $(s,k)$-puzzle $P$.}
+  \Ensure{YES, if $P$ is a strong USP and NO otherwise.}
+
+  \State{Let $T = \emptyset$.}
+  \State{Construct $H_P$.}
+  \Function{SearchHalf}{$Q,R,\ell,reverse?$}
+  \If{$reverse?$}
+    \If{$\ell = |P| - \lfloor|P|/2\rfloor$}
+      \State{\Return{$true$ iff $(P-Q,P-R) \in T$}.}
+    \EndIf
+    \State{$\ell = \ell - 1$.}
+  \Else
+    \If{$\ell = \lfloor|P|/2\rfloor$}
+      \State{Insert $(Q,R)$ into $T$.}
+      \State{\Return{$false$}.}
+    \EndIf
+    \State{$\ell = \ell + 1$.}
+  \EndIf
+  \State{$result = false$.}
+  \For{$q \in P - Q$}
+    \For{$r \in P - R$}
+      \If{$(p_\ell, q, r) \in H_P$}
+        \State{$result = result~\vee$ \textsc{SearchHalf}$(Q \cup \set{q}, R \cup \set{r}, \ell, reverse?)$}
+      \EndIf
+    \EndFor
+  \EndFor
+  \State{\Return{$result$.}}
+  \EndFunction
+  
+  \State{\textsc{SearchHalf}$(\emptyset, \emptyset, 0, false)$.}
+  \State{\Return{\textsc{SearchHalf}$(\emptyset, \emptyset, |P|+1, true)$}.}
+ 
+\end{algorithmic}
+\end{algorithm}
 
 
-\subsubsection{Unidirectional Search}
-
-\subsubsection{Bidirectional Search}
 
 
 
