@@ -299,10 +299,51 @@ $\omega = 2$ using the Cohn and Umans' approach.
 
 
 
-\section{Verifying for Strong USPs}
+\section{Verifying Strong USPs}
 \label{sec:verify}
 
+The core focus of this article is the verification of strong
+uniquely-solvable puzzles.  In particular, we are interested in the
+decision problem: Given an $(s,k)$-puzzle $P$, output YES iff $P$ is a
+strong uniquely-solvable puzzle.  In this section we discuss the
+design of efficient and practical algorithms to solve this problem as
+a function of the parameters $s$ and $k$.  As the goal of this work is
+to use computers to locate large strong USPs, we also discuss aspects
+our implementation that informed or constrained our designs.  All of
+the exact algorithms we develop in this section have exponential
+running time in the parameters $s$ and $k$.  However, although we will
+discuss the asymptotic worst-case running time of our algorithms, this
+is not the metric we are truly interested in.  Rather we are
+interested in the practical performance of our algorithms and their
+capability for locating new large strong USPs.
+
+The algorithm that we ultimately develop and implement in this section
+is a hybrid of a number of simpler algorithms and heuristics.  The
+primary reason for this is that the algorithms with better asymptotic
+and practical performance at larger input lengths have large overhead
+at small input lengths.  Although we have two parameters $s$ and $k$
+they are not fully independent.  First, $s \le 3^k$ because the
+maximum number of rows in a puzzle of width $k$ is $|[3]^k| = 3^k$.
+Second, we can eliminate the dependence on $k$ entirely by
+transforming an $(s,k)$-puzzle into a 3D matching instance on the
+vertex set $[s]^3$.  However, this transformation is not free because
+the instance size is now a function of the cube of $s$ rather than
+linear in $s$.
+
+\subsection{Naive Search}
+
+\subsubsection{Brute Force}
+
+\subsubsection{Unidirectional Search}
+
+\subsubsection{Bidirectional Search}
+
+\subsection{Verification to 3D Matching}
+
 \subsection{3DM to 3SAT}
+
+\subsection{3DM to MIP}
+
 \label{subsec:3sat}
 
 \subsection{Heuristics}
