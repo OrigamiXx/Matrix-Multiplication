@@ -202,6 +202,7 @@ simpler version of the property called \emph{uniquely solvable
   puzzles}.
 
 \begin{definition}[Uniquely Solvable Puzzle (USP)]
+  \label{def:strong-USP}
   ~\\An $(s,k)$-puzzle $P$ is \emph{uniquely solvable} if
   $\forall \pi_0, \pi_1, \pi_2 \in \Sym{P}:$
   \begin{enumerate}
@@ -334,11 +335,150 @@ linear in $s$.
 
 \subsubsection{Brute Force}
 
+The obvious algorithm for verification comes directly from the
+definition of strong uniquely solvable puzzles
+(\autoref{def:strong-USP}). 
+
+\begin{algorithm}
+  \caption{: Brute Force}
+  \label{alg:brute-force}
+\begin{algorithmic}[1]
+  \Require{An $(s,k)$-puzzle $P$.}
+  \Ensure{YES, if $P$ is a strong USP and NO otherwise.}
+
+  \For{$\pi_1 \in \Sym{P}$}
+    \For{$\pi_2 \in \Sym{P}$}
+      \If{$\pi_1 \neq 1 \vee \pi_2 \neq 1$}
+        \State{$found = false.$}
+        \For{$r \in P$}
+          \For{$i \in [k]$}
+            \If{$\delta_{r_i, 0} + \delta_{(\pi_1(r))_i, 1} + \delta_{(\pi_2(r))_i, 2} = 2$} $found = true$. \EndIf
+          \EndFor
+        \EndFor
+        \If{not $found$} \Return{NO.} \EndIf  
+      \EndIf
+    \EndFor
+  \EndFor
+  \State{\Return{YES}.}
+\end{algorithmic}
+\end{algorithm}
+Note that $1$ in Line 3 denotes the identity permutation in $\Sym{P}$,
+and $\delta_{a,b}$ is the Kronecker delta function which is $1$ if $a
+= b$ and $0$ otherwise.  Observe that \autoref{alg:brute-force} does
+not refer to $\pi_0$ of \autoref{def:strong-USP}.  This is because the
+strong USP property is invariant to permutations of the rows and so
+$\pi_0$ can be thought of as an arbitrary phase.  We fix $\pi_0 = 1$
+to simplify the algorithm.  Noting that $|\Sym{P}| = s!$, the four
+nested loops make the running time of this algorithm is easy to
+analyze.  The algorithm runs in time $O((s!)^2 \cdot s \cdot k \cdot
+\poly(s))$ where the last factor low polynomial factor of $s$ accounts
+for the time to perform operations on permutations.  The dominant term
+in the running time is the contribution from iterating over pairs of
+permutations, though this term was made a factor $s!$ smaller by not
+iterating over $\pi_0$.  Finally, notice that if $P$ is a strong USP,
+then the algorithm runs in time $\Theta((s!)^2 \cdot k \cdot
+\poly(s))$, and that if $P$ is not a strong USP the algorithm may
+terminate early.  This algorithm's poor theoretical and practical
+performance made it unusable in our implementation, however, it's
+simplicity and direct connection to the definition made its
+implementation a valuable sanity check against later more elaborate
+algorithms (and served as effective onboarding to undergraduate
+students helping with this project).
+
+Although \autoref{alg:brute-force} performs poorly, examining the
+structure of a seemingly trivial optimization leads to substantially
+more effective algorithms.
+
+Consider the following function on triples of rows $a, b,
+c$ $$f(a,b,c) = \vee_{i \in [k]} (\delta_{a_i,0} + \delta_{b_i,1} +
+\delta_{c_i,2} = 2).$$ We can replace the innermost loop in Lines 6 \&
+7 of \autoref{alg:brute-force} with the statement $found = found \vee
+f(r, \pi_1(r), \pi_2(r))$.  Observe that $f$ neither depends on $P$,
+$r$, nor the permutations, and that \autoref{alg:brute-force} no
+longer depends on $k$.  To slightly speed up \autoref{alg:brute-force}
+we can precompute and cache $f$ before the algorithm starts and then
+look up values as the algorithm runs.  There are two obvious options
+to consider we can either precompute $f$ specialized to the rows in
+the puzzle $P$, or we can precompute $f$ for all possible rows.  In
+former case the time to precompute $f$ is $\Theta(s^3 \cdot k)$ and in
+the later case $\Theta(3^{3k} \cdot k)$.  The storage requirements are
+$\Theta(s^3)$ and $\Theta(3^{3k})$ bits respectively.  The former is
+problematic for large $s$ and later problematic even for small $k$.
+Moreover the combined running time for the two options with a single
+call to verify a puzzle is $\Theta(s^3 \cdot k + (s!)^2 \cdot
+\poly(s))$ and $\Theta(3^{3k} \cdot k + (s!)^2 \cdot \poly(s))$.  In
+the former case there is an asymptotic improvement, but in the later
+case, the saving of a factor of $k$ is easily offset by the additional
+$3^{3k}$ term.  For this reason we rule out the later option and chose
+to represent the function $f$ specialized to $f_P$ for a given puzzle
+$P$.
+
+\subsubsection{Verification to 3D Matching}
+
+For verification it turns out to be more useful to work with $f_p$
+than with $P$.  It is convienent to think of $f_P$ from several
+perspectives: (i) as a function $f_P : P \times P \times P \rightarrow
+\set{0, 1}$, (ii) as an order three tensor $f_p \in \set{0,1}^{P \times P
+  \times P}$, and (iii) as the complement of the characteristic
+function of hyperedge relations of a tripartite hypergraph $H_P =
+\langle P \sqcup P \sqcup P, \bar{f_p}\rangle$ where the vertex set is the
+disjoint union of three copies of $P$.
+
+Let $G = \langle P \sqcup P \sqcup P, E \sse P^3\rangle$ be a
+tripartite 3-hypergraph.  We say that $G$ has a \emph{3D matching} iff
+there exists a subset $M \sse E$ with $|M| = |P|$ and for all distinct
+hyperedges $e_1, e_2 \in M$, $e_1$ and $e_2$ are \emph{vertex
+  disjoint}, that is, $(e_1)_i \neq (e_2)_i$ for all $i \in [3]$.  We
+say a 3D matching is \emph{nontrival} if it is not the matching
+$\condset{(r,r,r)}{r \in P}$.
+
+\begin{lemma}
+  \label{lem:verify-to-3dm}
+  An $(s,k)$-puzzle $P$ is a strong USP iff $H_P$ has no nontrivial 3D
+  matching.
+\end{lemma}
+
+\begin{proof}
+  We first argue the reverse direction.  Suppose that $H_p$ has a
+  nontrivial 3D matching $M$.  We show that $P$ is not a strong USP by
+  using $M$ to construct $\pi_0, \pi_1, \pi_2 \in \Sym{P}$ that
+  witness this.  Let $\pi_0$ be the identity permutation.  For each $r
+  \in P$, define $\pi_1(r) = q$ where $(r,q,\_) \in M$.  Note that $q$
+  is well defined and unique because $M$ is 3D matching and has vertex
+  disjoint edges.  Similarly define $\pi_2(r) = q$ where $(r,\_,q) \in
+  M$.  Observe that by construction $M =
+  \condset{(\pi_0(r),\pi_1(r),\pi_2(r))}{r \in P}$.  Since $M$ is a
+  matching of $H_P$, $M \sse \bar{f_P}$.  Because $M$ is a nontrival
+  matching at least one edge in $(a,b,c) \in M$ is has either $a \neq
+  b$, $a \neq c$, or $b \neq c$.  This implies, respectively, that as
+  constructed $\pi_0 \neq \pi_1$, $\pi_0 \neq \pi_2$, or $\pi_1 \neq
+  \pi_2$.  In each case we have determined that $\pi_0$, $\pi_1$, and
+  $\pi_2$ are not all identical.  Thus we determined permutations such
+  that for all $r \in P$, $f(\pi_0(r), \pi_1(r), \pi_2(r)) = 0$.  This
+  violates Condition 2 of \autoref{def:strong-USP}, hence $P$ is not a
+  strong USP.
+
+  The forward direction of the lemma is argued symmetrically.  Suppose
+  that $P$ is not a strong USP. We show that $H_P$ has a 3D matching.
+  For $P$ not to be a strong USP there must exist $\pi_0, \pi_1, \pi_2
+  \in \Sym{P}$ not all identical such that Condition 2 of
+  \autoref{def:strong-USP} fails.  Define $e(r) =
+  (\pi_0(r),\pi_1(r),\pi_2(r))$ and $M = \condset{e(r)}{r \in P}$.
+  Since Condition 2 fails, we have that $f_P(e(r)) = false$ for all $r
+  \in P$.  This means that for all $r \in P$< $e(r) \in \bar{f_P}$ and
+  hence $M \sse \bar{f_P}$.  Since $\pi_0$ is a permutation $|M| =
+  |P|$.  Finally, observe that $M$ is nontrivial because not all of
+  the permutations are identical and there must be some $r \in P$ with
+  $e(r)$ having non identical coordinates.
+\end{proof}
+
+
+
 \subsubsection{Unidirectional Search}
 
 \subsubsection{Bidirectional Search}
 
-\subsection{Verification to 3D Matching}
+
 
 \subsection{3DM to 3SAT}
 
@@ -380,7 +520,7 @@ that can determine that a puzzle is not a strong USP.
   \caption{: Downward-closed Heuristic}
   \label{alg:downward-closed}
 \begin{algorithmic}[1]
-  \Require{an $(s,k)$-puzzle $P$, and size $s' \le s$.}
+  \Require{An $(s,k)$-puzzle $P$, and size $s' \le s$.}
   \Ensure{NO, if $P$ has a set of $s'$ rows that do not form a strong USP, and MAYBE otherwise.}
   \For{$P' \sse P, |P'| = s'$}
       \If{$P'$ is not a strong USP} \Return{NO.} \EndIf
@@ -436,7 +576,7 @@ verification.
   \caption{: Random Greedy Heuristic}
   \label{alg:random-greedy}
 \begin{algorithmic}[1]
-  \Require{an $(s,k)$-puzzle $P$, and iteration bound $t$.}
+  \Require{An $(s,k)$-puzzle $P$, and iteration bound $t$.}
   \Ensure{NO, if a witness is found for $P$ not being a strong USP, and MAYBE otherwise.}
   \State{Construct 3DM instance $G : [s] \times [s] \times [s] \rightarrow \set{0,1}$ using $P$.}
   \For{$i = 1$ to $t$}
@@ -444,7 +584,7 @@ verification.
       \State{$counts[j] =$ Number of edges incident vertex $j = \sum_{q,r} G(j,q,r)$.}
     \EndFor
     \State{Let $J,Q,R = \emptyset.$}
-    \State{$m = 1$}
+    \State{$m = 1.$}
     \While{$m \le s$}
       \State{\texttt{// Select edge to add.}}
       \State{Select $j \in \condset{j \in \bar{J}}{counts[j] = \max_{q \in \bar{J}} counts[q]}$ uniformly at random.}
@@ -463,9 +603,9 @@ verification.
       \State{$R = R \cup \set{r}$.}
       \State{$m = m + 1.$}
       \EndWhile
-    \If {$m > s$} \Return{NO} \EndIf
+    \If {$m > s$} \Return{NO}. \EndIf
   \EndFor
-  \State{\Return{MAYBE}}
+  \State{\Return{MAYBE}.}
 \end{algorithmic}
 \end{algorithm}
 
@@ -525,7 +665,7 @@ G|_3$ does not have a perfect matching.
   \caption{: 2D Matching Heuristic}
   \label{alg:2dm}
 \begin{algorithmic}[1]
-  \Require{an $(s,k)$-puzzle $P$.}
+  \Require{An $(s,k)$-puzzle $P$.}
   \Ensure{YES, if $P$ is found to be strong USP, and MAYBE otherwise.}
   \State{Construct 3DM instance $G : [s] \times [s] \times [s] \rightarrow \set{0,1}$ using $P$.}
   \State{\texttt{// Construct projections.}}
