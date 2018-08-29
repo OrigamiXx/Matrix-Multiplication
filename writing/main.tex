@@ -305,7 +305,7 @@ $\omega = 2$ using the Cohn and Umans' approach.
 \subsection{3DM to 3SAT}
 \label{subsec:3sat}
 
-\section{Heuristics for Strong USPs}
+\subsection{Heuristics}
 \label{sec:heuristic}
 
 Despite our efforts devise an exact algorithm for verifying strong
@@ -328,7 +328,7 @@ algorthmic randomness MAYBE can be also be output and can vary between
 independent runs.  The heuristics have several different forms, but
 all rely ultimately on structural properties of strong USP.
 
-\subsection{Downward Closed}
+\subsubsection{Downward Closed}
 
 The simplest heuristics we considered were based on the fact that
 strong USP are downward closed, that is, if $P$ is a strong USP, then
@@ -375,7 +375,7 @@ increasing $s'$ as it substantially increases precompute time and
 storage while each stored value contributes relatively less to
 verification as there are now many more values stored.
 
-\subsection{Random Greedy}
+\subsubsection{Random Greedy}
 
 This heuristic attempts to solve the 3D-Matching instance associated
 with verifying a puzzle $P$ (discussed in \autoref{sec:3DM}).  The
@@ -449,8 +449,15 @@ when it fails to extend the 3D matching this permits the expected time
 to much less than the worst case.  For a puzzle $P$ that is a strong
 USP, the heuristic takes the full $\Omega(s^3 t + T_{3DM}(s,k))$ time.  
 
+
 \begin{comment}
-\subsection{Graph Automorphism}
+\subsubsection{Random}
+
+XXX - There's also a random reordering heuristic, but I don't remember
+the justification for it.  It's more elaborate than the other, but
+less motivated.
+ 
+\subsubsection{Graph Automorphism}
 
 A strong uniquely-solvable puzzle must also be a uniquely-solvable
 puzzle.  Given a puzzle $P$ we can construct a graph $G_P$ such that
@@ -462,7 +469,7 @@ remove this section or add to future work.
 
 \end{comment}
 
-\subsection{2D Matching}
+\subsubsection{2D Matching}
 
 The final heuristic we present is one-sided in the opposite direction
 of the others, it may return YES or MAYBE.  In order for a hypergraph
