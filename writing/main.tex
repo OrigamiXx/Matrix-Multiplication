@@ -345,7 +345,7 @@ definition of strong uniquely solvable puzzles
 \begin{algorithmic}[1]
   \Require{An $(s,k)$-puzzle $P$.}
   \Ensure{YES, if $P$ is a strong USP and NO otherwise.}
-
+  \Function{VerifyBruteForce}{$P$}
   \For{$\pi_1 \in \Sym{P}$}
     \For{$\pi_2 \in \Sym{P}$}
       \If{$\pi_1 \neq 1 \vee \pi_2 \neq 1$}
@@ -360,6 +360,7 @@ definition of strong uniquely solvable puzzles
     \EndFor
   \EndFor
   \State{\Return{YES}.}
+  \EndFunction
 \end{algorithmic}
 \end{algorithm}
 Note that $1$ in Line 3 denotes the identity permutation in $\Sym{P}$,
@@ -509,7 +510,7 @@ observation.
 \begin{algorithmic}[1]
   \Require{An $(s,k)$-puzzle $P$.}
   \Ensure{YES, if $P$ is a strong USP and NO otherwise.}
-
+  \Function{VerifyBidirectional}{$P$}
   \State{Let $T = \emptyset$.}
   \State{Construct $H_P$.}
   \Function{SearchHalf}{$\ell, Q,\ell_Q, R,\ell_R, \delta, t$}
@@ -534,7 +535,7 @@ observation.
   
   \State{\textsc{SearchHalf}$(1,\emptyset, 0, \emptyset, 0, 1, \lfloor s / 2 \rfloor + 1)$.}
   \State{\Return{\textsc{SearchHalf}$(s, \emptyset, 0, \emptyset, 0, -1, \lfloor s/2 \rfloor)$}.}
- 
+  \EndFunction
 \end{algorithmic}
 \end{algorithm}
 
@@ -597,9 +598,38 @@ beyond the contents of $T$.
 
 \subsection{3DM to 3SAT}
 
+XXX - Todo Jerry.
+
+\label{subsec:sat}
+
+\begin{algorithm}
+  \caption{: Reduction to satisfiability}
+  \label{alg:sat}
+\begin{algorithmic}[1]
+  \Require{An $(s,k)$-puzzle $P$.}
+  \Ensure{YES, if $P$ is a strong USP and NO otherwise.}
+  \Function{VerifySAT}{$P$}
+  \EndFunction
+\end{algorithmic}
+\end{algorithm}
+  
 \subsection{3DM to MIP}
 
-\label{subsec:3sat}
+XXX - Todo Anthony.
+
+\label{subsec:mip}
+
+\begin{algorithm}
+  \caption{: Reduction to mixed integer programming}
+  \label{alg:mip}
+\begin{algorithmic}[1]
+  \Require{An $(s,k)$-puzzle $P$.}
+  \Ensure{YES, if $P$ is a strong USP and NO otherwise.}
+  \Function{VerifyMIP}{$P$}
+  \EndFunction
+\end{algorithmic}
+\end{algorithm}
+
 
 \subsection{Heuristics}
 \label{sec:heuristic}
@@ -637,10 +667,12 @@ that can determine that a puzzle is not a strong USP.
 \begin{algorithmic}[1]
   \Require{An $(s,k)$-puzzle $P$, and size $s' \le s$.}
   \Ensure{NO, if $P$ has a set of $s'$ rows that do not form a strong USP, and MAYBE otherwise.}
+  \Function{HeuristicDownwardClosed}{$P, s'$}
   \For{$P' \sse P, |P'| = s'$}
       \If{$P'$ is not a strong USP} \Return{NO.} \EndIf
   \EndFor{}
   \State{\Return{MAYBE}.}
+  \EndFunction
 \end{algorithmic}
 \end{algorithm}
 
@@ -671,7 +703,25 @@ increasing $s'$ as it substantially increases precompute time and
 storage while each stored value contributes relatively less to
 verification as there are now many more values stored.
 
-\subsubsection{Random Greedy}
+\subsubsection{Random}
+
+XXX - There's also a random reordering heuristic, but I don't remember
+the justification for it.  It's more elaborate than the other, but
+less motivated.
+
+\begin{algorithm}
+  \caption{: Random Heuristic}
+  \label{alg:random}
+\begin{algorithmic}[1]
+  \Require{An $(s,k)$-puzzle $P$, and iteration bound $t$.}
+  \Ensure{NO, if a witness is found for $P$ not being a strong USP, and MAYBE otherwise.}
+  \Function{HeuristicRandom}{$P$}
+  \State{XXX - Fill out.}
+  \EndFunction
+\end{algorithmic}
+\end{algorithm} 
+
+\subsubsection{Greedy}
 
 This heuristic attempts to solve the 3D-Matching instance associated
 with verifying a puzzle $P$ (discussed in \autoref{sec:3DM}).  The
@@ -688,11 +738,12 @@ and effectively reduced the number of instances requiring a full
 verification.
 
 \begin{algorithm}
-  \caption{: Random Greedy Heuristic}
+  \caption{: (Random) Greedy Heuristic}
   \label{alg:random-greedy}
 \begin{algorithmic}[1]
   \Require{An $(s,k)$-puzzle $P$, and iteration bound $t$.}
   \Ensure{NO, if a witness is found for $P$ not being a strong USP, and MAYBE otherwise.}
+  \Function{HeuristicGreedy}{$P$}
   \State{Construct 3DM instance $G : [s] \times [s] \times [s] \rightarrow \set{0,1}$ using $P$.}
   \For{$i = 1$ to $t$}
     \For{$j = 1$ to $s$}
@@ -721,6 +772,7 @@ verification.
     \If {$m > s$} \Return{NO}. \EndIf
   \EndFor
   \State{\Return{MAYBE}.}
+  \EndFunction
 \end{algorithmic}
 \end{algorithm}
 
@@ -747,11 +799,7 @@ USP, the heuristic takes the full $\Omega(s^3 t + T_{3DM}(s,k))$ time.
 
 
 \begin{comment}
-\subsubsection{Random}
 
-XXX - There's also a random reordering heuristic, but I don't remember
-the justification for it.  It's more elaborate than the other, but
-less motivated.
  
 \subsubsection{Graph Automorphism}
 
@@ -782,6 +830,7 @@ G|_3$ does not have a perfect matching.
 \begin{algorithmic}[1]
   \Require{An $(s,k)$-puzzle $P$.}
   \Ensure{YES, if $P$ is found to be strong USP, and MAYBE otherwise.}
+  \Function{Heuristic2DMatching}{$P$}
   \State{Construct 3DM instance $G : [s] \times [s] \times [s] \rightarrow \set{0,1}$ using $P$.}
   \State{\texttt{// Construct projections.}}
   \State{Define projection $G|_1(b,c) = \vee_{a \in [s]} G(a,b,c)$.}
@@ -793,6 +842,7 @@ G|_3$ does not have a perfect matching.
   \Else
   \State{\Return{YES.}}
   \EndIf
+  \EndFunction
 \end{algorithmic}
 \end{algorithm}
 
@@ -810,12 +860,51 @@ has a 3D matching.
 
 
 
+\subsection{Hybrid Algorithm}
 
+Our final verification algorithm is a hybrid of several verification
+algorithms and heuristics.  The size thresholds for which algorithm
+and heuristic to apply were determined experimentally for small $k$
+and were focused on the values were our strong USP search algorithms
+were tractable $k \le 6$ (or nearly tractable $k \le 8$).  We decided
+to run both the reduction to SAT and MIP in parallel because it was
+not clear which algorithm performed better.  Since verification halts
+when either algorithm completes the wasted effort is within a factor
+of two of what the better algorithm could have done alone.  We also
+chose to do this because we experimentally observed that there were
+many instances that one of the algorithms struggled with that the
+other did not.  We end up not using \textsc{Heuristic2DMatching}
+because it rarely produced definitive output.
+
+\begin{algorithm}
+  \caption{: Final Hybrid Verification Algorithm}
+  \label{alg:2dm}
+\begin{algorithmic}[1]
+  \Require{An $(s,k)$-puzzle $P$.}
+  \Ensure{YES, if $P$ is found to be strong USP, and MAYBE otherwise.}
+  \Function{Verify}{$P$}
+  \If{$s \le 2$} \Return{\Call{VerifyBruteForce}{$P$}.} \EndIf
+  \If{$s \le 7$} \Return{\Call{VerifyBidirectional}{$P$}.} \EndIf
+  \If{$s \le 10$}
+    \State{Return result if \Call{HeuristicDownwardClosed}{$P, 2$} is not MAYBE.}
+    \State{\Return{\Call{VerifyBidirectional}{$P$}.}}
+    \EndIf
+  \State{Return result if \Call{HeuristicDownwardClosed}{$P, 3$} is not MAYBE.}
+  \State{Return result if \Call{HeuristicRandom}{$P$} is not MAYBE.}
+  \State{Return result if \Call{HeuristicGreedy}{$P$} is not MAYBE.}
+  \State{Run \Call{VerifySAT}{$P$} and \Call{VerifyMIP}{$P$} in parallel and return first result.}
+  \EndFunction
+\end{algorithmic}
+\end{algorithm}
 
 
 
 \section{Searching for Strong USPs}
 \label{sec:search}
+
+\subsection{Naive Search}
+
+\subsection{Map-Reduce}
 
 \section{Experimental Results}
 \label{sec:results}
