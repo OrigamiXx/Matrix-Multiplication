@@ -499,9 +499,9 @@ matching quickly led to a linear exponential time algorithm which much
 more practical.  The reduction allows us to replace the permutations
 from $\Sym{P}$ with subsets of $P$ and effectively reduce the cost of
 the outer loops of \autoref{alg:brute-force} from $s! =
-\Theta(2^{s\log s}$ to $2^s$.  We now describe a recursive dynamic
-programming bidirectional strong USP verification algorithm that uses
-this observation.
+\Theta(2^{s\log s}$ to $2^s$.  We now describe a recursive
+bidirectional strong USP verification algorithm that uses this
+observation.
 
 \begin{algorithm}
   \caption{: Bidirectional}
@@ -522,8 +522,8 @@ this observation.
     \EndIf
   \EndIf    
   \State{$result = false$.} \Comment{Recursive Case}
-  \For{$\ell'_Q = \ell_Q + 1$ to $|P|$}
-    \For{$\ell'_R = \ell_R + 1$ to $|P|$}
+  \For{$\ell'_Q = \ell_Q + 1$ to $s$}
+    \For{$\ell'_R = \ell_R + 1$ to $s$}
       \If{$(p_\ell, p_{\ell'_Q}, p_{\ell'_R}) \in H_P$}
         \State{$result = result~\vee$ \textsc{SearchHalf}$(\ell + \delta, Q \cup \set{p_{\ell'_Q}}, \ell'_Q, R \cup \set{p_{\ell'_R}}, \ell'_R, \delta, t)$.}
       \EndIf
@@ -532,11 +532,68 @@ this observation.
   \State{\Return{$result$.}}
   \EndFunction
   
-  \State{\textsc{SearchHalf}$(1,\emptyset, 0, \emptyset, 0, 1, \lfloor |P| / 2 \rfloor + 1)$.}
-  \State{\Return{\textsc{SearchHalf}$(|P|, \emptyset, 0, \emptyset, 0, -1, \lfloor |P|/2 \rfloor)$}.}
+  \State{\textsc{SearchHalf}$(1,\emptyset, 0, \emptyset, 0, 1, \lfloor s / 2 \rfloor + 1)$.}
+  \State{\Return{\textsc{SearchHalf}$(s, \emptyset, 0, \emptyset, 0, -1, \lfloor s/2 \rfloor)$}.}
  
 \end{algorithmic}
 \end{algorithm}
+
+\autoref{alg:bi} consists of two phases. Let $t = s/2 \rfloor$. he
+first phase determines all possible sets $Q,R \sse P$ with $|Q| = |R|
+= t$ such that there is 3D matching $M_1$ of $H_P$ when restricted to
+the vertices $\set{p_1,p_2, \ldots, p_t} \sqcup Q \sqcup R$.  The sets
+$Q,R$ satisfying the requirement are stored in $T$ during the first
+phase on Line 6.  The second phase determines all possible sets $Q,R
+\sse P$ with $|Q| = |R| = s - t$ such that there is a 3D matching
+$M_2$ of $H_P$ when restricted to the vertices
+$\set{p_{t+1},p_{t+2},\ldots,p_s} \sqcup Q \sqcup R$.  For each pair
+$(Q,R)$ the algorithm determines in the second phase it checks whether
+$(P - Q, P - R)$ was inserted into $T$ during the first phase.  If the
+pair is present it means that there is a 3D matching of $H_P$ which is
+$M = M_1 \cup M_2$.  This works because $M_1$ and $M_2$ are partial 3D
+matchings and vertex disjoint.  This is because $M_1$ is a 3D matching
+on $\set{p_1,\ldots,p_t}$ and $M_2$ is a 3D matching on
+$\set{p_{t+1},\ldots p_s}$, and because in Line 9 of \autoref{alg:bi}
+the lookup is performed on the complementary sets.  The second phase
+returns whether a complete matching could be found, and hence by
+\autoref{lem:verify-to-3dm} whether $P$ is a strong USP.  (Note that
+the first phase always returns $false$.)
+
+The running time of this algorithm is dominanted by the number of
+pairs of sets $(Q,R)$ it examines.  Observe that rows of $P$ are
+considered in order in Lines 14 \& 15.  Further, the algorithm tracks
+the index of last elements added to $Q$ and $R$ in $\ell_Q$ and
+$\ell_R$ respectively.  The algorithm only adds new elements to $Q$ or
+$R$ that have higher indexes than ones previously added.  Altogether
+this implies that each pair of sets $(Q,R)$ is only considered at most
+once during a phase.  Since $Q, R \sse P$, there are at most $2^s
+\cdot 2^s$ pairs $(Q,R)$.  This means that \textsc{SearchHalf} is
+called at most $4^s$ times during each phase.  Hence the running time
+of the algorithm is $O(4^s \cdot s^2 \cdot \poly(s) + T_{3DM}(s,k))$
+where $s^2$ factor comes from the inner loops and $T_{3DM}(s,k)$
+accounts for the time to construct $H_P$.  The memory requirements of
+\autoref{alg:bi} are similarly high -- the first phase uses $O(4^s
+\cdot s)$ to store $T$.  
+
+Note that algorithm does not early terminate on $P$ that are strong
+USP, because it must search through all pairs before determining that
+none can be found.  The algorithm could be modified to allow early
+termination when $P$ is not a strong USP by causing the second phase
+of search to immediately return in Line 17 once the first 3D matching
+witness has been located.  However, this still requires the first
+phase to run to completion.  A remedy for this would be to run both
+phases in parallel and have them check against each other.  This would
+substantially complicate the implementation, and not substantially
+improve the practical running time for puzzles that are strong USP.
+
+In the implementation of \autoref{alg:bi} we represented the sets
+$Q,R$ using bit sets encoded into a single 64-bit long.  This
+permitted it to represent these sets for $s \le 32$.  We implemented
+$T$ using a hash table (maps from the C++ standard template library).
+These choices made the basic data structure operations in
+implementation effectively constant time, and have low memory overhead
+beyond the contents of $T$.
+
 
 \subsection{3DM to 3SAT}
 
