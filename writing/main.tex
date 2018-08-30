@@ -493,6 +493,8 @@ matching.  Since we believe that verification is not \coNP-complete we
 will use properties of strong USP and puzzles to provide additional
 structure that algorithms can take advantage of.
 
+XXX - Discuss simplifyTDM.
+
 \subsection{Bidirectional Search}
 
 The realization that verification of strong USP is a variant of 3D
@@ -892,12 +894,10 @@ because it rarely produced definitive output.
   \State{Return result if \Call{HeuristicDownwardClosed}{$P, 3$} is not MAYBE.}
   \State{Return result if \Call{HeuristicRandom}{$P$} is not MAYBE.}
   \State{Return result if \Call{HeuristicGreedy}{$P$} is not MAYBE.}
-  \State{Run \Call{VerifySAT}{$P$} and \Call{VerifyMIP}{$P$} in parallel and return first result.}
+  \State{Run \Call{VerifySAT}{$P$} and \Call{VerifyMIP}{$P$} in parallel and return the first result.}
   \EndFunction
 \end{algorithmic}
 \end{algorithm}
-
-
 
 \section{Searching for Strong USPs}
 \label{sec:search}
@@ -905,6 +905,15 @@ because it rarely produced definitive output.
 \subsection{Naive Search}
 
 \subsection{Map-Reduce}
+
+\begin{comment}
+  Not planning to discuss:
+  \begin{itemize}
+  \item A$^*$ + admissible heuristics.
+  \item Upper bounds from A$^*$.
+  \item Symmetry removal.
+  \end{itemize}
+\end{comment}
 
 \section{Experimental Results}
 \label{sec:results}
