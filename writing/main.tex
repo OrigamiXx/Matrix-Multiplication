@@ -503,6 +503,7 @@ the outer loops of \autoref{alg:brute-force} from $s! =
 programming bidirectional strong USP verification algorithm that uses
 this observation.
 
+\begin{comment}
 \begin{algorithm}
   \caption{: Bidirectional}
   \label{alg:bi}
@@ -542,8 +543,90 @@ this observation.
 \end{algorithmic}
 \end{algorithm}
 
+\end{comment}
+
+\begin{algorithm}
+  \caption{: Bidirectional}
+  \label{alg:bi}
+\begin{algorithmic}[1]
+  \Require{An $(s,k)$-puzzle $P$.}
+  \Ensure{YES, if $P$ is a strong USP and NO otherwise.}
+
+  \State{Let $T = \emptyset$.}
+  \State{Construct $H_P$.}
+  \Function{SearchHalf}{$\ell, Q,\ell_Q, R,\ell_R, \delta, t$}
+  \If{$\ell = t$}
+    \If{$\delta = 1$} \Comment{Forward Base Case}
+      \State{Insert $(Q,R)$ into $T$.}
+      \State{\Return{$false$}.}
+    \Else \Comment{Reverse Base Case}
+      \If{$(P-Q, P-R) \in T$} \State{\Return{$true$}.} \Else \State{\Return{$false$}.} \EndIf
+    \EndIf
+  \EndIf    
+  \State{$result = false$.} \Comment{Recursive Case}
+  \For{$\ell'_Q = \ell_Q + 1$ to $|P|$}
+    \For{$\ell'_R = \ell_R + 1$ to $|P|$}
+      \If{$(p_\ell, p_{\ell'_Q}, p_{\ell'_R}) \in H_P$}
+        \State{$result = result~\vee$ \textsc{SearchHalf}$(\ell + \delta, Q \cup \set{p_{\ell'_Q}}, \ell'_Q, R \cup \set{p_{\ell'_R}}, \ell'_R, \delta, t)$.}
+      \EndIf
+    \EndFor
+  \EndFor
+  \State{\Return{$result$.}}
+  \EndFunction
+  
+  \State{\textsc{SearchHalf}$(1,\emptyset, 0, \emptyset, 0, 1, \lfloor |P| / 2 \rfloor + 1)$.}
+  \State{\Return{\textsc{SearchHalf}$(|P|, \emptyset, 0, \emptyset, 0, -1, \lfloor |P|/2 \rfloor)$}.}
+ 
+\end{algorithmic}
+\end{algorithm}
 
 
+\begin{comment}
+
+\begin{algorithm}
+  \caption{: Bidirectional}
+  \label{alg:bi}
+\begin{algorithmic}[1]
+  \Require{An $(s,k)$-puzzle $P$.}
+  \Ensure{YES, if $P$ is a strong USP and NO otherwise.}
+  \State{Let $T = \emptyset$.}
+  \State{Construct $H_P$.}
+  \Function{SearchForward}{$\ell, Q,\ell_Q, R,\ell_R$}
+  \If{$\ell = \lfloor |P|/2 \rfloor + 1$}
+    \State{Insert $(Q,R)$ into $T$.}
+    \State{\Return{.}}
+  \EndIf    
+  \For{$\ell'_Q = \ell_Q + 1$ to $|P|$}
+    \For{$\ell'_R = \ell_R + 1$ to $|P|$}
+      \If{$(p_\ell, p_{\ell'_Q}, p_{\ell'_R}) \in H_P$}
+        \State{\textsc{SearchForward}$(\ell + \delta, Q \cup \set{p_{\ell'_Q}}, \ell'_Q, R \cup \set{p_{\ell'_R}}, \ell'_R)$}
+      \EndIf
+    \EndFor
+  \EndFor
+  \EndFunction
+
+  \Function{SearchReverse}{$\ell, Q,\ell_Q, R,\ell_R$}
+  \If{$\ell = \lfloor |P|/2 \rfloor$}
+    \State{\Return{$true$ iff $(P-Q,P-R) \in T$}.}
+  \EndIf
+  \State{$result = false$.}
+  \For{$\ell'_Q = \ell_Q + 1$ to $|P|$}
+    \For{$\ell'_R = \ell_R + 1$ to $|P|$}
+      \If{$(p_\ell, p_{\ell'_Q}, p_{\ell'_R}) \in H_P$}
+        \State{$result = result~\vee$ \textsc{SearchReverse}$(\ell + \delta, Q \cup \set{p_{\ell'_Q}}, \ell'_Q, R \cup \set{p_{\ell'_R}}, \ell'_R)$}
+      \EndIf
+    \EndFor
+  \EndFor
+  \State{\Return{$result$.}}
+  \EndFunction
+  
+  \State{\textsc{SearchForward}$(1,\emptyset, 0, \emptyset, 0)$.}
+  \State{\Return{\textsc{SearchReverse}$(|P|, \emptyset, 0, \emptyset, 0)$}.}
+ 
+\end{algorithmic}
+\end{algorithm}
+
+\end{comment}
 
 
 \subsection{3DM to 3SAT}
