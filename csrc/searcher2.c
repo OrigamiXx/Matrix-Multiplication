@@ -294,6 +294,55 @@ int generic_search(int k, heuristic_policy_t hp){
 //
 //======================================================================
 
+void print_frontier_dist(std::priority_queue<heuristic_result> * frontier){
+
+  static struct timespec last_log = {0,0};
+  static bool first_log = false;
+  if (!first_log){
+    clock_gettime(CLOCK_MONOTONIC, &last_log);
+    first_log = true;
+  }
+
+  struct timespec curr_time = {0,0};
+  clock_gettime(CLOCK_MONOTONIC, &curr_time);
+
+  if (diff_time(last_log, curr_time) < 0.0001)
+    return;
+  
+  last_log = curr_time;
+
+  std::priority_queue<heuristic_result> tmp;
+
+  unsigned long diff = 10;
+  
+  unsigned long max_ideal = frontier -> top().ideal;
+  unsigned long counts[max_ideal + 1];
+  bzero(counts, (max_ideal + 1) * sizeof(unsigned long));
+  
+  while(!frontier -> empty()){
+    heuristic_result hr = frontier -> top();
+    frontier -> pop();
+    counts[hr.ideal]++;
+    tmp.push(hr);
+
+    if (hr.ideal + diff < max_ideal)
+      break;
+  }
+
+  while(!tmp.empty()){
+    heuristic_result hr = tmp.top();
+    tmp.pop();
+    frontier -> push(hr);
+  }
+  
+
+  for(unsigned long i = 0; i < diff; i++)
+    printf("%lu: %lu, ", max_ideal - i, counts[max_ideal - i]);
+  printf("\n");
+
+      
+}
+
 // Takes a puzzle width k and an admissible heuristic policy hp and
 // performs A* search.  Returns the size of the largest width-k strong
 // uniquely solvable puzzle.  Warning: Has side effect of clearing
@@ -325,12 +374,11 @@ unsigned int global_search(int k, heuristic_policy_t hp){
   // Loop until frontier examined.
   while(!frontier.empty()){
 
+    print_frontier_dist(&frontier);
+    
     // Remove strongest candidate.
     heuristic_result hr = frontier.top();
     frontier.pop();
-
-    printf("\r%lu %lu",hr.ideal, frontier.size());
-    fflush(stdout);
     
     // Update best.
     if (best < hr.p -> s)
@@ -481,7 +529,7 @@ priority_queue<heuristic_result> * mip_clique_h(puzzle * p, ExtensionGraph * eg)
       if (new_eg->size() < 2)
 	result = new_eg->size();
       else
-	result = max_clique_mip(new_eg);
+	result = clique_mip_h(new_eg);
       
       assert(result <= new_eg->size());
 

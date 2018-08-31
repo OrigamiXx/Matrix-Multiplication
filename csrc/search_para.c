@@ -22,16 +22,23 @@
 #include "3DM_to_MIP.h"
 #include "3DM_to_SAT.h"
 #include "canonization.h"
+#include "clique_to_mip.h"
 
 using namespace MAPREDUCE_NS;
 
+bool check_isomorphs = true;
+double check_isomorphs_threshold = 0.01;
+int target = -1; // Target number of puzzles to pass between phases, -1 for all.
+double prob;
 
 void cull(char *, int, char *, int, int *, KeyValue *, void *);
 
 void cull(char *key, int keybytes, char *multivalue,
 	  int nvalues, int *valuebytes, KeyValue *kv, void *ptr)
 {
-  kv->add(key,keybytes,NULL,0);
+  if (target <= 0 || drand48() <= prob){
+    kv->add(key,keybytes,NULL,0);
+  }
 }
 
 
@@ -95,34 +102,78 @@ void row_one_keys(int itask, KeyValue *kv, void *ptr){
    
 }
 
-void extend_puzzle(uint64_t itask, char * key, int keybytes, char *value, int valuebytes, KeyValue *kv, void *ptr){
+
+void extend_puzzle_basic(uint64_t itask, char * key, int keybytes, char *value, int valuebytes, KeyValue *kv, void *ptr){
+
+  puzzle * p = create_puzzle(row, column);
+  
+  memcpy(p -> puzzle, (puzzle_row *)key, sizeof(puzzle_row) * (row - 1));
+    
+  for(puzzle_row r = p -> puzzle[row-2] + 1; r < p -> max_row; r++){
+    if (check(p) == IS_USP)
+      kv->add((char*)(p -> puzzle), row * sizeof(puzzle_row), NULL, 0);
+  }
+  
+  destroy_puzzle(p);
+}
+
+void extend_puzzle_extension(uint64_t itask, char * key, int keybytes, char *value, int valuebytes, KeyValue *kv, void *ptr){
 
   puzzle * p = create_puzzle(row -1, column);
   
   memcpy(p -> puzzle, (puzzle_row *)key, sizeof(puzzle_row) * (row - 1));
+
+  ExtensionGraph * eg = new ExtensionGraph(p);
+  
+  // Helper function that sets heuristic result for every vertex in eg
+  // to its degree.  No vertices are deleted.
+  auto reduce_helper = [p, eg, kv](unsigned long index_u, unsigned long label_u, unsigned long degree_u) -> bool{
+
+    puzzle * p2 = extend_puzzle(p, 1);
+    p2 -> puzzle[p2 -> s - 1] = label_u;
     
-  for(puzzle_row r = 0 /* p -> puzzle[row-2] + 1*/; r < p -> max_row; r++){
-
-    puzzle * p2 = create_puzzle_from_puzzle(p, r);
-
-    int percentage = 100;
-    if (rand() % 100 < percentage && check(p2) == IS_USP) {
+    if (check_isomorphs)
       canonize_puzzle(p2);
-      //if (!have_seen_isomorph(p2))
-      kv->add((char*)(p2 -> puzzle), row * sizeof(puzzle_row), NULL, 0);
+    
+    kv->add((char*)(p2 -> puzzle), p2 -> s * sizeof(puzzle_row), NULL, 0);
+
+    destroy_puzzle(p2);
+    
+    return true;
+  };
+
+  // Computes the heuristic for each vertex.
+  eg->reduceVertices(reduce_helper, false);
+
+  destroy_puzzle(p);
+}
+
+void extend_puzzle(uint64_t itask, char * key, int keybytes, char *value, int valuebytes, KeyValue *kv, void *ptr){
+
+  puzzle * p = create_puzzle(row-1, column);
+  
+  memcpy(p -> puzzle, (puzzle_row *)key, sizeof(puzzle_row) * (row - 1));
+    
+  for(puzzle_row r = 0; r < p -> max_row; r++){
+    puzzle * p2 = create_puzzle_from_puzzle(p, r);
+    if (check(p2) == IS_USP){
+      if (check_isomorphs)
+	canonize_puzzle(p2);
+      kv->add((char*)(p2 -> puzzle), p2 -> s * sizeof(puzzle_row), NULL, 0);
     }
-	
     destroy_puzzle(p2);
   }
   
   destroy_puzzle(p);
 }
+
 /* ---------------------------------------------------------------------- */
 
 int main(int narg, char **args)
 {
   MPI_Init(&narg,&args);
-
+  srand48(time(NULL));
+  
   int me,nprocs;
   MPI_Comm_rank(MPI_COMM_WORLD,&me);
   MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
@@ -167,18 +218,33 @@ int main(int narg, char **args)
     row = random_rows + 1;
   }
   while(count != 0){
-    mr->map(mr,&extend_puzzle, NULL);
-    count = mr->collate(NULL);
-    mr->reduce(&cull,NULL);
-    if (me == 0) {
-      printf("%d usps for row %d\n",count, row);
-    }
 
-    row++;
+    int map_count = mr->map(mr,&extend_puzzle, NULL);
+    int col_count = mr->collate(NULL);
+    double ave_branching = (double)col_count / count; 
+    prob = (double)target / (double)col_count;
+    count = mr->reduce(&cull,NULL);
+
+
     double tnow = MPI_Wtime();
     if(me == 0){
-      printf("this program has run: %g secs\n", tnow-tstart);
+      printf("Cumulative time (secs): %g secs\n", tnow-tstart);
     }
+    
+    if (me == 0) {
+      printf("%d <= %d (%.2fx) <= %d usps for row %d\n", count, col_count, ave_branching, map_count, row);
+    }
+    
+    if (check_isomorphs && (double)(map_count - col_count) / map_count < check_isomorphs_threshold){
+      if (me == 0)
+	printf("===>>> Checking isomorphs disabled <<<===\n");
+      check_isomorphs = false;
+    }
+
+    if (me == 0)
+      printf("\n");
+    row++;
+    
     reset_isomorphs();
     //row++;
   }

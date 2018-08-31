@@ -8,6 +8,7 @@
 #include "gurobi_c++.h"
 #include "ExtensionGraph.hpp"
 
-int max_clique_mip(ExtensionGraph * eg);
+int clique_mip_h(ExtensionGraph * eg);
+int clique_mip_h(puzzle * p);
 
 #endif

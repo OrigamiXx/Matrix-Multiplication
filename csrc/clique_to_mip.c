@@ -141,7 +141,14 @@ int get_max_clique_mip(ExtensionGraph * eg, GRBmodel * model) {
 }
 
 
-int max_clique_mip(ExtensionGraph *eg) {
+int clique_mip_h(puzzle * p){
+
+  ExtensionGraph g(p);
+  return clique_mip_h(&g);
+
+}
+
+int clique_mip_h(ExtensionGraph *eg) {
   assert(ensure_clique_env_loaded_quiet());
 
   GRBmodel * model = NULL;
