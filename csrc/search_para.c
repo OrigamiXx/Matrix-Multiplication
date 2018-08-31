@@ -103,15 +103,16 @@ void extend_puzzle(uint64_t itask, char * key, int keybytes, char *value, int va
     
   for(puzzle_row r = 0 /* p -> puzzle[row-2] + 1*/; r < p -> max_row; r++){
 
-    puzzle * p2 = create_puzzle_from_puzzle(p, r);
-    canonize_puzzle(p2);
+    p -> puzzle[row-1] = r;
+    //puzzle * p2 = create_puzzle_from_puzzle(p, r);
+    //canonize_puzzle(p2);
     
     int percentage = 100;
-    if (rand() % 100 < percentage && check(p2) == IS_USP)
+    if (rand() % 100 < percentage && check(p) == IS_USP)
       //if (!have_seen_isomorph(p2))
-	kv->add((char*)(p2 -> puzzle), row * sizeof(puzzle_row), NULL, 0);
+	kv->add((char*)(p -> puzzle), row * sizeof(puzzle_row), NULL, 0);
 
-    destroy_puzzle(p2);
+    //destroy_puzzle(p2);
   }
   
   destroy_puzzle(p);
