@@ -97,19 +97,21 @@ void row_one_keys(int itask, KeyValue *kv, void *ptr){
 
 void extend_puzzle(uint64_t itask, char * key, int keybytes, char *value, int valuebytes, KeyValue *kv, void *ptr){
 
-  puzzle * p = create_puzzle(row, column);
-
-  memcpy(p -> puzzle, (puzzle_row *)key, sizeof(puzzle_row) * (row - 1));
-
-  puzzle_row * puz = p -> puzzle;
+  puzzle * p = create_puzzle(row -1, column);
   
-  for(puz[row - 1] = 0 /*puz[row-2] + 1*/; puz[row - 1] < p -> max_row; puz[row - 1]++){
-   
-    int percentage = 100;
-    if (rand() % 100 < percentage && check(p) == IS_USP)
-      if (!have_seen_isomorph(p))
-	kv->add((char*)(p -> puzzle), row * sizeof(puzzle_row), NULL, 0);
+  memcpy(p -> puzzle, (puzzle_row *)key, sizeof(puzzle_row) * (row - 1));
+    
+  for(puzzle_row r = 0 /* p -> puzzle[row-2] + 1*/; r < p -> max_row; r++){
 
+    puzzle * p2 = create_puzzle_from_puzzle(p, r);
+    canonize_puzzle(p2);
+    
+    int percentage = 100;
+    if (rand() % 100 < percentage && check(p2) == IS_USP)
+      //if (!have_seen_isomorph(p2))
+	kv->add((char*)(p2 -> puzzle), row * sizeof(puzzle_row), NULL, 0);
+
+    destroy_puzzle(p2);
   }
   
   destroy_puzzle(p);
@@ -164,12 +166,13 @@ int main(int narg, char **args)
     row = random_rows + 1;
   }
   while(count != 0){
-    count =  mr->map(mr,&extend_puzzle, NULL);
+    mr->map(mr,&extend_puzzle, NULL);
+    count = mr->collate(NULL);
+    mr->reduce(&cull,NULL);
     if (me == 0) {
       printf("%d usps for row %d\n",count, row);
     }
-    mr->collate(NULL);
-    mr->reduce(&cull,NULL);
+
     row++;
     double tnow = MPI_Wtime();
     if(me == 0){

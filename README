@@ -58,17 +58,17 @@ set up Gurobi optimizer correctly on your computer:
 Go to http://www.gurobi.com/downloads/download-center
 
 Click on "Gurobi Optimizer" button to download optimizer. Currently we are
-using version 7.5.1. Download and unzip the file.
+using version 8.0.1. Download and unzip the file.
 
 If you are using bash file, go to your .bashrc file and add the following lines:
 
-export           GUROBI_HOME="/opt/gurobi751/linux64"
+export           GUROBI_HOME="/opt/gurobi801/linux64"
 export           PATH="${PATH}:${GUROBI_HOME}/bin"
 export           LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${GUROBI_HOME}/lib"
 
 Or add the following lines to your .cshrc file if you are using csh shell:
 
-setenv           GUROBI_HOME           /opt/gurobi751/linux64
+setenv           GUROBI_HOME           /opt/gurobi801/linux64
 setenv           PATH           ${PATH}:${GUROBI_HOME}/bin
 setenv           LD_LIBRARY_PATH           ${LD_LIBRARY_PATH}:${GUROBI_HOME}/lib
 
@@ -95,7 +95,7 @@ requirement. Look for the note section.
 Since the machine in Crochet lab are in Ubuntu 16.04, this is an instruction
 for Ubuntu 16.04:
 
-  Get to directory ".../gurobi751/linux64/lib" on command line. Type in "ls -la".
+  Get to directory ".../gurobi801/linux64/lib" on command line. Type in "ls -la".
   There should be a line labeled "libgurobi_c++.a -> ./libgurobi_g++4.2.a".
 
   Unlink libgurobi_c++.a by enter command "unlink libgurobi_c++.a".
