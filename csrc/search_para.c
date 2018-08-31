@@ -21,6 +21,8 @@
 #include "puzzle.h"
 #include "3DM_to_MIP.h"
 #include "3DM_to_SAT.h"
+#include "canonization.h"
+
 using namespace MAPREDUCE_NS;
 
 
@@ -39,7 +41,6 @@ void cull(char *key, int keybytes, char *multivalue,
 
 int column;
 int row;
-int max_poss_row =1;
 
 
 void random_usps(int itask, KeyValue *kv, void *ptr){
@@ -83,10 +84,14 @@ void random_usps(int itask, KeyValue *kv, void *ptr){
 
 
 void row_one_keys(int itask, KeyValue *kv, void *ptr){
+
+  puzzle * p = create_puzzle(1,column);
   
-   for(long i = 0; i < max_poss_row; i++){
-     kv->add((char*)&i, sizeof(puzzle_row), NULL, 0);
-   }
+  for(unsigned long i = 0; i < p -> max_row; i++){
+    p -> puzzle[0] = i;
+    if (!have_seen_isomorph(p))
+      kv->add((char*)&i, sizeof(puzzle_row), NULL, 0);
+  }
    
 }
 
@@ -98,11 +103,12 @@ void extend_puzzle(uint64_t itask, char * key, int keybytes, char *value, int va
 
   puzzle_row * puz = p -> puzzle;
   
-  for(puz[row - 1] = puz[row-2] + 1; puz[row - 1] < p -> max_row; puz[row - 1]++){
+  for(puz[row - 1] = 0 /*puz[row-2] + 1*/; puz[row - 1] < p -> max_row; puz[row - 1]++){
    
     int percentage = 100;
     if (rand() % 100 < percentage && check(p) == IS_USP)
-      kv->add((char*)(p -> puzzle), row * sizeof(puzzle_row), NULL, 0);
+      if (!have_seen_isomorph(p))
+	kv->add((char*)(p -> puzzle), row * sizeof(puzzle_row), NULL, 0);
 
   }
   
@@ -129,9 +135,6 @@ int main(int narg, char **args)
   if(column>19){
     if (me==0) printf("width can not be over 19.");
     MPI_Abort(MPI_COMM_WORLD,1);
-  }
-  for(int i = 0; i<column; i++){
-    max_poss_row = max_poss_row*3;
   }
   MapReduce *mr = new MapReduce(MPI_COMM_WORLD);
   mr->verbosity = 0;
@@ -172,6 +175,7 @@ int main(int narg, char **args)
     if(me == 0){
       printf("this program has run: %g secs\n", tnow-tstart);
     }
+    reset_isomorphs();
     //row++;
   }
 
