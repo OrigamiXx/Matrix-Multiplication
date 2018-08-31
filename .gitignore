@@ -40,3 +40,5 @@ nauty*/genbgL
 nauty*/hamheuristic
 nauty*/watercluster2
 *#*
+objs/*
+nauty*/*.o
