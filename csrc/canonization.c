@@ -114,10 +114,11 @@ void canonize_puzzle(puzzle * p, int s, int k, int n, int * lab, graph * canon_g
   
 }
 
-map<string, bool>seen_isomorphs;
+map<string, int>seen_isomorphs;
+int num_seen = 0;
 
 // Returns true iff no isomorphs of p have been previously seen.
-bool have_seen_isomorph(puzzle * p, bool remember){
+bool have_seen_isomorph(puzzle * p, bool remember, int * index){
 
   int s = p -> s;
   int k = p -> k;
@@ -133,13 +134,19 @@ bool have_seen_isomorph(puzzle * p, bool remember){
   
   string key((char *)canon_g, graph_size);
   
-  map<string, bool>::const_iterator iter = seen_isomorphs.find(key);
+  map<string, int>::const_iterator iter = seen_isomorphs.find(key);
   if (iter != seen_isomorphs.end()){
+    if (index != NULL)
+      *index = iter->second;
     return true;
   }
   
-  if (remember && (MAX_ISOMORPHS == -1 || seen_isomorphs.size() < MAX_ISOMORPHS))
-    seen_isomorphs.insert(pair<string, bool>(key, true));
+  if (remember && (MAX_ISOMORPHS == -1 || seen_isomorphs.size() < MAX_ISOMORPHS)){
+    num_seen++;
+    if (index != NULL)
+      *index = num_seen;
+    seen_isomorphs.insert(pair<string, int>(key, num_seen));
+  }
   
   return false;
 }

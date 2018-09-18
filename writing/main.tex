@@ -902,7 +902,49 @@ because it rarely produced definitive output.
 \section{Searching for Strong USPs}
 \label{sec:search}
 
+In certain respects, the problem of constructing a large strong USP is
+much like the problem of constructing a large set of linearly
+independent vectors in a vector space.  Indeed, the object to be
+constructed is a set and the order which elements are added does not
+matter, further the underlying elements are represented as a vector.
+There are polynomial-time algorithms for determining whether a set of
+vectors are independent, and we have a practical algorithm for
+deciding whether a puzzle is a strong USP. 
+
+There is a straightforward algorithm for constructing maxmimum size
+sets of independent vectors: Start with an empty set $S$, and
+repeatedly add vectors to $S$ which are linearly independent of the
+vectors currently in $S$.  After this process completes, $S$ is a
+largest set of linearly independent vectors.  This problem admits such
+a greedy algorithm because the sets of linearly independent vectors
+form a matroid.  The vector to be added each step can be computed
+efficiently by solving a linear system of equations for vectors in the
+null space of $S$.  Altogether this gives an efficient algorithm to
+compute a maximum set of independent vectors or, more generally, to
+complete a maximum set with some given subset $S'$.
+
+Unfortunately this same approach does not work for generating maximum
+size strong USPs.  The set of strong USP do not form a matroid, rather
+they only form an independence system.  In particular, the empty set
+is a strong USP and the set of strong USPs are downward closed,
+however, the augmentation property required by matroids is not met.
+Indeed, it does not hold even for 2-by-2 strong USPs (XXX - give more
+specific example).  One consequence is that greedy algorithms are
+unlikely to be effective for finding large strong USP.  Moreover, we
+do not currently have a practical (or efficient) algorithm that can
+take a strong USP $P$ and determine the set of rows that can extend
+$P$ while preserving that it is a strong USP.
+
+That said, we have had some success applying general purpose search
+techniques together with our practical verification algorithm to
+construct maximum size strong USPs for small $k$.  In particular, we
+implemented variants of depth-first search (DFS) and breadth-first
+search (BFS) in both desktop and HPC settings.
+
+
+
 \subsection{Naive Search}
+
 
 \subsection{Map-Reduce}
 

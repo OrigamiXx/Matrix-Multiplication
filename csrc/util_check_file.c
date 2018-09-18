@@ -5,6 +5,7 @@
 #include "3DM_to_SAT.h"
 #include "3DM_to_MIP.h"
 #include "heuristic.h"
+#include "canonization.h"
 
 int main(int argc, char * argv[]){
 
@@ -19,6 +20,12 @@ int main(int argc, char * argv[]){
     return -1;
   }
   
+  print_puzzle(p);
+
+  printf("-----\n");
+
+  canonize_puzzle(p);
+
   print_puzzle(p);
 
   /*

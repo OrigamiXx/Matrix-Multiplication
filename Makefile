@@ -19,8 +19,8 @@ RMFLAGS=-f
 OBJ-SOURCES=checker.c permutation.c puzzle.c set.c matching.c 3DM_to_SAT.c timing.c heuristic.c construct.c clique_to_mip.c canonization.c search_MIP.c searcher2.c search_timer.c 
 # Put additional executable sources in list below.
 TESTER-SOURCES=test_3DM_to_SAT.c test_permutation.c test_puzzle.c test_set.c test_matching.c test_scratch.c test_canonization.c test_graph.c test_search_MIP.c
-UTIL-SOURCES=util_check_benchmark.c util_check_file.c util_timer.c util_generate_puzzle.c util_join.c util_construct.c util_submodular.c
-SEARCH-SOURCES=search_greedy.c search_ils.c search_clique.c search_astar.c search_run2.c 
+UTIL-SOURCES=util_check_benchmark.c util_check_file.c util_timer.c util_generate_puzzle.c util_join.c util_construct.c util_submodular.c util_search_automorphism.c
+SEARCH-SOURCES=search_greedy.c search_ils.c search_clique.c search_astar.c search_run2.c search_really_greedy.c
 EXE-SOURCES=$(TESTER-SOURCES) $(UTIL-SOURCES) $(SEARCH-SOURCES)
 
 ifdef GUROBI_HOME
