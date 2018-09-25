@@ -925,15 +925,23 @@ complete a maximum set with some given subset $S'$.
 
 Unfortunately this same approach does not work for generating maximum
 size strong USPs.  The set of strong USP do not form a matroid, rather
-they only form an independence system.  In particular, the empty set
-is a strong USP and the set of strong USPs are downward closed,
-however, the augmentation property required by matroids is not met.
-Indeed, it does not hold even for 2-by-2 strong USPs (XXX - give more
-specific example).  One consequence is that greedy algorithms are
-unlikely to be effective for finding large strong USP.  Moreover, we
-do not currently have a practical (or efficient) algorithm that can
-take a strong USP $P$ and determine the set of rows that can extend
-$P$ while preserving that it is a strong USP.
+they only form an independence system.  In particular, the empty
+puzzle is a strong USP and the set of strong USPs are downward closed,
+so that if $P_2$ is a strong USP and $P_1 \subseq P_2$, then $P_1$ is
+a strong USP.  The third and final property required to be a matroid,
+the augmentation property, requires that for every pair of strong USPs
+$P_1, P_2$ with $|P_1| \le |P_2|$ there is a row of $r \in P_2
+\backslash P_1$ such that $P_1 \cup \set{r}$ is also a strong USP.  A
+simple counterexample with the strong USPs $P_1 = \set{32}$ and $P_2 =
+\set{12, 23}$ concludes that neither $P_1 \cup \set{12} = \set{12,
+  32}$ nor $P_1 \cup \set{23} = \set{23, 32}$ are strong USP, and
+hence the augmentation property does not hold.
+
+One consequence is that wholly greedy algorithms will not be effective
+for finding maximum size strong USPs.  Furthermore, we do not
+currently have a practical or efficient algorithm that can take a
+strong USP $P$ and determine a single row, or set of rows, that can
+extend $P$ while maintaining that it is a strong USP.
 
 That said, we have had some success applying general purpose search
 techniques together with our practical verification algorithm to
