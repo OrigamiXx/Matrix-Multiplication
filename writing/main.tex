@@ -880,7 +880,7 @@ because it rarely produced definitive output.
 
 \begin{algorithm}
   \caption{: Final Hybrid Verification Algorithm}
-  \label{alg:2dm}
+  \label{alg:hybrid}
 \begin{algorithmic}[1]
   \Require{An $(s,k)$-puzzle $P$.}
   \Ensure{YES, if $P$ is found to be strong USP, and MAYBE otherwise.}
@@ -957,7 +957,7 @@ order. We include pseudocode of both searches for completeness.
 
 \begin{algorithm}
   \caption{: Depth-First Search}
-  \label{alg:2dm}
+  \label{alg:dfs}
 \begin{algorithmic}[1]
   \Require{An integer $k \ge 0$, and a width-$k$ strong USP $P$.}
   \Ensure{The number $best$, which is the size of the largest strong USP that has $P$ as a subpuzzle.}
@@ -982,7 +982,7 @@ order. We include pseudocode of both searches for completeness.
 
 \begin{algorithm}
   \caption{: Breadth-First Search}
-  \label{alg:2dm}
+  \label{alg:bfs}
 \begin{algorithmic}[1]
   \Require{An integer $k \ge 0$.}
   \Ensure{The number $best$, which is the size of the largest strong USP that has $P$ as a subpuzzle.}
@@ -1183,16 +1183,38 @@ of $k$ except that they are likely not tight.  Furthermore, it is
 appearant that exhaustive search will not be practical for $k \ge 6$
 unless the search space can be substantially reduced.
 
-XXX - generate, add, and discuss data on search space size, perhaps after removing symmetries.
+XXX - generate, add, and discuss data on search space size, perhaps
+after removing symmetries.
 
 
 \subsection{Algorithm Performance}
 \label{subsec:performance}
 
+XXX - Tables / plots of data on verify's performance.
+
+XXX - Tables / plots of data on search performance?
+
 \section{Conclusions}
 \label{sec:conclusion}
 
-
+We initiated the first study of the verification strong USP and
+developed practical software for both verifying and search for strong
+USP.  We give tight results on the maximum size of width-$k$ strong
+USP for $k \le 5$.  Although our results do not produce a new upper
+bound on the running time of matrix multiplication, they demonstrate
+there is promise in the uniquely solvable puzzle approach.  The
+immediate open question is: What are tight bounds on maximum size
+strong USP for $k \ge 6$ and do these bound lead to asymptotically
+faster algorithms for matrix multiplication?  The main bottleneck in
+our work is the size of the search space.  This leads to a number of
+open questions: Can the size of the search space be lowered by
+additional reductions in symmetry?  We have some preliminary data that
+suggests this is possible, but is not sufficient to make exhaustive
+search width-6 strong USP feasible.  Is there a way to identify rows
+that can be added to a strong USP other than examining all possible
+rows and checking whether the puzzle remains a strong USP?  Are there
+other search strategies that would be more effective on this search
+space?  Is strong USP verification \NP-complete?
 
 \bibliographystyle{customurlbst/alphaurlpp} \bibliography{references}
 
