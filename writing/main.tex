@@ -1047,8 +1047,25 @@ puzzles are already being stored in a queue.
 \section{Experimental Results}
 \label{sec:results}
 
-\subsection{Strong USPs Found}
+Our experimental results come in three flavors for small constant
+values of $k$: (i) constructive lower bounds on the maximum size of
+width-$k$ strong USP, (ii) exhaustive, but nonconstructive, upper
+bounds on the maximum size of width-$k$ strong USP, and (iii)
+experimental run times comparing the various algorithms for verifying
+width-$k$ strong USP.  Here constructive means that specific concrete
+strong USPs are produced by our implementation that witness the bound.
+\textsc{BFS} and \textsc{DFS} when able to run to completion provide
+result of form (i) and (ii) which are tight.  When unable to run to
+completion \textsc{DFS} provides only result of form (i), and, as
+such, are not guaranteed to be tight.
+
+\subsection{New Bounds on the Size of Strong USPs}
 \label{subsec:usps_found}
+
+We begin with a diagram, \autoref{fig:examples}, of representative
+examples of maximal strong USPs we found for $k \le 6$.  For space
+considerations, we omit larger examples found from this article,
+though they are included with the source code of this project.
 
 \begin{figure}
   \label{fig:examples}
@@ -1120,9 +1137,16 @@ puzzles are already being stored in a queue.
     solvable $(s,k)$-puzzles found from width $k = 1$ to $6$.}
 \end{figure}
 
-\autoref{table:compare} summarizes our main results which are
-improved bounds on the maximum size of strong uniquely solvable
-puzzles and compares them to bounds from \cite{cksu05}.  XXX
+\autoref{table:compare} summarizes our main results which are improved
+bounds on the maximum size of strong uniquely solvable puzzles and
+compares them to bounds from \cite{cksu05}.  In this table the
+(constructive) lower bounds and upper bounds are derived from XXX and
+XXX in \cite{cksu05} respectively.  Observe that our experiment
+derives tight bounds for all $k \le 5$ and improves the known lower
+bounds for $k \le 9$.  The column labelled $\omega^*$ denotes the
+upper bound on $\omega$ the strong USP imply when taking the direct
+product with itself finitely mainly times. (XXX - Restructure to write
+as lemma taking fixed size strong USP to $\omega$.)
 \begin{table}
   \label{table:compare}
   \begin{center}
@@ -1149,7 +1173,19 @@ puzzles and compares them to bounds from \cite{cksu05}.  XXX
     $\omega$ in the limit of composing puzzles of these dimensions via
     direct product.}
 \end{table}
-  
+
+We conjecture that $s = 14$ is tight for $k = 6$, given the amount of
+CPU cycles and different algorithmic approaches we have applied to
+this case where it quickly, on order of an hour of CPU time, gets to
+$14$, and makes no further progress in the succeeding month.  We do
+not have any strong beliefs about the lower bounds for larger values
+of $k$ except that they are likely not tight.  Furthermore, it is
+appearant that exhaustive search will not be practical for $k \ge 6$
+unless the search space can be substantially reduced.
+
+XXX - generate, add, and discuss data on search space size, perhaps after removing symmetries.
+
+
 \subsection{Algorithm Performance}
 \label{subsec:performance}
 
