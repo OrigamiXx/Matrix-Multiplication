@@ -246,7 +246,7 @@ pieces like in the original definition.
     \item $(\pi_2(r))_i = 2$.
     \end{enumerate}
   \end{enumerate}
-  
+
 \end{definition}
 
 Observe that the properties of uniquely solvable and strong uniquely
@@ -337,7 +337,7 @@ linear in $s$.
 
 The obvious algorithm for verification comes directly from the
 definition of strong uniquely solvable puzzles
-(\autoref{def:strong-USP}). 
+(\autoref{def:strong-USP}).
 
 \begin{algorithm}
   \caption{: Brute Force}
@@ -355,7 +355,7 @@ definition of strong uniquely solvable puzzles
             \If{$\delta_{r_i, 0} + \delta_{(\pi_1(r))_i, 1} + \delta_{(\pi_2(r))_i, 2} = 2$} $found = true$. \EndIf
           \EndFor
         \EndFor
-        \If{not $found$} \Return{NO.} \EndIf  
+        \If{not $found$} \Return{NO.} \EndIf
       \EndIf
     \EndFor
   \EndFor
@@ -523,7 +523,7 @@ observation.
     \Else \Comment{Reverse Base Case}
       \If{$(P-Q, P-R) \in T$} \State{\Return{$true$}.} \Else \State{\Return{$false$}.} \EndIf
     \EndIf
-  \EndIf    
+  \EndIf
   \State{$result = false$.} \Comment{Recursive Case}
   \For{$\ell'_Q = \ell_Q + 1$ to $s$}
     \For{$\ell'_R = \ell_R + 1$ to $s$}
@@ -534,7 +534,7 @@ observation.
   \EndFor
   \State{\Return{$result$.}}
   \EndFunction
-  
+
   \State{\textsc{SearchHalf}$(1,\emptyset, 0, \emptyset, 0, 1, \lfloor s / 2 \rfloor + 1)$.}
   \State{\Return{\textsc{SearchHalf}$(s, \emptyset, 0, \emptyset, 0, -1, \lfloor s/2 \rfloor)$}.}
   \EndFunction
@@ -576,7 +576,7 @@ of the algorithm is $O(4^s \cdot s^2 \cdot \poly(s) + T_{3DM}(s,k))$
 where $s^2$ factor comes from the inner loops and $T_{3DM}(s,k)$
 accounts for the time to construct $H_P$.  The memory requirements of
 \autoref{alg:bi} are similarly high -- the first phase uses $O(4^s
-\cdot s)$ to store $T$.  
+\cdot s)$ to store $T$.
 
 Note that algorithm does not early terminate on $P$ that are strong
 USP, because it must search through all pairs before determining that
@@ -614,12 +614,15 @@ XXX - Todo Jerry.
   \EndFunction
 \end{algorithmic}
 \end{algorithm}
-  
+
 \subsection{3DM to MIP}
 
-XXX - Todo Anthony.
+Another way to utilize the connection between verification of strong USP and 3D matching is to furthe reduce 3D matching into an integer programming problem, which is another commonly faced Np optimization problem. By definition(I didn't see a definition number for 3D matching), we know that a tripartite 3-hypergraph $G$ has a \emph{3D matching} if there exists a subset $M \sse E$ with $|M| = |P|$ and for all distinct
+hyperedges $e_1, e_2 \in M$, $e_1$ and $e_2$ are \emph{vertex disjoint}. So if we define $f(e) = 1$ for all hyperedge $e \in G$ and $f(e) = 1$ for all hyperedge $e \notin G$, we can say $G$ has a \emph{3D matching}  if there exists a subset $M$ that satisfy the following Constrains: $\sum_{i,j = 1}^{s} f((i,j,k)) \forall k \in [0..s] = \sum_{i,k = 1}^{s} f((i,j,k)) \forall j \in [0..s] = \sum_{j,k = 1}^{s} f((i,j,k))\forall i \in [0..s] = 1 $ for hyperedge $(i,j,k) \in M$. In addition, we can detect a 3D matching is nontrivial by adding the constrain $\sum_{r = 0}^{s} f(r,r,r) < s$.
 
-\label{subsec:mip}
+By this theory, \autoref{alg:mip} would first transfers input puzzle $P$ into a tripartite hypergraph $H_p$ and creates an empty mixed integer programming model. For every hyperedge $e= \notin H_p$, a constrain $f(e) = 0$ is added into the model as it can not be selected into subset $M$. Afterward the algorithm would also add the restrictions listed in the paragraph above (I am not sure if I should list all the constrains again?). Finally, the model is put through a integer programming solver. If the model has a solution, $H_p$ has a nontrivial 3D matching and by \autoref{lem:verify-to-3dm} $P$ is not a USP. Otherwise if the model is infeasible, $H_p$ does not have a nontrivial thus $P$ is a USP.
+
+
 
 \begin{algorithm}
   \caption{: Reduction to mixed integer programming}
@@ -628,9 +631,40 @@ XXX - Todo Anthony.
   \Require{An $(s,k)$-puzzle $P$.}
   \Ensure{YES, if $P$ is a strong USP and NO otherwise.}
   \Function{VerifyMIP}{$P$}
+  \State{Construct $H_p$}
+  \State{Construct $model$}
+  \For{$r_1 = 0$ to $s$}
+    \For{$r_2 = 0$ to $s$}
+      \For{$r_3 = 0$  to $s$}
+        \If {$(r_1, r_2, r_3)$ not in $H_p$}
+          \State{\textsc{AddConstrain}$(f(r_1, r_2, r_3) = 0, model)$}
+        \EndIf
+      \EndFor
+    \EndFor
+  \EndFor
+  \For {$i = 0$ to $s$}
+    \State{\textsc{AddConstrain}$(\sum_{j,k=0}^{s} f(i, j,k) =1, model)$}
+    \State{\textsc{AddConstrain}$(\sum_{j,k=0}^{s} f(j, i,k) =1, model)$}
+    \State{\textsc{AddConstrain}$(\sum_{j,k=0}^{s} f(j,k, i) =1, model)$}
+  \EndFor
+  \State{\textsc{AddConstrain}$(\sum_{r=0}^{s} f(r,r,r) < s, model)$}
+
+  \State{$status$ = \textsc{optimize}$(model)$}
+  \If{$status == INFEASIBLE$}
+    \State{\Return{$True$}}
+  \Else
+    \State{\Return{$False$}}
+  \EndIf
+
   \EndFunction
 \end{algorithmic}
 \end{algorithm}
+
+In this algorithm the running time is dominated by the function \textsc{AddConstrain} and \textsc{optimize}. However as we used a third-party optimizer Gurobi for solving integer programming problem, the exact run time for these two function cannot be known. Instead, we can estimate the performance for \textsc{AddConstrain} as $add(1)$ as it only add a new constrain to the model.The performance for \textsc{optimize} is assumed to be $opt(N_c)$ where $N_c$ is the number of constrains. As number of constrains is dependent on $s$ and it ranges from $s^3+1$ to $2s^3+1$, we can also show the run time for \textsc{optimize} as $opt(s^3)$. Base on these assumptions, we can conclude that the performance for \autoref{alg:mip} is $O(T_{3DM}(s,k) + s^3 \cdot add(1) +  opt(s^3))$ as $T_{3DM}(s,k)$ take in account of time to construct $H_p$. The time spend on constructing a new $model$ is constant and thus ignored.
+
+\label{subsec:mip}
+
+
 
 
 \subsection{Heuristics}
@@ -721,7 +755,7 @@ less motivated.
   \State{XXX - Fill out.}
   \EndFunction
 \end{algorithmic}
-\end{algorithm} 
+\end{algorithm}
 
 \subsubsection{Greedy}
 
@@ -763,7 +797,7 @@ verification.
         \For{$v = 1$ to $s$}
           \If{$(u,v) \in \bar{Q} \times \bar{R}$ and $G(j,u,v) = 1$} $counts[j] = counts[j] - 1$. \EndIf
           \If{$(u,v) \in \bar{J} \times \bar{R}$ and $G(u,q,v) = 1$ and $u \neq j$} $counts[u] = counts[u] - 1$. \EndIf
-          \If{$(u,v) \in \bar{J} \times \bar{Q}$ and $G(u,v,r) = 1$ and $u \neq j$ and $v \neq q$} $counts[u] = counts[u] - 1$. \EndIf 
+          \If{$(u,v) \in \bar{J} \times \bar{Q}$ and $G(u,v,r) = 1$ and $u \neq j$ and $v \neq q$} $counts[u] = counts[u] - 1$. \EndIf
         \EndFor
       \EndFor
       \State{$J = J \cup \set{j}$.}
@@ -797,12 +831,12 @@ be considerably slower than the downward-closure heuristic, especially
 when $t = s^3$.  However, the main loop can terminate early at Line 10
 when it fails to extend the 3D matching this permits the expected time
 to much less than the worst case.  For a puzzle $P$ that is a strong
-USP, the heuristic takes the full $\Omega(s^3 t + T_{3DM}(s,k))$ time.  
+USP, the heuristic takes the full $\Omega(s^3 t + T_{3DM}(s,k))$ time.
 
 
 \begin{comment}
 
- 
+
 \subsubsection{Graph Automorphism}
 
 A strong uniquely-solvable puzzle must also be a uniquely-solvable
@@ -824,7 +858,7 @@ matching it must be the case that when any one of the three parts of
 vertices of $G$ is projected away the resulting bipartite graph has a
 perfect matching.  Thus we can witness that there is no 3D matching by
 determining that one of three projected bipartite graphs $G|_1, G|_2,
-G|_3$ does not have a perfect matching. 
+G|_3$ does not have a perfect matching.
 
 \begin{algorithm}
   \caption{: 2D Matching Heuristic}
@@ -909,7 +943,7 @@ constructed is a set and the order which elements are added does not
 matter, further the underlying elements are represented as a vector.
 There are polynomial-time algorithms for determining whether a set of
 vectors are independent, and we have a practical algorithm for
-deciding whether a puzzle is a strong USP. 
+deciding whether a puzzle is a strong USP.
 
 There is a straightforward algorithm for constructing maxmimum size
 sets of independent vectors: Start with an empty set $S$, and
@@ -947,7 +981,7 @@ That said, we have had some success applying general purpose search
 techniques together with our practical verification algorithm to
 construct maximum size strong USPs for small $k$.  In particular, we
 implemented variants of depth-first search (DFS) and breadth-first
-search (BFS) in both desktop and HPC settings.  
+search (BFS) in both desktop and HPC settings.
 
 A width-$k$ puzzle has potentially $3^k$ distinct rows.  For $j \in
 [3^k]$ we use $r_j$ to denote the $j^{th}$ row in lexicographic order.
@@ -961,21 +995,21 @@ order. We include pseudocode of both searches for completeness.
 \begin{algorithmic}[1]
   \Require{An integer $k \ge 0$, and a width-$k$ strong USP $P$.}
   \Ensure{The number $best$, which is the size of the largest strong USP that has $P$ as a subpuzzle.}
-  
+
   \Function{DFS}{$P$}
-  
+
   \State{Let $best = |P|$.}
   \State{Let $j$ be the index of the row $P_{|P|-1}$ in lexicographic order.}
-  
+
   \For{$r = r_{j+1}$ to $r_{3^k-1}$}
     \State{Let $P' = P \cup \set{r}$.}
     \If{\Call{Verify}{$P'$}}
       \State{$best = \max(best, $ \Call{DFS}{$k, P'$}).}
     \EndIf
   \EndFor
-  
+
   \State{\Return{$best$}.}
-  
+
   \EndFunction
 \end{algorithmic}
 \end{algorithm}
@@ -986,12 +1020,12 @@ order. We include pseudocode of both searches for completeness.
 \begin{algorithmic}[1]
   \Require{An integer $k \ge 0$.}
   \Ensure{The number $best$, which is the size of the largest strong USP that has $P$ as a subpuzzle.}
-  
+
   \Function{BFS}{$k$}
 
   \State{Let $Q$ be an empty queue.}
   \State{Push $\emptyset$ onto end of $Q$.}
-  
+
   \While{$Q$ is not empty}
     \State{Pop head of $Q$ into $P$.}
     \State{Let $j$ be the index of the row $P_{|P|-1}$ in the lexicographic order of all rows.}
@@ -1003,9 +1037,9 @@ order. We include pseudocode of both searches for completeness.
       \EndIf
     \EndFor
   \EndWhile
-  
+
   \State{\Return{$best$}.}
-  
+
   \EndFunction
 \end{algorithmic}
 \end{algorithm}
@@ -1096,8 +1130,8 @@ though they are included with the source code of this project.
     \hline
     3&1&3&2 \\ \hline
     1&2&3&2 \\ \hline
-    1&1&1&3 \\ \hline 
-    3&2&1&3 \\ \hline 
+    1&1&1&3 \\ \hline
+    3&2&1&3 \\ \hline
     3&3&2&3 \\ \hline
   \end{tabular}\\[10ex]
 
@@ -1113,7 +1147,7 @@ though they are included with the source code of this project.
     3&2&3&2&1 \\ \hline
     3&1&2&1&1 \\ \hline
   \end{tabular}\\[16ex]
-    
+
   (14,6):\\[.5ex]
   \begin{tabular}{|c|c|c|c|c|c|}
     \hline
