@@ -597,10 +597,17 @@ These choices made the basic data structure operations in
 implementation effectively constant time, and have low memory overhead
 beyond the contents of $T$.
 
-
+\newpage
 \subsection{3DM to 3SAT}
 
-XXX - Todo Jerry.
+Following from \autoref{lem:verify-to-3dm}, we know that we are able to verify whether a puzzle $P$ is a strong USP or not by contructing a graph $H_P$ from $P$ and determine whether it has a 3D matching. We also know that 3D matching is an NP-complete problem which could be reduced to another NP-complete problem. Here, we first reduced our 3D matching problem to another NP-complete problem called the 3-satisfability (3SAT) problem and hope to utilize the state-of-art SAT solver to yield an answer in a more efficient way. To perform the reduction, we want to convert the graph $H_P$ that obtained from the puzzle $P$ into a desired conjunctive normal form (CNF) which are boolean variables connected by ANDs of ORs. Then we feed the CNF formula into a SAT solver $S$ and determine whether the formula is satisfiable. We know from \autoref{lem:verify-to-3dm} that the formula is satisfiable iff $H_P$ has a non-trivial \emph{3D matching}. 
+
+We first convert each vertex on $H_P$ into cooresponding index of boolean variable. Normally, we would use three sets of indices $X, Y, Z = [s]$ to represent vertices from each copy of $P$ where $|X| = |Y| = |Z| = s$. Then the edge $E$ of $H_P$ would be represented by a set of boolean variables $Var$ indexed by these three sets of indicies, as $e \in E$ is equivalent to $Var_{x,y,z}$ where $x \in X, y \in Y, z \in Z$. By doing this, we have $s^3$ boolean variables in our formula. However, since the set $X, Y, Z$ has identical indicies, we are able to represent these $s^3$ edges by only $2s^2$ boolean variables by having two indexing sets $X', Y'$ each has $s^2$ elements. The $X'$ could be regarded as the combinations of subhyperedges from first copy of $P$ to the second copy of $P$. Similarly, the $Y'$ could be regarded as the combinations of subhyperedges from first copy of $P$ to the third copy of $P$.  The intuition comes from describe each point on a cube with two coordinates instead of three. (JJ: ``I can't elaborate more on this since I don't know how to tell the story on how we reduced the number of variables.'').
+
+After converting the graph $H_P$ into these $2s^2$ variables, we will begin adding the clauses which each clause consists of boolean variable connected by only ORs. The clauses that we are adding correspond to three parts of checking whether the Graph has a non-trivial \emph{3D matching}. This generating and adding clauses procedure is described in \autoref{alg:cnf}. In this algorithm, we use $O(s^2)$ variables to generate $O(s^3)$ clauses for the solver by checking the uniqueness, existence and non-triviality of the 3D matching problem.
+
+As for \autoref{alg:sat}, it mainly uses the \autoref{alg:cnf} to feed the CNF formula in and apply the Solver. The running time of this algorithm mainly determines by the sovling time of the Solver which we cannot estimate from a theoretical level. In the later section, we will show the performance of the MapleSAT solver on different cases of puzzles.
+
 
 \label{subsec:sat}
 
@@ -611,10 +618,142 @@ XXX - Todo Jerry.
   \Require{An $(s,k)$-puzzle $P$.}
   \Ensure{YES, if $P$ is a strong USP and NO otherwise.}
   \Function{VerifySAT}{$P$}
+  \State{Construct a empty Solver $S$}
+  \State{Let S be \textsc{ConstructReduction}($P$, $S$)}
+  \If{S is not solvable}
+  \State{\Return YES}
+  \Else
+  \State{\Return NO}
+  \EndIf
   \EndFunction
 \end{algorithmic}
 \end{algorithm}
 
+\begin{algorithm}
+  \caption{: Create CNF formula in a Solver (Part 1)}
+  \label{alg:cnf}
+\begin{algorithmic}[1]
+  \Require{An $(s,k)$-puzzle $P$ and a Solver $S$}
+  \Ensure{Solver $S$ with CNF clauses loaded.}
+  \Function{ConstructReduction}{$P, S$}
+  
+  \State{Construct $H_p$}
+  \State{Allocate $2s^2$ variables space in Solver $S$}
+  \State{Create an empty clause $C$}
+  \State{\Comment Adding constraints (variables) from $H_P$}
+  \For{$r_1 = 0$ to $s$}             
+    \For{$r_2 = 0$ to $s$}
+      \State{Get constriant $Var_{r_2}$ from $Var$ with index from $X'$ according to $r_1, r_2$ }
+      \For{$r_3 = 0$  to $s$}
+	\State{Get constriant $Var_{r_3}$ from $Var$ with index from $Y'$ according to $r_1, r_3$}
+        \If {$(r_1, r_2, r_3)$ not in $H_p$}
+	  \State{Clear clause $C$}
+	  \State{Push $Var_{r_2}$ and $Var_{r_3}$ into $C$}
+	  \State{Add clause $C$ into Solver $S$}
+        \EndIf
+      \EndFor
+    \EndFor
+  \EndFor
+  
+  \State{\Comment Checking the uniqueness of the edges in the 3D matching}
+  \State{\Comment Within layer $r_1$}
+  \State{\Comment For all $r_1$, $r_{21} != r_{22}$, and $r_{31} != r_{32}$ }
+  \For{$r_1 = 0$ to $s$}
+      \For{$a = 0$ to $s$}
+      \State{Get constriant $Var_{r_{21}}$ from $Var$ with index from $X'$ according to $a, r_1$}
+      \State{Get constriant $Var_{r_{31}}$ from $Var$ with index from $Y'$ according to $a, r_1$}
+      	\For{$b = 0$ to $s$}
+        \State{Get constriant $Var_{r_{22}}$ from $Var$ with index from $X'$ according to $b, r_1$}
+        \State{Get constriant $Var_{r_{32}}$ from $Var$ with index from $Y'$ according to $b, r_1$}
+        \If {$r_{21} < r_{22}$}  \Comment implies $r_{31} < r_{32}$
+	  \State{Clear clause $C$}
+	  \State{Push $Var_{r_{21}}$ and $Var_{r_{22}}$ into $C$}
+	  \State{Add clause $C$ into Solver $S$}
+	  \State{Clear clause $C$}
+	  \State{Push $Var_{r_{31}}$ and $Var_{r_{32}}$ into $C$}
+	  \State{Add clause $C$ into Solver $S$}
+        \EndIf
+        \EndFor
+      \EndFor
+  \EndFor
+  
+  \State{\Comment Checking the uniqueness of the edges in the 3D matching}
+  \State{\Comment Within slice $r$}
+  \State{\Comment For all $r_2, r_3$, $r_{11} != r_{12}$ }
+  \For{$r = 0$ to $s$}
+      \For{$r_{11} = 0$ to $s$}
+      \State{Get constriant $Var_{r_{21}}$ from $Var$ with index from $X'$ according to $r_{11},r$}
+      \State{Get constriant $Var_{r_{31}}$ from $Var$ with index from $Y'$ according to $r_{11},r$}
+      	\For{$r_{12} = 0$ to $s$}
+        \State{Get constriant $Var_{r_{22}}$ from $Var$ with index from $X'$ according to $r_{12}, r$}
+        \State{Get contsriant $Var_{r_{32}}$ from $Var$ with index from $Y'$ according to $r_{12}, r$}
+        \If {$r_{21} < r_{22}$}  \Comment implies $r_{31} < r_{32}$
+	  \State{Clear clause $C$}
+	  \State{Push $Var_{r_{21}}$ and $Var_{r_{22}}$ into $C$}
+	  \State{Add clause $C$ into Solver $S$}
+	  \State{Clear clause $C$}
+	  \State{Push $Var_{r_{31}}$ and $Var_{r_{32}}$ into $C$}
+	  \State{Add clause $C$ into Solver $S$}
+        \EndIf
+        \EndFor
+      \EndFor
+  \EndFor
+  \algstore{bkbreak}
+  %\EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+\addtocounter{algorithm}{-1}
+\begin{algorithm}[h]
+  \caption{: Create CNF formula in a Solver (Part 2)}
+\begin{algorithmic}[1]
+\algrestore{bkbreak}
+
+  %\Comment Checking Existence of edges in layer $r_1$
+  \For{$r_1 = 0$ to $s$} \Comment Checking Existence of edges in layer $r_1$
+    \State{Clear clause $C$}
+    \For{$r_2 = 0$ to $s$}
+        \State{Get constriant $Var_{r_{2}}$ from $Var$ with index from $X'$ according to $r_{1},r_2$}
+        \State{Push $Var_{r_{2}}$ into $C$}
+    \EndFor
+    \State{Add clause $C$ into Solver $S$}
+    
+    \State{Clear clause $C$}
+    \For{$r_3 = 0$ to $s$}
+        \State{Get constriant $Var_{r_{3}}$ from $Var$ with index from $Y'$ according to $r_{1},r_3$}
+        \State{Push $Var_{r_{3}}$ into $C$}
+    \EndFor
+    \State{Add clause $C$ into Solver $S$}
+  \EndFor
+  \For{$r = 0$ to $s$} \Comment Checking Existence of edges in slice $r$
+    \State{Clear clause $C$}
+    \For{$r_1 = 0$ to $s$}
+        \State{Get constriant $Var_{r_{x}}$ from $Var$ with index from $X'$ according to $r_{1},r$}
+        \State{Push $Var_{r_{x}}$ into $C$}
+    \EndFor
+    \State{Add clause $C$ into Solver $S$}
+    
+    \State{Clear clause $C$}
+    \For{$r_1 = 0$ to $s$}
+        \State{Get constriant $Var_{r_{y}}$ from $Var$ with index from $Y'$ according to $r_{1},r$}
+        \State{Push $Var_{r_{y}}$ into $C$}
+    \EndFor
+    \State{Add clause $C$ into Solver $S$}
+  \EndFor
+  \State{Clear clause $C$}
+  \For{$r_1 = 0$ to $s$} \Comment check non-trivial cases
+  	\State{Get constriant $Var_{rxx}$ from $Var$ with index from $X'$ according to $r_{1},r_1$}
+	\State{Get constriant $Var_{ryy}$ from $Var$ with index from $Y'$ according to $r_{1},r_1$}
+  \EndFor
+  \State{Add clause $C$ into Solver $S$}
+  \State{\Return{ Solver $S$}}
+  \EndFunction
+
+
+\end{algorithmic}
+\end{algorithm}
+
+ 
 \subsection{3DM to MIP}
 
 Another way to utilize the connection between verification of strong USP and 3D matching is to furthe reduce 3D matching into an integer programming problem, which is another commonly faced Np optimization problem. By definition(I didn't see a definition number for 3D matching), we know that a tripartite 3-hypergraph $G$ has a \emph{3D matching} if there exists a subset $M \sse E$ with $|M| = |P|$ and for all distinct
