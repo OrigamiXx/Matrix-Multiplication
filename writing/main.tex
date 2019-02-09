@@ -525,7 +525,7 @@ bidirectional strong USP verification algorithm that using the 3D matching insta
   \Ensure{YES, if $P$ is a strong USP and NO otherwise.}
   \Function{VerifyBidirectional}{$P$}
   \State{Let $T = \emptyset$.}
-  \State{Construct $H_P$.}
+  \State{Construct 3DM instance $H_P$.}
   \Function{SearchHalf}{$\ell, Q,\ell_Q, R,\ell_R, \delta, t$}
   \If{$\ell = t$}
     \If{$\delta = 1$} \Comment{Forward Base Case}
@@ -817,34 +817,49 @@ puzzles.
 \subsection{3DM to MIP}
 
 Another way to utilize the connection between verification of strong
-USP and 3D matching is to furthe reduce 3D matching into an integer
-programming problem, which is another commonly faced Np optimization
-problem. By definition(I didn't see a definition number for 3D
-matching), we know that a tripartite 3-hypergraph $G$ has a \emph{3D
-  matching} if there exists a subset $M \sse E$ with $|M| = |P|$ and
-for all distinct hyperedges $e_1, e_2 \in M$, $e_1$ and $e_2$ are
-\emph{vertex disjoint}. So if we define $f(e) = 1$ for all hyperedge
-$e \in G$ and $f(e) = 1$ for all hyperedge $e \notin G$, we can say
-$G$ has a \emph{3D matching} if there exists a subset $M$ that satisfy
-the following Constrains: $\sum_{i,j = 1}^{s} f((i,j,k)) \forall k \in
-[0..s] = \sum_{i,k = 1}^{s} f((i,j,k)) \forall j \in [0..s] =
-\sum_{j,k = 1}^{s} f((i,j,k))\forall i \in [0..s] = 1 $ for hyperedge
-$(i,j,k) \in M$. In addition, we can detect a 3D matching is
-nontrivial by adding the constrain $\sum_{r = 0}^{s} f(r,r,r) < s$.
+USP and 3D matching is to further reduce 3D matching to integer
+programming, another well-known \NP{}-complete optimization problem.
+Let $H_P = \langle V, E \rangle$ be the 3D matching instance
+associated with the puzzle $P$.  Our goal is to construct a
+non-trivial 3D matching $M$ that is a subset of the edges of $E$ and
+is vertex disjoint.  We use $M_{u,v,w}$ to denote a variable with
+values in $\set{0,1}$ that indicates whether the edge $(u,v,w) \in P$
+is present in the matching.
 
-By this theory, \autoref{alg:mip} would first transfers input puzzle
-$P$ into a tripartite hypergraph $H_p$ and creates an empty mixed
-integer programming model. For every hyperedge $e= \notin H_p$, a
-constrain $f(e) = 0$ is added into the model as it can not be selected
-into subset $M$. Afterward the algorithm would also add the
-restrictions listed in the paragraph above (I am not sure if I should
-list all the constrains again?). Finally, the model is put through a
-integer programming solver. If the model has a solution, $H_p$ has a
-nontrivial 3D matching and by \autoref{lem:verify-to-3dm} $P$ is not a
-USP. Otherwise if the model is infeasible, $H_p$ does not have a
-nontrivial thus $P$ is a USP.
+To ensure that $M$ is a subset of $E$ we require the following edge constraints
+\begin{equation}
+  \forall u,v,w \in P,~~M_{u,v,w} \le \begin{cases} 0, (u,v,w) \not\in E, and \\ 1, (u,v,w) \in E.\end{cases} \label{eqn:cons1}
+\end{equation} We also require that each vertex in
+each of the three parts of the graph is incident to exactly one edge
+in $M$.  This is captured by the following vertex constraints:
+\begin{equation}
+  \label{eqn:cons2}
+\begin{aligned}
+&\forall w \in P,~~\sum_{u,v \in P} M_{u,v,w} = 1,\\
+&\forall v \in P,~~\sum_{u,w \in P} M_{u,v,w} = 1,\text{and} \\
+&\forall u \in P,~~\sum_{v,w \in P} M_{u,v,w} = 1.
+\end{aligned}
+\end{equation}
+Finally, since we need that the 3D matching be non-trivial we
+add the constraint
+\begin{equation}
+  \label{eqn:cons3}
+  \sum_{u \in P} M_{u,u,u} < |P|.
+\end{equation}
+With these constraints in mind, \autoref{alg:mip} describes the
+overall reduction. 
 
-
+%% By this theory, \autoref{alg:mip} would first transfers input puzzle
+%% $P$ into a tripartite hypergraph $H_p$ and creates an empty mixed
+%% integer programming model. For every hyperedge $e= \notin H_p$, a
+%% constrain $f(e) = 0$ is added into the model as it can not be selected
+%% into subset $M$. Afterward the algorithm would also add the
+%% restrictions listed in the paragraph above (I am not sure if I should
+%% list all the constrains again?). Finally, the model is put through a
+%% integer programming solver. If the model has a solution, $H_p$ has a
+%% nontrivial 3D matching and by \autoref{lem:verify-to-3dm} $P$ is not a
+%% USP. Otherwise if the model is infeasible, $H_p$ does not have a
+%% nontrivial thus $P$ is a USP.
 
 \begin{algorithm}
   \caption{: Reduction to mixed integer programming}
@@ -853,50 +868,33 @@ nontrivial thus $P$ is a USP.
   \Require{An $(s,k)$-puzzle $P$.}
   \Ensure{YES, if $P$ is a strong USP and NO otherwise.}
   \Function{VerifyMIP}{$P$}
-  \State{Construct $H_p$}
-  \State{Construct $model$}
-  \For{$r_1 = 0$ to $s$}
-    \For{$r_2 = 0$ to $s$}
-      \For{$r_3 = 0$  to $s$}
-        \If {$(r_1, r_2, r_3)$ not in $H_p$}
-          \State{\textsc{AddConstrain}$(f(r_1, r_2, r_3) = 0, model)$}
-        \EndIf
-      \EndFor
-    \EndFor
-  \EndFor
-  \For {$i = 0$ to $s$}
-    \State{\textsc{AddConstrain}$(\sum_{j,k=0}^{s} f(i, j,k) =1, model)$}
-    \State{\textsc{AddConstrain}$(\sum_{j,k=0}^{s} f(j, i,k) =1, model)$}
-    \State{\textsc{AddConstrain}$(\sum_{j,k=0}^{s} f(j,k, i) =1, model)$}
-  \EndFor
-  \State{\textsc{AddConstrain}$(\sum_{r=0}^{s} f(r,r,r) < s, model)$}
-
-  \State{$status$ = \textsc{optimize}$(model)$}
-  \If{$status == INFEASIBLE$}
-    \State{\Return{$True$}}
+  \State{Construct 3DM instance $H_P$.}
+  \State{Create empty integer program $Q$ with Boolean variables $\condset{M_{u,v,w}}{u,v,w \in P}$.}
+  \State{Add constraints of \autoref{eqn:cons1}, \autoref{eqn:cons2}, and \autoref{eqn:cons3} to $Q$.}
+  \If{\textsc{IsFeasible}$(Q)$}
+  \State{\Return{NO}.}
   \Else
-    \State{\Return{$False$}}
+  \State{\Return{YES}.}
   \EndIf
-
   \EndFunction
 \end{algorithmic}
 \end{algorithm}
 
-In this algorithm the running time is dominated by the function
-\textsc{AddConstrain} and \textsc{optimize}. However as we used a
-third-party optimizer Gurobi for solving integer programming problem,
-the exact run time for these two function cannot be known. Instead, we
-can estimate the performance for \textsc{AddConstrain} as $add(1)$ as
-it only add a new constrain to the model.The performance for
-\textsc{optimize} is assumed to be $opt(N_c)$ where $N_c$ is the
-number of constrains. As number of constrains is dependent on $s$ and
-it ranges from $s^3+1$ to $2s^3+1$, we can also show the run time for
-\textsc{optimize} as $opt(s^3)$. Base on these assumptions, we can
-conclude that the performance for \autoref{alg:mip} is $O(T_{3DM}(s,k)
-+ s^3 \cdot add(1) + opt(s^3))$ as $T_{3DM}(s,k)$ take in account of
-time to construct $H_p$. The time spend on constructing a new $model$
-is constant and thus ignored.
-
+The heavy lifting in \autoref{alg:mip} occurs in Line 5 where the
+integer program is checked for feasibility, i.e., that there is an
+assignment to the variables $M$ that satisfy all the constraints.  In
+practice we hand off this computation to the third-party mixed-integer
+programming solver Gurobi \cite{gurobi}.  It should be noted that
+Gurobi is a commerical, closed-source solver, so we cannot necessarily
+verify its assertion that the integer program $Q$ is infeasible.  On
+the otherhand, when it determines that the integer program $Q$ is
+feasible, we can verify that the solution it produced is a witness of
+feasibility.  Further, Gurobi provides no asymptotic performance
+guarantees, must less polynomial ones.  We do note that reduction from
+3D matching to IP is polynomial time as $H_P$ can be efficiently
+constructed from $P$ and there are $s^3 + 3s^3 + 1 = O(s^3)$
+constraints and $s^3$ variables in the integer program $Q$.
+ 
 \label{subsec:mip}
 
 
@@ -929,7 +927,7 @@ all rely ultimately on structural properties of strong USP.
 
 The simplest heuristics we considered were based on the fact that
 strong USP are downward closed, that is, if $P$ is a strong USP, then
-so is every subpuzzle $P' \sse P$.  This leads to practical heuristic
+so is every subpuzzle $P' \sse P$.  This leads to a practical heuristic
 that can determine that a puzzle is not a strong USP.
 
 \begin{algorithm}
@@ -947,16 +945,16 @@ that can determine that a puzzle is not a strong USP.
 \end{algorithmic}
 \end{algorithm}
 
-This algorithm runs in time $O(s^{s'} T_{Verify}(s', k))$ where
+This algorithm runs in time $O(\binom{s}{s'} T_{Verify}(s', k))$ where
 $T_{Verify}(s',k)$ is the running time for exactly verifying a
 $(s',k)$-puzzle.  In practice we did not apply this heuristic for $s'$
 larger than $3$, so the effective running time was $O(s^3 T(3,k))$,
 which is polynomial in $s$ and $k$ using the verification algorithms
-from the previous section which eliminate dependence on $k$ for
+from the previous subsections that eliminate dependence on $k$ for
 polynomial cost.  This heuristic can be made even more practical by
 caching the results for puzzles of size $s'$, reducing the
 verification time per iteration to constant in exchange for
-$O(2^{s'k}T(s',k))$ time to precompute the values for all puzzles of
+$O(\binom{3^k}{s'}T(s',k))$ time to precompute the values for all puzzles of
 size $s'$.  There is also space overhead because the precomputed
 results are being cached.  We also note that for a puzzle $P$ that is
 a strong USP, the heuristic takes $\Theta(s^3 T(3,k))$ time without
@@ -964,48 +962,47 @@ cache or $\Theta(s^3)$ with caching.
 
 Note that since our search algorithms typically start from a known
 strong USP and tries to add rows, looking a subsets of a puzzle that
-have already been verified is wasteful -- these are skipped over in
+have already been verified is wasteful, and can be skipped over in
 this setting.  From a practical point of view, running this heuristic
 is free for small constant $s'$, as the exact verification algorithms
 have a matching or higher polynomial running time.  Furthermore, since
 the algorithm can return early, its expected running time on random
-non-strong USPs is low.  There appeared to be dimenishing returns with
+non-strong USPs is low.  There appeared to be diminishing returns with
 increasing $s'$ as it substantially increases precompute time and
-storage while each stored value contributes relatively less to
-verification as there are now many more values stored.
+storage while each stored value contributes relatively less benefit to
+verification as there are now many more values stored and are individually less likely to be examined.
 
-\subsubsection{Random}
+%% \subsubsection{Random}
 
-XXX - There's also a random reordering heuristic, but I don't remember
-the justification for it.  It's more elaborate than the other, but
-less motivated.
+%% XXX - There's also a random reordering heuristic, but I don't remember
+%% the justification for it.  It's more elaborate than the other, but
+%% less motivated.
 
-\begin{algorithm}
-  \caption{: Random Heuristic}
-  \label{alg:random}
-\begin{algorithmic}[1]
-  \Require{An $(s,k)$-puzzle $P$, and iteration bound $t$.}
-  \Ensure{NO, if a witness is found for $P$ not being a strong USP, and MAYBE otherwise.}
-  \Function{HeuristicRandom}{$P$}
-  \State{XXX - Fill out.}
-  \EndFunction
-\end{algorithmic}
-\end{algorithm}
+%% \begin{algorithm}
+%%   \caption{: Random Heuristic}
+%%   \label{alg:random}
+%% \begin{algorithmic}[1]
+%%   \Require{An $(s,k)$-puzzle $P$, and iteration bound $t$.}
+%%   \Ensure{NO, if a witness is found for $P$ not being a strong USP, and MAYBE otherwise.}
+%%   \Function{HeuristicRandom}{$P$}
+%%   \State{XXX - Fill out.}
+%%   \EndFunction
+%% \end{algorithmic}
+%% \end{algorithm}
 
 \subsubsection{Greedy}
 
 This heuristic attempts to solve the 3D-Matching instance associated
 with verifying a puzzle $P$ (discussed in \autoref{sec:3DM}).  The
-heuristic proceeds iteratively, determining the layer of the 3DM
-instance with the least edges and randomly selecting an edge in that
-layer to put into the 3DM.  If the heuristic successfully contructs a
+heuristic proceeds iteratively, determining the vertex (of the first part) of the 3DM
+instance with the least edges and randomly selecting a hyperedge of that vertex to put into the 3DM.  If the heuristic successfully contructs a
 3DM it returns NO indicating that the input puzzle $P$ is not a strong
 USP.  If the heuristic reaches point were prior commits have made the
 matching infeasible, the heuristic starts again from scratch.  This
 process is repeated some number of times before it gives up and
 returns MAYBE.  In our practical implementation we use $s^3$
 iterations because the time balances well with the other heuristics
-and effectively reduced the number of instances requiring a full
+and empricially reduced the number of instances requiring a full
 verification.
 
 \begin{algorithm}
@@ -1015,55 +1012,52 @@ verification.
   \Require{An $(s,k)$-puzzle $P$, and iteration bound $t$.}
   \Ensure{NO, if a witness is found for $P$ not being a strong USP, and MAYBE otherwise.}
   \Function{HeuristicGreedy}{$P$}
-  \State{Construct 3DM instance $G : [s] \times [s] \times [s] \rightarrow \set{0,1}$ using $P$.}
+  \State{Construct 3DM instance $H_P$.}
   \For{$i = 1$ to $t$}
-    \For{$j = 1$ to $s$}
-      \State{$counts[j] =$ Number of edges incident vertex $j = \sum_{q,r} G(j,q,r)$.}
+    \For{$u \in P$}
+      \State{$cts[u] = \sum_{v,w \in P} H_P(u,v,w)$.} \Comment{Number of edges incident vertex $u$.}
     \EndFor
-    \State{Let $J,Q,R = \emptyset.$}
-    \State{$m = 1.$}
-    \While{$m \le s$}
-      \State{\texttt{// Select edge to add.}}
-      \State{Select $j \in \condset{j \in \bar{J}}{counts[j] = \max_{q \in \bar{J}} counts[q]}$ uniformly at random.}
-      \If{$counts[j] \le 0$} break. \EndIf
-      \State{Select $(q,r) \in \condset{(q,r) \in \bar{Q} \times \bar{R}}{G(j,q,r) = 1}$ uniformly at random.}
-      \State{\texttt{// Update edges counts.}}
-      \For{$u = 1$ to $s$}
-        \For{$v = 1$ to $s$}
-          \If{$(u,v) \in \bar{Q} \times \bar{R}$ and $G(j,u,v) = 1$} $counts[j] = counts[j] - 1$. \EndIf
-          \If{$(u,v) \in \bar{J} \times \bar{R}$ and $G(u,q,v) = 1$ and $u \neq j$} $counts[u] = counts[u] - 1$. \EndIf
-          \If{$(u,v) \in \bar{J} \times \bar{Q}$ and $G(u,v,r) = 1$ and $u \neq j$ and $v \neq q$} $counts[u] = counts[u] - 1$. \EndIf
+    \State{Let $U,V,W = \emptyset.$}
+    \State{Let $m = 0.$} \Comment{Number of hyperedges in matching.}
+    \While{$m < s$} 
+      \State{Select $u \in \condset{u \in \bar{U}}{cts[u] = \max_{v \in \bar{U}} cts[v]}$ uniformly at random.}
+      \If{$cts[u] = 0$} break. \EndIf
+      \State{Select $(v,w) \in \condset{(v,w) \in \bar{V} \times \bar{W}}{H_P(u,v,w) = 1}$ uniformly at random.}
+      \For{$v' \in P$} \Comment{Update edge counts.}
+        \For{$w' \in P$}
+          \If{$(v',w') \in \bar{V} \times \bar{W}$ and $H_P(u,v',w') = 1$} $cts[u]\texttt{--}$. \EndIf
+          \If{$(v',w') \in \bar{U} \times \bar{W}$ and $H_P(v',v,w') = 1$ and $v' \neq u$} $cts[v']\texttt{--}$. \EndIf
+          \If{$(v',w') \in \bar{U} \times \bar{V}$ and $H_P(v',w',w) = 1$ and $v' \neq u$ and $v' \neq v$} $cts[v']\texttt{--}$. \EndIf
         \EndFor
       \EndFor
-      \State{$J = J \cup \set{j}$.}
-      \State{$Q = Q \cup \set{q}$.}
-      \State{$R = R \cup \set{r}$.}
+      \State{$U = U \cup \set{u}$.} \Comment{Add edge to matching.}
+      \State{$V = V \cup \set{v}$.}
+      \State{$W = W \cup \set{w}$.}
       \State{$m = m + 1.$}
       \EndWhile
-    \If {$m > s$} \Return{NO}. \EndIf
+    \If {$m > s$} \Return{NO}. \Comment{3DM found so not SUSP, halt.} \EndIf
   \EndFor
   \State{\Return{MAYBE}.}
   \EndFunction
 \end{algorithmic}
 \end{algorithm}
 
-The array $counts$ is used to store the number of edges $counts[j]$
-that remain associated with vertex $j$ along the first coordinate.
+The array $cts$ is used to store the number of edges $cts[u]$
+that remain associated with vertex $u$ along the first coordinate.
 Much of the algorithm is devoted to maintaining this invariant.  The
-arrays $J,Q,R$ store the vertices along the three coordinates,
+sets $U,V,W$ store the vertices along the three coordinates,
 respectively, that have already been incorporated into the partial 3D
-matching.  Like in our previous algorithms we do not store the
+matching.  Like in \autoref{alg:bi} we do not store the
 matching itself, only the vertices involved.  The break at Line 10
 triggers when the partial 3D matching is a dead end and cannot be
-extended into a full 3D matching.  The condition of Line 22 is true
+extended into a full 3D matching.  The condition of Line 21 is true
 when a full 3D matching has been constructed and causes the algorithm
 to return that $P$ is not a strong USP.
 
 The running time of this algorithm is $O(s^3 t + T_{3DM}(s,k))$, where
 $T_{3DM}(s,k)$ is the time required to construct 3D matching
 instances from $(s,k)$-puzzles.  This algorithm has the potential to
-be considerably slower than the downward-closure heuristic, especially
-when $t = s^3$.  However, the main loop can terminate early at Line 10
+be considerably slower than the downward-closure heuristic, and in practice we set $t = s^3$.  However, the main loop can terminate early at Line 10
 when it fails to extend the 3D matching this permits the expected time
 to much less than the worst case.  For a puzzle $P$ that is a strong
 USP, the heuristic takes the full $\Omega(s^3 t + T_{3DM}(s,k))$ time.
@@ -1082,18 +1076,20 @@ XXX - I don't think this idea worked out.  The code correctly
 implemented the approach, but the approach was flawed.  Probably
 remove this section or add to future work.
 
+XXXX - I don't remember the argument either way...
+
 \end{comment}
 
 \subsubsection{2D Matching}
 
 The final heuristic we present is one-sided in the opposite direction
 of the others, it may return YES or MAYBE.  In order for a hypergraph
-$G = \langle [s] \times [s] \times [s], E\rangle$ to have a 3D
+$H_P$ to have a 3D
 matching it must be the case that when any one of the three parts of
-vertices of $G$ is projected away the resulting bipartite graph has a
+vertices of $H_P$ is projected away the resulting bipartite graph has a
 perfect matching.  Thus we can witness that there is no 3D matching by
-determining that one of three projected bipartite graphs $G|_1, G|_2,
-G|_3$ does not have a perfect matching.
+determining that one of three projected bipartite graphs $H_P|_1, H_P|_2,
+H_P|_3$ does not have a perfect matching.
 
 \begin{algorithm}
   \caption{: 2D Matching Heuristic}
@@ -1102,13 +1098,13 @@ G|_3$ does not have a perfect matching.
   \Require{An $(s,k)$-puzzle $P$.}
   \Ensure{YES, if $P$ is found to be strong USP, and MAYBE otherwise.}
   \Function{Heuristic2DMatching}{$P$}
-  \State{Construct 3DM instance $G : [s] \times [s] \times [s] \rightarrow \set{0,1}$ using $P$.}
+  \State{Construct 3DM instance $H_P.$}
   \State{\texttt{// Construct projections.}}
-  \State{Define projection $G|_1(b,c) = \vee_{a \in [s]} G(a,b,c)$.}
-  \State{Define projection $G|_2(a,c) = \vee_{b \in [s]} G(a,b,c)$.}
-  \State{Define projection $G|_3(a,b) = \vee_{c \in [s]} G(a,b,c)$.}
+  \State{Define projection $H_P|_1(b,c) = \vee_{a \in [s]} H_P(a,b,c)$.}
+  \State{Define projection $H_P|_2(a,c) = \vee_{b \in [s]} H_P(a,b,c)$.}
+  \State{Define projection $H_P|_3(a,b) = \vee_{c \in [s]} H_P(a,b,c)$.}
 
-  \If{$G|_1, G|_2,$ and $G|_3$ have bipartite perfect matchings}
+  \If{$H_P|_1, H_P|_2,$ and $H_P|_3$ have bipartite perfect matchings}
   \State{\Return{MAYBE.}}
   \Else
   \State{\Return{YES.}}
@@ -1125,15 +1121,15 @@ $T_{3DM}(s,k)$ is the time required to construct 3D matching instances
 from $(s,k)$-puzzles.
 
 In practice we found this heuristic not to be effective because the
-projected $G|_i$ are typically dense graphs even if $G$ is not, and so
-they are likely to have perfect matchings independently of whether $G$
+projected $H_P|_i$ are typically dense graphs even if $H_P$ is not, and so
+they are likely to have perfect matchings independently of whether $H_P$
 has a 3D matching.
 
 
 
 \subsection{Hybrid Algorithm}
 
-Our final verification algorithm is a hybrid of several verification
+Our final verification algorithm (\autoref{alg:hybrid}) is a hybrid of several verification
 algorithms and heuristics.  The size thresholds for which algorithm
 and heuristic to apply were determined experimentally for small $k$
 and were focused on the values were our strong USP search algorithms
@@ -1148,7 +1144,7 @@ other did not.  We end up not using \textsc{Heuristic2DMatching}
 because it rarely produced definitive output.
 
 \begin{algorithm}
-  \caption{: Final Hybrid Verification Algorithm}
+  \caption{: Hybrid Verification Algorithm}
   \label{alg:hybrid}
 \begin{algorithmic}[1]
   \Require{An $(s,k)$-puzzle $P$.}
@@ -1174,7 +1170,7 @@ because it rarely produced definitive output.
 In certain respects, the problem of constructing a large strong USP is
 much like the problem of constructing a large set of linearly
 independent vectors in a vector space.  Indeed, the object to be
-constructed is a set and the order which elements are added does not
+constructed is a set and the order that elements are added does not
 matter, further the underlying elements are represented as a vector.
 There are polynomial-time algorithms for determining whether a set of
 vectors are independent, and we have a practical algorithm for
@@ -1183,9 +1179,9 @@ deciding whether a puzzle is a strong USP.
 There is a straightforward algorithm for constructing maxmimum size
 sets of independent vectors: Start with an empty set $S$, and
 repeatedly add vectors to $S$ which are linearly independent of the
-vectors currently in $S$.  After this process completes, $S$ is a
+vectors currently in $S$.  After this process completes $S$ is a
 largest set of linearly independent vectors.  This problem admits such
-a greedy algorithm because the sets of linearly independent vectors
+a greedy algorithm because the family of sets of linearly independent vectors
 form a matroid.  The vector to be added each step can be computed
 efficiently by solving a linear system of equations for vectors in the
 null space of $S$.  Altogether this gives an efficient algorithm to
@@ -1295,10 +1291,10 @@ size puzzle examined by the algorithm (assuming $T_{\textsc{Verify}}$
 is monotone in its parameters).
 
 The actual running times of both these algorithms are prohibitive even
-for $k = 5$, and the greater memmory usage of \textsc{BFS} to store
-the entire search frontier in $Q$ is in the TBs for $k = 6$.  There
+for $k = 5$, and the greater memory usage of \textsc{BFS} to store
+the entire search frontier in $Q$ is in the terabytes for $k = 6$.  There
 are some silver linings, \textsc{DFS} can report intermediate results
-which are the maximal strong USPs that it has discovered so far.  Both
+that are the maximal strong USPs that it has discovered so far.  Both
 algorithms admit the possibility of eliminating puzzles from the
 search that are equivalent to puzzles that have already been searched,
 though it is easier to fit into the structure \textsc{BFS} as the
@@ -1467,7 +1463,7 @@ XXX - Tables / plots of data on search performance?
 \label{sec:conclusion}
 
 We initiated the first study of the verification strong USP and
-developed practical software for both verifying and search for strong
+developed practical software for both verifying and searching for strong
 USP.  We give tight results on the maximum size of width-$k$ strong
 USP for $k \le 5$.  Although our results do not produce a new upper
 bound on the running time of matrix multiplication, they demonstrate
