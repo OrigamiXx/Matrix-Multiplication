@@ -19,6 +19,9 @@ Last updated: 06-22-17
 
 To compile everything run:
 
+  cd nauty26r7
+  make all
+  cd ..
   make all
 
 To clean run:
