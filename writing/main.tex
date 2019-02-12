@@ -641,11 +641,11 @@ We describe the clauses of the CNF formula $\Phi_P$ whose
 satisfiability captures the existence of a 3D matching in $H_P$.
 First, we have clauses that prevents non-edges from being included:
 \begin{equation}
-  \Phi_P^{\text{non-edge}} = \bigwedge_{e \in \overline{E}} \neg M_e.
+  \Phi_P^{\text{non-edge}} = \bigwedge_{(u,v,w) \in \overline{E}} \neg M_{u,v,w}.
 \end{equation}
 Note that, alternatively, we could just eliminate these variables by
 replacing them by constant false in the subsequent formula. Second, we
-add clauses require that every vertex in $H_P$ is matched with some
+add clauses that require that every vertex in $H_P$ is matched with some
 hyperedge:
 \begin{equation}
   \Phi_P^{\ge 1} = 
@@ -686,10 +686,45 @@ of variables to indicate which vertices in the second and third part
 are matched with each vertex in the first part.  In particular we have
 Boolean variables $M_{u,v}^1$ and $M_{u,w}^2$ for all $u, v, w \in P$,
 and these variable map to assignments in the original scheme in the
-following way: $M_{u,v}^1 \wedge M_{u,w}^2 \Rightarrow M_{u,v,w}$.
+following way: $M_{u,v}^1 \wedge M_{u,w}^2 \Leftrightarrow M_{u,v,w}$.
 
 We can concisely rewrite our CNF formula for 3D matching using these
-new variables.
+new variables.  First, we have clauses that prevents non-edges from
+being in the matching:
+\begin{equation}
+  \Psi_P^{\text{non-edge}} = \bigwedge_{(u,v,w) \in \overline{E}} (\neg M_{u,v}^1 \vee \neg M_{u,w}^2).
+\end{equation}
+Next, we add clauses require that every vertex in $H_P$ is matched with some
+hyperedge:
+\begin{equation}
+  \Psi_P^{\ge 1} =
+  \left(\bigwedge_{u \in P} (\vee_{v\in P} ~M_{u,v}^1) \wedge (\vee_{w \in P} ~M_{u,w}^2)\right)
+  \wedge \left(\bigwedge_{v \in P} (\vee_{u \in P} ~M_{u,v}^1)\right)
+  \wedge \left(\bigwedge_{w \in P} (\vee_{u \in P} ~M_{u,w}^2)\right).
+\end{equation}
+Note that these clauses are no longer symmetric because the first part
+of $H_P$ is considered in both sets of variables.
+
+Third, we require that each vertex can only be matched one a single
+hyperedge and so have clauses that exclude matching hyperedges that
+overlap non-trivially (on one or two coordinates).  
+\begin{equation}
+  \Psi_P^{\le 1} =
+    \bigwedge_{i \in \set{1,2}} \bigwedge_{(u,v), (u',v') \in P^2} (u = u' \vee v = v') \wedge (u,v \neq u',v') \Rightarrow \neg M_{u,v}^i \vee \neg M_{u',v'}^i.
+\end{equation}
+Observe that $\Psi_P^{\le 1}$ has size $\Theta(s^3)$ compared to the
+size of the original $\Phi_P^{\le 1}$ that had size $\Theta(s^5)$.
+Fourth, we exclude the trivial 3D matching by requiring that at least
+one of diagonal hyperedges not be used:
+\begin{equation}
+  \Psi_P^{\text{non-trivial}} = \bigvee_{u \in P} \neg M_{u,u}^1 \vee \neg M_{u,u}^2.
+\end{equation}
+Finally, we AND these into the overall formula:
+\begin{equation}
+  \Psi_P = \Psi_P^{\text{non-edge}} \wedge \Psi_P^{\le 1} \wedge \Psi_P^{\ge 1} \wedge \Psi_P^{\text{non-trivial}}.
+\end{equation}
+The size of the CNF formula $\Psi_P$ is now $\Theta(s^3)$.  
+
 
 XXX - continue.
 
