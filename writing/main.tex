@@ -276,6 +276,7 @@ Cohn et al.~show the following connection between the existence of
 strong uniquely solvable puzzles and upper bounds on the exponent of
 matrix multiplication $\omega$.
 \begin{lemma}[{\cite[Corollary 3.6]{cksu05}}]
+  \label{lem:omega}
   If there is a strong uniquely solvable $(s,k)$-puzzle,
   $$\omega \le \min_{m \ge 3, m \in \Natural} \frac{3 \log
     m}{\log(m-1)} - \frac{3 \log s!}{sk \log(m-1)}.$$
@@ -1382,13 +1383,13 @@ puzzles are already being stored in a queue.
 
 Our experimental results come in three flavors for small constant
 values of $k$: (i) constructive lower bounds on the maximum size of
-width-$k$ strong USP, (ii) exhaustive, but nonconstructive, upper
+width-$k$ strong USP, (ii) exhaustive, non constructive, upper
 bounds on the maximum size of width-$k$ strong USP, and (iii)
 experimental run times comparing the various algorithms for verifying
 width-$k$ strong USP.  Here constructive means that specific concrete
 strong USPs are produced by our implementation that witness the bound.
-\textsc{BFS} and \textsc{DFS} when able to run to completion provide
-result of form (i) and (ii) which are tight.  When unable to run to
+\textsc{BFS} and \textsc{DFS} when able to run to search the entire space to completion provide
+results of form (i) and (ii) and are tight.  When unable to run to
 completion \textsc{DFS} provides only result of form (i), and, as
 such, are not guaranteed to be tight.
 
@@ -1471,15 +1472,17 @@ though they are included with the source code of this project.
 \end{figure}
 
 \autoref{table:compare} summarizes our main results which are improved
-bounds on the maximum size of strong uniquely solvable puzzles and
-compares them to bounds from \cite{cksu05}.  In this table the
-(constructive) lower bounds and upper bounds are derived from XXX and
-XXX in \cite{cksu05} respectively.  Observe that our experiment
-derives tight bounds for all $k \le 5$ and improves the known lower
-bounds for $k \le 9$.  The column labelled $\omega^*$ denotes the
-upper bound on $\omega$ the strong USP imply when taking the direct
-product with itself finitely mainly times. (XXX - Restructure to write
-as lemma taking fixed size strong USP to $\omega$.)
+bounds on the maximum size of strong uniquely solvable puzzles for
+small widths $k$, and compares them to bounds from \cite{cksu05}.  The
+lower bounds of \cite{cksu05} are from constructions in their
+Propositions 3.1 and 3.8, which give families for $k$ even or $k$
+divisible by three.  Note that because the SUSP property is preserved
+when extending with an arbitrary column, the lines that are missing
+lower bounds could be continued with the lower bound from the next
+previous line.  The upper bounds of \cite{cksu05} follow from their
+Lemma 3.2 and the fact that the capacity of SUSP is bounded above by
+the capacity of USP.  Observe that our experiment derives tight bounds
+for all $k \le 5$ and improves the known lower bounds for $4 \le k \le 12$.
 \begin{table}
   \label{table:compare}
   \begin{center}
@@ -1489,15 +1492,18 @@ as lemma taking fixed size strong USP to $\omega$.)
     \hline
     $k$ & Maximum $s$ & $\omega^*$~ & Maximum $s$ & $\omega^*$~\\
     \hline
-    1 & $s\le ~~~~1$ & & $1=s$ & $3.000$  \\
-    2 & $s\le ~~~~3$ & & $2=s$ & $2.670$ \\
-    3 & $3 \le s \le ~~~~6$ & $2.642$ & $3=s$ & $2.642$ \\
-    4 & $s\le ~~12$ & & $5=s$ & $2.585$ \\
-    5 & $s\le ~~24$ & & $8=s$ & $2.562$  \\
-    6 & $10 \le s \le ~~45$ & $2.615$ &$14\le s$ & $2.521$\\
-    7 & $s\le ~~86$ & & $21\le s$ & $2.531$ \\
-    8 & $s\le 162$ & & $30\le s$ & $2.547$ \\
-    9 & $36 \le s \le 307$ & $2.592$ &$42\le s$ & $2.563$  \\
+    1 & $1 = s \;\,~~~~~~~~~~~~$ & $3.000$ & $1=s$ & $3.000$  \\
+    2 & $2 \le s\le ~~~~~~3$ & $2.671$ & $2=s$ & $2.671$ \\
+    3 & $3 \le s \le ~~~~~~6$ & $2.643$ & $3=s$ & $2.643$ \\
+    4 & $4 \le s\le ~~~~12$ & $2.671$ & $5=s$ & $2.586$ \\
+    5 & $ s\le ~~~~24$ &  & $8=s$ & $2.563$  \\
+    6 & $10 \le s \le ~~~~45$ & $2.616$ &$14\le s$ & $2.522$\\
+    7 & $s\le ~~~~86$ &  & $21\le s$ & $2.531$ \\
+    8 & $16 \le s\le ~~162$ & $2.671$ & $30\le s$ & $2.548$ \\
+    9 & $36 \le s \le ~~307$ & $2.593$ &$42\le s$ & $2.564$  \\
+    10 & $s \le ~~581$ & & $64 \le s$ & $2.563$ \\ 
+    11 & $s \le 1098$ &  & $112 \le s$ & $2.541$ \\
+    12 & $136 \le s \le 2075$ & $2.574$ & $196 \le s$ & $2.522$ \\
     \hline
   \end{tabular}
   \end{center}
@@ -1506,7 +1512,6 @@ as lemma taking fixed size strong USP to $\omega$.)
     $\omega$ in the limit of composing puzzles of these dimensions via
     direct product.}
 \end{table}
-
 We conjecture that $s = 14$ is tight for $k = 6$, given the amount of
 CPU cycles and different algorithmic approaches we have applied to
 this case where it quickly, on order of an hour of CPU time, gets to
@@ -1516,8 +1521,27 @@ of $k$ except that they are likely not tight.  Furthermore, it is
 appearant that exhaustive search will not be practical for $k \ge 6$
 unless the search space can be substantially reduced.
 
-XXX - generate, add, and discuss data on search space size, perhaps
-after removing symmetries.
+The column labelled $\omega^*$ in \autoref{table:compare} denotes the
+upper bound on $\omega$ the strong USP imply when taking the direct
+product of the puzzle with itself finitely mainly times, and then
+applying \autoref{lem:omega}.  (XXX - explain why $\omega ^*$.)  The
+lines with omitted lower bounds for \cite{cksu05} also omit
+$\omega^*$, because it is strictly worst than the $\omega^*$ in
+preceding lines.  Notice that the minimum $\omega^*$ occurs in the $k
+= 6$ line of our work, this is where we have generated the relatively
+largest size puzzle for its width.  In the subsequent lines the
+$\omega^*$ is no smaller, because the SUSPs found are relatively
+smaller in comparison to their width.  Note that $\omega^*$ for $k =
+12$ matches that of $k = 6$.  This is because the $(196, 12)$-puzzle
+is the result of taking the Cartesian product of the $(14,6)$-SUSP
+with itself, and hence is the same by definition of $\omega^*$.
+
+The most interesting line of \autoref{table:compare} is $k = 6$.  Here
+we have the greatest improvement in $\omega^*$ versus \cite{cksu05}.
+Ultimately, the construction of \cite[Proposition 3.8]{cksu05} gives
+an infinite family of strong USPs of size that achieve $\omega <
+2.48$. Our results suggests that there is considerable room for
+improvement beyond that.
 
 
 \subsection{Algorithm Performance}
