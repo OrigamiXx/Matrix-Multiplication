@@ -218,7 +218,7 @@ implementation, experiments, and the experimental results.
 
 We use $\ordset{n}$ to denote the set $\set{0,1,2,\ldots, n-1}$.  For
 a set $Q$, $\Sym{Q}$ denotes the symmetric group on the elements of
-$Q$.  We use $1$ to denote the identity permutate in
+$Q$.  We use $1$ to denote the identity permutation in
 $\Sym{Q}$. \cite{cksu05} introduced the idea of a \emph{puzzle}.
 
 \begin{definition}[Puzzle]
@@ -241,7 +241,7 @@ solvable puzzles.
 %%   puzzles}.
 
 %% \begin{definition}[Uniquely Solvable Puzzle (USP)]
-%%   \label{def:strong-USP}
+
 %%   ~\\An $(s,k)$-puzzle $P$ is \emph{uniquely solvable} if
 %%   $\forall \pi_0, \pi_1, \pi_2 \in \Sym{P}:$
 %%   \begin{enumerate}
@@ -270,20 +270,12 @@ solvable puzzles.
 %% pieces like in the original definition.
 
 \begin{definition}[Strong Uniquely Solvable Puzzle]
-  ~\\
-  An $(s,k)$-puzzle $P$ is \emph{strong uniquely solvable} if
-  $\forall \pi_0, \pi_1, \pi_2 \in \Sym{P}:$
-  \begin{enumerate}
-  \item either $\pi_0 = \pi_1 = \pi_2$, or
-  \item $\exists r \in P, \exists i \in \ordset{k}$ such that exactly two
-    of the following hold:
-    \begin{enumerate}
-    \item $(\pi_0(r))_i = 0$,
-    \item $(\pi_1(r))_i = 1$,
-    \item $(\pi_2(r))_i = 2$.
-    \end{enumerate}
-  \end{enumerate}
-
+  \label{def:strong-USP}
+  An $(s,k)$-puzzle $P$ is \emph{strong uniquely solvable} if $\forall
+  \pi_0, \pi_1, \pi_2 \in \Sym{P}:$ either $\pi_0 = \pi_1 = \pi_2$, or
+  $\exists r \in P, \exists i \in \ordset{k}$ such that exactly two of
+  the following hold: $(\pi_0(r))_i = 0$, $(\pi_1(r))_i = 1$,
+  $(\pi_2(r))_i = 2$.
 \end{definition}
 
 Observe that the properties of uniquely solvable and strong uniquely
@@ -310,22 +302,22 @@ $\omega$.
   There is an infinite family of strong uniquely solvable puzzles that
   achieves $\omega < 2.48$.
 \end{lemma}
-\noindent Finally, they conjecture that strong uniquely solvable
-puzzles provide a root to achieving quadratic time matrix
-multiplication.
-\begin{conjecture}[{\cite{cksu05}}]
-  There exists a family of strong uniquely solvable puzzles that
-  implies $\omega = 2$.
-\end{conjecture}
-\noindent Unfortunately, as mentioned in the introduction, this
-conjecture was recently shown to be false.
-\begin{lemma}[\cite{bccgu16}]
-  Strong uniquely solvable puzzles cannot show $\omega < 2 +
-  \epsilon$, for some $\epsilon > 0$.
-\end{lemma}
-\noindent That said, there remains hope that the uniquely solvable
-puzzle approach could beat the refinements of Coppersmith-Winograd
-even if it cannot reach $\omega = 2$.
+%% \noindent Finally, they conjecture that strong uniquely solvable
+%% puzzles provide a root to achieving quadratic time matrix
+%% multiplication.
+%% \begin{conjecture}[{\cite{cksu05}}]
+%%   There exists a family of strong uniquely solvable puzzles that
+%%   implies $\omega = 2$.
+%% \end{conjecture}
+%% \noindent Unfortunately, as mentioned in the introduction, this
+%% conjecture was recently shown to be false.
+%% \begin{lemma}[\cite{bccgu16}]
+%%   Strong uniquely solvable puzzles cannot show $\omega < 2 +
+%%   \epsilon$, for some $\epsilon > 0$.
+%% \end{lemma}
+%% \noindent That said, there remains hope that the uniquely solvable
+%% puzzle approach could beat the refinements of Coppersmith-Winograd
+%% even if it cannot reach $\omega = 2$.
 
 %% \noindent This result is a consequence of a recent breakthrough
 %% arithmetic progressions in cap sets \cite{e16,clp16} combined with a
@@ -381,7 +373,8 @@ the zeroes pieces and check whether the non-overlapping condition of
 \autoref{def:strong-USP} is met.  A formal description of the
 algorithm is found \autoref{alg:brute-force}.
 
-\begin{algorithm}
+
+\begin{algorithm}[t]
   \caption{: Brute Force}
   \label{alg:brute-force}
 \begin{algorithmic}[1]
@@ -405,6 +398,7 @@ algorithm is found \autoref{alg:brute-force}.
   \EndFunction
 \end{algorithmic}
 \end{algorithm}
+
 Note that the $1$ in Line 4 of \autoref{alg:brute-force} denotes the
 identity permutation in $\Sym{P}$, and $\delta_{a,b}$ is the Kronecker
 delta function which is $1$ if $a = b$ and $0$ otherwise.  Observe
@@ -545,109 +539,11 @@ matching quickly led to a linear exponential time algorithm that was
 more practical.  The reduction allows us to replace the permutations
 from $\Sym{P}$ with subsets of $P$ and effectively reduce the cost of
 the outer loops of \autoref{alg:brute-force} from $s! =
-\Theta(2^{s\log s})$ to $2^s$.  \autoref{alg:bi} describes a recursive
-bidirectional strong USP verification algorithm that using the 3D
-matching instance.
+\Theta(2^{s\log s})$ to $2^s$.  This results in a dynamic programming
+algorithm for SUSP verification that takes time $O(2^{2s} \poly(s) +
+\poly(s,k))$.  For space, we defer the details of the algorithm to
+\autoref{app:bi}.
 
-\begin{algorithm}
-  \caption{: Bidirectional}
-  \label{alg:bi}
-\begin{algorithmic}[1]
-  \Require{An $(s,k)$-puzzle $P$.}
-  \Ensure{YES, if $P$ is a strong USP and NO otherwise.}
-  \Function{VerifyBidirectional}{$P$}
-  \State{Let $T = \emptyset$.}
-  \State{Construct 3DM instance $H_P$.}
-  \Function{SearchHalf}{$\ell, Q,\ell_Q, R,\ell_R, \delta, t$}
-  \If{$\ell = t$}
-    \If{$\delta = 1$} \Comment{Forward Base Case}
-      \State{Insert $(Q,R)$ into $T$.}
-      \State{\Return{$false$}.}
-    \Else \Comment{Reverse Base Case}
-      \If{$(P-Q, P-R) \in T$} \State{\Return{$true$}.} \Else \State{\Return{$false$}.} \EndIf
-    \EndIf
-  \EndIf
-  \State{$result = false$.} \Comment{Recursive Case}
-  \For{$\ell'_Q = \ell_Q + 1$ to $s$}
-    \For{$\ell'_R = \ell_R + 1$ to $s$}
-      \If{$(p_\ell, p_{\ell'_Q}, p_{\ell'_R}) \in H_P$}
-        \State{$result = result~\vee$ \textsc{SearchHalf}$(\ell + \delta, Q \cup \set{p_{\ell'_Q}}, \ell'_Q, R \cup \set{p_{\ell'_R}}, \ell'_R, \delta, t)$.}
-      \EndIf
-    \EndFor
-  \EndFor
-  \State{\Return{$result$.}}
-  \EndFunction
-
-  \State{\textsc{SearchHalf}$(1,\emptyset, 0, \emptyset, 0, 1, \lfloor s / 2 \rfloor + 1)$.}
-  \State{\Return{\textsc{SearchHalf}$(s, \emptyset, 0, \emptyset, 0, -1, \lfloor s/2 \rfloor)$}.}
-  \EndFunction
-\end{algorithmic}
-\end{algorithm}
-
-\autoref{alg:bi} consists of two phases. Let $t = \lfloor s/2
-\rfloor$. The first phase determines all possible sets $Q,R \sse P$
-with $|Q| = |R| = t$ such that there is 3D matching $M_1$ of $H_P$
-when restricted to the vertices $\set{p_1,p_2, \ldots, p_t} \sqcup Q
-\sqcup R$.  The sets $Q,R$ satisfying the requirement are stored in a
-table $T$ during the first phase on Line 6.  The second phase
-determines all possible sets $Q,R \sse P$ with $|Q| = |R| = s - t$
-such that there is a 3D matching $M_2$ of $H_P$ when restricted to the
-vertices $\set{p_{t+1},p_{t+2},\ldots,p_s} \sqcup Q \sqcup R$.  For
-each pair $(Q,R)$ the algorithm determines in the second phase it
-checks whether $(P - Q, P - R)$ was inserted into $T$ during the first
-phase.  If the pair is present it means that there is a 3D matching of
-$H_P$ which is $M = M_1 \cup M_2$.  This works because $M_1$ and $M_2$
-are partial 3D matchings and vertex disjoint.  This is because $M_1$
-is a 3D matching on $\set{p_1,\ldots,p_t}$ and $M_2$ is a 3D matching
-on $\set{p_{t+1},\ldots p_s}$, and because in Line 9 of
-\autoref{alg:bi} the lookup is performed on the complementary sets.
-The second phase returns whether a complete matching could be found,
-and hence by \autoref{lem:verify-to-3dm} whether $P$ is a strong USP.
-(Note that the first phase always returns $false$.)
-
-The running time of this algorithm is dominated by the number of pairs
-of sets $(Q,R)$ it examines.  Observe that rows of $P$ are considered
-in order in Lines 14 \& 15.  Further, the algorithm tracks the index
-of last elements added to $Q$ and $R$ in $\ell_Q$ and $\ell_R$
-respectively.  The algorithm only adds new elements to $Q$ or $R$ that
-have higher indexes than ones previously added.  Altogether this
-implies that each pair of sets $(Q,R)$ is only considered at most once
-during a phase.  Since $Q, R \sse P$, there are at most $2^s \cdot
-2^s$ pairs $(Q,R)$.  This means that \textsc{SearchHalf} is called at
-most $4^s$ times during each phase.  Hence the running time of the
-algorithm is $O(4^s \cdot s^2 \cdot \poly(s) + T_{3DM}(s,k))$ where
-$s^2$ factor comes from the inner loops and $T_{3DM}(s,k)$ accounts
-for the time to construct $H_P$.  The memory requirements of
-\autoref{alg:bi} are similarly high -- the first phase uses $O(4^s
-\cdot s)$ to store $T$.
-
-Note that \autoref{alg:bi} does not early terminate on $P$ that are
-strong USP, because it must search through all pairs before
-determining that none can be found.  The algorithm could be modified
-to allow early termination when $P$ is not a strong USP by causing the
-second phase of search to immediately return in Line 17 once the first
-3D matching witness has been located.  However, this still requires
-the first phase to run to completion.  A remedy for this would be to
-run both phases in parallel and have them check against each other.
-This would substantially complicate the implementation, and not
-substantially improve the practical running time for puzzles that are
-strong USP.
-
-In the implementation of \autoref{alg:bi} we represented the sets
-$Q,R$ using bit sets encoded into a single 64-bit long.  This
-permitted it to represent these sets for $s \le 32$.  We implemented
-$T$ using a hash table (\texttt{map}s from the C++ standard template
-library).  These choices made the basic data structure operations in
-implementation effectively constant time, and have low memory overhead
-beyond the contents of $T$.
-
-Note that more advanced techniques like those of Bj\"{o}rklund et
-al.~can acheive a better asymptotic time of $O(2^s\poly(s))$
-\cite{bhkk17}.  We chose not to implement their algorithm, because we
-judged that it would not substantially increase the domain of which
-verification was possible.  We instead took a different approach.
-
-\newpage
 \subsection{3DM to 3SAT}
 \label{subsec:sat}
 
@@ -769,160 +665,18 @@ improvement over $\Phi_P$.
 Thus we reduce 3D matching to satisfiability by converting the
 instance $H_P$ into the CNF formula $\Psi_P$.  At this point the
 reduction is straightforward, but is included for completeness in
-\autoref{alg:sat}.
+\autoref{app:sat}.
 
-\begin{algorithm}
-  \caption{: Reduction to satisfiability}
-  \label{alg:sat}
-\begin{algorithmic}[1]
-  \Require{An $(s,k)$-puzzle $P$.}
-  \Ensure{YES, if $P$ is a strong USP and NO otherwise.}
-  \Function{VerifySAT}{$P$}
-  \State{Construct 3DM instance $H_P$.}
-  \State{Construct CNF formula $\Psi_P$.}
-  \If{$\Psi_P$ is satisfiable}
-  \State{\Return NO}
-  \Else
-  \State{\Return YES}
-  \EndIf
-  \EndFunction
-\end{algorithmic}
-\end{algorithm}
-
-As mentioned before, to implement Line 4 of \autoref{alg:sat} in
-practice we used the satisfiability solver MapleCOMPSPS, from the 2016
+As mentioned before, to solve the satisfiability problem %to implement Line 4 of \autoref{alg:sat}
+in
+practice we used the solver MapleCOMPSPS, from the 2016
 international SAT competition \cite{bhj17,lgpc16}.  This solver is
 conflict driven and uses a learning rate branching heuristic to decide
 which variables are likely to lead to a conflict.  The solver provides
 no polynomial-time worse run time guarantees, but has had
 demonstratable success in practice.
 
-%% \begin{algorithm}
-%%   \caption{: Create CNF formula in a Solver (Part 1)}
-%%   \label{alg:cnf}
-%% \begin{algorithmic}[1]
-%%   \Require{An $(s,k)$-puzzle $P$ and a Solver $S$}
-%%   \Ensure{Solver $S$ with CNF clauses loaded.}
-%%   \Function{ConstructReduction}{$P, S$}
-  
-%%   \State{Construct $H_p$}
-%%   \State{Allocate $2s^2$ variables space in Solver $S$}
-%%   \State{Create an empty clause $C$}
-%%   \State{\Comment Adding constraints (variables) from $H_P$}
-%%   \For{$r_1 = 0$ to $s$}             
-%%     \For{$r_2 = 0$ to $s$}
-%%       \State{Get constriant $Var_{r_2}$ from $Var$ with index from $X'$ according to $r_1, r_2$ }
-%%       \For{$r_3 = 0$  to $s$}
-%% 	\State{Get constriant $Var_{r_3}$ from $Var$ with index from $Y'$ according to $r_1, r_3$}
-%%         \If {$(r_1, r_2, r_3)$ not in $H_p$}
-%% 	  \State{Clear clause $C$}
-%% 	  \State{Push $Var_{r_2}$ and $Var_{r_3}$ into $C$}
-%% 	  \State{Add clause $C$ into Solver $S$}
-%%         \EndIf
-%%       \EndFor
-%%     \EndFor
-%%   \EndFor
-  
-%%   \State{\Comment Checking the uniqueness of the edges in the 3D matching}
-%%   \State{\Comment Within layer $r_1$}
-%%   \State{\Comment For all $r_1$, $r_{21} != r_{22}$, and $r_{31} != r_{32}$ }
-%%   \For{$r_1 = 0$ to $s$}
-%%       \For{$a = 0$ to $s$}
-%%       \State{Get constriant $Var_{r_{21}}$ from $Var$ with index from $X'$ according to $a, r_1$}
-%%       \State{Get constriant $Var_{r_{31}}$ from $Var$ with index from $Y'$ according to $a, r_1$}
-%%       	\For{$b = 0$ to $s$}
-%%         \State{Get constriant $Var_{r_{22}}$ from $Var$ with index from $X'$ according to $b, r_1$}
-%%         \State{Get constriant $Var_{r_{32}}$ from $Var$ with index from $Y'$ according to $b, r_1$}
-%%         \If {$r_{21} < r_{22}$}  \Comment implies $r_{31} < r_{32}$
-%% 	  \State{Clear clause $C$}
-%% 	  \State{Push $Var_{r_{21}}$ and $Var_{r_{22}}$ into $C$}
-%% 	  \State{Add clause $C$ into Solver $S$}
-%% 	  \State{Clear clause $C$}
-%% 	  \State{Push $Var_{r_{31}}$ and $Var_{r_{32}}$ into $C$}
-%% 	  \State{Add clause $C$ into Solver $S$}
-%%         \EndIf
-%%         \EndFor
-%%       \EndFor
-%%   \EndFor
-  
-%%   \State{\Comment Checking the uniqueness of the edges in the 3D matching}
-%%   \State{\Comment Within slice $r$}
-%%   \State{\Comment For all $r_2, r_3$, $r_{11} != r_{12}$ }
-%%   \For{$r = 0$ to $s$}
-%%       \For{$r_{11} = 0$ to $s$}
-%%       \State{Get constriant $Var_{r_{21}}$ from $Var$ with index from $X'$ according to $r_{11},r$}
-%%       \State{Get constriant $Var_{r_{31}}$ from $Var$ with index from $Y'$ according to $r_{11},r$}
-%%       	\For{$r_{12} = 0$ to $s$}
-%%         \State{Get constriant $Var_{r_{22}}$ from $Var$ with index from $X'$ according to $r_{12}, r$}
-%%         \State{Get contsriant $Var_{r_{32}}$ from $Var$ with index from $Y'$ according to $r_{12}, r$}
-%%         \If {$r_{21} < r_{22}$}  \Comment implies $r_{31} < r_{32}$
-%% 	  \State{Clear clause $C$}
-%% 	  \State{Push $Var_{r_{21}}$ and $Var_{r_{22}}$ into $C$}
-%% 	  \State{Add clause $C$ into Solver $S$}
-%% 	  \State{Clear clause $C$}
-%% 	  \State{Push $Var_{r_{31}}$ and $Var_{r_{32}}$ into $C$}
-%% 	  \State{Add clause $C$ into Solver $S$}
-%%         \EndIf
-%%         \EndFor
-%%       \EndFor
-%%   \EndFor
-%%   \algstore{bkbreak}
-%%   %\EndFunction
-%% \end{algorithmic}
-%% \end{algorithm}
-
-%% \addtocounter{algorithm}{-1}
-%% \begin{algorithm}[h]
-%%   \caption{: Create CNF formula in a Solver (Part 2)}
-%% \begin{algorithmic}[1]
-%% \algrestore{bkbreak}
-
-%%   %\Comment Checking Existence of edges in layer $r_1$
-%%   \For{$r_1 = 0$ to $s$} \Comment Checking Existence of edges in layer $r_1$
-%%     \State{Clear clause $C$}
-%%     \For{$r_2 = 0$ to $s$}
-%%         \State{Get constriant $Var_{r_{2}}$ from $Var$ with index from $X'$ according to $r_{1},r_2$}
-%%         \State{Push $Var_{r_{2}}$ into $C$}
-%%     \EndFor
-%%     \State{Add clause $C$ into Solver $S$}
-    
-%%     \State{Clear clause $C$}
-%%     \For{$r_3 = 0$ to $s$}
-%%         \State{Get constriant $Var_{r_{3}}$ from $Var$ with index from $Y'$ according to $r_{1},r_3$}
-%%         \State{Push $Var_{r_{3}}$ into $C$}
-%%     \EndFor
-%%     \State{Add clause $C$ into Solver $S$}
-%%   \EndFor
-%%   \For{$r = 0$ to $s$} \Comment Checking Existence of edges in slice $r$
-%%     \State{Clear clause $C$}
-%%     \For{$r_1 = 0$ to $s$}
-%%         \State{Get constriant $Var_{r_{x}}$ from $Var$ with index from $X'$ according to $r_{1},r$}
-%%         \State{Push $Var_{r_{x}}$ into $C$}
-%%     \EndFor
-%%     \State{Add clause $C$ into Solver $S$}
-    
-%%     \State{Clear clause $C$}
-%%     \For{$r_1 = 0$ to $s$}
-%%         \State{Get constriant $Var_{r_{y}}$ from $Var$ with index from $Y'$ according to $r_{1},r$}
-%%         \State{Push $Var_{r_{y}}$ into $C$}
-%%     \EndFor
-%%     \State{Add clause $C$ into Solver $S$}
-%%   \EndFor
-%%   \State{Clear clause $C$}
-%%   \For{$r_1 = 0$ to $s$} \Comment check non-trivial cases
-%%   	\State{Get constriant $Var_{rxx}$ from $Var$ with index from $X'$ according to $r_{1},r_1$}
-%% 	\State{Get constriant $Var_{ryy}$ from $Var$ with index from $Y'$ according to $r_{1},r_1$}
-%%   \EndFor
-%%   \State{Add clause $C$ into Solver $S$}
-%%   \State{\Return{ Solver $S$}}
-%%   \EndFunction
-
-
-%% \end{algorithmic}
-%% \end{algorithm}
-
- 
-\subsection{3DM to MIP}
+\subsection{3DM to IP}
 
 Another way to utilize the connection between verification of strong
 USP and 3D matching is to further reduce 3D matching to integer
@@ -955,8 +709,10 @@ add the constraint
   \label{eqn:cons3}
   \sum_{u \in P} M_{u,u,u} < |P|.
 \end{equation}
-With these constraints in mind, \autoref{alg:mip} describes the
-overall reduction.
+
+
+%% With these constraints in mind, \autoref{alg:mip} describes the
+%% overall reduction.
 
 %% By this theory, \autoref{alg:mip} would first transfers input puzzle
 %% $P$ into a tripartite hypergraph $H_p$ and creates an empty mixed
@@ -970,27 +726,11 @@ overall reduction.
 %% USP. Otherwise if the model is infeasible, $H_p$ does not have a
 %% nontrivial thus $P$ is a USP.
 
-\begin{algorithm}
-  \caption{: Reduction to mixed integer programming}
-  \label{alg:mip}
-\begin{algorithmic}[1]
-  \Require{An $(s,k)$-puzzle $P$.}
-  \Ensure{YES, if $P$ is a strong USP and NO otherwise.}
-  \Function{VerifyMIP}{$P$}
-  \State{Construct 3DM instance $H_P$.}
-  \State{Create empty integer program $Q$ with Boolean variables $\condset{M_{u,v,w}}{u,v,w \in P}$.}
-  \State{Add constraints of \autoref{eqn:cons1}, \autoref{eqn:cons2}, and \autoref{eqn:cons3} to $Q$.}
-  \If{\textsc{IsFeasible}$(Q)$}
-  \State{\Return{NO}.}
-  \Else
-  \State{\Return{YES}.}
-  \EndIf
-  \EndFunction
-\end{algorithmic}
-\end{algorithm}
-
-The heavy lifting in \autoref{alg:mip} occurs in Line 5 where the
-integer program is checked for feasibility, i.e., that there is an
+To check whether $P$ is a strong USP we need to determine that the
+above integer program is not feasible,
+%The heavy lifting in \autoref{alg:mip} occurs in Line 5 where the
+%integer program is checked for feasibility,
+i.e., that there is no
 assignment to the variables $M$ that satisfy all the constraints.  In
 practice we hand off this computation to the third-party mixed-integer
 programming solver Gurobi \cite{gurobi}.  It should be noted that
@@ -1030,7 +770,10 @@ randomized.  This is again in the Las Vegas sense: An output of YES or
 NO is always correct, but as function of the input and internal
 algorthmic randomness MAYBE can be also be output and can vary between
 independent runs.  The heuristics have several different forms, but
-all rely ultimately on structural properties of strong USP.
+all rely ultimately on structural properties of strong USP.  Here we
+briefly discuss the two most effective heuristics, downward closure
+and greedy, and defer a third unsuccessful heuristic, a projection to
+2D matching, to \autoref{app:2dmatching}.
 
 \subsubsection{Downward Closed}
 
@@ -1039,7 +782,7 @@ strong USP are downward closed, that is, if $P$ is a strong USP, then
 so is every subpuzzle $P' \sse P$.  This leads to a practical heuristic
 that can determine that a puzzle is not a strong USP.
 
-\begin{algorithm}
+\begin{algorithm}[t]
   \caption{: Downward-closed Heuristic}
   \label{alg:downward-closed}
 \begin{algorithmic}[1]
@@ -1114,66 +857,10 @@ again from scratch.  This process is repeated some number of times
 before it gives up and returns MAYBE.  In our practical implementation
 we use $s^3$ iterations because the time balances well with the other
 heuristics and empricially reduced the number of instances requiring a
-full verification.
+full verification.  For space we defer the details of this heuristic
+to \autoref{app:greedy}.
 
-\begin{algorithm}
-  \caption{: (Random) Greedy Heuristic}
-  \label{alg:random-greedy}
-\begin{algorithmic}[1]
-  \Require{An $(s,k)$-puzzle $P$, and iteration bound $t$.}
-  \Ensure{NO, if a witness is found for $P$ not being a strong USP, and MAYBE otherwise.}
-  \Function{HeuristicGreedy}{$P$}
-  \State{Construct 3DM instance $H_P$.}
-  \For{$i = 1$ to $t$}
-    \For{$u \in P$}
-      \State{$cts[u] = \sum_{v,w \in P} H_P(u,v,w)$.} \Comment{Number of edges incident vertex $u$.}
-    \EndFor
-    \State{Let $U,V,W = \emptyset.$}
-    \State{Let $m = 0.$} \Comment{Number of hyperedges in matching.}
-    \While{$m < s$} 
-      \State{Select $u \in \condset{u \in \bar{U}}{cts[u] = \max_{v \in \bar{U}} cts[v]}$ uniformly at random.}
-      \If{$cts[u] = 0$} break. \EndIf
-      \State{Select $(v,w) \in \condset{(v,w) \in \bar{V} \times \bar{W}}{H_P(u,v,w) = 1}$ uniformly at random.}
-      \For{$v' \in P$} \Comment{Update edge counts.}
-        \For{$w' \in P$}
-          \If{$(v',w') \in \bar{V} \times \bar{W}$ and $H_P(u,v',w') = 1$} $cts[u]\texttt{--}$. \EndIf
-          \If{$(v',w') \in \bar{U} \times \bar{W}$ and $H_P(v',v,w') = 1$ and $v' \neq u$} $cts[v']\texttt{--}$. \EndIf
-          \If{$(v',w') \in \bar{U} \times \bar{V}$ and $H_P(v',w',w) = 1$ and $v' \neq u$ and $v' \neq v$} $cts[v']\texttt{--}$. \EndIf
-        \EndFor
-      \EndFor
-      \State{$U = U \cup \set{u}$.} \Comment{Add edge to matching.}
-      \State{$V = V \cup \set{v}$.}
-      \State{$W = W \cup \set{w}$.}
-      \State{$m = m + 1.$}
-      \EndWhile
-    \If {$m > s$} \Return{NO}. \Comment{3DM found so not SUSP, halt.} \EndIf
-  \EndFor
-  \State{\Return{MAYBE}.}
-  \EndFunction
-\end{algorithmic}
-\end{algorithm}
 
-The array $cts$ is used to store the number of edges $cts[u]$ that
-remain associated with vertex $u$ along the first coordinate.  Much of
-the algorithm is devoted to maintaining this invariant.  The sets
-$U,V,W$ store the vertices along the three coordinates, respectively,
-that have already been incorporated into the partial 3D matching.
-Like in \autoref{alg:bi} we do not store the matching itself, only the
-vertices involved.  The break at Line 10 triggers when the partial 3D
-matching is a dead end and cannot be extended into a full 3D matching.
-The condition of Line 21 is true when a full 3D matching has been
-constructed and causes the algorithm to return that $P$ is not a
-strong USP.
-
-The running time of this algorithm is $O(s^3 t + T_{3DM}(s,k))$, where
-$T_{3DM}(s,k)$ is the time required to construct 3D matching instances
-from $(s,k)$-puzzles.  This algorithm has the potential to be
-considerably slower than the downward-closure heuristic, and in
-practice we set $t = s^3$.  However, the main loop can terminate early
-at Line 10 when it fails to extend the 3D matching this permits the
-expected time to much less than the worst case.  For a puzzle $P$ that
-is a strong USP, the heuristic takes the full $\Omega(s^3 t +
-T_{3DM}(s,k))$ time.
 
 %% \subsubsection{Graph Automorphism}
 
@@ -1187,52 +874,6 @@ T_{3DM}(s,k))$ time.
 
 %% XXXX - I don't remember the argument either way...
 
-\subsubsection{2D Matching}
-
-The final heuristic we present is one-sided in the opposite direction
-of the others, it may return YES or MAYBE.  In order for a hypergraph
-$H_P$ to have a 3D matching it must be the case that when any one of
-the three parts of vertices of $H_P$ is projected away the resulting
-bipartite graph has a perfect matching.  Thus we can witness that
-there is no 3D matching by determining that one of three projected
-bipartite graphs $H_P|_1, H_P|_2, H_P|_3$ does not have a perfect
-matching.
-
-\begin{algorithm}
-  \caption{: 2D Matching Heuristic}
-  \label{alg:2dm}
-\begin{algorithmic}[1]
-  \Require{An $(s,k)$-puzzle $P$.}
-  \Ensure{YES, if $P$ is found to be strong USP, and MAYBE otherwise.}
-  \Function{Heuristic2DMatching}{$P$}
-  \State{Construct 3DM instance $H_P.$}
-  \State{\texttt{// Construct projections.}}
-  \State{Define projection $H_P|_1(b,c) = \vee_{a \in [s]} H_P(a,b,c)$.}
-  \State{Define projection $H_P|_2(a,c) = \vee_{b \in [s]} H_P(a,b,c)$.}
-  \State{Define projection $H_P|_3(a,b) = \vee_{c \in [s]} H_P(a,b,c)$.}
-
-  \If{$H_P|_1, H_P|_2,$ and $H_P|_3$ have bipartite perfect matchings}
-  \State{\Return{MAYBE.}}
-  \Else
-  \State{\Return{YES.}}
-  \EndIf
-  \EndFunction
-\end{algorithmic}
-\end{algorithm}
-
-We can efficiently decide bipartite perfect matching using the
-standard reduction to network flow and solve it using the
-Ford-Faulkerson augmenting flow algorithm.  This approach yields an
-algorithm that runs in time $O(s^3 + T_{3DM}(s,k))$, where
-$T_{3DM}(s,k)$ is the time required to construct 3D matching instances
-from $(s,k)$-puzzles.
-
-In practice we found this heuristic not to be effective because the
-projected $H_P|_i$ are typically dense graphs even if $H_P$ is not,
-and so they are likely to have perfect matchings independently of
-whether $H_P$ has a 3D matching.
-
-
 
 \subsection{Hybrid Algorithm}
 
@@ -1242,7 +883,7 @@ for which algorithm and heuristic to apply were determined
 experimentally for small $k$ and were focused on the values were our
 strong USP search algorithms were tractable $k \le 6$ (or nearly
 tractable $k \le 8$).  We decided to run both the reduction to SAT and
-MIP in parallel because it was not clear which algorithm performed
+IP in parallel because it was not clear which algorithm performed
 better.  Since verification halts when either algorithm completes the
 wasted effort is within a factor of two of what the better algorithm
 could have done alone.  We also chose to do this because we
@@ -1251,7 +892,7 @@ algorithms struggled with that the other did not.  We end up not using
 \textsc{Heuristic2DMatching} because it rarely produced definitive
 output.
 
-\begin{algorithm}
+\begin{algorithm}[t]
   \caption{: Hybrid Verification Algorithm}
   \label{alg:hybrid}
 \begin{algorithmic}[1]
@@ -1265,9 +906,9 @@ output.
     \State{\Return{\Call{VerifyBidirectional}{$P$}.}}
     \EndIf
   \State{Return result if \Call{HeuristicDownwardClosed}{$P, 3$} is not MAYBE.}
-  \State{Return result if \Call{HeuristicRandom}{$P$} is not MAYBE.}
+  %\State{Return result if \Call{HeuristicRandom}{$P$} is not MAYBE.}
   \State{Return result if \Call{HeuristicGreedy}{$P$} is not MAYBE.}
-  \State{Run \Call{VerifySAT}{$P$} and \Call{VerifyMIP}{$P$} in parallel and return the first result.}
+  \State{Run \Call{VerifySAT}{$P$} and \Call{VerifyIP}{$P$} in parallel and return the first result.}
   \EndFunction
 \end{algorithmic}
 \end{algorithm}
@@ -1325,62 +966,8 @@ A width-$k$ puzzle has potentially $3^k$ distinct rows.  For $j \in
 [3^k]$ we use $r_j$ to denote the $j^{th}$ row in lexicographic order.
 For a puzzle $P$ and integer $i \in [|P|]$ we use $P_i$ to denote the
 $i^{th}$ row of $P$ where the rows are sequenced in lexicographic
-order. We include pseudocode of both searches for completeness.
+order. We include pseudocode of both searches in \autoref{app:search} for completeness.
 
-\begin{algorithm}
-  \caption{: Depth-First Search}
-  \label{alg:dfs}
-\begin{algorithmic}[1]
-  \Require{An integer $k \ge 0$, and a width-$k$ strong USP $P$.}
-  \Ensure{The number $best$, which is the size of the largest strong USP that has $P$ as a subpuzzle.}
-
-  \Function{DFS}{$k, P$}
-
-  \State{Let $best = |P|$.}
-  \State{Let $j$ be the index of the row $P_{|P|-1}$ in lexicographic order.}
-
-  \For{$r = r_{j+1}$ to $r_{3^k-1}$}
-    \State{Let $P' = P \cup \set{r}$.}
-    \If{\Call{Verify}{$P'$}}
-      \State{$best = \max(best, $ \Call{DFS}{$k, P'$}).}
-    \EndIf
-  \EndFor
-
-  \State{\Return{$best$}.}
-
-  \EndFunction
-\end{algorithmic}
-\end{algorithm}
-
-\begin{algorithm}
-  \caption{: Breadth-First Search}
-  \label{alg:bfs}
-\begin{algorithmic}[1]
-  \Require{An integer $k \ge 0$.}
-  \Ensure{The number $best$, which is the size of the largest strong USP that has $P$ as a subpuzzle.}
-
-  \Function{BFS}{$k$}
-
-  \State{Let $Q$ be an empty queue.}
-  \State{Push $\emptyset$ onto end of $Q$.}
-
-  \While{$Q$ is not empty}
-    \State{Pop head of $Q$ into $P$.}
-    \State{Let $j$ be the index of the row $P_{|P|-1}$ in the lexicographic order of all rows.}
-    \For{$r = r_{j+1}$ to $r_{3^k-1}$}
-      \State{Let $P' = P \cup \set{r}$.}
-      \If{\Call{Verify}{$P'$}}
-        \State{Push $P'$ onto end of $Q$.}
-        \State{$best = |P'|$.}
-      \EndIf
-    \EndFor
-  \EndWhile
-
-  \State{\Return{$best$}.}
-
-  \EndFunction
-\end{algorithmic}
-\end{algorithm}
 
 Arguing the correctness of these algorithms is routine.  It should be
 noted that since we treat the puzzles as though they have rows sorted
@@ -1662,6 +1249,333 @@ Summer Research Fellowship for supporting their work.
 \bibliographystyle{customurlbst/alphaurlpp} \bibliography{references}
 
 \appendix
+
+\section{Bidirectional Search}
+
+\label{app:bi}
+
+\autoref{alg:bi} describes a recursive
+bidirectional strong USP verification algorithm that using the 3D
+matching instance.
+
+\begin{algorithm}[h]
+  \caption{: Bidirectional}
+  \label{alg:bi}
+\begin{algorithmic}[1]
+  \Require{An $(s,k)$-puzzle $P$.}
+  \Ensure{YES, if $P$ is a strong USP and NO otherwise.}
+  \Function{VerifyBidirectional}{$P$}
+  \State{Let $T = \emptyset$.}
+  \State{Construct 3DM instance $H_P$.}
+  \Function{SearchHalf}{$\ell, Q,\ell_Q, R,\ell_R, \delta, t$}
+  \If{$\ell = t$}
+    \If{$\delta = 1$} \Comment{Forward Base Case}
+      \State{Insert $(Q,R)$ into $T$.}
+      \State{\Return{$false$}.}
+    \Else \Comment{Reverse Base Case}
+      \If{$(P-Q, P-R) \in T$} \State{\Return{$true$}.} \Else \State{\Return{$false$}.} \EndIf
+    \EndIf
+  \EndIf
+  \State{$result = false$.} \Comment{Recursive Case}
+  \For{$\ell'_Q = \ell_Q + 1$ to $s$}
+    \For{$\ell'_R = \ell_R + 1$ to $s$}
+      \If{$(p_\ell, p_{\ell'_Q}, p_{\ell'_R}) \in H_P$}
+        \State{$result = result~\vee$ \textsc{SearchHalf}$(\ell + \delta, Q \cup \set{p_{\ell'_Q}}, \ell'_Q, R \cup \set{p_{\ell'_R}}, \ell'_R, \delta, t)$.}
+      \EndIf
+    \EndFor
+  \EndFor
+  \State{\Return{$result$.}}
+  \EndFunction
+
+  \State{\textsc{SearchHalf}$(1,\emptyset, 0, \emptyset, 0, 1, \lfloor s / 2 \rfloor + 1)$.}
+  \State{\Return{\textsc{SearchHalf}$(s, \emptyset, 0, \emptyset, 0, -1, \lfloor s/2 \rfloor)$}.}
+  \EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+\autoref{alg:bi} consists of two phases. Let $t = \lfloor s/2
+\rfloor$. The first phase determines all possible sets $Q,R \sse P$
+with $|Q| = |R| = t$ such that there is 3D matching $M_1$ of $H_P$
+when restricted to the vertices $\set{p_1,p_2, \ldots, p_t} \sqcup Q
+\sqcup R$.  The sets $Q,R$ satisfying the requirement are stored in a
+table $T$ during the first phase on Line 6.  The second phase
+determines all possible sets $Q,R \sse P$ with $|Q| = |R| = s - t$
+such that there is a 3D matching $M_2$ of $H_P$ when restricted to the
+vertices $\set{p_{t+1},p_{t+2},\ldots,p_s} \sqcup Q \sqcup R$.  For
+each pair $(Q,R)$ the algorithm determines in the second phase it
+checks whether $(P - Q, P - R)$ was inserted into $T$ during the first
+phase.  If the pair is present it means that there is a 3D matching of
+$H_P$ which is $M = M_1 \cup M_2$.  This works because $M_1$ and $M_2$
+are partial 3D matchings and vertex disjoint.  This is because $M_1$
+is a 3D matching on $\set{p_1,\ldots,p_t}$ and $M_2$ is a 3D matching
+on $\set{p_{t+1},\ldots p_s}$, and because in Line 9 of
+\autoref{alg:bi} the lookup is performed on the complementary sets.
+The second phase returns whether a complete matching could be found,
+and hence by \autoref{lem:verify-to-3dm} whether $P$ is a strong USP.
+(Note that the first phase always returns $false$.)
+
+The running time of this algorithm is dominated by the number of pairs
+of sets $(Q,R)$ it examines.  Observe that rows of $P$ are considered
+in order in Lines 14 \& 15.  Further, the algorithm tracks the index
+of last elements added to $Q$ and $R$ in $\ell_Q$ and $\ell_R$
+respectively.  The algorithm only adds new elements to $Q$ or $R$ that
+have higher indexes than ones previously added.  Altogether this
+implies that each pair of sets $(Q,R)$ is only considered at most once
+during a phase.  Since $Q, R \sse P$, there are at most $2^s \cdot
+2^s$ pairs $(Q,R)$.  This means that \textsc{SearchHalf} is called at
+most $4^s$ times during each phase.  Hence the running time of the
+algorithm is $O(4^s \cdot s^2 \cdot \poly(s) + T_{3DM}(s,k))$ where
+$s^2$ factor comes from the inner loops and $T_{3DM}(s,k)$ accounts
+for the time to construct $H_P$.  The memory requirements of
+\autoref{alg:bi} are similarly high -- the first phase uses $O(4^s
+\cdot s)$ to store $T$.
+
+Note that \autoref{alg:bi} does not early terminate on $P$ that are
+strong USP, because it must search through all pairs before
+determining that none can be found.  The algorithm could be modified
+to allow early termination when $P$ is not a strong USP by causing the
+second phase of search to immediately return in Line 17 once the first
+3D matching witness has been located.  However, this still requires
+the first phase to run to completion.  A remedy for this would be to
+run both phases in parallel and have them check against each other.
+This would substantially complicate the implementation, and not
+substantially improve the practical running time for puzzles that are
+strong USP.
+
+In the implementation of \autoref{alg:bi} we represented the sets
+$Q,R$ using bit sets encoded into a single 64-bit long.  This
+permitted it to represent these sets for $s \le 32$.  We implemented
+$T$ using a hash table (\texttt{map}s from the C++ standard template
+library).  These choices made the basic data structure operations in
+implementation effectively constant time, and have low memory overhead
+beyond the contents of $T$.
+
+Note that more advanced techniques like those of Bj\"{o}rklund et
+al.~can acheive a better asymptotic time of $O(2^s\poly(s))$
+\cite{bhkk17}.  We chose not to implement their algorithm, because we
+judged that it would not substantially increase the domain of which
+verification was possible.  
+
+\section{Reduction to SAT}
+
+\label{app:sat}
+
+\begin{algorithm}[h]
+  \caption{: Reduction to satisfiability}
+  \label{alg:sat}
+\begin{algorithmic}[1]
+  \Require{An $(s,k)$-puzzle $P$.}
+  \Ensure{YES, if $P$ is a strong USP and NO otherwise.}
+  \Function{VerifySAT}{$P$}
+  \State{Construct 3DM instance $H_P$.}
+  \State{Construct CNF formula $\Psi_P$.}
+  \If{$\Psi_P$ is satisfiable}
+  \State{\Return NO}
+  \Else
+  \State{\Return YES}
+  \EndIf
+  \EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+
+\section{Reduction to IP}
+
+\label{app:IP}
+
+
+\begin{algorithm}[h]
+  \caption{: Reduction to mixed integer programming}
+  \label{alg:mip}
+\begin{algorithmic}[1]
+  \Require{An $(s,k)$-puzzle $P$.}
+  \Ensure{YES, if $P$ is a strong USP and NO otherwise.}
+  \Function{VerifyIP}{$P$}
+  \State{Construct 3DM instance $H_P$.}
+  \State{Create empty integer program $Q$ with Boolean variables $\condset{M_{u,v,w}}{u,v,w \in P}$.}
+  \State{Add constraints of \autoref{eqn:cons1}, \autoref{eqn:cons2}, and \autoref{eqn:cons3} to $Q$.}
+  \If{\textsc{IsFeasible}$(Q)$}
+  \State{\Return{NO}.}
+  \Else
+  \State{\Return{YES}.}
+  \EndIf
+  \EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+\section{Greedy Heuristic}
+
+\label{app:greedy}
+
+\begin{algorithm}[h]
+  \caption{: (Random) Greedy Heuristic}
+  \label{alg:random-greedy}
+\begin{algorithmic}[1]
+  \Require{An $(s,k)$-puzzle $P$, and iteration bound $t$.}
+  \Ensure{NO, if a witness is found for $P$ not being a strong USP, and MAYBE otherwise.}
+  \Function{HeuristicGreedy}{$P$}
+  \State{Construct 3DM instance $H_P$.}
+  \For{$i = 1$ to $t$}
+    \For{$u \in P$}
+      \State{$cts[u] = \sum_{v,w \in P} H_P(u,v,w)$.} \Comment{Number of edges incident vertex $u$.}
+    \EndFor
+    \State{Let $U,V,W = \emptyset.$}
+    \State{Let $m = 0.$} \Comment{Number of hyperedges in matching.}
+    \While{$m < s$} 
+      \State{Select $u \in \condset{u \in \bar{U}}{cts[u] = \max_{v \in \bar{U}} cts[v]}$ uniformly at random.}
+      \If{$cts[u] = 0$} break. \EndIf
+      \State{Select $(v,w) \in \condset{(v,w) \in \bar{V} \times \bar{W}}{H_P(u,v,w) = 1}$ uniformly at random.}
+      \For{$v' \in P$} \Comment{Update edge counts.}
+        \For{$w' \in P$}
+          \If{$(v',w') \in \bar{V} \times \bar{W}$ and $H_P(u,v',w') = 1$} $cts[u]\texttt{--}$. \EndIf
+          \If{$(v',w') \in \bar{U} \times \bar{W}$ and $H_P(v',v,w') = 1$ and $v' \neq u$} $cts[v']\texttt{--}$. \EndIf
+          \If{$(v',w') \in \bar{U} \times \bar{V}$ and $H_P(v',w',w) = 1$ and $v' \neq u$ and $v' \neq v$} $cts[v']\texttt{--}$. \EndIf
+        \EndFor
+      \EndFor
+      \State{$U = U \cup \set{u}$.} \Comment{Add edge to matching.}
+      \State{$V = V \cup \set{v}$.}
+      \State{$W = W \cup \set{w}$.}
+      \State{$m = m + 1.$}
+      \EndWhile
+    \If {$m > s$} \Return{NO}. \Comment{3DM found so not SUSP, halt.} \EndIf
+  \EndFor
+  \State{\Return{MAYBE}.}
+  \EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+The array $cts$ is used to store the number of edges $cts[u]$ that
+remain associated with vertex $u$ along the first coordinate.  Much of
+the algorithm is devoted to maintaining this invariant.  The sets
+$U,V,W$ store the vertices along the three coordinates, respectively,
+that have already been incorporated into the partial 3D matching.
+Like in \autoref{alg:bi} we do not store the matching itself, only the
+vertices involved.  The break at Line 10 triggers when the partial 3D
+matching is a dead end and cannot be extended into a full 3D matching.
+The condition of Line 21 is true when a full 3D matching has been
+constructed and causes the algorithm to return that $P$ is not a
+strong USP.
+
+The running time of this algorithm is $O(s^3 t + T_{3DM}(s,k))$, where
+$T_{3DM}(s,k)$ is the time required to construct 3D matching instances
+from $(s,k)$-puzzles.  This algorithm has the potential to be
+considerably slower than the downward-closure heuristic, and in
+practice we set $t = s^3$.  However, the main loop can terminate early
+at Line 10 when it fails to extend the 3D matching this permits the
+expected time to much less than the worst case.  For a puzzle $P$ that
+is a strong USP, the heuristic takes the full $\Omega(s^3 t +
+T_{3DM}(s,k))$ time.
+
+
+
+
+
+\section{2D Matching Heuristic}
+
+\label{app:2dmatching}
+
+The final heuristic we present is one-sided in the opposite direction
+of the others, it may return YES or MAYBE.  In order for a hypergraph
+$H_P$ to have a 3D matching it must be the case that when any one of
+the three parts of vertices of $H_P$ is projected away the resulting
+bipartite graph has a perfect matching.  Thus we can witness that
+there is no 3D matching by determining that one of three projected
+bipartite graphs $H_P|_1, H_P|_2, H_P|_3$ does not have a perfect
+matching.
+
+\begin{algorithm}[h]
+  \caption{: 2D Matching Heuristic}
+  \label{alg:2dm}
+\begin{algorithmic}[1]
+  \Require{An $(s,k)$-puzzle $P$.}
+  \Ensure{YES, if $P$ is found to be strong USP, and MAYBE otherwise.}
+  \Function{Heuristic2DMatching}{$P$}
+  \State{Construct 3DM instance $H_P.$}
+  \State{\texttt{// Construct projections.}}
+  \State{Define projection $H_P|_1(b,c) = \vee_{a \in [s]} H_P(a,b,c)$.}
+  \State{Define projection $H_P|_2(a,c) = \vee_{b \in [s]} H_P(a,b,c)$.}
+  \State{Define projection $H_P|_3(a,b) = \vee_{c \in [s]} H_P(a,b,c)$.}
+
+  \If{$H_P|_1, H_P|_2,$ and $H_P|_3$ have bipartite perfect matchings}
+  \State{\Return{MAYBE.}}
+  \Else
+  \State{\Return{YES.}}
+  \EndIf
+  \EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+We can efficiently decide bipartite perfect matching using the
+standard reduction to network flow and solve it using the
+Ford-Faulkerson augmenting flow algorithm.  This approach yields an
+algorithm that runs in time $O(s^3 + T_{3DM}(s,k))$, where
+$T_{3DM}(s,k)$ is the time required to construct 3D matching instances
+from $(s,k)$-puzzles.
+
+In practice we found this heuristic not to be effective because the
+projected $H_P|_i$ are typically dense graphs even if $H_P$ is not,
+and so they are likely to have perfect matchings independently of
+whether $H_P$ has a 3D matching.
+
+\section{Generic Search}
+
+\label{app:search}
+
+\begin{algorithm}[h]
+  \caption{: Depth-First Search}
+  \label{alg:dfs}
+\begin{algorithmic}[1]
+  \Require{An integer $k \ge 0$, and a width-$k$ strong USP $P$.}
+  \Ensure{The number $best$, which is the size of the largest strong USP that has $P$ as a subpuzzle.}
+
+  \Function{DFS}{$k, P$}
+
+  \State{Let $best = |P|$.}
+  \State{Let $j$ be the index of the row $P_{|P|-1}$ in lexicographic order.}
+
+  \For{$r = r_{j+1}$ to $r_{3^k-1}$}
+    \State{Let $P' = P \cup \set{r}$.}
+    \If{\Call{Verify}{$P'$}}
+      \State{$best = \max(best, $ \Call{DFS}{$k, P'$}).}
+    \EndIf
+  \EndFor
+
+  \State{\Return{$best$}.}
+
+  \EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[h]
+  \caption{: Breadth-First Search}
+  \label{alg:bfs}
+\begin{algorithmic}[1]
+  \Require{An integer $k \ge 0$.}
+  \Ensure{The number $best$, which is the size of the largest strong USP that has $P$ as a subpuzzle.}
+
+  \Function{BFS}{$k$}
+
+  \State{Let $Q$ be an empty queue.}
+  \State{Push $\emptyset$ onto end of $Q$.}
+
+  \While{$Q$ is not empty}
+    \State{Pop head of $Q$ into $P$.}
+    \State{Let $j$ be the index of the row $P_{|P|-1}$ in the lexicographic order of all rows.}
+    \For{$r = r_{j+1}$ to $r_{3^k-1}$}
+      \State{Let $P' = P \cup \set{r}$.}
+      \If{\Call{Verify}{$P'$}}
+        \State{Push $P'$ onto end of $Q$.}
+        \State{$best = |P'|$.}
+      \EndIf
+    \EndFor
+  \EndWhile
+
+  \State{\Return{$best$}.}
+
+  \EndFunction
+\end{algorithmic}
+\end{algorithm}
+
 
 
 \end{document}
