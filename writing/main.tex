@@ -1328,7 +1328,7 @@ order. We include pseudocode of both searches for completeness.
   \Require{An integer $k \ge 0$, and a width-$k$ strong USP $P$.}
   \Ensure{The number $best$, which is the size of the largest strong USP that has $P$ as a subpuzzle.}
 
-  \Function{DFS}{$P$}
+  \Function{DFS}{$k, P$}
 
   \State{Let $best = |P|$.}
   \State{Let $j$ be the index of the row $P_{|P|-1}$ in lexicographic order.}
@@ -1428,13 +1428,10 @@ result of form (i), and, as such, are not guaranteed to be tight.
 \subsection{New Bounds on the Size of Strong USPs}
 \label{subsec:usps_found}
 
-We begin with a diagram, \autoref{fig:examples}, of representative
-examples of maximal strong USPs we found for $k \le 6$.  For space
-considerations, we omit larger examples found from this article,
-though they are included with the source code of this project.
+
 
 \begin{figure}
-  \label{fig:examples}
+
   \begin{multicols}{4}
   (1,1):\\[.5ex]
   \begin{tabular}{|c|}
@@ -1501,7 +1498,13 @@ though they are included with the source code of this project.
   \end{multicols}
   \caption{Respresentative examples of the largest strong uniquely
     solvable $(s,k)$-puzzles found from width $k = 1$ to $6$.}
+  \label{fig:examples}
 \end{figure}
+
+We begin with a diagram, \autoref{fig:examples}, of representative
+examples of maximal strong USPs we found for $k \le 6$.  For space
+considerations, we omit larger examples found from this article,
+though they are included with the source code of this project.
 
 \autoref{table:compare} summarizes our main results which are improved
 bounds on the maximum size of strong uniquely solvable puzzles for
@@ -1517,7 +1520,7 @@ the capacity of USP.  Observe that our experiment derives tight bounds
 for all $k \le 5$ and improves the known lower bounds for $4 \le k \le
 12$.
 \begin{table}
-  \label{table:compare}
+
   \begin{center}
   \begin{tabular}{|c|r|r|r|r|}
     \hline
@@ -1544,6 +1547,7 @@ for all $k \le 5$ and improves the known lower bounds for $4 \le k \le
     solvable $(s,k)$-puzzles with \cite{cksu05}.  $\omega^*$ is the
     $\omega$ in the limit of composing puzzles of these dimensions via
     direct product.}
+  \label{table:compare}
 \end{table}
 We conjecture that $s = 14$ is tight for $k = 6$, given the amount of
 CPU cycles and different algorithmic approaches we have applied to
