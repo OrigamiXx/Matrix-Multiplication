@@ -105,17 +105,6 @@ computer-aided refinements of Coppersmith and Winograd's work done by
 Stothers, Vassilevska-Williams, and Le Gall further reduced the
 exponent to $\omega \le 2.3728639$ \cite{sto10,vas11,leg14}.
 
-There are some lower bounds on the time complexity of matrix
-multiplication.  Na\"{i}vely, the dimensions of the output matrix $C$
-imply that the problem requires at least $\Omega(n^2)$ time.  Slightly
-better lower bounds are also known for specialized models of
-computation, like bounded-depth arithmetic circuits \cite{XXX}.  There
-are also lower bounds known for a variety of algorithmic approaches
-for matrix multiplication.  Ambainis et al.~showed that the laser
-method, the approach of Coppersmith-Winograd and subsequent
-refinements, cannot alone achieve an algorithm with $\omega \le
-2.3078$ running time \cite{afl14}.
-
 % Other lower bounds?
 % Tensor rank approach
 % - Lower bounds
@@ -150,10 +139,10 @@ al.~show that there exist an infinite family of SUSP that achieves $w <
 % Approach
 
 We follow Cohn and Umans' program simulateneously from theoretical and
-experimental perspectives.  We (i) explore properties of SUSP, (ii)
+experimental perspectives.  We (i) \textbf{explore} properties of SUSP, (ii)
 develop \textbf{verification} algorithms for determining whether a
 puzzle is a SUSP, (iii) develop \textbf{search} algorithms for searching
-for large SUSP, and (iv) implement these algorithms in desktop and
+for large SUSP, and (iv) \textbf{implement} these algorithms in desktop and
 high performance computing settings.  From the computational
 complexity perspective the algorithms we develop to verify and search
 for SUSP are not efficient as they run in exponential or doubly
@@ -179,6 +168,31 @@ our current experimental results do not beat Proposition 3.8 of
 \cite{cksu05} for unbounded $k$, it gives evidence that there exist
 families of SUSP that imply matrix multiplication algorithms that are
 more efficient than those currently known.
+
+There are a number of negative results in this area.  First, there are
+some lower bounds on the time complexity of matrix multiplication.
+Na\"{i}vely, the dimensions of the output matrix $C$ imply that the
+problem requires at least $\Omega(n^2)$ time.  Slightly better lower
+bounds are also known for specialized models of computation, like
+bounded-depth arithmetic circuits \cite{XXX}.
+
+There are also lower bounds known for a variety of algorithmic
+approaches for matrix multiplication.  Ambainis et al.~showed that the
+laser method, the approach of Coppersmith-Winograd and subsequent
+refinements, cannot alone achieve an algorithm with $\omega \le
+2.3078$ running time \cite{afl14}.  A recent breakthrough arithmetic
+progressions in cap sets \cite{e16,clp16} combined with a conditional
+result on the Erd\"{o}s-Szemeredi sunflower conjecture \cite{asu13}.
+The results of \cite{bccgu16} do imply that Cohn et al.'s strong
+uniquely solvable puzzle approach cannot achieve the $\omega = 2 +
+\epsilon$ for some $\epsilon > 0$.  Subsequent work has extended and
+generalized this barrier \cite{avw18a,avw18b} to a larger
+class of algorithmic techniques.  Despite this, we are unaware of a
+concrete lower bound on $\epsilon$ implied by these negative results.
+There remains a substantial gap in our understanding
+between what has been acheived by the positive refinements of LeGall, Williams,
+and Stothers, and the impossibility of showing $\omega = 2$ using the
+uniquely solvable puzzles approach.
 
 % Organization
 \paragraph{Organization}
@@ -282,7 +296,7 @@ matrix multiplication $\omega$.
     m}{\log(m-1)} - \frac{3 \log s!}{sk \log(m-1)}.$$
 \end{lemma}
 \noindent In the same article, the authors also demonstrate the
-existence of an infinite family of strong uniquely solvable puzzles
+existence of an infinite family of strong uniquely solvable puzzles, for width $k$ divisible by three,
 that achieves a non-trivial bound on $\omega$.
 \begin{lemma}[{\cite[Proposition 3.8]{cksu05}}]
   There is an infinite family of strong uniquely solvable puzzles that
@@ -295,22 +309,28 @@ multiplication.
   There exists a family of strong uniquely solvable puzzles that
   implies $\omega = 2$.
 \end{conjecture}
-\noindent Unfortunately, this conjecture was recently shown to be false.
+\noindent Unfortunately, as mentioned in the introduction, this conjecture was recently shown to be false.
 \begin{lemma}[\cite{bccgu16}]
   Strong uniquely solvable puzzles cannot show $\omega < 2 +
   \epsilon$, for some $\epsilon > 0$.
 \end{lemma}
-\noindent This result is a consequence of a recent breakthrough
-arithmetic progressions in cap sets \cite{e16,clp16} combined with a
-conditional result on the Erd\"{o}s-Szemeredi sunflower conjecture
-\cite{asu13}.  The results of \cite{bccgu16} do imply that Cohn and
-Umans' strong uniquely solvable puzzle approach cannot achieve the
-ideal $\omega = 2$.  However, we are unaware of a concrete lower bound
-on $\epsilon$ implies by this result.  This means there is a still a
-substantial gap in our understanding between what has been acheived by
-the refinements of LeGall, Williams, and Stothers, and the
-impossibility of showing $\omega = 2$ using the Cohn and Umans'
-approach.
+That said, there remains hope that the uniquely solvable puzzle
+approach could beat the refinements of Coppersmith-Winograd even if it
+cannot reach $\omega = 2$.
+
+
+
+%% \noindent This result is a consequence of a recent breakthrough
+%% arithmetic progressions in cap sets \cite{e16,clp16} combined with a
+%% conditional result on the Erd\"{o}s-Szemeredi sunflower conjecture
+%% \cite{asu13}.  The results of \cite{bccgu16} do imply that Cohn and
+%% Umans' strong uniquely solvable puzzle approach cannot achieve the
+%% ideal $\omega = 2$.  However, we are unaware of a concrete lower bound
+%% on $\epsilon$ implies by this result.  This means there is a still a
+%% substantial gap in our understanding between what has been acheived by
+%% the refinements of LeGall, Williams, and Stothers, and the
+%% impossibility of showing $\omega = 2$ using the Cohn and Umans'
+%% approach.
 
 
 
