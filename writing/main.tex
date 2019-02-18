@@ -550,7 +550,7 @@ algorithm for SUSP verification that takes time $O(2^{2s} \poly(s) +
 By \autoref{lem:verify-to-3dm}, one can determine whether a puzzle $P$
 is a strong USP by contructing a graph $H_P$ from $P$ and deciding
 whether it has a non-trivial 3D matching.  It well-known that 3D
-matching is \NP{}-complete, c.f., e.g., \cite{gj79}, and it can be
+matching is \NP{}-complete, c.f., e.g., \cite{gj79}, and that it can be
 efficiently reduced to other \NP{}-complete problems. Here we reduce
 our 3D matching problem to the CNF satisfability (SAT) problem and
 then use a state-of-the-art SAT solver (MapleCOMPSPS \cite{lgpc16}) to
@@ -566,67 +566,70 @@ $\Psi_P$ is satisfiable iff $H_P$ has a non-trivial \emph{3D
 Let $H_P = \langle V, E \rangle$ be the 3D matching instance
 associated with the puzzle $P$.  Our goal is to construct a
 non-trivial 3D matching $M$ that is a subset of the edges of $E$ and
-is vertex disjoint.  We use $M_{u,v,w}$ to denote a variable with
-values in $\set{0,1}$ that indicates whether the edge $(u,v,w) \in
-P^3$ is present in the matching.
+is vertex disjoint.
+%% We use $M_{u,v,w}$ to denote a variable with
+%% values in $\set{0,1}$ that indicates whether the edge $(u,v,w) \in
+%% P^3$ is present in the matching.
+%% We describe the clauses of the CNF formula $\Phi_P$ whose
+%% satisfiability captures the existence of a 3D matching in $H_P$.
+%% First, we have clauses that prevents non-edges from being included:
+%% \begin{equation}
+%%   \Phi_P^{\text{non-edge}} = \bigwedge_{(u,v,w) \in \overline{E}} \neg M_{u,v,w}.
+%% \end{equation}
+%% Note that, alternatively, we could just eliminate these variables by
+%% replacing them by constant false in the subsequent formula. Second, we
+%% add clauses that require that every vertex in $H_P$ is matched with
+%% some hyperedge:
+%% \begin{equation}
+%%   \Phi_P^{\ge 1} = 
+%%   \left(\bigwedge_{u \in P}\vee_{v,w \in P} ~M_{u,v,w}\right)
+%%   \wedge \left(\bigwedge_{v \in P}\vee_{u,w \in P} ~M_{u,v,w}\right)
+%%   \wedge \left(\bigwedge_{w \in P}\vee_{u,v \in P} ~M_{u,v,w}\right).
+%% \end{equation}
+%% Note that three types of clauses above account for the three disjoint
+%% copies of $P$ in the vertices of $H_P$.  Third, we require that each
+%% vertex can only be matched one a single hyperedge and so have clauses
+%% that exclude matching hyperedges that overlap non-trivially (on one or
+%% two coordinates):
+%% \begin{equation}
+%%   \Phi_P^{\le 1} = \bigwedge_{(u,v,w), (u',v',w') \in P^3} (u = u'
+%%   \vee v = v' \vee w = w') \wedge (u,v,w \neq u',v',w') \Rightarrow
+%%   \neg M_{u,v,w} \vee \neg M_{u',v',w'}.
+%% \end{equation}
+%% Fourth, we exclude the trivial 3D matching by requiring that at least
+%% one of diagonal hyperedges not be used:
+%% \begin{equation}
+%%   \Phi_P^{\text{non-trivial}} = \bigvee_{u \in P} \neg M_{u,u,u}.
+%% \end{equation}
+%% Finally, we AND these into the overall formula:
+%% \begin{equation}
+%%   \Phi_P = \Phi_P^{\text{non-edge}} \wedge \Phi_P^{\le 1} \wedge
+%%   \Phi_P^{\ge 1} \wedge \Phi_P^{\text{non-trivial}}.
+%% \end{equation}
+%% The size of the CNF formula $\Phi_P$ dominated by the size of
+%% $\Phi_P^{\le 1}$ which is $\Theta(s^5)$ size.  This is relatively
+%% large compared to the $\Theta(s^3)$ size required to represent the
+%% hyperedges of the 3DM instance.
+%% To avoid the polynomial growth in instance size we decided to use a
+%% more concise matching representation.
 
-We describe the clauses of the CNF formula $\Phi_P$ whose
-satisfiability captures the existence of a 3D matching in $H_P$.
-First, we have clauses that prevents non-edges from being included:
-\begin{equation}
-  \Phi_P^{\text{non-edge}} = \bigwedge_{(u,v,w) \in \overline{E}} \neg M_{u,v,w}.
-\end{equation}
-Note that, alternatively, we could just eliminate these variables by
-replacing them by constant false in the subsequent formula. Second, we
-add clauses that require that every vertex in $H_P$ is matched with
-some hyperedge:
-\begin{equation}
-  \Phi_P^{\ge 1} = 
-  \left(\bigwedge_{u \in P}\vee_{v,w \in P} ~M_{u,v,w}\right)
-  \wedge \left(\bigwedge_{v \in P}\vee_{u,w \in P} ~M_{u,v,w}\right)
-  \wedge \left(\bigwedge_{w \in P}\vee_{u,v \in P} ~M_{u,v,w}\right).
-\end{equation}
-Note that three types of clauses above account for the three disjoint
-copies of $P$ in the vertices of $H_P$.  Third, we require that each
-vertex can only be matched one a single hyperedge and so have clauses
-that exclude matching hyperedges that overlap non-trivially (on one or
-two coordinates):
-\begin{equation}
-  \Phi_P^{\le 1} = \bigwedge_{(u,v,w), (u',v',w') \in P^3} (u = u'
-  \vee v = v' \vee w = w') \wedge (u,v,w \neq u',v',w') \Rightarrow
-  \neg M_{u,v,w} \vee \neg M_{u',v',w'}.
-\end{equation}
-Fourth, we exclude the trivial 3D matching by requiring that at least
-one of diagonal hyperedges not be used:
-\begin{equation}
-  \Phi_P^{\text{non-trivial}} = \bigvee_{u \in P} \neg M_{u,u,u}.
-\end{equation}
-Finally, we AND these into the overall formula:
-\begin{equation}
-  \Phi_P = \Phi_P^{\text{non-edge}} \wedge \Phi_P^{\le 1} \wedge
-  \Phi_P^{\ge 1} \wedge \Phi_P^{\text{non-trivial}}.
-\end{equation}
-The size of the CNF formula $\Phi_P$ dominated by the size of
-$\Phi_P^{\le 1}$ which is $\Theta(s^5)$ size.  This is relatively
-large compared to the $\Theta(s^3)$ size required to represent the
-hyperedges of the 3DM instance.
-
-To avoid the polynomial growth in instance size we decided to use a
-more concise matching representation.  Rather than having variables
-$M_{u,v,w}$ for each hyperedge possible in the matching, we uses sets
+A na\"{i}ve reduction would be to have variables $M_{u,v,w}$ indicating inclusion of each
+hyperedge $(u,v,w) \in P^3$ in the matching. This results in a formula with
+$s^3$ variables and size $\Theta(s^5)$.
+For greater concision we uses sets
 of variables to indicate which vertices in the second and third part
 are matched with each vertex in the first part.  In particular we have
 Boolean variables $M_{u,v}^1$ and $M_{u,w}^2$ for all $u, v, w \in P$,
 and these variable map to assignments in the original scheme in the
 following way: $M_{u,v}^1 \wedge M_{u,w}^2 \Leftrightarrow M_{u,v,w}$.
 
-We can concisely rewrite our CNF formula for 3D matching using these
-new variables.  First, we have clauses that prevents non-edges from
+We can rewrite our CNF formula for 3D matching using these
+variables.  First, we have clauses that prevents non-edges from
 being in the matching:
-\begin{equation}
-  \Psi_P^{\text{non-edge}} = \bigwedge_{(u,v,w) \in \overline{E}}
-  (\neg M_{u,v}^1 \vee \neg M_{u,w}^2).
-\end{equation}
+%\begin{equation}
+  $\Psi_P^{\text{non-edge}} = \bigwedge_{(u,v,w) \in \overline{E}}
+  (\neg M_{u,v}^1 \vee \neg M_{u,w}^2).$
+%\end{equation}
 Next, we add clauses require that every vertex in $H_P$ is matched with some
 hyperedge:
 \begin{equation}
@@ -650,19 +653,18 @@ Observe that $\Psi_P^{\le 1}$ has size $\Theta(s^3)$ compared to the
 size of the original $\Phi_P^{\le 1}$ that had size $\Theta(s^5)$.
 Fourth, we exclude the trivial 3D matching by requiring that at least
 one of diagonal hyperedges not be used:
-\begin{equation}
-  \Psi_P^{\text{non-trivial}} = \bigvee_{u \in P} \neg M_{u,u}^1 \vee
-  \neg M_{u,u}^2.
-\end{equation}
+%\begin{equation}
+  $\Psi_P^{\text{non-trivial}} = \bigvee_{u \in P} \neg M_{u,u}^1 \vee
+  \neg M_{u,u}^2.$
+%\end{equation}
 Finally, we AND these into the overall formula:
-\begin{equation}
-  \Psi_P = \Psi_P^{\text{non-edge}} \wedge \Psi_P^{\le 1} \wedge
-  \Psi_P^{\ge 1} \wedge \Psi_P^{\text{non-trivial}}.
-\end{equation}
-The size of the CNF formula $\Psi_P$ is $\Theta(s^3)$, a polynomial
-improvement over $\Phi_P$.
-
-Thus we reduce 3D matching to satisfiability by converting the
+%\begin{equation}
+  $\Psi_P = \Psi_P^{\text{non-edge}} \wedge \Psi_P^{\le 1} \wedge
+  \Psi_P^{\ge 1} \wedge \Psi_P^{\text{non-trivial}}.$
+%\end{equation}
+The size of the CNF formula $\Psi_P$ is $\Theta(s^3)$, has $2s^2$
+variables, and is a factor of $s^2$ smaller than the na\"{i}ve
+approach.  Thus we reduce 3D matching to satisfiability by converting the
 instance $H_P$ into the CNF formula $\Psi_P$.  At this point the
 reduction is straightforward, but is included for completeness in
 \autoref{app:sat}.
