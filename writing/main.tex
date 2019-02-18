@@ -10,14 +10,18 @@
 \usepackage{mathpazo}
 \usepackage{bbm}
 \usepackage{todonotes}
+\usepackage{pgfplots}
+
 \usepackage{lipsum}
 \usepackage{setspace}
 \usepackage{mdframed}
 \usepackage{multicol}
+\usepackage{subcaption}
 \usepackage{graphicx}
 \usepackage{comment}
 \usepackage{tikz}
 \usetikzlibrary{decorations.pathreplacing,backgrounds}
+\usetikzlibrary{plotmarks}
 
 \usepackage[font=footnotesize]{caption}
 
@@ -1586,8 +1590,1279 @@ improvement beyond that.
 
 XXX - Tables / plots of data on verify's performance.
 
+XXX - Hardware.
+
 XXX - Tables / plots of data on search performance?
 
+
+
+\begin{figure}
+  %\centering
+  \begin{subfigure}[t]{0.3\textwidth}
+    \caption{Width 5 strong USP.}
+  \begin{tikzpicture}
+    \begin{axis}[
+        scale=.7,
+        %title={Average checking time versus puzzle height for 10000 random width 8 puzzles},
+        %xlabel={Puzzle Height},
+        ylabel={Average Time (sec)},
+        %width=3.4in,
+        %height=2.5in,
+        xmin=0, xmax=30,
+        ytick pos=left,
+        xtick pos=left,
+        ymin=1e-7, ymax=1,
+        legend pos=south east,
+        legend style={legend columns=2},
+        ymajorgrids=true,
+        grid style=dashed,
+        ymode=log,
+        cycle list name=color list,
+        scale only axis,
+        every axis plot/.append style={ultra thick},
+      ]
+      
+      \addplot[mark=*, mark repeat=3, red]
+      coordinates {
+(1,0.000001)
+(2,0.000002)
+(3,0.000008)
+(4,0.000042)
+(5,0.000290)
+(6,0.001668)
+      };
+      
+      
+      \addplot[mark=square, mark repeat=3, blue]
+      coordinates {
+(1,0.000002)
+(2,0.000004)
+(3,0.000006)
+(4,0.000018)
+(5,0.000039)
+(6,0.000140)
+(7,0.000330)
+(8,0.002107)
+(9,0.005892)
+(10,0.049053)
+(11,0.163843)
+      };
+      
+      \addplot[mark=pentagon, mark repeat=3, teal]
+      coordinates {
+(1,0.000014)
+(2,0.000043)
+(3,0.000082)
+(4,0.000132)
+(5,0.000208)
+(6,0.000301)
+(7,0.000451)
+(8,0.000649)
+(9,0.000950)
+(10,0.002174)
+(11,0.006619)
+(12,0.001433)
+(13,0.001696)
+(14,0.002068)
+(15,0.002371)
+(16,0.002722)
+(17,0.003043)
+(18,0.003496)
+(19,0.004051)
+(20,0.004487)
+(21,0.005012)
+(22,0.005906)
+(23,0.006633)
+(24,0.007448)
+(25,0.008406)
+(26,0.008819)
+(27,0.009764)
+(28,0.010991)
+(29,0.012199)
+(30,0.014788)
+      };
+      
+      \addplot[mark=triangle, mark repeat=3, purple]
+      coordinates {
+(1,0.000148)
+(2,0.000183)
+(3,0.000535)
+(4,0.000780)
+(5,0.001353)
+(6,0.002607)
+(7,0.004405)
+(8,0.005905)
+(9,0.007247)
+(10,0.009047)
+(11,0.012536)
+(12,0.016524)
+(13,0.020360)
+(14,0.024634)
+(15,0.028322)
+(16,0.033261)
+(17,0.037690)
+(18,0.043702)
+(19,0.050287)
+(20,0.058206)
+(21,0.067089)
+(22,0.079269)
+(23,0.090435)
+(24,0.101884)
+(25,0.114451)
+(26,0.129260)
+(27,0.145687)
+(28,0.164847)
+(29,0.184864)
+(30,0.210087)
+      };
+
+      \addplot[mark=diamond, mark repeat=3, brown]
+      coordinates {
+(1,0.000003)
+(2,0.000004)
+(3,0.000009)
+(4,0.000025)
+(5,0.000050)
+(6,0.000177)
+(7,0.000376)
+(8,0.000025)
+(9,0.000021)
+(10,0.000018)
+(11,0.000019)
+(12,0.000019)
+(13,0.000019)
+(14,0.000019)
+(15,0.000019)
+(16,0.000019)
+(17,0.000019)
+(18,0.000019)
+(19,0.000019)
+(20,0.000019)
+(21,0.000019)
+(22,0.000019)
+(23,0.000021)
+(24,0.000020)
+(25,0.000021)
+(26,0.000021)
+(27,0.000021)
+(28,0.000022)
+(29,0.000021)
+(30,0.000018)
+      };
+      \addplot[style=dashed, black]
+      coordinates{
+        (0,0)
+        (0,1)
+      };
+      \legend{BF, DP, SAT, IP, Hybrid, SUSP \%}
+    \end{axis}
+    \begin{axis}[
+        scale only axis,
+        scale=.7,
+        %width=3.4in,
+        %height=2.5in,
+        %axis y line*=right,
+        axis y line=none,
+        ymin=0,ymax=100,
+        xmin=0,xmax=30,
+        axis x line=none,
+        every axis plot/.append style={ultra thick},
+        %ylabel={Percent SUSP},
+        axis x line=none,
+        ylabel style = {align=center},ylabel near ticks
+        ]
+      \addplot[style=dashed]
+      coordinates {
+(1,100.0)
+(2,85.56)
+(3,58.8)
+(4,28.410000000000004)
+(5,7.2700000000000005)
+(6,0.65)
+(7,0.0)
+(8,0.0)
+(9,0.0)
+(10,0.0)
+(11,0.0)
+(12,0.0)
+(13,0.0)
+(14,0.0)
+(15,0.0)
+(16,0.0)
+(17,0.0)
+(18,0.0)
+(19,0.0)
+(20,0.0)
+(21,0.0)
+(22,0.0)
+(23,0.0)
+(24,0.0)
+(25,0.0)
+(26,0.0)
+(27,0.0)
+(28,0.0)
+(29,0.0)
+(30,0.0)
+      }; \label{percentSUSP}
+      %\legend{SUSP \%}
+    \end{axis}
+  \end{tikzpicture}
+
+  \end{subfigure}%
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  \begin{subfigure}[t]{0.3\textwidth}
+      \caption{Width 6 strong USP.}
+  \begin{tikzpicture}
+    \begin{axis}[
+        scale=.7,
+        %title={Average checking time versus puzzle height for 10000 random width 8 puzzles},
+        %xlabel={Puzzle Height},
+        %ylabel={Average Time (sec)},
+        %width=3.4in,
+        %height=2.5in,
+        xmin=0, xmax=30,
+        ytick pos=left,
+        xtick pos=left,
+        ymin=1e-7, ymax=1,
+        legend pos=south east,
+        legend style={legend columns=2},
+        ymajorgrids=true,
+        grid style=dashed,
+        ymode=log,
+        cycle list name=color list,
+        scale only axis,
+        every axis plot/.append style={ultra thick},
+      ]
+      
+      \addplot[mark=*, mark repeat=3, red]
+      coordinates {
+(1,0.000001)
+(2,0.000002)
+(3,0.000009)
+(4,0.000060)
+(5,0.000679)
+(6,0.008650)
+      };
+      
+      
+      \addplot[mark=square, mark repeat=3, blue]
+      coordinates {
+(1,0.000002)
+(2,0.000004)
+(3,0.000006)
+(4,0.000016)
+(5,0.000033)
+(6,0.000112)
+(7,0.000253)
+(8,0.001355)
+(9,0.003520)
+(10,0.025636)
+(11,0.077827)
+      };
+      
+      \addplot[mark=pentagon, mark repeat=3, teal]
+      coordinates {
+(1,0.000015)
+(2,0.000042)
+(3,0.000080)
+(4,0.000133)
+(5,0.000213)
+(6,0.000325)
+(7,0.000489)
+(8,0.000758)
+(9,0.001117)
+(10,0.002009)
+(11,0.004235)
+(12,0.002129)
+(13,0.002650)
+(14,0.003195)
+(15,0.003661)
+(16,0.004184)
+(17,0.004614)
+(18,0.005113)
+(19,0.005574)
+(20,0.006143)
+(21,0.006614)
+(22,0.007291)
+(23,0.007908)
+(24,0.008801)
+(25,0.009797)
+(26,0.010409)
+(27,0.011608)
+(28,0.012684)
+(29,0.014477)
+(30,0.014838)
+      };
+      
+      \addplot[mark=triangle, mark repeat=3, purple]
+      coordinates {
+(1,0.000154)
+(2,0.000173)
+(3,0.000532)
+(4,0.000701)
+(5,0.000994)
+(6,0.001749)
+(7,0.003201)
+(8,0.005568)
+(9,0.007367)
+(10,0.008928)
+(11,0.011399)
+(12,0.015474)
+(13,0.019977)
+(14,0.024378)
+(15,0.028027)
+(16,0.032904)
+(17,0.037362)
+(18,0.043104)
+(19,0.049805)
+(20,0.057387)
+(21,0.066355)
+(22,0.075801)
+(23,0.086858)
+(24,0.099631)
+(25,0.112705)
+(26,0.127511)
+(27,0.143807)
+(28,0.161481)
+(29,0.184042)
+(30,0.206666)
+      };
+
+      \addplot[mark=diamond, mark repeat=3, brown]
+      coordinates {
+(1,0.000003)
+(2,0.000004)
+(3,0.000009)
+(4,0.000023)
+(5,0.000044)
+(6,0.000148)
+(7,0.000301)
+(8,0.000091)
+(9,0.000105)
+(10,0.000034)
+(11,0.000032)
+(12,0.000031)
+(13,0.000031)
+(14,0.000031)
+(15,0.000031)
+(16,0.000032)
+(17,0.000031)
+(18,0.000031)
+(19,0.000032)
+(20,0.000031)
+(21,0.000032)
+(22,0.000032)
+(23,0.000033)
+(24,0.000034)
+(25,0.000034)
+(26,0.000034)
+(27,0.000034)
+(28,0.000034)
+(29,0.000028)
+(30,0.000030)
+      };
+      %\legend{BF, DP, SAT, IP, Hybrid}
+    \end{axis}
+    \begin{axis}[
+        scale only axis,
+        scale=.7,
+        %width=3.4in,
+        %height=2.5in,
+        axis y line*=right,
+        ymin=0,ymax=100,
+        xmin=0,xmax=30,
+        axis x line=none,
+        every axis plot/.append style={ultra thick},
+        ylabel={Percent SUSP},
+        axis x line=none,
+        ylabel style = {align=center},ylabel near ticks
+        ]
+      \addplot[style=dashed]
+      coordinates {
+        (1,100.0)
+(2,90.75999999999999)
+(3,74.72999999999999)
+(4,53.690000000000005)
+(5,29.65)
+(6,11.48)
+(7,2.19)
+(8,0.08)
+(9,0.01)
+(10,0.0)
+(11,0.0)
+(12,0.0)
+(13,0.0)
+(14,0.0)
+(15,0.0)
+(16,0.0)
+(17,0.0)
+(18,0.0)
+(19,0.0)
+(20,0.0)
+(21,0.0)
+(22,0.0)
+(23,0.0)
+(24,0.0)
+(25,0.0)
+(26,0.0)
+(27,0.0)
+(28,0.0)
+(29,0.0)
+(30,0.0)
+      }; \label{percentSUSP}
+      %\legend{SUSP \%}
+    \end{axis}
+  \end{tikzpicture}
+
+  \end{subfigure}
+
+  \begin{subfigure}[t]{0.3\textwidth}
+    \vspace{2ex}
+    \caption{Width 7 strong USP.}
+  \begin{tikzpicture}
+    \begin{axis}[
+        scale=.7,
+        %title={Average checking time versus puzzle height for 10000 random width 8 puzzles},
+        %xlabel={Puzzle Height},
+        ylabel={Average Time (sec)},
+        %width=3.4in,
+        %height=2.5in,
+        xmin=0, xmax=30,
+        ytick pos=left,
+        xtick pos=left,
+        ymin=1e-7, ymax=1,
+        legend pos=south east,
+        legend style={legend columns=2},
+        ymajorgrids=true,
+        grid style=dashed,
+        ymode=log,
+        cycle list name=color list,
+        scale only axis,
+        every axis plot/.append style={ultra thick},
+      ]
+      
+      \addplot[mark=*, mark repeat=3, red]
+      coordinates {
+(1,0.000001)
+(2,0.000002)
+(3,0.000008)
+(4,0.000042)
+(5,0.000290)
+(6,0.001668)
+      };
+      
+      
+      \addplot[mark=square, mark repeat=3, blue]
+      coordinates {
+(1,0.000002)
+(2,0.000004)
+(3,0.000006)
+(4,0.000018)
+(5,0.000039)
+(6,0.000140)
+(7,0.000330)
+(8,0.002107)
+(9,0.005892)
+(10,0.049053)
+(11,0.163843)
+      };
+      
+      \addplot[mark=pentagon, mark repeat=3, teal]
+      coordinates {
+(1,0.000014)
+(2,0.000043)
+(3,0.000082)
+(4,0.000132)
+(5,0.000208)
+(6,0.000301)
+(7,0.000451)
+(8,0.000649)
+(9,0.000950)
+(10,0.002174)
+(11,0.006619)
+(12,0.001433)
+(13,0.001696)
+(14,0.002068)
+(15,0.002371)
+(16,0.002722)
+(17,0.003043)
+(18,0.003496)
+(19,0.004051)
+(20,0.004487)
+(21,0.005012)
+(22,0.005906)
+(23,0.006633)
+(24,0.007448)
+(25,0.008406)
+(26,0.008819)
+(27,0.009764)
+(28,0.010991)
+(29,0.012199)
+(30,0.014788)
+      };
+      
+      \addplot[mark=triangle, mark repeat=3, purple]
+      coordinates {
+(1,0.000148)
+(2,0.000183)
+(3,0.000535)
+(4,0.000780)
+(5,0.001353)
+(6,0.002607)
+(7,0.004405)
+(8,0.005905)
+(9,0.007247)
+(10,0.009047)
+(11,0.012536)
+(12,0.016524)
+(13,0.020360)
+(14,0.024634)
+(15,0.028322)
+(16,0.033261)
+(17,0.037690)
+(18,0.043702)
+(19,0.050287)
+(20,0.058206)
+(21,0.067089)
+(22,0.079269)
+(23,0.090435)
+(24,0.101884)
+(25,0.114451)
+(26,0.129260)
+(27,0.145687)
+(28,0.164847)
+(29,0.184864)
+(30,0.210087)
+      };
+
+      \addplot[mark=diamond, mark repeat=3, brown]
+      coordinates {
+(1,0.000003)
+(2,0.000004)
+(3,0.000009)
+(4,0.000025)
+(5,0.000050)
+(6,0.000177)
+(7,0.000376)
+(8,0.000025)
+(9,0.000021)
+(10,0.000018)
+(11,0.000019)
+(12,0.000019)
+(13,0.000019)
+(14,0.000019)
+(15,0.000019)
+(16,0.000019)
+(17,0.000019)
+(18,0.000019)
+(19,0.000019)
+(20,0.000019)
+(21,0.000019)
+(22,0.000019)
+(23,0.000021)
+(24,0.000020)
+(25,0.000021)
+(26,0.000021)
+(27,0.000021)
+(28,0.000022)
+(29,0.000021)
+(30,0.000018)
+      };
+      \addplot[style=dashed, black]
+      coordinates{
+        (0,0)
+        (0,1)
+      };
+      %\legend{BF, DP, SAT, IP, Hybrid, SUSP \%}
+    \end{axis}
+    \begin{axis}[
+        scale only axis,
+        scale=.7,
+        %width=3.4in,
+        %height=2.5in,
+        %axis y line*=right,
+        axis y line=none,
+        ymin=0,ymax=100,
+        xmin=0,xmax=30,
+        axis x line=none,
+        every axis plot/.append style={ultra thick},
+        %ylabel={Percent SUSP},
+        axis x line=none,
+        ylabel style = {align=center},ylabel near ticks
+        ]
+      \addplot[style=dashed]
+      coordinates {
+(1,100.0)
+(2,85.56)
+(3,58.8)
+(4,28.410000000000004)
+(5,7.2700000000000005)
+(6,0.65)
+(7,0.0)
+(8,0.0)
+(9,0.0)
+(10,0.0)
+(11,0.0)
+(12,0.0)
+(13,0.0)
+(14,0.0)
+(15,0.0)
+(16,0.0)
+(17,0.0)
+(18,0.0)
+(19,0.0)
+(20,0.0)
+(21,0.0)
+(22,0.0)
+(23,0.0)
+(24,0.0)
+(25,0.0)
+(26,0.0)
+(27,0.0)
+(28,0.0)
+(29,0.0)
+(30,0.0)
+      }; \label{percentSUSP}
+      %\legend{SUSP \%}
+    \end{axis}
+  \end{tikzpicture}
+
+  \end{subfigure}%
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  \begin{subfigure}[t]{0.3\textwidth}
+    \vspace{2ex}
+    \caption{Width 8 strong USP.}
+  \begin{tikzpicture}
+    \begin{axis}[
+        scale=.7,
+        %title={Average checking time versus puzzle height for 10000 random width 8 puzzles},
+        %xlabel={Puzzle Height},
+        %ylabel={Average Time (sec)},
+        %width=3.4in,
+        %height=2.5in,
+        xmin=0, xmax=30,
+        ytick pos=left,
+        xtick pos=left,
+        ymin=1e-7, ymax=1,
+        legend pos=south east,
+        legend style={legend columns=2},
+        ymajorgrids=true,
+        grid style=dashed,
+        ymode=log,
+        cycle list name=color list,
+        scale only axis,
+        every axis plot/.append style={ultra thick},
+      ]
+      
+      \addplot[mark=*, mark repeat=3, red]
+      coordinates {
+(1,0.000001)
+(2,0.000002)
+(3,0.000009)
+(4,0.000060)
+(5,0.000679)
+(6,0.008650)
+      };
+      
+      
+      \addplot[mark=square, mark repeat=3, blue]
+      coordinates {
+(1,0.000002)
+(2,0.000004)
+(3,0.000006)
+(4,0.000016)
+(5,0.000033)
+(6,0.000112)
+(7,0.000253)
+(8,0.001355)
+(9,0.003520)
+(10,0.025636)
+(11,0.077827)
+      };
+      
+      \addplot[mark=pentagon, mark repeat=3, teal]
+      coordinates {
+(1,0.000015)
+(2,0.000042)
+(3,0.000080)
+(4,0.000133)
+(5,0.000213)
+(6,0.000325)
+(7,0.000489)
+(8,0.000758)
+(9,0.001117)
+(10,0.002009)
+(11,0.004235)
+(12,0.002129)
+(13,0.002650)
+(14,0.003195)
+(15,0.003661)
+(16,0.004184)
+(17,0.004614)
+(18,0.005113)
+(19,0.005574)
+(20,0.006143)
+(21,0.006614)
+(22,0.007291)
+(23,0.007908)
+(24,0.008801)
+(25,0.009797)
+(26,0.010409)
+(27,0.011608)
+(28,0.012684)
+(29,0.014477)
+(30,0.014838)
+      };
+      
+      \addplot[mark=triangle, mark repeat=3, purple]
+      coordinates {
+(1,0.000154)
+(2,0.000173)
+(3,0.000532)
+(4,0.000701)
+(5,0.000994)
+(6,0.001749)
+(7,0.003201)
+(8,0.005568)
+(9,0.007367)
+(10,0.008928)
+(11,0.011399)
+(12,0.015474)
+(13,0.019977)
+(14,0.024378)
+(15,0.028027)
+(16,0.032904)
+(17,0.037362)
+(18,0.043104)
+(19,0.049805)
+(20,0.057387)
+(21,0.066355)
+(22,0.075801)
+(23,0.086858)
+(24,0.099631)
+(25,0.112705)
+(26,0.127511)
+(27,0.143807)
+(28,0.161481)
+(29,0.184042)
+(30,0.206666)
+      };
+
+      \addplot[mark=diamond, mark repeat=3, brown]
+      coordinates {
+(1,0.000003)
+(2,0.000004)
+(3,0.000009)
+(4,0.000023)
+(5,0.000044)
+(6,0.000148)
+(7,0.000301)
+(8,0.000091)
+(9,0.000105)
+(10,0.000034)
+(11,0.000032)
+(12,0.000031)
+(13,0.000031)
+(14,0.000031)
+(15,0.000031)
+(16,0.000032)
+(17,0.000031)
+(18,0.000031)
+(19,0.000032)
+(20,0.000031)
+(21,0.000032)
+(22,0.000032)
+(23,0.000033)
+(24,0.000034)
+(25,0.000034)
+(26,0.000034)
+(27,0.000034)
+(28,0.000034)
+(29,0.000028)
+(30,0.000030)
+      };
+      %\legend{BF, DP, SAT, IP, Hybrid}
+    \end{axis}
+    \begin{axis}[
+        scale only axis,
+        scale=.7,
+        %width=3.4in,
+        %height=2.5in,
+        axis y line*=right,
+        ymin=0,ymax=100,
+        xmin=0,xmax=30,
+        axis x line=none,
+        every axis plot/.append style={ultra thick},
+        ylabel={Percent SUSP},
+        axis x line=none,
+        ylabel style = {align=center},ylabel near ticks
+        ]
+      \addplot[style=dashed]
+      coordinates {
+        (1,100.0)
+(2,90.75999999999999)
+(3,74.72999999999999)
+(4,53.690000000000005)
+(5,29.65)
+(6,11.48)
+(7,2.19)
+(8,0.08)
+(9,0.01)
+(10,0.0)
+(11,0.0)
+(12,0.0)
+(13,0.0)
+(14,0.0)
+(15,0.0)
+(16,0.0)
+(17,0.0)
+(18,0.0)
+(19,0.0)
+(20,0.0)
+(21,0.0)
+(22,0.0)
+(23,0.0)
+(24,0.0)
+(25,0.0)
+(26,0.0)
+(27,0.0)
+(28,0.0)
+(29,0.0)
+(30,0.0)
+      }; \label{percentSUSP}
+      %\legend{SUSP \%}
+    \end{axis}
+  \end{tikzpicture}
+  \end{subfigure}
+
+
+
+  \begin{subfigure}[t]{0.3\textwidth}
+    \vspace{2ex}
+    \caption{Width 9 strong USP.}
+  \begin{tikzpicture}
+    \begin{axis}[
+        scale=.7,
+        %title={Average checking time versus puzzle height for 10000 random width 8 puzzles},
+        xlabel={Puzzle Height},
+        ylabel={Average Time (sec)},
+        %width=3.4in,
+        %height=2.5in,
+        xmin=0, xmax=30,
+        ytick pos=left,
+        xtick pos=left,
+        ymin=1e-7, ymax=1,
+        legend pos=south east,
+        legend style={legend columns=2},
+        ymajorgrids=true,
+        grid style=dashed,
+        ymode=log,
+        cycle list name=color list,
+        scale only axis,
+        every axis plot/.append style={ultra thick},
+      ]
+      
+      \addplot[mark=*, mark repeat=3, red]
+      coordinates {
+(1,0.000001)
+(2,0.000002)
+(3,0.000008)
+(4,0.000042)
+(5,0.000290)
+(6,0.001668)
+      };
+      
+      
+      \addplot[mark=square, mark repeat=3, blue]
+      coordinates {
+(1,0.000002)
+(2,0.000004)
+(3,0.000006)
+(4,0.000018)
+(5,0.000039)
+(6,0.000140)
+(7,0.000330)
+(8,0.002107)
+(9,0.005892)
+(10,0.049053)
+(11,0.163843)
+      };
+      
+      \addplot[mark=pentagon, mark repeat=3, teal]
+      coordinates {
+(1,0.000014)
+(2,0.000043)
+(3,0.000082)
+(4,0.000132)
+(5,0.000208)
+(6,0.000301)
+(7,0.000451)
+(8,0.000649)
+(9,0.000950)
+(10,0.002174)
+(11,0.006619)
+(12,0.001433)
+(13,0.001696)
+(14,0.002068)
+(15,0.002371)
+(16,0.002722)
+(17,0.003043)
+(18,0.003496)
+(19,0.004051)
+(20,0.004487)
+(21,0.005012)
+(22,0.005906)
+(23,0.006633)
+(24,0.007448)
+(25,0.008406)
+(26,0.008819)
+(27,0.009764)
+(28,0.010991)
+(29,0.012199)
+(30,0.014788)
+      };
+      
+      \addplot[mark=triangle, mark repeat=3, purple]
+      coordinates {
+(1,0.000148)
+(2,0.000183)
+(3,0.000535)
+(4,0.000780)
+(5,0.001353)
+(6,0.002607)
+(7,0.004405)
+(8,0.005905)
+(9,0.007247)
+(10,0.009047)
+(11,0.012536)
+(12,0.016524)
+(13,0.020360)
+(14,0.024634)
+(15,0.028322)
+(16,0.033261)
+(17,0.037690)
+(18,0.043702)
+(19,0.050287)
+(20,0.058206)
+(21,0.067089)
+(22,0.079269)
+(23,0.090435)
+(24,0.101884)
+(25,0.114451)
+(26,0.129260)
+(27,0.145687)
+(28,0.164847)
+(29,0.184864)
+(30,0.210087)
+      };
+
+      \addplot[mark=diamond, mark repeat=3, brown]
+      coordinates {
+(1,0.000003)
+(2,0.000004)
+(3,0.000009)
+(4,0.000025)
+(5,0.000050)
+(6,0.000177)
+(7,0.000376)
+(8,0.000025)
+(9,0.000021)
+(10,0.000018)
+(11,0.000019)
+(12,0.000019)
+(13,0.000019)
+(14,0.000019)
+(15,0.000019)
+(16,0.000019)
+(17,0.000019)
+(18,0.000019)
+(19,0.000019)
+(20,0.000019)
+(21,0.000019)
+(22,0.000019)
+(23,0.000021)
+(24,0.000020)
+(25,0.000021)
+(26,0.000021)
+(27,0.000021)
+(28,0.000022)
+(29,0.000021)
+(30,0.000018)
+      };
+      \addplot[style=dashed, black]
+      coordinates{
+        (0,0)
+        (0,1)
+      };
+      %\legend{BF, DP, SAT, IP, Hybrid, SUSP \%}
+    \end{axis}
+    \begin{axis}[
+        scale only axis,
+        scale=.7,
+        %width=3.4in,
+        %height=2.5in,
+        %axis y line*=right,
+        axis y line=none,
+        ymin=0,ymax=100,
+        xmin=0,xmax=30,
+        axis x line=none,
+        every axis plot/.append style={ultra thick},
+        %ylabel={Percent SUSP},
+        axis x line=none,
+        ylabel style = {align=center},ylabel near ticks
+        ]
+      \addplot[style=dashed]
+      coordinates {
+(1,100.0)
+(2,85.56)
+(3,58.8)
+(4,28.410000000000004)
+(5,7.2700000000000005)
+(6,0.65)
+(7,0.0)
+(8,0.0)
+(9,0.0)
+(10,0.0)
+(11,0.0)
+(12,0.0)
+(13,0.0)
+(14,0.0)
+(15,0.0)
+(16,0.0)
+(17,0.0)
+(18,0.0)
+(19,0.0)
+(20,0.0)
+(21,0.0)
+(22,0.0)
+(23,0.0)
+(24,0.0)
+(25,0.0)
+(26,0.0)
+(27,0.0)
+(28,0.0)
+(29,0.0)
+(30,0.0)
+      }; \label{percentSUSP}
+      %\legend{SUSP \%}
+    \end{axis}
+  \end{tikzpicture}
+
+  \end{subfigure}%
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  \begin{subfigure}[t]{0.3\textwidth}
+    \vspace{2ex}
+    \caption{Width 10 strong USP.}
+  \begin{tikzpicture}
+    \begin{axis}[
+        scale=.7,
+        %title={Average checking time versus puzzle height for 10000 random width 8 puzzles},
+        xlabel={Puzzle Height},
+        %ylabel={Average Time (sec)},
+        %width=3.4in,
+        %height=2.5in,
+        xmin=0, xmax=30,
+        ytick pos=left,
+        xtick pos=left,
+        ymin=1e-7, ymax=1,
+        legend pos=south east,
+        legend style={legend columns=2},
+        ymajorgrids=true,
+        grid style=dashed,
+        ymode=log,
+        cycle list name=color list,
+        scale only axis,
+        every axis plot/.append style={ultra thick},
+      ]
+      
+      \addplot[mark=*, mark repeat=3, red]
+      coordinates {
+(1,0.000001)
+(2,0.000002)
+(3,0.000009)
+(4,0.000060)
+(5,0.000679)
+(6,0.008650)
+      };
+      
+      
+      \addplot[mark=square, mark repeat=3, blue]
+      coordinates {
+(1,0.000002)
+(2,0.000004)
+(3,0.000006)
+(4,0.000016)
+(5,0.000033)
+(6,0.000112)
+(7,0.000253)
+(8,0.001355)
+(9,0.003520)
+(10,0.025636)
+(11,0.077827)
+      };
+      
+      \addplot[mark=pentagon, mark repeat=3, teal]
+      coordinates {
+(1,0.000015)
+(2,0.000042)
+(3,0.000080)
+(4,0.000133)
+(5,0.000213)
+(6,0.000325)
+(7,0.000489)
+(8,0.000758)
+(9,0.001117)
+(10,0.002009)
+(11,0.004235)
+(12,0.002129)
+(13,0.002650)
+(14,0.003195)
+(15,0.003661)
+(16,0.004184)
+(17,0.004614)
+(18,0.005113)
+(19,0.005574)
+(20,0.006143)
+(21,0.006614)
+(22,0.007291)
+(23,0.007908)
+(24,0.008801)
+(25,0.009797)
+(26,0.010409)
+(27,0.011608)
+(28,0.012684)
+(29,0.014477)
+(30,0.014838)
+      };
+      
+      \addplot[mark=triangle, mark repeat=3, purple]
+      coordinates {
+(1,0.000154)
+(2,0.000173)
+(3,0.000532)
+(4,0.000701)
+(5,0.000994)
+(6,0.001749)
+(7,0.003201)
+(8,0.005568)
+(9,0.007367)
+(10,0.008928)
+(11,0.011399)
+(12,0.015474)
+(13,0.019977)
+(14,0.024378)
+(15,0.028027)
+(16,0.032904)
+(17,0.037362)
+(18,0.043104)
+(19,0.049805)
+(20,0.057387)
+(21,0.066355)
+(22,0.075801)
+(23,0.086858)
+(24,0.099631)
+(25,0.112705)
+(26,0.127511)
+(27,0.143807)
+(28,0.161481)
+(29,0.184042)
+(30,0.206666)
+      };
+
+      \addplot[mark=diamond, mark repeat=3, brown]
+      coordinates {
+(1,0.000003)
+(2,0.000004)
+(3,0.000009)
+(4,0.000023)
+(5,0.000044)
+(6,0.000148)
+(7,0.000301)
+(8,0.000091)
+(9,0.000105)
+(10,0.000034)
+(11,0.000032)
+(12,0.000031)
+(13,0.000031)
+(14,0.000031)
+(15,0.000031)
+(16,0.000032)
+(17,0.000031)
+(18,0.000031)
+(19,0.000032)
+(20,0.000031)
+(21,0.000032)
+(22,0.000032)
+(23,0.000033)
+(24,0.000034)
+(25,0.000034)
+(26,0.000034)
+(27,0.000034)
+(28,0.000034)
+(29,0.000028)
+(30,0.000030)
+      };
+      %\legend{BF, DP, SAT, IP, Hybrid}
+    \end{axis}
+    \begin{axis}[
+        scale only axis,
+        scale=.7,
+        %width=3.4in,
+        %height=2.5in,
+        axis y line*=right,
+        ymin=0,ymax=100,
+        xmin=0,xmax=30,
+        axis x line=none,
+        every axis plot/.append style={ultra thick},
+        ylabel={Percent SUSP},
+        axis x line=none,
+        ylabel style = {align=center},ylabel near ticks
+        ]
+      \addplot[style=dashed]
+      coordinates {
+        (1,100.0)
+(2,90.75999999999999)
+(3,74.72999999999999)
+(4,53.690000000000005)
+(5,29.65)
+(6,11.48)
+(7,2.19)
+(8,0.08)
+(9,0.01)
+(10,0.0)
+(11,0.0)
+(12,0.0)
+(13,0.0)
+(14,0.0)
+(15,0.0)
+(16,0.0)
+(17,0.0)
+(18,0.0)
+(19,0.0)
+(20,0.0)
+(21,0.0)
+(22,0.0)
+(23,0.0)
+(24,0.0)
+(25,0.0)
+(26,0.0)
+(27,0.0)
+(28,0.0)
+(29,0.0)
+(30,0.0)
+      }; \label{percentSUSP}
+      %\legend{SUSP \%}
+    \end{axis}
+  \end{tikzpicture}
+  \end{subfigure}
+
+  
+  \caption{Average running times for 10000 random puzzles of widths
+    five to ten. Note that the legend in (a) applies to all six plots,
+    and that the axes are named only the edge of the page.}
+  \label{fig:perform}
+\end{figure}
+  
 \section{Conclusions}
 \label{sec:conclusion}
 
@@ -1609,6 +2884,11 @@ that can be added to a strong USP other than examining all possible
 rows and checking whether the puzzle remains a strong USP?  Are there
 other search strategies that would be more effective on this search
 space?  Is strong USP verification \NP-complete?
+
+\section{Acknowledgments}
+
+The second and third authors would like to that the Union College
+Summer Research Fellowship for supporting their work.
 
 \bibliographystyle{customurlbst/alphaurlpp} \bibliography{references}
 
