@@ -271,10 +271,10 @@ solvable puzzles.
 
 \begin{definition}[Strong Uniquely Solvable Puzzle]
   \label{def:strong-USP}
-  An $(s,k)$-puzzle $P$ is \emph{strong uniquely solvable} if $\forall
-  \pi_0, \pi_1, \pi_2 \in \Sym{P}:$ either $\pi_0 = \pi_1 = \pi_2$, or
-  $\exists r \in P, \exists i \in \ordset{k}$ such that exactly two of
-  the following hold: $(\pi_0(r))_i = 0$, $(\pi_1(r))_i = 1$,
+  An $(s,k)$-puzzle $P$ is \emph{strong uniquely solvable} if for all
+  $\pi_0, \pi_1, \pi_2 \in \Sym{P}$: Either $\pi_0 = \pi_1 = \pi_2$,
+  or there exists $r \in P$ and $i \in \ordset{k}$ such that exactly
+  two of the following hold: $(\pi_0(r))_i = 0$, $(\pi_1(r))_i = 1$,
   $(\pi_2(r))_i = 2$.
 \end{definition}
 
@@ -294,14 +294,14 @@ matrix multiplication $\omega$.
   $$\omega \le \min_{m \ge 3, m \in \Natural} \frac{3 \log
     m}{\log(m-1)} - \frac{3 \log s!}{sk \log(m-1)}.$$
 \end{lemma}
-\noindent In the same article, the authors also demonstrate the
-existence of an infinite family of strong uniquely solvable puzzles,
-for width $k$ divisible by three, that achieves a non-trivial bound on
-$\omega$.
-\begin{lemma}[{\cite[Proposition 3.8]{cksu05}}]
-  There is an infinite family of strong uniquely solvable puzzles that
-  achieves $\omega < 2.48$.
-\end{lemma}
+%% \noindent In the same article, the authors also demonstrate the
+%% existence of an infinite family of strong uniquely solvable puzzles,
+%% for width $k$ divisible by three, that achieves a non-trivial bound on
+%% $\omega$.
+%% \begin{lemma}[{\cite[Proposition 3.8]{cksu05}}]
+%%   There is an infinite family of strong uniquely solvable puzzles that
+%%   achieves $\omega < 2.48$.
+%% \end{lemma}
 %% \noindent Finally, they conjecture that strong uniquely solvable
 %% puzzles provide a root to achieving quadratic time matrix
 %% multiplication.
@@ -467,19 +467,19 @@ tripartite 3-hypergraph.  We say that $G$ has a \emph{3D matching} iff
 there exists a subset $M \sse E$ with $|M| = |P|$ and for all distinct
 hyperedges $e_1, e_2 \in M$, $e_1$ and $e_2$ are \emph{vertex
   disjoint}, that is, $(e_1)_i \neq (e_2)_i$ for all $i \in [3]$.  We
-say a 3D matching is \emph{nontrival} if it is not the matching
+say a 3D matching is \emph{non-trivial} if it is not the matching
 $\condset{(r,r,r)}{r \in P}$.  The existence of 3D matchings in $H_P$
 is directly tied to whether $P$ is a SUSP.
 
 \begin{lemma}
   \label{lem:verify-to-3dm}
-  An $(s,k)$-puzzle $P$ is a strong USP iff $H_P$ has no nontrivial 3D
+  An $(s,k)$-puzzle $P$ is a strong USP iff $H_P$ has no non-trivial 3D
   matching.
 \end{lemma}
 
 \begin{proof}
   We first argue the reverse direction.  Suppose that $H_p$ has a
-  nontrivial 3D matching $M$.  We show that $P$ is not a strong USP by
+  non-trivial 3D matching $M$.  We show that $P$ is not a strong USP by
   using $M$ to construct $\pi_0, \pi_1, \pi_2 \in \Sym{P}$ that
   witness this.  Let $\pi_0$ be the identity permutation.  For each $r
   \in P$, define $\pi_1(r) = q$ where $(r,q,\_) \in M$.  Note that $q$
@@ -487,7 +487,7 @@ is directly tied to whether $P$ is a SUSP.
   vertex disjoint edges.  Similarly define $\pi_2(r) = q$ where
   $(r,\_,q) \in M$.  Observe that by construction $M =
   \condset{(\pi_0(r),\pi_1(r),\pi_2(r))}{r \in P}$.  Since $M$ is a
-  matching of $H_P$, $M \sse \bar{f_P}$.  Because $M$ is a nontrival
+  matching of $H_P$, $M \sse \bar{f_P}$.  Because $M$ is a non-trival
   matching at least one edge in $(a,b,c) \in M$ is has either $a \neq
   b$, $a \neq c$, or $b \neq c$.  This implies, respectively, that as
   constructed $\pi_0 \neq \pi_1$, $\pi_0 \neq \pi_2$, or $\pi_1 \neq
@@ -506,9 +506,9 @@ is directly tied to whether $P$ is a SUSP.
   Since Condition 2 fails, we have that $f_P(e(r)) = false$ for all $r
   \in P$.  This means that for all $r \in P$, $e(r) \in \bar{f_P}$ and
   hence $M \sse \bar{f_P}$.  Since $\pi_0$ is a permutation $|M| =
-  |P|$.  Finally, observe that $M$ is nontrivial because not all of
+  |P|$.  Finally, observe that $M$ is non-trivial because not all of
   the permutations are identical and there must be some $r \in P$ with
-  $e(r)$ having non identical coordinates.  Thus $M$ is a nontrivial
+  $e(r)$ having non identical coordinates.  Thus $M$ is a non-trivial
   3D matching of $H_p$.
 \end{proof}
 
@@ -705,12 +705,12 @@ in $M$.  This is captured by the following vertex constraints:
 &\forall u \in P,~~\sum_{v,w \in P} M_{u,v,w} = 1.
 \end{aligned}
 \end{equation}
-Finally, since we need that the 3D matching be non-trivial we
-add the constraint
-\begin{equation}
-  \label{eqn:cons3}
-  \sum_{u \in P} M_{u,u,u} < |P|.
-\end{equation}
+Lastly, since we need that the 3D matching be non-trivial we
+add the constraint:
+%\begin{equation}
+%\label{eqn:cons3}
+  $\sum_{u \in P} M_{u,u,u} < |P|.$
+%\end{equation}
 
 
 %% With these constraints in mind, \autoref{alg:mip} describes the
@@ -724,9 +724,9 @@ add the constraint
 %% restrictions listed in the paragraph above (I am not sure if I should
 %% list all the constrains again?). Finally, the model is put through a
 %% integer programming solver. If the model has a solution, $H_p$ has a
-%% nontrivial 3D matching and by \autoref{lem:verify-to-3dm} $P$ is not a
+%% non-trivial 3D matching and by \autoref{lem:verify-to-3dm} $P$ is not a
 %% USP. Otherwise if the model is infeasible, $H_p$ does not have a
-%% nontrivial thus $P$ is a USP.
+%% non-trivial thus $P$ is a USP.
 
 To check whether $P$ is a strong USP we need to determine that the
 above integer program is not feasible,
@@ -1226,22 +1226,28 @@ performance curves.
 
 We initiated the first study of the verification strong USP and
 developed practical software for both verifying and searching for
-strong USP.  We give tight results on the maximum size of width-$k$
+them.  We give tight results on the maximum size of width-$k$
 strong USP for $k \le 5$.  Although our results do not produce a new
 upper bound on the running time of matrix multiplication, they
-demonstrate there is promise in the uniquely solvable puzzle approach.
-The immediate open question is: What are tight bounds on maximum size
+demonstrate there is promise in this approach. %the uniquely solvable puzzle approach.
+There are a number of open questions.
+%The immediate open question is:
+What are tight bounds on maximum size
 strong USP for $k \ge 6$ and do these bound lead to asymptotically
-faster algorithms for matrix multiplication?  The main bottleneck in
-our work is the size of the search space.  This leads to a number of
-open questions: Can the size of the search space be lowered by
-additional reductions in symmetry?  We have some preliminary data that
-suggests this is possible, but is not sufficient to make exhaustive
-search width-6 strong USP feasible.  Is there a way to identify rows
-that can be added to a strong USP other than examining all possible
-rows and checking whether the puzzle remains a strong USP?  Are there
-other search strategies that would be more effective on this search
-space?  Is strong USP verification \NP-complete?
+faster algorithms for matrix multiplication?
+Is strong USP verification \NP-complete?
+The main bottleneck in
+our work is the size of the search space:
+%This leads to a number of open questions:
+Can the size of the search space be lowered by modding out by symmetries of puzzles?  Preliminary work
+suggests this is possible, but not yet sufficient to exhaustively
+search width-6 strong USP.
+%% Is there a way to identify rows
+%% that can be added to a strong USP other than examining all possible
+%% rows and checking whether the puzzle remains a strong USP?
+%% Are there
+%% other search strategies that would be more effective on this search
+%% space?  
 
 \section{Acknowledgments}
 
