@@ -234,38 +234,40 @@ that the rows are arbitrarily ordered and indexed by $\ordset{s}$.
 \cite{cksu05} also establish a particular combinatorial property of
 such puzzles that can derive groups that matrix multiplication can be
 embedded into.  Such puzzles are called \emph{strong} uniquely
-solvable puzzles.  However, to give some intuition we first explain a
-simpler version of the property called \emph{uniquely solvable
-  puzzles}.
+solvable puzzles.
 
-\begin{definition}[Uniquely Solvable Puzzle (USP)]
-  \label{def:strong-USP}
-  ~\\An $(s,k)$-puzzle $P$ is \emph{uniquely solvable} if
-  $\forall \pi_0, \pi_1, \pi_2 \in \Sym{P}:$
-  \begin{enumerate}
-  \item either $\pi_0 = \pi_1 = \pi_2$, or
-  \item $\exists r \in P, \exists i \in \ordset{k}$ such that at least two
-    of the following hold:
-    \begin{enumerate}
-    \item $(\pi_0(r))_i = 0$,
-    \item $(\pi_1(r))_i = 1$,
-    \item $(\pi_2(r))_i = 2$.
-    \end{enumerate}
-  \end{enumerate}
-\end{definition}
+%% However, to give some intuition we first explain a
+%% simpler version of the property called \emph{uniquely solvable
+%%   puzzles}.
 
-Informally, a puzzle is \textbf{not} uniquely solvable if each row of
-the puzzle can be broken into zeroes, ones, and twos pieces and then
-the rows can be reassembled in a different way so that each new row is
-a combination of a zeroes, a ones, and twos piece where there is
-exactly one element of $\ordset{3}$ for each column.  Observe that
-uniquely solvable puzzles can have at most $2^k$ rows because each
-zeroes piece, ones piece, and two piece must be unique, as otherwise
-the duplicate pieces can be swapped making the puzzle not uniquely
-solvable.  The definition of \emph{strong} uniquely solvable puzzle is
-below, it is nearly the same except that it requires that there be a
-collision on a column between exactly two pieces, not two or more
-pieces like in the original definition.
+%% \begin{definition}[Uniquely Solvable Puzzle (USP)]
+%%   \label{def:strong-USP}
+%%   ~\\An $(s,k)$-puzzle $P$ is \emph{uniquely solvable} if
+%%   $\forall \pi_0, \pi_1, \pi_2 \in \Sym{P}:$
+%%   \begin{enumerate}
+%%   \item either $\pi_0 = \pi_1 = \pi_2$, or
+%%   \item $\exists r \in P, \exists i \in \ordset{k}$ such that at least two
+%%     of the following hold:
+%%     \begin{enumerate}
+%%     \item $(\pi_0(r))_i = 0$,
+%%     \item $(\pi_1(r))_i = 1$,
+%%     \item $(\pi_2(r))_i = 2$.
+%%     \end{enumerate}
+%%   \end{enumerate}
+%% \end{definition}
+
+%% Informally, a puzzle is \textbf{not} uniquely solvable if each row of
+%% the puzzle can be broken into zeroes, ones, and twos pieces and then
+%% the rows can be reassembled in a different way so that each new row is
+%% a combination of a zeroes, a ones, and twos piece where there is
+%% exactly one element of $\ordset{3}$ for each column.  Observe that
+%% uniquely solvable puzzles can have at most $2^k$ rows because each
+%% zeroes piece, ones piece, and two piece must be unique, as otherwise
+%% the duplicate pieces can be swapped making the puzzle not uniquely
+%% solvable.  The definition of \emph{strong} uniquely solvable puzzle is
+%% below, it is nearly the same except that it requires that there be a
+%% collision on a column between exactly two pieces, not two or more
+%% pieces like in the original definition.
 
 \begin{definition}[Strong Uniquely Solvable Puzzle]
   ~\\
