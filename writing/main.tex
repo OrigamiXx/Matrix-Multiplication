@@ -99,11 +99,11 @@ $O(n^3)$, and for a time it was thought to be the optimal algorithm.
 It was surprising when Strassen showed that matrix multiplication can
 be done in time $O(n^{2.808})$ \cite{str69} using a
 divide-and-conquer approach.  A long sequence of work concluding with
-Coppersmith and Winograd's laser method reduced the running time
-to $O(2^{2.376})$ \cite{pan78,b79,sch81,cw82,str86,cw87}. Recent
+Coppersmith and Winograd's algorithm reduced the running time
+to $O(2^{2.376})$ \cite{pan78,bcrl79,sch81,cw82,str86,cw90}. Recent
 computer-aided refinements of Coppersmith and Winograd's work done by
 Stothers, Vassilevska-Williams, and Le Gall further reduced the
-exponent to $\omega \le 2.3728639$ \cite{sto10,vas11,leg14}.
+exponent to $\omega \le 2.3728639$ \cite{ds13,wil12,le14}.
 
 % Other lower bounds?
 % Tensor rank approach
@@ -173,15 +173,15 @@ There are a number of negative results in this area.  First, there are
 some lower bounds on the time complexity of matrix multiplication.
 Na\"{i}vely, the dimensions of the output matrix $C$ imply that the
 problem requires at least $\Omega(n^2)$ time.  Slightly better lower
-bounds are also known for specialized models of computation, like
-bounded-depth arithmetic circuits \cite{XXX}.
+bounds are known in general and also for specialized models of computation, like
+bounded-depth arithmetic circuits, e.g., \cite{shp03,kam05}.
 
 There are also lower bounds known for a variety of algorithmic
 approaches for matrix multiplication.  Ambainis et al.~showed that the
 laser method, the approach of Coppersmith-Winograd and subsequent
 refinements, cannot alone achieve an algorithm with $\omega \le
-2.3078$ running time \cite{afl14}.  A recent breakthrough arithmetic
-progressions in cap sets \cite{e16,clp16} combined with a conditional
+2.3078$ running time \cite{afl15}.  A recent breakthrough arithmetic
+progressions in cap sets \cite{clp17} combined with a conditional
 result on the Erd\"{o}s-Szemeredi sunflower conjecture \cite{asu13}.
 The results of \cite{bccgu16} do imply that Cohn et al.'s strong
 uniquely solvable puzzle approach cannot achieve the $\omega = 2 +
@@ -314,7 +314,7 @@ multiplication.
   Strong uniquely solvable puzzles cannot show $\omega < 2 +
   \epsilon$, for some $\epsilon > 0$.
 \end{lemma}
-That said, there remains hope that the uniquely solvable puzzle
+\noindent That said, there remains hope that the uniquely solvable puzzle
 approach could beat the refinements of Coppersmith-Winograd even if it
 cannot reach $\omega = 2$.
 
@@ -445,7 +445,9 @@ $3^{3k}$ term.  For this reason we rule out the later option and chose
 to represent the function $f$ specialized to $f_P$ for a given puzzle
 $P$.
 
+
 \subsection{Verification to 3D Matching}
+\label{sec:3DM}
 
 For verification it turns out to be more useful to work with $f_P$
 than with $P$.  It is convienent to think of $f_P$ from several
@@ -507,7 +509,7 @@ is directly tied to whether $P$ is a SUSP.
   3D matching of $H_p$.
 \end{proof}
 
-Although 3D matching is an \NP-complete problem \cite{karp72},
+Although 3D matching is an \NP-complete problem \cite{gj79},
 \autoref{lem:verify-to-3dm} does not immediately imply that
 verification of strong USP is \coNP-complete because $H_P$ is not an
 arbitrary hypergraph.  (That verification is in \coNP{} is immediate
@@ -525,7 +527,7 @@ matching.  Since we believe that verification is not \coNP-complete we
 use properties of strong USP and puzzles to provide additional
 structure that algorithms can take advantage of.
 
-XXX - Discuss simplifyTDM.
+%XXX - Discuss simplifyTDM.  Nope...
 
 \subsection{Bidirectional Search}
 
@@ -629,7 +631,7 @@ beyond the contents of $T$.
 
 Note that more advanced techniques like those of Bj\"{o}rklund et
 al.~can acheive a better asymptotic time of $O(2^s\poly(s))$
-\cite{b2010}.  We chose not to implement their algorithm, because we
+\cite{bhkk17}.  We chose not to implement their algorithm, because we
 judged that it would not substantially increase the domain of which
 verification was possible.  We instead took a different approach.
 
@@ -639,11 +641,11 @@ verification was possible.  We instead took a different approach.
 
 By \autoref{lem:verify-to-3dm}, one can
 determine whether a puzzle $P$ is a strong USP by contructing a
-graph $H_P$ from $P$ and deciding whether it has a non-trivial 3D matching.  It well-known that 3D matching is \NP{}-complete \cite{XXX}, and it can be efficiently reduced to
+graph $H_P$ from $P$ and deciding whether it has a non-trivial 3D matching.  It well-known that 3D matching is \NP{}-complete, c.f., e.g., \cite{gj79}, and it can be efficiently reduced to
 other \NP{}-complete problems. Here we reduce our 3D
 matching problem to the
 CNF satisfability (SAT) problem and then use a state-of-the-art
-SAT solver (MapleCOMPSPS \cite{XXX}) to answer the reduced problem. To perform the
+SAT solver (MapleCOMPSPS \cite{lgpc16}) to answer the reduced problem. To perform the
 reduction, we convert the graph $H_P$ that is obtained from the
 puzzle $P$ into a conjunctive normal form (CNF) formula, $\Psi_P$, a depth-2 formula that is the AND of ORs of Boolean literals.  We input the CNF
 formula $\Psi_P$ into a SAT solver to determine whether the formula is
@@ -770,8 +772,7 @@ reduction is straightforward, but is included for completeness in
 
 As mentioned before, to implement Line 4 of \autoref{alg:sat} in
 practice we used the satisfiability solver MapleCOMPSPS, from the 2016
-international SAT competition \cite{XXX - contest paper and contestant
-  paper}.  This solver is conflict driven and uses a learning rate
+international SAT competition \cite{bhj17,lgpc16}.  This solver is conflict driven and uses a learning rate
 branching heuristic to decide which variables are likely to lead to a
 conflict.  The solver provides no polynomial-time worse run time
 guarantees, but has had demonstratable success in practice.
@@ -1079,7 +1080,7 @@ verification as there are now many more values stored and are individually less 
 
 \subsubsection{Greedy}
 
-This heuristic attempts to solve the 3D-Matching instance associated
+This heuristic attempts to solve the 3D matching instance associated
 with verifying a puzzle $P$ (discussed in \autoref{sec:3DM}).  The
 heuristic proceeds iteratively, determining the vertex (of the first part) of the 3DM
 instance with the least edges and randomly selecting a hyperedge of that vertex to put into the 3DM.  If the heuristic successfully contructs a
@@ -1277,7 +1278,7 @@ complete a maximum set with some given subset $S'$.
 
 Unfortunately this same approach does not work for generating maximum
 size strong USPs.  The set of strong USP do not form a matroid, rather
-they only form an independence system \cite{XXX}.  In particular, the
+they only form an independence system \cite{oxl06}.  In particular, the
 empty puzzle is a strong USP and the set of strong USPs are downward
 closed, so that if $P_2$ is a strong USP and $P_1 \subseteq P_2$, then
 $P_1$ is a strong USP.  The third and final property required to be a
@@ -1289,13 +1290,11 @@ A simple counterexample with the strong USPs $P_1 = \set{32}$ and $P_2
   32}$ nor $P_1 \cup \set{23} = \set{23, 32}$ are strong USP, and
 hence the augmentation property does not hold.
 
-One consequence is that wholly greedy algorithms will not be effective
-for finding maximum size strong USPs \cite{XXX}.  Furthermore, we do not
+One consequence is that na\"{i}ve greedy algorithms will not be effective
+for finding maximum size strong USPs.  Furthermore, we do not
 currently have a practical or efficient algorithm that can take a
 strong USP $P$ and determine a single row, or set of rows, that can
-extend $P$ while maintaining that it is a strong USP.
-
-That said, we have had some success applying general purpose search
+extend $P$ while maintaining that it is a strong USP. That said, we have had some success applying general purpose search
 techniques together with our practical verification algorithm to
 construct maximum size strong USPs for small $k$.  In particular, we
 implemented variants of depth-first search (DFS) and breadth-first

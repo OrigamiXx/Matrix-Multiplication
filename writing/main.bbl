@@ -1,22 +1,158 @@
-\begin{thebibliography}{CKSU05}
+\newcommand{\etalchar}[1]{$^{#1}$}
+\begin{thebibliography}{BHKK17}
+
+\bibitem[AFLG15]{afl15}
+Andris Ambainis, Yuval Filmus, and Fran{\c{c}}ois Le~Gall.
+\newblock Fast matrix multiplication: limitations of the Coppersmith-Winograd
+  method.
+\newblock In {\em 47th Annual ACM Symposium on Theory of Computing (STOC)},
+  pages 585--593. ACM, 2015.
 
 \bibitem[ASU13]{asu13}
 Noga Alon, Amir Shpilka, and Christopher Umans.
 \newblock On sunflowers and matrix multiplication.
-\newblock {\em computational complexity}, 22(2):219--243, 2013.
+\newblock {\em Computational Complexity}, 22(2):219--243, 2013.
+
+\bibitem[AW18a]{avw18a}
+J.~{Alman} and V.~V. {Williams}.
+\newblock Further limitations of the known approaches for matrix
+  multiplication.
+\newblock In {\em 9th {I}nnovations in {T}heoretical {C}omputer {S}cience
+  {(ITCS)}}, volume~94 of {\em LIPIcs. Leibniz Int. Proc. Inform.}, pages Art.
+  No. 25, 15. Schloss Dagstuhl. Leibniz-Zent. Inform., Wadern, 2018.
+
+\bibitem[AW18b]{avw18b}
+J.~{Alman} and V.~V. {Williams}.
+\newblock \href {http://dx.doi.org/10.1109/FOCS.2018.00061} {Limits on All
+  Known (and Some Unknown) Approaches to Matrix Multiplication}.
+\newblock In {\em 59th Annual IEEE Symposium on Foundations of Computer Science
+  (FOCS)}, pages 580--591, Oct 2018.
+
+\bibitem[BCC{\etalchar{+}}17]{bccgu16}
+Jonah Blasiak, Thomas Church, Henry Cohn, Joshua~A Grochow, and Chris Umans.
+\newblock Which groups are amenable to proving exponent two for matrix
+  multiplication?
+\newblock {\em arXiv preprint arXiv:1712.02302}, 2017.
+
+\bibitem[BCRL79]{bcrl79}
+Dario~Andrea Bini, Milvio Capovani, Francesco Romani, and Grazia Lotti.
+\newblock $O(N^2)$ complexity for $N$ by $N$ approximate matrix multiplication.
+\newblock {\em Information processing letters}, 8(5):234--235, 1979.
+
+\bibitem[BHJ17]{bhj17}
+Tomas Balyo, Marijn~JH Heule, and Matti Jarvisalo.
+\newblock SAT Competition 2016: Recent developments.
+\newblock In {\em 31st AAAI Conference on Artificial Intelligence (AAAI)},
+  2017.
+
+\bibitem[BHKK17]{bhkk17}
+Andreas Bj{\"o}rklund, Thore Husfeldt, Petteri Kaski, and Mikko Koivisto.
+\newblock Narrow sieves for parameterized paths and packings.
+\newblock {\em Journal of Computer and System Sciences}, 87:119--139, 2017.
 
 \bibitem[CKSU05]{cksu05}
-H.~Cohn, R.~Kleinberg, B.~Szegedy, and C.~Umans.
+Henry Cohn, Robert Kleinberg, Bal\'{a}zs Szegedy, and Christopher Umans.
 \newblock \href {http://dx.doi.org/10.1109/SFCS.2005.39} {Group-theoretic
   algorithms for matrix multiplication}.
 \newblock In {\em {46th Annual IEEE Symposium on Foundations of Computer
-  Science (FOCS'05)}}, pages 379--388, Oct 2005.
+  Science (FOCS)}}, pages 379--388, Oct 2005.
+
+\bibitem[CLP17]{clp17}
+Ernie Croot, Vsevolod~F Lev, and P{\'e}ter~P{\'a}l Pach.
+\newblock Progression-free sets in are exponentially small.
+\newblock {\em Annals of Mathematics}, pages 331--337, 2017.
 
 \bibitem[CU03]{cu03}
-H.~Cohn and C.~Umans.
+Henry Cohn and Christopher Umans.
 \newblock \href {http://dx.doi.org/10.1109/SFCS.2003.1238217} {A
   group-theoretic approach to fast matrix multiplication}.
-\newblock In {\em 44th Annual IEEE Symposium on Foundations of Computer
-  Science, 2003. Proceedings.}, pages 438--449, Oct 2003.
+\newblock In {\em 44th Annual IEEE Symposium on Foundations of Computer Science
+  (FOCS)}, pages 438--449, Oct 2003.
+
+\bibitem[CW82]{cw82}
+Don Coppersmith and Shmuel Winograd.
+\newblock On the asymptotic complexity of matrix multiplication.
+\newblock {\em SIAM Journal on Computing}, 11(3):472--492, 1982.
+
+\bibitem[CW90]{cw90}
+Don Coppersmith and Shmuel Winograd.
+\newblock Matrix multiplication via arithmetic progressions.
+\newblock {\em Journal of Symbolic Computation}, 9(3):251--280, 1990.
+
+\bibitem[DS13]{ds13}
+Alexander~Munro Davie and Andrew~James Stothers.
+\newblock Improved bound for complexity of matrix multiplication.
+\newblock {\em Proceedings of the Royal Society of Edinburgh Section A:
+  Mathematics}, 143(2):351--369, 2013.
+
+\bibitem[GJ79]{gj79}
+Michael~R Garey and David~S Johnson.
+\newblock Computers and intractability: a guide to the theory of
+  NP-completeness.
+\newblock 1979.
+
+\bibitem[GO18]{gurobi}
+LLC Gurobi~Optimization.
+\newblock \href {http://www.gurobi.com} {Gurobi Optimizer Reference Manual},
+  2018.
+
+\bibitem[Kam05]{kam05}
+Michael Kaminski.
+\newblock A lower bound on the complexity of polynomial multiplication over
+  finite fields.
+\newblock {\em SIAM Journal on Computing}, 34(4):960--992, 2005.
+
+\bibitem[LG14]{le14}
+Fran{\c{c}}ois Le~Gall.
+\newblock Powers of tensors and fast matrix multiplication.
+\newblock In {\em 39th International Symposium on Symbolic and Algebraic
+  Computation (ISSAC)}, pages 296--303. ACM, 2014.
+
+\bibitem[LGPC16]{lgpc16}
+Jia~Hui Liang, Vijay Ganesh, Pascal Poupart, and Krzysztof Czarnecki.
+\newblock Learning rate based branching heuristic for SAT solvers.
+\newblock In {\em International Conference on Theory and Applications of
+  Satisfiability Testing}, pages 123--140. Springer, 2016.
+
+\bibitem[Oxl06]{oxl06}
+James~G Oxley.
+\newblock {\em Matroid theory}, volume~3.
+\newblock Oxford University Press, USA, 2006.
+
+\bibitem[Pan78]{pan78}
+V~Ya Pan.
+\newblock Strassen's algorithm is not optimal trilinear technique of
+  aggregating, uniting and canceling for constructing fast algorithms for
+  matrix operations.
+\newblock In {\em 19th Annual Symposium on Foundations of Computer Science
+  (FOCS)}, pages 166--176. IEEE, 1978.
+
+\bibitem[Sch81]{sch81}
+Arnold Sch{\"o}nhage.
+\newblock Partial and total matrix multiplication.
+\newblock {\em SIAM Journal on Computing}, 10(3):434--455, 1981.
+
+\bibitem[Shp03]{shp03}
+Amir Shpilka.
+\newblock Lower bounds for matrix product.
+\newblock {\em SIAM Journal on Computing}, 32(5):1185--1200, 2003.
+
+\bibitem[Str69]{str69}
+Volker Strassen.
+\newblock Gaussian elimination is not optimal.
+\newblock {\em Numerische mathematik}, 13(4):354--356, 1969.
+
+\bibitem[Str86]{str86}
+Volker Strassen.
+\newblock The asymptotic spectrum of tensors and the exponent of matrix
+  multiplication.
+\newblock In {\em 27th Annual Symposium on Foundations of Computer Science
+  (FOCS)}, pages 49--54. IEEE, 1986.
+
+\bibitem[Wil12]{wil12}
+Virginia~Vassilevska Williams.
+\newblock Multiplying matrices faster than Coppersmith-Winograd.
+\newblock In {\em {44th Annual ACM Symposium on Theory of Computing (STOC)}},
+  pages 887--898. ACM, 2012.
 
 \end{thebibliography}
