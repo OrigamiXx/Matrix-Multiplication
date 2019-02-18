@@ -133,25 +133,26 @@ uniquely solvable puzzle is \emph{strong} if a tighter condition for
 non-overlapping is applied. For a fixed width $k$, the larger the size
 of a puzzle $P$, the faster matrix multiplication algorithm it implies
 if $P$ is a SUSP \cite[Corollary 3.6]{cksu05}.  In fact Cohn et
-al.~show that there exist an infinite family of SUSP that achieves $w <
-2.48$ \cite[Proposition 3.8]{cksu05}.
+al.~show that there exist an infinite family of SUSP that achieves $w
+< 2.48$ \cite[Proposition 3.8]{cksu05}.
 
 % Approach
 
 We follow Cohn and Umans' program simulateneously from theoretical and
-experimental perspectives.  We (i) \textbf{explore} properties of SUSP, (ii)
-develop \textbf{verification} algorithms for determining whether a
-puzzle is a SUSP, (iii) develop \textbf{search} algorithms for searching
-for large SUSP, and (iv) \textbf{implement} these algorithms in desktop and
-high performance computing settings.  From the computational
-complexity perspective the algorithms we develop to verify and search
-for SUSP are not efficient as they run in exponential or doubly
-exponential time in the natural parameters.  However, as the goal is
-to find a sufficiently large SUSP which in turn produces a fast matrix
-multiplication algorithm, the inefficiency of our algorithms does not
-directly impact the efficiency of the matrix multiplication
-algorithms.  Rather, it indirectly impacts the efficiency by limiting
-the search space of puzzles that we can practically examine.
+experimental perspectives.  We (i) \textbf{explore} properties of
+SUSP, (ii) develop \textbf{verification} algorithms for determining
+whether a puzzle is a SUSP, (iii) develop \textbf{search} algorithms
+for searching for large SUSP, and (iv) \textbf{implement} these
+algorithms in desktop and high performance computing settings.  From
+the computational complexity perspective the algorithms we develop to
+verify and search for SUSP are not efficient as they run in
+exponential or doubly exponential time in the natural parameters.
+However, as the goal is to find a sufficiently large SUSP which in
+turn produces a fast matrix multiplication algorithm, the inefficiency
+of our algorithms does not directly impact the efficiency of the
+matrix multiplication algorithms.  Rather, it indirectly impacts the
+efficiency by limiting the search space of puzzles that we can
+practically examine.
 
 % Results
 
@@ -173,8 +174,9 @@ There are a number of negative results in this area.  First, there are
 some lower bounds on the time complexity of matrix multiplication.
 Na\"{i}vely, the dimensions of the output matrix $C$ imply that the
 problem requires at least $\Omega(n^2)$ time.  Slightly better lower
-bounds are known in general and also for specialized models of computation, like
-bounded-depth arithmetic circuits, e.g., \cite{shp03,kam05}.
+bounds are known in general and also for specialized models of
+computation, like bounded-depth arithmetic circuits, e.g.,
+\cite{shp03,kam05}.
 
 There are also lower bounds known for a variety of algorithmic
 approaches for matrix multiplication.  Ambainis et al.~showed that the
@@ -186,12 +188,12 @@ result on the Erd\"{o}s-Szemeredi sunflower conjecture \cite{asu13}.
 The results of \cite{bccgu16} do imply that Cohn et al.'s strong
 uniquely solvable puzzle approach cannot achieve the $\omega = 2 +
 \epsilon$ for some $\epsilon > 0$.  Subsequent work has extended and
-generalized this barrier \cite{avw18a,avw18b} to a larger
-class of algorithmic techniques.  Despite this, we are unaware of a
-concrete lower bound on $\epsilon$ implied by these negative results.
-There remains a substantial gap in our understanding
-between what has been acheived by the positive refinements of LeGall, Williams,
-and Stothers, and the impossibility of showing $\omega = 2$ using the
+generalized this barrier \cite{avw18a,avw18b} to a larger class of
+algorithmic techniques.  Despite this, we are unaware of a concrete
+lower bound on $\epsilon$ implied by these negative results.  There
+remains a substantial gap in our understanding between what has been
+acheived by the positive refinements of LeGall, Williams, and
+Stothers, and the impossibility of showing $\omega = 2$ using the
 uniquely solvable puzzles approach.
 
 % Organization
@@ -199,11 +201,10 @@ uniquely solvable puzzles approach.
 We begin with formal definitions and properties of puzzles and strong
 uniquely solvable puzzles in \autoref{sec:prelim}.  In
 \autoref{sec:verify} we discuss our algorithms for verifying that a
-puzzle is a SUSP.  In \autoref{sec:heuristic} we describe fast,
-but incomplete, heuristics for verifying SUSP.
-\autoref{sec:search} explains our search algorithms.
-\autoref{sec:results} discuss our implementation, experiments, and
-the experimental results.
+puzzle is a SUSP.  In \autoref{sec:heuristic} we describe fast, but
+incomplete, heuristics for verifying SUSP.  \autoref{sec:search}
+explains our search algorithms.  \autoref{sec:results} discuss our
+implementation, experiments, and the experimental results.
 
 
 \section{Preliminaries}
@@ -222,9 +223,9 @@ $\Sym{Q}$. \cite{cksu05} introduced the idea of a \emph{puzzle}.
 \end{definition}
 
 We say that an $(s,k)$-puzzle has $s$ rows and $k$ columns.  The
-columns are inherent ordered and indexed by $\ordset{k}$.  The rows are not
-inherently ordered, however, it is often convienent to assume that the
-rows are arbitrarily ordered and indexed by $\ordset{s}$.
+columns are inherent ordered and indexed by $\ordset{k}$.  The rows
+are not inherently ordered, however, it is often convienent to assume
+that the rows are arbitrarily ordered and indexed by $\ordset{s}$.
 
 \cite{cksu05} also establish a particular combinatorial property of
 such puzzles that can derive groups that matrix multiplication can be
@@ -296,8 +297,9 @@ matrix multiplication $\omega$.
     m}{\log(m-1)} - \frac{3 \log s!}{sk \log(m-1)}.$$
 \end{lemma}
 \noindent In the same article, the authors also demonstrate the
-existence of an infinite family of strong uniquely solvable puzzles, for width $k$ divisible by three,
-that achieves a non-trivial bound on $\omega$.
+existence of an infinite family of strong uniquely solvable puzzles,
+for width $k$ divisible by three, that achieves a non-trivial bound on
+$\omega$.
 \begin{lemma}[{\cite[Proposition 3.8]{cksu05}}]
   There is an infinite family of strong uniquely solvable puzzles that
   achieves $\omega < 2.48$.
@@ -309,14 +311,15 @@ multiplication.
   There exists a family of strong uniquely solvable puzzles that
   implies $\omega = 2$.
 \end{conjecture}
-\noindent Unfortunately, as mentioned in the introduction, this conjecture was recently shown to be false.
+\noindent Unfortunately, as mentioned in the introduction, this
+conjecture was recently shown to be false.
 \begin{lemma}[\cite{bccgu16}]
   Strong uniquely solvable puzzles cannot show $\omega < 2 +
   \epsilon$, for some $\epsilon > 0$.
 \end{lemma}
-\noindent That said, there remains hope that the uniquely solvable puzzle
-approach could beat the refinements of Coppersmith-Winograd even if it
-cannot reach $\omega = 2$.
+\noindent That said, there remains hope that the uniquely solvable
+puzzle approach could beat the refinements of Coppersmith-Winograd
+even if it cannot reach $\omega = 2$.
 
 %% \noindent This result is a consequence of a recent breakthrough
 %% arithmetic progressions in cap sets \cite{e16,clp16} combined with a
@@ -342,8 +345,8 @@ strong uniquely-solvable puzzle.  In this section we discuss the
 design of efficient and practical algorithms to solve this problem as
 a function of the parameters $s$ and $k$.  As the goal of this work is
 to use computers to locate large strong USPs, we also discuss aspects
-of our implementation that informed or constrained our designs.  All of
-the exact algorithms we develop in this section have exponential
+of our implementation that informed or constrained our designs.  All
+of the exact algorithms we develop in this section have exponential
 running time in the parameters $s$ and $k$.  However, although we
 discuss the asymptotic worst-case running time of our algorithms, this
 is not the metric we are truly interested in.  Rather we are
@@ -396,54 +399,54 @@ algorithm is found \autoref{alg:brute-force}.
   \EndFunction
 \end{algorithmic}
 \end{algorithm}
-Note that the $1$ in Line 4 of \autoref{alg:brute-force} denotes the identity permutation in $\Sym{P}$,
-and $\delta_{a,b}$ is the Kronecker delta function which is $1$ if $a
-= b$ and $0$ otherwise.  Observe that \autoref{alg:brute-force} does
-not refer to $\pi_0$ of \autoref{def:strong-USP}.  This is because the
-strong USP property is invariant to permutations of the rows and so
-$\pi_0$ can be thought of as an arbitrary phase.  Hence we fix $\pi_0 = 1$
-to simplify the algorithm.  Seeing that $|\Sym{P}| = s!$, the four
-nested loops make the running time of this algorithm easy to
-analyze.  The algorithm runs in time $O((s!)^2 \cdot s \cdot k \cdot
-\poly(s))$ where the last factor accounts
-for the time to perform operations on permutations of $s$ elements.  The dominant term
-in the running time is the contribution from iterating over pairs of
-permutations, though this term was made a factor $s!$ smaller by not
-iterating over $\pi_0$.  Finally, notice that if $P$ is a strong USP,
-then the algorithm runs in time $\Theta((s!)^2 \cdot k \cdot
-\poly(s))$, and that if $P$ is not a strong USP the algorithm may
-terminate early.  This algorithm's poor theoretical and practical
-performance made it unusable in our implementation, however, it's
-simplicity and direct connection to the definition made its
-implementation a valuable sanity check against later more elaborate
-algorithms (and served as effective onboarding to the undergraduate
-students collaborating on this project).
+Note that the $1$ in Line 4 of \autoref{alg:brute-force} denotes the
+identity permutation in $\Sym{P}$, and $\delta_{a,b}$ is the Kronecker
+delta function which is $1$ if $a = b$ and $0$ otherwise.  Observe
+that \autoref{alg:brute-force} does not refer to $\pi_0$ of
+\autoref{def:strong-USP}.  This is because the strong USP property is
+invariant to permutations of the rows and so $\pi_0$ can be thought of
+as an arbitrary phase.  Hence we fix $\pi_0 = 1$ to simplify the
+algorithm.  Seeing that $|\Sym{P}| = s!$, the four nested loops make
+the running time of this algorithm easy to analyze.  The algorithm
+runs in time $O((s!)^2 \cdot s \cdot k \cdot \poly(s))$ where the last
+factor accounts for the time to perform operations on permutations of
+$s$ elements.  The dominant term in the running time is the
+contribution from iterating over pairs of permutations, though this
+term was made a factor $s!$ smaller by not iterating over $\pi_0$.
+Finally, notice that if $P$ is a strong USP, then the algorithm runs
+in time $\Theta((s!)^2 \cdot k \cdot \poly(s))$, and that if $P$ is
+not a strong USP the algorithm may terminate early.  This algorithm's
+poor theoretical and practical performance made it unusable in our
+implementation, however, it's simplicity and direct connection to the
+definition made its implementation a valuable sanity check against
+later more elaborate algorithms (and served as effective onboarding to
+the undergraduate students collaborating on this project).
 
 Although \autoref{alg:brute-force} performs poorly, examining the
 structure of a seemingly trivial optimization leads to substantially
-more effective algorithms. Consider the following function on triples of rows $a, b,
-c$: $$f(a,b,c) = \vee_{i \in [k]} (\delta_{a_i,0} + \delta_{b_i,1} +
-\delta_{c_i,2} = 2).$$ We can replace the innermost loop in Lines 6 \&
-7 of \autoref{alg:brute-force} with the statement $found = found \vee
-f(r, \pi_1(r), \pi_2(r))$.  Observe that $f$ neither depends on $P$,
-$r$, nor the permutations, and that \autoref{alg:brute-force} no
-longer depends on $k$.  To slightly speed up \autoref{alg:brute-force}
-we can precompute and cache $f$ before the algorithm starts and then
-look up values as the algorithm runs.  There are two obvious options
-to consider we can either precompute $f$ specialized to the rows in
-the puzzle $P$, or we can precompute $f$ for all possible rows.  In
-former case the time to precompute $f$ is $\Theta(s^3 \cdot k)$ and in
-the later case $\Theta(3^{3k} \cdot k)$.  The storage requirements are
-$\Theta(s^3)$ and $\Theta(3^{3k})$ bits respectively.  The former is
-problematic for large $s$ and later problematic even for small $k$.
-Moreover the combined running time for the two options with a single
-call to verify a puzzle is $\Theta(s^3 \cdot k + (s!)^2 \cdot
-\poly(s))$ and $\Theta(3^{3k} \cdot k + (s!)^2 \cdot \poly(s))$.  In
-the former case there is an asymptotic improvement, but in the later
-case, the saving of a factor of $k$ is easily offset by the additional
-$3^{3k}$ term.  For this reason we rule out the later option and chose
-to represent the function $f$ specialized to $f_P$ for a given puzzle
-$P$.
+more effective algorithms. Consider the following function on triples
+of rows $a, b, c$: $$f(a,b,c) = \vee_{i \in [k]} (\delta_{a_i,0} +
+\delta_{b_i,1} + \delta_{c_i,2} = 2).$$ We can replace the innermost
+loop in Lines 6 \& 7 of \autoref{alg:brute-force} with the statement
+$found = found \vee f(r, \pi_1(r), \pi_2(r))$.  Observe that $f$
+neither depends on $P$, $r$, nor the permutations, and that
+\autoref{alg:brute-force} no longer depends on $k$.  To slightly speed
+up \autoref{alg:brute-force} we can precompute and cache $f$ before
+the algorithm starts and then look up values as the algorithm runs.
+There are two obvious options to consider we can either precompute $f$
+specialized to the rows in the puzzle $P$, or we can precompute $f$
+for all possible rows.  In former case the time to precompute $f$ is
+$\Theta(s^3 \cdot k)$ and in the later case $\Theta(3^{3k} \cdot k)$.
+The storage requirements are $\Theta(s^3)$ and $\Theta(3^{3k})$ bits
+respectively.  The former is problematic for large $s$ and later
+problematic even for small $k$.  Moreover the combined running time
+for the two options with a single call to verify a puzzle is
+$\Theta(s^3 \cdot k + (s!)^2 \cdot \poly(s))$ and $\Theta(3^{3k} \cdot
+k + (s!)^2 \cdot \poly(s))$.  In the former case there is an
+asymptotic improvement, but in the later case, the saving of a factor
+of $k$ is easily offset by the additional $3^{3k}$ term.  For this
+reason we rule out the later option and chose to represent the
+function $f$ specialized to $f_P$ for a given puzzle $P$.
 
 
 \subsection{Verification to 3D Matching}
@@ -480,9 +483,9 @@ is directly tied to whether $P$ is a SUSP.
   using $M$ to construct $\pi_0, \pi_1, \pi_2 \in \Sym{P}$ that
   witness this.  Let $\pi_0$ be the identity permutation.  For each $r
   \in P$, define $\pi_1(r) = q$ where $(r,q,\_) \in M$.  Note that $q$
-  is well defined and unique because $M$ is 3D matching and so has vertex
-  disjoint edges.  Similarly define $\pi_2(r) = q$ where $(r,\_,q) \in
-  M$.  Observe that by construction $M =
+  is well defined and unique because $M$ is 3D matching and so has
+  vertex disjoint edges.  Similarly define $\pi_2(r) = q$ where
+  $(r,\_,q) \in M$.  Observe that by construction $M =
   \condset{(\pi_0(r),\pi_1(r),\pi_2(r))}{r \in P}$.  Since $M$ is a
   matching of $H_P$, $M \sse \bar{f_P}$.  Because $M$ is a nontrival
   matching at least one edge in $(a,b,c) \in M$ is has either $a \neq
@@ -513,8 +516,8 @@ Although 3D matching is an \NP-complete problem \cite{gj79},
 \autoref{lem:verify-to-3dm} does not immediately imply that
 verification of strong USP is \coNP-complete because $H_P$ is not an
 arbitrary hypergraph.  (That verification is in \coNP{} is immediate
-from \autoref{def:strong-USP}.)  Indeed, it seems difficult to define a
-puzzle $P$ that allows hyperedges in $H_P$ to be included
+from \autoref{def:strong-USP}.)  Indeed, it seems difficult to define
+a puzzle $P$ that allows hyperedges in $H_P$ to be included
 independently.  It remains open whether verification is
 \coNP-complete, but our implementation and experimental data suggests
 that it is likely not to be the case.
@@ -532,11 +535,13 @@ structure that algorithms can take advantage of.
 \subsection{Bidirectional Search}
 
 The realization that verification of strong USP is a variant of 3D
-matching quickly led to a linear exponential time algorithm that was more practical.  The reduction allows us to replace the permutations
+matching quickly led to a linear exponential time algorithm that was
+more practical.  The reduction allows us to replace the permutations
 from $\Sym{P}$ with subsets of $P$ and effectively reduce the cost of
 the outer loops of \autoref{alg:brute-force} from $s! =
 \Theta(2^{s\log s})$ to $2^s$.  \autoref{alg:bi} describes a recursive
-bidirectional strong USP verification algorithm that using the 3D matching instance.
+bidirectional strong USP verification algorithm that using the 3D
+matching instance.
 
 \begin{algorithm}
   \caption{: Bidirectional}
@@ -573,59 +578,60 @@ bidirectional strong USP verification algorithm that using the 3D matching insta
 \end{algorithmic}
 \end{algorithm}
 
-\autoref{alg:bi} consists of two phases. Let $t = \lfloor s/2 \rfloor$. The
-first phase determines all possible sets $Q,R \sse P$ with $|Q| = |R|
-= t$ such that there is 3D matching $M_1$ of $H_P$ when restricted to
-the vertices $\set{p_1,p_2, \ldots, p_t} \sqcup Q \sqcup R$.  The sets
-$Q,R$ satisfying the requirement are stored in a table $T$ during the first
-phase on Line 6.  The second phase determines all possible sets $Q,R
-\sse P$ with $|Q| = |R| = s - t$ such that there is a 3D matching
-$M_2$ of $H_P$ when restricted to the vertices
-$\set{p_{t+1},p_{t+2},\ldots,p_s} \sqcup Q \sqcup R$.  For each pair
-$(Q,R)$ the algorithm determines in the second phase it checks whether
-$(P - Q, P - R)$ was inserted into $T$ during the first phase.  If the
-pair is present it means that there is a 3D matching of $H_P$ which is
-$M = M_1 \cup M_2$.  This works because $M_1$ and $M_2$ are partial 3D
-matchings and vertex disjoint.  This is because $M_1$ is a 3D matching
-on $\set{p_1,\ldots,p_t}$ and $M_2$ is a 3D matching on
-$\set{p_{t+1},\ldots p_s}$, and because in Line 9 of \autoref{alg:bi}
-the lookup is performed on the complementary sets.  The second phase
-returns whether a complete matching could be found, and hence by
-\autoref{lem:verify-to-3dm} whether $P$ is a strong USP.  (Note that
-the first phase always returns $false$.)
+\autoref{alg:bi} consists of two phases. Let $t = \lfloor s/2
+\rfloor$. The first phase determines all possible sets $Q,R \sse P$
+with $|Q| = |R| = t$ such that there is 3D matching $M_1$ of $H_P$
+when restricted to the vertices $\set{p_1,p_2, \ldots, p_t} \sqcup Q
+\sqcup R$.  The sets $Q,R$ satisfying the requirement are stored in a
+table $T$ during the first phase on Line 6.  The second phase
+determines all possible sets $Q,R \sse P$ with $|Q| = |R| = s - t$
+such that there is a 3D matching $M_2$ of $H_P$ when restricted to the
+vertices $\set{p_{t+1},p_{t+2},\ldots,p_s} \sqcup Q \sqcup R$.  For
+each pair $(Q,R)$ the algorithm determines in the second phase it
+checks whether $(P - Q, P - R)$ was inserted into $T$ during the first
+phase.  If the pair is present it means that there is a 3D matching of
+$H_P$ which is $M = M_1 \cup M_2$.  This works because $M_1$ and $M_2$
+are partial 3D matchings and vertex disjoint.  This is because $M_1$
+is a 3D matching on $\set{p_1,\ldots,p_t}$ and $M_2$ is a 3D matching
+on $\set{p_{t+1},\ldots p_s}$, and because in Line 9 of
+\autoref{alg:bi} the lookup is performed on the complementary sets.
+The second phase returns whether a complete matching could be found,
+and hence by \autoref{lem:verify-to-3dm} whether $P$ is a strong USP.
+(Note that the first phase always returns $false$.)
 
-The running time of this algorithm is dominated by the number of
-pairs of sets $(Q,R)$ it examines.  Observe that rows of $P$ are
-considered in order in Lines 14 \& 15.  Further, the algorithm tracks
-the index of last elements added to $Q$ and $R$ in $\ell_Q$ and
-$\ell_R$ respectively.  The algorithm only adds new elements to $Q$ or
-$R$ that have higher indexes than ones previously added.  Altogether
-this implies that each pair of sets $(Q,R)$ is only considered at most
-once during a phase.  Since $Q, R \sse P$, there are at most $2^s
-\cdot 2^s$ pairs $(Q,R)$.  This means that \textsc{SearchHalf} is
-called at most $4^s$ times during each phase.  Hence the running time
-of the algorithm is $O(4^s \cdot s^2 \cdot \poly(s) + T_{3DM}(s,k))$
-where $s^2$ factor comes from the inner loops and $T_{3DM}(s,k)$
-accounts for the time to construct $H_P$.  The memory requirements of
+The running time of this algorithm is dominated by the number of pairs
+of sets $(Q,R)$ it examines.  Observe that rows of $P$ are considered
+in order in Lines 14 \& 15.  Further, the algorithm tracks the index
+of last elements added to $Q$ and $R$ in $\ell_Q$ and $\ell_R$
+respectively.  The algorithm only adds new elements to $Q$ or $R$ that
+have higher indexes than ones previously added.  Altogether this
+implies that each pair of sets $(Q,R)$ is only considered at most once
+during a phase.  Since $Q, R \sse P$, there are at most $2^s \cdot
+2^s$ pairs $(Q,R)$.  This means that \textsc{SearchHalf} is called at
+most $4^s$ times during each phase.  Hence the running time of the
+algorithm is $O(4^s \cdot s^2 \cdot \poly(s) + T_{3DM}(s,k))$ where
+$s^2$ factor comes from the inner loops and $T_{3DM}(s,k)$ accounts
+for the time to construct $H_P$.  The memory requirements of
 \autoref{alg:bi} are similarly high -- the first phase uses $O(4^s
 \cdot s)$ to store $T$.
 
-Note that \autoref{alg:bi} does not early terminate on $P$ that are strong
-USP, because it must search through all pairs before determining that
-none can be found.  The algorithm could be modified to allow early
-termination when $P$ is not a strong USP by causing the second phase
-of search to immediately return in Line 17 once the first 3D matching
-witness has been located.  However, this still requires the first
-phase to run to completion.  A remedy for this would be to run both
-phases in parallel and have them check against each other.  This would
-substantially complicate the implementation, and not substantially
-improve the practical running time for puzzles that are strong USP.
+Note that \autoref{alg:bi} does not early terminate on $P$ that are
+strong USP, because it must search through all pairs before
+determining that none can be found.  The algorithm could be modified
+to allow early termination when $P$ is not a strong USP by causing the
+second phase of search to immediately return in Line 17 once the first
+3D matching witness has been located.  However, this still requires
+the first phase to run to completion.  A remedy for this would be to
+run both phases in parallel and have them check against each other.
+This would substantially complicate the implementation, and not
+substantially improve the practical running time for puzzles that are
+strong USP.
 
 In the implementation of \autoref{alg:bi} we represented the sets
 $Q,R$ using bit sets encoded into a single 64-bit long.  This
 permitted it to represent these sets for $s \le 32$.  We implemented
-$T$ using a hash table (\texttt{map}s from the C++ standard template library).
-These choices made the basic data structure operations in
+$T$ using a hash table (\texttt{map}s from the C++ standard template
+library).  These choices made the basic data structure operations in
 implementation effectively constant time, and have low memory overhead
 beyond the contents of $T$.
 
@@ -639,25 +645,28 @@ verification was possible.  We instead took a different approach.
 \subsection{3DM to 3SAT}
 \label{subsec:sat}
 
-By \autoref{lem:verify-to-3dm}, one can
-determine whether a puzzle $P$ is a strong USP by contructing a
-graph $H_P$ from $P$ and deciding whether it has a non-trivial 3D matching.  It well-known that 3D matching is \NP{}-complete, c.f., e.g., \cite{gj79}, and it can be efficiently reduced to
-other \NP{}-complete problems. Here we reduce our 3D
-matching problem to the
-CNF satisfability (SAT) problem and then use a state-of-the-art
-SAT solver (MapleCOMPSPS \cite{lgpc16}) to answer the reduced problem. To perform the
-reduction, we convert the graph $H_P$ that is obtained from the
-puzzle $P$ into a conjunctive normal form (CNF) formula, $\Psi_P$, a depth-2 formula that is the AND of ORs of Boolean literals.  We input the CNF
-formula $\Psi_P$ into a SAT solver to determine whether the formula is
-satisfiable.  We construct $\Psi_P$ so that \autoref{lem:verify-to-3dm} implies that $\Psi_P$
-is satisfiable iff $H_P$ has a non-trivial \emph{3D matching}.
+By \autoref{lem:verify-to-3dm}, one can determine whether a puzzle $P$
+is a strong USP by contructing a graph $H_P$ from $P$ and deciding
+whether it has a non-trivial 3D matching.  It well-known that 3D
+matching is \NP{}-complete, c.f., e.g., \cite{gj79}, and it can be
+efficiently reduced to other \NP{}-complete problems. Here we reduce
+our 3D matching problem to the CNF satisfability (SAT) problem and
+then use a state-of-the-art SAT solver (MapleCOMPSPS \cite{lgpc16}) to
+answer the reduced problem. To perform the reduction, we convert the
+graph $H_P$ that is obtained from the puzzle $P$ into a conjunctive
+normal form (CNF) formula, $\Psi_P$, a depth-2 formula that is the AND
+of ORs of Boolean literals.  We input the CNF formula $\Psi_P$ into a
+SAT solver to determine whether the formula is satisfiable.  We
+construct $\Psi_P$ so that \autoref{lem:verify-to-3dm} implies that
+$\Psi_P$ is satisfiable iff $H_P$ has a non-trivial \emph{3D
+  matching}.
 
 Let $H_P = \langle V, E \rangle$ be the 3D matching instance
 associated with the puzzle $P$.  Our goal is to construct a
 non-trivial 3D matching $M$ that is a subset of the edges of $E$ and
 is vertex disjoint.  We use $M_{u,v,w}$ to denote a variable with
-values in $\set{0,1}$ that indicates whether the edge $(u,v,w) \in P^3$
-is present in the matching.
+values in $\set{0,1}$ that indicates whether the edge $(u,v,w) \in
+P^3$ is present in the matching.
 
 We describe the clauses of the CNF formula $\Phi_P$ whose
 satisfiability captures the existence of a 3D matching in $H_P$.
@@ -667,8 +676,8 @@ First, we have clauses that prevents non-edges from being included:
 \end{equation}
 Note that, alternatively, we could just eliminate these variables by
 replacing them by constant false in the subsequent formula. Second, we
-add clauses that require that every vertex in $H_P$ is matched with some
-hyperedge:
+add clauses that require that every vertex in $H_P$ is matched with
+some hyperedge:
 \begin{equation}
   \Phi_P^{\ge 1} = 
   \left(\bigwedge_{u \in P}\vee_{v,w \in P} ~M_{u,v,w}\right)
@@ -678,14 +687,12 @@ hyperedge:
 Note that three types of clauses above account for the three disjoint
 copies of $P$ in the vertices of $H_P$.  Third, we require that each
 vertex can only be matched one a single hyperedge and so have clauses
-that exclude matching hyperedges that overlap non-trivially (on one or two
-coordinates):
+that exclude matching hyperedges that overlap non-trivially (on one or
+two coordinates):
 \begin{equation}
-  \Phi_P^{\le 1} =
-    \bigwedge_{(u,v,w), (u',v',w') \in P^3} (u = u' \vee v = v' \vee w = w') \wedge  (u,v,w \neq u',v',w') \Rightarrow \neg M_{u,v,w} \vee \neg M_{u',v',w'}.
-    %% &\left[\bigwedge_{u \in P} \bigwedge_{v, w \in P} \left(\bigwedge_{(v', w') \in P^2 \backslash \set{(v,w)}} \overline{M_{u,v,w}} \vee \overline{M_{u,v',w'}}\right)\right] \\
-    %% \wedge &\left[\bigwedge_{u \in P} \bigwedge_{v, w \in P} \left(\bigwedge_{(v', w') \in P^2 \backslash \set{(v,w)}} \overline{M_{u,v,w}} \vee \overline{M_{u,v',w'}}\right)\right] \\
-    %% \wedge &\left[\bigwedge_{u \in P} \bigwedge_{v, w \in P} \left(\bigwedge_{(v', w') \in P^2 \backslash \set{(v,w)}} \overline{M_{u,v,w}} \vee \overline{M_{u,v',w'}}\right)\right].
+  \Phi_P^{\le 1} = \bigwedge_{(u,v,w), (u',v',w') \in P^3} (u = u'
+  \vee v = v' \vee w = w') \wedge (u,v,w \neq u',v',w') \Rightarrow
+  \neg M_{u,v,w} \vee \neg M_{u',v',w'}.
 \end{equation}
 Fourth, we exclude the trivial 3D matching by requiring that at least
 one of diagonal hyperedges not be used:
@@ -694,7 +701,8 @@ one of diagonal hyperedges not be used:
 \end{equation}
 Finally, we AND these into the overall formula:
 \begin{equation}
-  \Phi_P = \Phi_P^{\text{non-edge}} \wedge \Phi_P^{\le 1} \wedge \Phi_P^{\ge 1} \wedge \Phi_P^{\text{non-trivial}}.
+  \Phi_P = \Phi_P^{\text{non-edge}} \wedge \Phi_P^{\le 1} \wedge
+  \Phi_P^{\ge 1} \wedge \Phi_P^{\text{non-trivial}}.
 \end{equation}
 The size of the CNF formula $\Phi_P$ dominated by the size of
 $\Phi_P^{\le 1}$ which is $\Theta(s^5)$ size.  This is relatively
@@ -714,7 +722,8 @@ We can concisely rewrite our CNF formula for 3D matching using these
 new variables.  First, we have clauses that prevents non-edges from
 being in the matching:
 \begin{equation}
-  \Psi_P^{\text{non-edge}} = \bigwedge_{(u,v,w) \in \overline{E}} (\neg M_{u,v}^1 \vee \neg M_{u,w}^2).
+  \Psi_P^{\text{non-edge}} = \bigwedge_{(u,v,w) \in \overline{E}}
+  (\neg M_{u,v}^1 \vee \neg M_{u,w}^2).
 \end{equation}
 Next, we add clauses require that every vertex in $H_P$ is matched with some
 hyperedge:
@@ -729,23 +738,27 @@ of $H_P$ is considered in both sets of variables.
 
 Third, we require that each vertex can only be matched one a single
 hyperedge and so have clauses that exclude matching hyperedges that
-overlap non-trivially (on one or two coordinates).  
+overlap non-trivially (on one or two coordinates).
 \begin{equation}
-  \Psi_P^{\le 1} =
-    \bigwedge_{i \in \set{1,2}} \bigwedge_{(u,v), (u',v') \in P^2} (u = u' \vee v = v') \wedge (u,v \neq u',v') \Rightarrow \neg M_{u,v}^i \vee \neg M_{u',v'}^i.
+  \Psi_P^{\le 1} = \bigwedge_{i \in \set{1,2}} \bigwedge_{(u,v),
+    (u',v') \in P^2} (u = u' \vee v = v') \wedge (u,v \neq u',v')
+  \Rightarrow \neg M_{u,v}^i \vee \neg M_{u',v'}^i.
 \end{equation}
 Observe that $\Psi_P^{\le 1}$ has size $\Theta(s^3)$ compared to the
 size of the original $\Phi_P^{\le 1}$ that had size $\Theta(s^5)$.
 Fourth, we exclude the trivial 3D matching by requiring that at least
 one of diagonal hyperedges not be used:
 \begin{equation}
-  \Psi_P^{\text{non-trivial}} = \bigvee_{u \in P} \neg M_{u,u}^1 \vee \neg M_{u,u}^2.
+  \Psi_P^{\text{non-trivial}} = \bigvee_{u \in P} \neg M_{u,u}^1 \vee
+  \neg M_{u,u}^2.
 \end{equation}
 Finally, we AND these into the overall formula:
 \begin{equation}
-  \Psi_P = \Psi_P^{\text{non-edge}} \wedge \Psi_P^{\le 1} \wedge \Psi_P^{\ge 1} \wedge \Psi_P^{\text{non-trivial}}.
+  \Psi_P = \Psi_P^{\text{non-edge}} \wedge \Psi_P^{\le 1} \wedge
+  \Psi_P^{\ge 1} \wedge \Psi_P^{\text{non-trivial}}.
 \end{equation}
-The size of the CNF formula $\Psi_P$ is $\Theta(s^3)$, a polynomial improvement over $\Phi_P$.  
+The size of the CNF formula $\Psi_P$ is $\Theta(s^3)$, a polynomial
+improvement over $\Phi_P$.
 
 Thus we reduce 3D matching to satisfiability by converting the
 instance $H_P$ into the CNF formula $\Psi_P$.  At this point the
@@ -772,10 +785,11 @@ reduction is straightforward, but is included for completeness in
 
 As mentioned before, to implement Line 4 of \autoref{alg:sat} in
 practice we used the satisfiability solver MapleCOMPSPS, from the 2016
-international SAT competition \cite{bhj17,lgpc16}.  This solver is conflict driven and uses a learning rate
-branching heuristic to decide which variables are likely to lead to a
-conflict.  The solver provides no polynomial-time worse run time
-guarantees, but has had demonstratable success in practice.
+international SAT competition \cite{bhj17,lgpc16}.  This solver is
+conflict driven and uses a learning rate branching heuristic to decide
+which variables are likely to lead to a conflict.  The solver provides
+no polynomial-time worse run time guarantees, but has had
+demonstratable success in practice.
 
 %% \begin{algorithm}
 %%   \caption{: Create CNF formula in a Solver (Part 1)}
@@ -911,12 +925,13 @@ Let $H_P = \langle V, E \rangle$ be the 3D matching instance
 associated with the puzzle $P$.  Our goal is to construct a
 non-trivial 3D matching $M$ that is a subset of the edges of $E$ and
 is vertex disjoint.  We use $M_{u,v,w}$ to denote a variable with
-values in $\set{0,1}$ that indicates whether the edge $(u,v,w) \in P^3$
-is present in the matching.
+values in $\set{0,1}$ that indicates whether the edge $(u,v,w) \in
+P^3$ is present in the matching.
 
 To ensure that $M$ is a subset of $E$ we require the following edge constraints
 \begin{equation}
-  \forall u,v,w \in P,~~M_{u,v,w} \le \begin{cases} 0, (u,v,w) \not\in E, and \\ 1, (u,v,w) \in E.\end{cases} \label{eqn:cons1}
+  \forall u,v,w \in P,~~M_{u,v,w} \le \begin{cases} 0, (u,v,w) \not\in
+    E, and \\ 1, (u,v,w) \in E.\end{cases} \label{eqn:cons1}
 \end{equation} We also require that each vertex in
 each of the three parts of the graph is incident to exactly one edge
 in $M$.  This is captured by the following vertex constraints:
@@ -935,7 +950,7 @@ add the constraint
   \sum_{u \in P} M_{u,u,u} < |P|.
 \end{equation}
 With these constraints in mind, \autoref{alg:mip} describes the
-overall reduction. 
+overall reduction.
 
 %% By this theory, \autoref{alg:mip} would first transfers input puzzle
 %% $P$ into a tripartite hypergraph $H_p$ and creates an empty mixed
@@ -1042,11 +1057,11 @@ from the previous subsections that eliminate dependence on $k$ for
 polynomial cost.  This heuristic can be made even more practical by
 caching the results for puzzles of size $s'$, reducing the
 verification time per iteration to constant in exchange for
-$O(\binom{3^k}{s'}T(s',k))$ time to precompute the values for all puzzles of
-size $s'$.  There is also space overhead because the precomputed
-results are being cached.  We also note that for a puzzle $P$ that is
-a strong USP, the heuristic takes $\Theta(s^3 T(3,k))$ time without
-cache or $\Theta(s^3)$ with caching.
+$O(\binom{3^k}{s'}T(s',k))$ time to precompute the values for all
+puzzles of size $s'$.  There is also space overhead because the
+precomputed results are being cached.  We also note that for a puzzle
+$P$ that is a strong USP, the heuristic takes $\Theta(s^3 T(3,k))$
+time without cache or $\Theta(s^3)$ with caching.
 
 Note that since our search algorithms typically start from a known
 strong USP and tries to add rows, looking a subsets of a puzzle that
@@ -1058,7 +1073,8 @@ the algorithm can return early, its expected running time on random
 non-strong USPs is low.  There appeared to be diminishing returns with
 increasing $s'$ as it substantially increases precompute time and
 storage while each stored value contributes relatively less benefit to
-verification as there are now many more values stored and are individually less likely to be examined.
+verification as there are now many more values stored and are
+individually less likely to be examined.
 
 %% \subsubsection{Random}
 
@@ -1082,16 +1098,17 @@ verification as there are now many more values stored and are individually less 
 
 This heuristic attempts to solve the 3D matching instance associated
 with verifying a puzzle $P$ (discussed in \autoref{sec:3DM}).  The
-heuristic proceeds iteratively, determining the vertex (of the first part) of the 3DM
-instance with the least edges and randomly selecting a hyperedge of that vertex to put into the 3DM.  If the heuristic successfully contructs a
-3DM it returns NO indicating that the input puzzle $P$ is not a strong
-USP.  If the heuristic reaches point were prior commits have made the
-matching infeasible, the heuristic starts again from scratch.  This
-process is repeated some number of times before it gives up and
-returns MAYBE.  In our practical implementation we use $s^3$
-iterations because the time balances well with the other heuristics
-and empricially reduced the number of instances requiring a full
-verification.
+heuristic proceeds iteratively, determining the vertex (of the first
+part) of the 3DM instance with the least edges and randomly selecting
+a hyperedge of that vertex to put into the 3DM.  If the heuristic
+successfully contructs a 3DM it returns NO indicating that the input
+puzzle $P$ is not a strong USP.  If the heuristic reaches point were
+prior commits have made the matching infeasible, the heuristic starts
+again from scratch.  This process is repeated some number of times
+before it gives up and returns MAYBE.  In our practical implementation
+we use $s^3$ iterations because the time balances well with the other
+heuristics and empricially reduced the number of instances requiring a
+full verification.
 
 \begin{algorithm}
   \caption{: (Random) Greedy Heuristic}
@@ -1130,54 +1147,50 @@ verification.
 \end{algorithmic}
 \end{algorithm}
 
-The array $cts$ is used to store the number of edges $cts[u]$
-that remain associated with vertex $u$ along the first coordinate.
-Much of the algorithm is devoted to maintaining this invariant.  The
-sets $U,V,W$ store the vertices along the three coordinates,
-respectively, that have already been incorporated into the partial 3D
-matching.  Like in \autoref{alg:bi} we do not store the
-matching itself, only the vertices involved.  The break at Line 10
-triggers when the partial 3D matching is a dead end and cannot be
-extended into a full 3D matching.  The condition of Line 21 is true
-when a full 3D matching has been constructed and causes the algorithm
-to return that $P$ is not a strong USP.
+The array $cts$ is used to store the number of edges $cts[u]$ that
+remain associated with vertex $u$ along the first coordinate.  Much of
+the algorithm is devoted to maintaining this invariant.  The sets
+$U,V,W$ store the vertices along the three coordinates, respectively,
+that have already been incorporated into the partial 3D matching.
+Like in \autoref{alg:bi} we do not store the matching itself, only the
+vertices involved.  The break at Line 10 triggers when the partial 3D
+matching is a dead end and cannot be extended into a full 3D matching.
+The condition of Line 21 is true when a full 3D matching has been
+constructed and causes the algorithm to return that $P$ is not a
+strong USP.
 
 The running time of this algorithm is $O(s^3 t + T_{3DM}(s,k))$, where
-$T_{3DM}(s,k)$ is the time required to construct 3D matching
-instances from $(s,k)$-puzzles.  This algorithm has the potential to
-be considerably slower than the downward-closure heuristic, and in practice we set $t = s^3$.  However, the main loop can terminate early at Line 10
-when it fails to extend the 3D matching this permits the expected time
-to much less than the worst case.  For a puzzle $P$ that is a strong
-USP, the heuristic takes the full $\Omega(s^3 t + T_{3DM}(s,k))$ time.
+$T_{3DM}(s,k)$ is the time required to construct 3D matching instances
+from $(s,k)$-puzzles.  This algorithm has the potential to be
+considerably slower than the downward-closure heuristic, and in
+practice we set $t = s^3$.  However, the main loop can terminate early
+at Line 10 when it fails to extend the 3D matching this permits the
+expected time to much less than the worst case.  For a puzzle $P$ that
+is a strong USP, the heuristic takes the full $\Omega(s^3 t +
+T_{3DM}(s,k))$ time.
 
+%% \subsubsection{Graph Automorphism}
 
-\begin{comment}
+%% A strong uniquely-solvable puzzle must also be a uniquely-solvable
+%% puzzle.  Given a puzzle $P$ we can construct a graph $G_P$ such that
+%% $G_P$ is rigid iff $P$ is a uniquely-solvable puzzle.
 
+%% XXX - I don't think this idea worked out.  The code correctly
+%% implemented the approach, but the approach was flawed.  Probably
+%% remove this section or add to future work.
 
-\subsubsection{Graph Automorphism}
-
-A strong uniquely-solvable puzzle must also be a uniquely-solvable
-puzzle.  Given a puzzle $P$ we can construct a graph $G_P$ such that
-$G_P$ is rigid iff $P$ is a uniquely-solvable puzzle.
-
-XXX - I don't think this idea worked out.  The code correctly
-implemented the approach, but the approach was flawed.  Probably
-remove this section or add to future work.
-
-XXXX - I don't remember the argument either way...
-
-\end{comment}
+%% XXXX - I don't remember the argument either way...
 
 \subsubsection{2D Matching}
 
 The final heuristic we present is one-sided in the opposite direction
 of the others, it may return YES or MAYBE.  In order for a hypergraph
-$H_P$ to have a 3D
-matching it must be the case that when any one of the three parts of
-vertices of $H_P$ is projected away the resulting bipartite graph has a
-perfect matching.  Thus we can witness that there is no 3D matching by
-determining that one of three projected bipartite graphs $H_P|_1, H_P|_2,
-H_P|_3$ does not have a perfect matching.
+$H_P$ to have a 3D matching it must be the case that when any one of
+the three parts of vertices of $H_P$ is projected away the resulting
+bipartite graph has a perfect matching.  Thus we can witness that
+there is no 3D matching by determining that one of three projected
+bipartite graphs $H_P|_1, H_P|_2, H_P|_3$ does not have a perfect
+matching.
 
 \begin{algorithm}
   \caption{: 2D Matching Heuristic}
@@ -1209,27 +1222,28 @@ $T_{3DM}(s,k)$ is the time required to construct 3D matching instances
 from $(s,k)$-puzzles.
 
 In practice we found this heuristic not to be effective because the
-projected $H_P|_i$ are typically dense graphs even if $H_P$ is not, and so
-they are likely to have perfect matchings independently of whether $H_P$
-has a 3D matching.
+projected $H_P|_i$ are typically dense graphs even if $H_P$ is not,
+and so they are likely to have perfect matchings independently of
+whether $H_P$ has a 3D matching.
 
 
 
 \subsection{Hybrid Algorithm}
 
-Our final verification algorithm (\autoref{alg:hybrid}) is a hybrid of several verification
-algorithms and heuristics.  The size thresholds for which algorithm
-and heuristic to apply were determined experimentally for small $k$
-and were focused on the values were our strong USP search algorithms
-were tractable $k \le 6$ (or nearly tractable $k \le 8$).  We decided
-to run both the reduction to SAT and MIP in parallel because it was
-not clear which algorithm performed better.  Since verification halts
-when either algorithm completes the wasted effort is within a factor
-of two of what the better algorithm could have done alone.  We also
-chose to do this because we experimentally observed that there were
-many instances that one of the algorithms struggled with that the
-other did not.  We end up not using \textsc{Heuristic2DMatching}
-because it rarely produced definitive output.
+Our final verification algorithm (\autoref{alg:hybrid}) is a hybrid of
+several verification algorithms and heuristics.  The size thresholds
+for which algorithm and heuristic to apply were determined
+experimentally for small $k$ and were focused on the values were our
+strong USP search algorithms were tractable $k \le 6$ (or nearly
+tractable $k \le 8$).  We decided to run both the reduction to SAT and
+MIP in parallel because it was not clear which algorithm performed
+better.  Since verification halts when either algorithm completes the
+wasted effort is within a factor of two of what the better algorithm
+could have done alone.  We also chose to do this because we
+experimentally observed that there were many instances that one of the
+algorithms struggled with that the other did not.  We end up not using
+\textsc{Heuristic2DMatching} because it rarely produced definitive
+output.
 
 \begin{algorithm}
   \caption{: Hybrid Verification Algorithm}
@@ -1269,36 +1283,37 @@ sets of independent vectors: Start with an empty set $S$, and
 repeatedly add vectors to $S$ which are linearly independent of the
 vectors currently in $S$.  After this process completes $S$ is a
 largest set of linearly independent vectors.  This problem admits such
-a greedy algorithm because the family of sets of linearly independent vectors
-form a matroid.  The vector to be added each step can be computed
-efficiently by solving a linear system of equations for vectors in the
-null space of $S$.  Altogether this gives an efficient algorithm to
-compute a maximum set of independent vectors or, more generally, to
-complete a maximum set with some given subset $S'$.
+a greedy algorithm because the family of sets of linearly independent
+vectors form a matroid.  The vector to be added each step can be
+computed efficiently by solving a linear system of equations for
+vectors in the null space of $S$.  Altogether this gives an efficient
+algorithm to compute a maximum set of independent vectors or, more
+generally, to complete a maximum set with some given subset $S'$.
 
 Unfortunately this same approach does not work for generating maximum
 size strong USPs.  The set of strong USP do not form a matroid, rather
-they only form an independence system \cite{oxl06}.  In particular, the
-empty puzzle is a strong USP and the set of strong USPs are downward
-closed, so that if $P_2$ is a strong USP and $P_1 \subseteq P_2$, then
-$P_1$ is a strong USP.  The third and final property required to be a
-matroid, the augmentation property, requires that for every pair of
-strong USPs $P_1, P_2$ with $|P_1| \le |P_2|$ there is a row of $r \in
-P_2 \backslash P_1$ such that $P_1 \cup \set{r}$ is also a strong USP.
-A simple counterexample with the strong USPs $P_1 = \set{32}$ and $P_2
-= \set{12, 23}$ concludes that neither $P_1 \cup \set{12} = \set{12,
-  32}$ nor $P_1 \cup \set{23} = \set{23, 32}$ are strong USP, and
-hence the augmentation property does not hold.
+they only form an independence system \cite{oxl06}.  In particular,
+the empty puzzle is a strong USP and the set of strong USPs are
+downward closed, so that if $P_2$ is a strong USP and $P_1 \subseteq
+P_2$, then $P_1$ is a strong USP.  The third and final property
+required to be a matroid, the augmentation property, requires that for
+every pair of strong USPs $P_1, P_2$ with $|P_1| \le |P_2|$ there is a
+row of $r \in P_2 \backslash P_1$ such that $P_1 \cup \set{r}$ is also
+a strong USP.  A simple counterexample with the strong USPs $P_1 =
+\set{32}$ and $P_2 = \set{12, 23}$ concludes that neither $P_1 \cup
+\set{12} = \set{12, 32}$ nor $P_1 \cup \set{23} = \set{23, 32}$ are
+strong USP, and hence the augmentation property does not hold.
 
-One consequence is that na\"{i}ve greedy algorithms will not be effective
-for finding maximum size strong USPs.  Furthermore, we do not
-currently have a practical or efficient algorithm that can take a
+One consequence is that na\"{i}ve greedy algorithms will not be
+effective for finding maximum size strong USPs.  Furthermore, we do
+not currently have a practical or efficient algorithm that can take a
 strong USP $P$ and determine a single row, or set of rows, that can
-extend $P$ while maintaining that it is a strong USP. That said, we have had some success applying general purpose search
-techniques together with our practical verification algorithm to
-construct maximum size strong USPs for small $k$.  In particular, we
-implemented variants of depth-first search (DFS) and breadth-first
-search (BFS) in both desktop and HPC settings.
+extend $P$ while maintaining that it is a strong USP. That said, we
+have had some success applying general purpose search techniques
+together with our practical verification algorithm to construct
+maximum size strong USPs for small $k$.  In particular, we implemented
+variants of depth-first search (DFS) and breadth-first search (BFS) in
+both desktop and HPC settings.
 
 A width-$k$ puzzle has potentially $3^k$ distinct rows.  For $j \in
 [3^k]$ we use $r_j$ to denote the $j^{th}$ row in lexicographic order.
@@ -1400,15 +1415,15 @@ puzzles are already being stored in a queue.
 
 Our experimental results come in three flavors for small constant
 values of $k$: (i) constructive lower bounds on the maximum size of
-width-$k$ strong USP, (ii) exhaustive, non constructive, upper
-bounds on the maximum size of width-$k$ strong USP, and (iii)
-experimental run times comparing the various algorithms for verifying
-width-$k$ strong USP.  Here constructive means that specific concrete
-strong USPs are produced by our implementation that witness the bound.
-\textsc{BFS} and \textsc{DFS} when able to run to search the entire space to completion provide
-results of form (i) and (ii) and are tight.  When unable to run to
-completion \textsc{DFS} provides only result of form (i), and, as
-such, are not guaranteed to be tight.
+width-$k$ strong USP, (ii) exhaustive, non constructive, upper bounds
+on the maximum size of width-$k$ strong USP, and (iii) experimental
+run times comparing the various algorithms for verifying width-$k$
+strong USP.  Here constructive means that specific concrete strong
+USPs are produced by our implementation that witness the bound.
+\textsc{BFS} and \textsc{DFS} when able to run to search the entire
+space to completion provide results of form (i) and (ii) and are
+tight.  When unable to run to completion \textsc{DFS} provides only
+result of form (i), and, as such, are not guaranteed to be tight.
 
 \subsection{New Bounds on the Size of Strong USPs}
 \label{subsec:usps_found}
@@ -1499,7 +1514,8 @@ lower bounds could be continued with the lower bound from the next
 previous line.  The upper bounds of \cite{cksu05} follow from their
 Lemma 3.2 and the fact that the capacity of SUSP is bounded above by
 the capacity of USP.  Observe that our experiment derives tight bounds
-for all $k \le 5$ and improves the known lower bounds for $4 \le k \le 12$.
+for all $k \le 5$ and improves the known lower bounds for $4 \le k \le
+12$.
 \begin{table}
   \label{table:compare}
   \begin{center}
@@ -1572,12 +1588,12 @@ XXX - Tables / plots of data on search performance?
 \label{sec:conclusion}
 
 We initiated the first study of the verification strong USP and
-developed practical software for both verifying and searching for strong
-USP.  We give tight results on the maximum size of width-$k$ strong
-USP for $k \le 5$.  Although our results do not produce a new upper
-bound on the running time of matrix multiplication, they demonstrate
-there is promise in the uniquely solvable puzzle approach.  The
-immediate open question is: What are tight bounds on maximum size
+developed practical software for both verifying and searching for
+strong USP.  We give tight results on the maximum size of width-$k$
+strong USP for $k \le 5$.  Although our results do not produce a new
+upper bound on the running time of matrix multiplication, they
+demonstrate there is promise in the uniquely solvable puzzle approach.
+The immediate open question is: What are tight bounds on maximum size
 strong USP for $k \ge 6$ and do these bound lead to asymptotically
 faster algorithms for matrix multiplication?  The main bottleneck in
 our work is the size of the search space.  This leads to a number of
