@@ -1588,13 +1588,46 @@ improvement beyond that.
 \subsection{Algorithm Performance}
 \label{subsec:performance}
 
+We ran out algorithms and heuristics on a 2010 MacPro running Ubuntu
+16 with dual Xeon E5620 2.40 Ghz processors and 16 GB of
+RAM. \autoref{fig:perform} contains log plots that describe the
+performance of our algorithms: brute force, dynamic programming, SAT
+reduction, integer programming reduction, and the final hybrid
+algorithm on sets of 10000 random puzzles on a sweep through parameter
+space: width $k = 5 \ldots 10$ and height $s = 1 \ldots 30$.
 
+A few obvservations about these plots, the brute force and dynamic
+programming algorithms perform universally poorly except for very
+small height, say $s \le 8$, and their curves loosely match the
+$O(2^{2n})$ time bound we have.  The plots for the two reduction based
+algorithms (SAT and IP) behave similarly to each other.  They are
+slower than brute force and dynamic programming for small values of
+$s$, and their behavior for large $s$ is quite a bit faster.  We
+speculate the former is due to the reductions having larger overhead
+both in constructing the reduced instance and starting the third party
+tool.  We further observate that the SAT reduction handily beats the
+IP reduction for large height for $k = 5$, but as $k$ increases, the
+IP reduction becomes better.  The hybrid algorithm generally performs
+best or close to best.  Notice that it match the dynamic programming
+algorithm closely for small values of $s$ and then diverges when
+reduction algorithms are switched and the heuristics activated around
+$s = 10$.  Observe that the hybrid algorithm flatlines and is
+effectively constant time for large $s$---this also happens for $k =
+10$, though this domain is not included in the plot.  This is likely a
+consequence of how the density of strong USPs decays as height
+increases.  Random puzzles are likely to far from strong USPs, making
+it more likely that the heuristics filter them.
 
-XXX - Tables / plots of data on verify's performance.
+The short of it is that our hybrid algorithm performs reasonably well
+in practice, despite reductions through \NP{}-complete problems.  It
+is important to note that we tuned the parameters of the heuristics
+and algorithm choice in the hybrid algorithm to perform well for the
+size of puzzles where we were actively searching for larger strong
+USPs in particular: $k = 6, 7, 8$ and $s \ge 15$.  Different
+parameters may be appropriate for $k \ge 10$ and result in better
+performance curves.
 
-XXX - Hardware.
-
-XXX - Tables / plots of data on search performance?
+%XXX - Tables / plots of data on search performance? Nope, no time.
 
 \begin{figure}
   %\centering
@@ -1613,7 +1646,7 @@ XXX - Tables / plots of data on search performance?
         xtick pos=left,
         ymin=1e-7, ymax=1,
         legend pos=south east,
-        legend style={legend columns=2},
+        legend style={legend columns=2, nodes={scale=0.75, transform shape}},
         ymajorgrids=true,
         grid style=dashed,
         ymode=log,
@@ -1621,7 +1654,6 @@ XXX - Tables / plots of data on search performance?
         scale only axis,
         every axis plot/.append style={ultra thick},
       ]
-      
       \addplot[mark=*, mark repeat=3, red]
       coordinates {
 (1,0.000001)
@@ -1754,7 +1786,7 @@ XXX - Tables / plots of data on search performance?
         (0,0)
         (0,1)
       };
-      \legend{BF, DP, SAT, IP, Hybrid, SUSP \%}
+      \legend{BF, DP, SAT, IP, HYB, SUSP \%}
     \end{axis}
     \begin{axis}[
         scale only axis,
@@ -2017,7 +2049,7 @@ XXX - Tables / plots of data on search performance?
   \end{subfigure}
 
   \begin{subfigure}[t]{0.3\textwidth}
-    \vspace{2ex}
+    \vspace{1.5ex}
     \caption{Width 7 strong USP.}
   \begin{tikzpicture}
     \begin{axis}[
@@ -2230,7 +2262,7 @@ XXX - Tables / plots of data on search performance?
   \end{subfigure}%
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   \begin{subfigure}[t]{0.3\textwidth}
-    \vspace{2ex}
+    \vspace{1.5ex}
     \caption{Width 8 strong USP.}
   \begin{tikzpicture}
     \begin{axis}[
@@ -2438,7 +2470,7 @@ XXX - Tables / plots of data on search performance?
 
 
   \begin{subfigure}[t]{0.3\textwidth}
-    \vspace{2ex}
+    \vspace{1.5ex}
     \caption{Width 9 strong USP.}
   \begin{tikzpicture}
     \begin{axis}[
@@ -2651,7 +2683,7 @@ XXX - Tables / plots of data on search performance?
   \end{subfigure}%
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   \begin{subfigure}[t]{0.3\textwidth}
-    \vspace{2ex}
+    \vspace{1.5ex}
     \caption{Width 10 strong USP.}
   \begin{tikzpicture}
     \begin{axis}[
@@ -2856,10 +2888,15 @@ XXX - Tables / plots of data on search performance?
   \end{tikzpicture}
   \end{subfigure}
 
-  
-  \caption{Average running times for 10000 random puzzles of widths
+  \vspace{-2ex}
+  \caption{Log plots of the average running times for 10000 random puzzles of widths
     five to ten. Note that the legend in (a) applies to all six plots,
-    and that the axes are named only the edge of the page.}
+    and that the axes are named only the edge of the page.  Each plot
+    describes the behavior of five algorithms brute force (BF),
+    dynamic programming (DP), reduction to satisfiability (SAT),
+    reduction to integer programming (IP), and the hybrid algorithm
+    (HYB).  The final dashed line indicates the percentage of SUSP
+    found among the 10000 random puzzles.}
   \label{fig:perform}
 \end{figure}
   
@@ -2887,7 +2924,7 @@ space?  Is strong USP verification \NP-complete?
 
 \section{Acknowledgments}
 
-The second and third authors would like to that the Union College
+The second and third authors would like to the Union College
 Summer Research Fellowship for supporting their work.
 
 \bibliographystyle{customurlbst/alphaurlpp} \bibliography{references}
