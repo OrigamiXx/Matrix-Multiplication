@@ -34,11 +34,6 @@ Jonah Blasiak, Thomas Church, Henry Cohn, Joshua~A Grochow, and Chris Umans.
   multiplication?
 \newblock {\em arXiv preprint arXiv:1712.02302}, 2017.
 
-\bibitem[BCRL79]{bcrl79}
-Dario~Andrea Bini, Milvio Capovani, Francesco Romani, and Grazia Lotti.
-\newblock $O(N^2)$ complexity for $N$ by $N$ approximate matrix multiplication.
-\newblock {\em Information processing letters}, 8(5):234--235, 1979.
-
 \bibitem[BHJ17]{bhj17}
 Tomas Balyo, Marijn~JH Heule, and Matti Jarvisalo.
 \newblock SAT Competition 2016: Recent developments.
@@ -68,11 +63,6 @@ Henry Cohn and Christopher Umans.
   group-theoretic approach to fast matrix multiplication}.
 \newblock In {\em 44th Annual IEEE Symposium on Foundations of Computer Science
   (FOCS)}, pages 438--449, Oct 2003.
-
-\bibitem[CW82]{cw82}
-Don Coppersmith and Shmuel Winograd.
-\newblock On the asymptotic complexity of matrix multiplication.
-\newblock {\em SIAM Journal on Computing}, 11(3):472--492, 1982.
 
 \bibitem[CW90]{cw90}
 Don Coppersmith and Shmuel Winograd.
