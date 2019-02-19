@@ -14,7 +14,7 @@ Noga Alon, Amir Shpilka, and Christopher Umans.
 \newblock {\em Computational Complexity}, 22(2):219--243, 2013.
 
 \bibitem[AW18a]{avw18a}
-J.~{Alman} and V.~V. {Williams}.
+Josh Alman and Virginia~Vassilevska Williams.
 \newblock Further limitations of the known approaches for matrix
   multiplication.
 \newblock In {\em 9th {I}nnovations in {T}heoretical {C}omputer {S}cience
@@ -22,9 +22,9 @@ J.~{Alman} and V.~V. {Williams}.
   No. 25, 15. Schloss Dagstuhl. Leibniz-Zent. Inform., Wadern, 2018.
 
 \bibitem[AW18b]{avw18b}
-J.~{Alman} and V.~V. {Williams}.
-\newblock \href {http://dx.doi.org/10.1109/FOCS.2018.00061} {Limits on All
-  Known (and Some Unknown) Approaches to Matrix Multiplication}.
+Josh Alman and Virginia~Vassilevska Williams.
+\newblock \href {http://dx.doi.org/10.1109/FOCS.2018.00061} {Limits on all
+  known (and some unknown) approaches to matrix multiplication}.
 \newblock In {\em 59th Annual IEEE Symposium on Foundations of Computer Science
   (FOCS)}, pages 580--591, Oct 2018.
 
@@ -77,8 +77,8 @@ Alexander~Munro Davie and Andrew~James Stothers.
 
 \bibitem[GJ79]{gj79}
 Michael~R Garey and David~S Johnson.
-\newblock Computers and intractability: a guide to the theory of
-  NP-completeness.
+\newblock Computers and Intractability: A Guide to the Theory of
+  NP-Completeness.
 \newblock 1979.
 
 \bibitem[GO18]{gurobi}
@@ -107,11 +107,11 @@ Fran{\c{c}}ois Le~Gall.
 Jia~Hui Liang, Vijay Ganesh, Pascal Poupart, and Krzysztof Czarnecki.
 \newblock Learning rate based branching heuristic for SAT solvers.
 \newblock In {\em International Conference on Theory and Applications of
-  Satisfiability Testing}, pages 123--140. Springer, 2016.
+  Satisfiability Testing (SAT)}, pages 123--140. Springer, 2016.
 
 \bibitem[Oxl06]{oxl06}
 James~G Oxley.
-\newblock {\em Matroid theory}, volume~3.
+\newblock {\em Matroid Theory}, volume~3.
 \newblock Oxford University Press, USA, 2006.
 
 \bibitem[Pan78]{pan78}
