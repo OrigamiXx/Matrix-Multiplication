@@ -139,7 +139,7 @@ $\omega < 2.48$.
 We follow Cohn et al.'s program by: (i) developing \textbf{verification}
 algorithms to determine whether a puzzle is a strong USP, (ii) developing
 \textbf{search} algorithms to find large strong USP, and (iii) creating and
-runnning practical \textbf{implementations} of these algorithms.  The
+running practical \textbf{implementations} of these algorithms.  The
 algorithms we develop are not efficient as they run in worst-case exponential
 time in the natural parameters.  However, the goal is to find a
 sufficiently large strong USP that implies a faster matrix
@@ -177,7 +177,7 @@ generalized this barrier \cite{avw18a,avw18b} to a larger class of
 algorithmic techniques.  Despite this, we are unaware of a concrete
 lower bound on $\epsilon$ implied by these negative results.  There
 remains a substantial gap in our understanding between what has been
-acheived by the positive refinements of LeGall, Williams, and
+achieved by the positive refinements of LeGall, Williams, and
 Stothers, and the impossibility of showing $\omega = 2$ using the
 strong USP approach.
 
@@ -206,7 +206,7 @@ Cohn et al.~introduced the idea of a \emph{puzzle}.
 \end{definition}
 \noindent We say that an $(s,k)$-puzzle has $s$ rows and $k$ columns.  The
 columns are inherent ordered and indexed by $\ordset{k}$.  The rows
-are not inherently ordered, however, it is often convienent to assume
+are not inherently ordered, however, it is often convenient to assume
 that the rows are arbitrarily ordered and indexed by $\ordset{s}$.
 
 \cite{cksu05} also establish a particular combinatorial property of
@@ -439,7 +439,7 @@ puzzle $P$, and call it $f_P$.
 \label{sec:3DM}
 
 For verification it turns out to be more useful to work with $f_P$
-than with $P$.  It is convienent to think of $f_P$ from several
+than with $P$.  It is convenient to think of $f_P$ from several
 perspectives: (i) as a function $f_P : P \times P \times P \rightarrow
 \set{0, 1}$,
 %(ii) as an order-three tensor $f_p \in \set{0,1}^{P \times P \times P}$,
@@ -472,7 +472,7 @@ is directly tied to whether $P$ is a strong USP.
   vertex disjoint edges.  Similarly define $\pi_2(r) = q$ where
   $(r,*,q) \in M$.  Observe that by construction $M =
   \condset{(\pi_0(r),\pi_1(r),\pi_2(r))}{r \in P}$.  Since $M$ is a
-  matching of $H_P$, $M \sse \bar{f_P}$.  Because $M$ is a non-trival
+  matching of $H_P$, $M \sse \bar{f_P}$.  Because $M$ is a non-trivial
   matching at least one edge in $(a,b,c) \in M$ is has either $a \neq
   b$, $a \neq c$, or $b \neq c$.  This implies, respectively, that as
   constructed $\pi_0 \neq \pi_1$, $\pi_0 \neq \pi_2$, or $\pi_1 \neq
@@ -535,12 +535,12 @@ details of the algorithm to \autoref{app:bi}.
 \label{subsec:sat}
 
 By \autoref{lem:verify-to-3dm}, one can determine whether a puzzle $P$
-is a strong USP by contructing the graph $H_P$ and deciding whether it
+is a strong USP by constructing the graph $H_P$ and deciding whether it
 has a non-trivial 3D matching.
 %It well-known that 3D
 %matching is \NP{}-complete, c.f., e.g., \cite{gj79}.
 Here we reduce
-our 3D matching problem to the satisfability (SAT) problem on conjunctive normal form (CNF) formulas and
+our 3D matching problem to the satisfiability (SAT) problem on conjunctive normal form (CNF) formulas and
 then use a state-of-the-art SAT solver to
 resolve the reduced problem. To perform the reduction, we convert the
 graph $H_P$
@@ -661,7 +661,7 @@ International SAT Competition \cite{bhj17}.  This solver is
 conflict driven and uses a learning rate branching heuristic to decide
 which variables are likely to lead to conflict.  The solver provides
 no polynomial time guarantees, but has had
-demonstratable success in practice \cite{lgpc16}.
+demonstrable success in practice \cite{lgpc16}.
 
 \subsection{3D Matching to Integer Programming}
 
@@ -724,7 +724,7 @@ To check whether $P$ is a strong USP we determine whether $Q_P$ is not feasible,
 %integer program is checked for feasibility,
 i.e., that no
 assignment to the variables $M$ satisfy all constraints.  In
-practice this computation is done using the commerical, closed-source, mixed-integer
+practice this computation is done using the commercial, closed-source, mixed-integer
 programming solver Gurobi \cite{gurobi}.
 %% Gurobi is a commerical, closed-source solver, so we cannot
 %% verify its assertion that the integer program is infeasible.  On
@@ -755,7 +755,7 @@ in that their output range contains only one of YES or NO.
 %% exact algorithms that were discussed in the previous section.
 Most of the heuristics we consider are deterministic, but a few are
 randomized.  All heuristics we consider are Las Vegas algorithms: An
-output of YES or NO is always correct, but as function of algorthmic
+output of YES or NO is always correct, but as function of algorithmic
 randomness MAYBE can be output and can vary between independent runs.
 The heuristics have different forms, but all rely on structural
 properties of strong USP.  Here we briefly discuss the two most
@@ -832,12 +832,12 @@ This heuristic attempts to greedily solve the 3D matching instance
 $H_P$.  The heuristic proceeds iteratively, determining the vertex of
 the first part of the 3D matching instance with the least edges and randomly
 selecting a hyperedge of that vertex to put into the 3D matching.  If the
-heuristic successfully contructs a 3D matching it returns NO indicating that
+heuristic successfully constructs a 3D matching it returns NO indicating that
 the input puzzle $P$ is not a strong USP.  If the heuristic reaches a
 point were prior commitments have made the matching infeasible, the
 heuristic starts again from scratch.  This process is repeated some
 number of times before it gives up and returns MAYBE.  In our
-implementation we use $s^3$ attempts because it empricially reduced
+implementation we use $s^3$ attempts because it empirically reduced
 the number of instances requiring full verification in the domain of
 puzzles with $k = 6, 7, 8$ while not increasing the running time by
 too much.  We defer the details of this heuristic to
@@ -910,7 +910,7 @@ elimination), and we have a practical implementation for deciding whether a
 puzzle is a strong USP.
 
 There is a straightforward greedy algorithm for constructing
-maxmimum-size sets of independent vectors: Start with an empty set
+maximum-size sets of independent vectors: Start with an empty set
 $S$, and repeatedly add vectors to $S$ that are linearly independent
 of $S$.  After this process completes $S$ is a largest set of linearly
 independent vectors.  This problem admits such a greedy algorithm
@@ -1059,7 +1059,7 @@ results of form (i), and are not guaranteed to be tight.
   \end{tabular}
   \end{multicols}
   \vspace{-3ex}
-  \caption{Respresentative examples of maximum-size strong USP found for width $k = 1$ to $6$.}
+  \caption{Representative examples of maximum-size strong USP found for width $k = 1$ to $6$.}
   \label{fig:examples}
 \end{figure}
 
@@ -1118,10 +1118,10 @@ compute time we have thrown at it over the years.
 We do
 not have any strong beliefs about the lower bounds for larger values
 of $k$ except that they are likely not tight.  Furthermore, it is
-appearant that exhaustive search is not practical for $k \ge 6$
+apparent that exhaustive search is not practical for $k \ge 6$
 unless the search space can be substantially reduced.
 
-The column labelled $\omega^*$ in \autoref{table:compare} denotes the
+The column labeled $\omega^*$ in \autoref{table:compare} denotes the
 upper bound on $\omega$ the strong USP imply when taking the direct
 product of the puzzle with itself finitely mainly times, and then
 applying \autoref{lem:omega}.
@@ -1160,7 +1160,7 @@ it coincides with the frontier of our search space, and we tuned the
 parameters of the heuristics and algorithm choice in the hybrid
 algorithm to perform well in this domain.
 
-A few obvservations about these plots, the brute force and dynamic
+A few observations about these plots, the brute force and dynamic
 programming algorithms perform universally poorly except for very
 small height, say $s \le 8$, and their curves loosely match the
 $O(2^{2n})$ time bound we have.  The plots for the two reduction based
@@ -1174,7 +1174,7 @@ on large height for $k = 5$, but as $k$ increases, the IP reduction
 becomes faster.  We also note that across the six plot the IP
 reduction has effectively the same running time, and is independent of
 $k$.  The hybrid algorithm generally performs best or close
-to best.  Notice that it matchs the dynamic programming algorithm
+to best.  Notice that it matches the dynamic programming algorithm
 closely for small values of $s$ and then diverges when reduction
 algorithms and heuristics are activated around $s = 10$.  Observe that
 the hybrid algorithm flatlines and is effectively constant time for
@@ -1329,7 +1329,7 @@ implementation effectively constant time, and have low memory overhead
 beyond the contents of $T$.
 
 Note that more advanced techniques like those of Bj\"{o}rklund et
-al.~can acheive a better asymptotic time of $O(2^s\poly(s))$
+al.~can achieve a better asymptotic time of $O(2^s\poly(s))$
 \cite{bhkk17}.  We chose not to implement their algorithm, because we
 judged that it would not substantially increase the domain of which
 verification was possible.  
