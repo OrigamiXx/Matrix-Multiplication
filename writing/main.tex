@@ -749,78 +749,67 @@ constraints and $s^3$ variables in $Q_P$, similar to size of $\Psi_P$ in the SAT
 \subsection{Heuristics}
 \label{sec:heuristic}
 
-Despite our efforts devise an exact algorithm for verifying strong
-USPs, the performance of the final algorithm was not practical.  To
-speed the algorithm up we considered a number of verification
-heuristics that were fast to evaluate, but did not alway produce a
-definitive answer.  The heuristics output YES, NO, or MAYBE to whether
-a given puzzle $P$ was a strong USP.  We consider only Las Vegas
-algorithms here, i.e., algorithms whose output of YES or NO is
-always correct.  Further, all the heuristics we consider are one-sided
-in that they for all input they either return YES or MAYBE, or NO or
-MAYBE.  To verify a puzzle $P$ we run a battery of fast heuristics and
-return early if any of the heuristics produce a definitive YES or NO.
-When all the heuristics result in MAYBE then run one of the slower
-exact algorithms that were discussed in the previous section.  Most of
-the heuristics we considered were deterministic, but a few were
-randomized.  This is again in the Las Vegas sense: An output of YES or
-NO is always correct, but as function of the input and internal
-algorthmic randomness MAYBE can be also be output and can vary between
-independent runs.  The heuristics have several different forms, but
-all rely ultimately on structural properties of strong USP.  Here we
-briefly discuss the two most effective heuristics, downward closure
-and greedy, and defer a third unsuccessful heuristic, a projection to
-2D matching, to \autoref{app:2dmatching}.
+Despite our efforts devise fast exact algorithms for verification,
+their performance is not yet practical.  We also consider a number of
+fast verification heuristics that produce a non-definitive answer:
+YES, NO, or MAYBE.  All heuristics we discuss are one-sided
+in that their output range contains only one of YES or NO.
+%% To verify a puzzle $P$ we run a battery of fast heuristics and
+%% return early if any of the heuristics produce a definitive YES or NO.
+%% When all the heuristics result in MAYBE then run one of the slower
+%% exact algorithms that were discussed in the previous section.
+Most of the heuristics we consider are deterministic, but a few are
+randomized.  All heuristics we consider are Las Vegas algorithms: An
+output of YES or NO is always correct, but as function of algorthmic
+randomness MAYBE can be output and can vary between independent runs.
+The heuristics have different forms, but all rely on structural
+properties of strong USP.  Here we briefly discuss the two most
+effective heuristics, downward closure and greedy; defer a third
+ineffective heuristic, a projection to 2D matching, to
+\autoref{app:2dmatching}; and we defer a few less effective heuristics to
+the full version of this article.
 
 \subsubsection{Downward Closed}
 
-The simplest heuristics we considered were based on the fact that
+The simplest heuristics we consider is based on the fact that
 strong USP are downward closed, i.e., if $P$ is a strong USP, then
-so is every subpuzzle $P' \sse P$.  This leads to a practical heuristic
+so is every subpuzzle $P' \sse P$.  This leads to a polynomial-time heuristic
 that can determine that a puzzle is not a strong USP.
 
-\begin{algorithm}[t]
-  \caption{: Downward-closed Heuristic}
-  \label{alg:downward-closed}
-\begin{algorithmic}[1]
-  \Require{An $(s,k)$-puzzle $P$, and size $s' \le s$.}
-  \Ensure{NO, if $P$ has a set of $s'$ rows that do not form a strong USP, and MAYBE otherwise.}
-  \Function{HeuristicDownwardClosed}{$P, s'$}
-  \For{$P' \sse P, |P'| = s'$}
-      \If{$P'$ is not a strong USP} \Return{NO.} \EndIf
-  \EndFor{}
-  \State{\Return{MAYBE}.}
-  \EndFunction
-\end{algorithmic}
-\end{algorithm}
-
-This algorithm runs in time $O(\binom{s}{s'} T_{Verify}(s', k))$ where
-$T_{Verify}(s',k)$ is the running time for exactly verifying a
-$(s',k)$-puzzle.  In practice we did not apply this heuristic for $s'$
-larger than $3$, so the effective running time was $O(s^3 T(3,k))$,
-which is polynomial in $s$ and $k$ using the verification algorithms
-from the previous subsections that eliminate dependence on $k$ for
-polynomial cost.  This heuristic can be made even more practical by
-caching the results for puzzles of size $s'$, reducing the
-verification time per iteration to constant in exchange for
-$O(\binom{3^k}{s'}T(s',k))$ time to precompute the values for all
-puzzles of size $s'$.  There is also space overhead because the
-precomputed results are being cached.  We also note that for a puzzle
-$P$ that is a strong USP, the heuristic takes $\Theta(s^3 T(3,k))$
-time without cache or $\Theta(s^3)$ with caching.
-
-Note that since our search algorithms typically start from a known
-strong USP and tries to add rows, looking a subsets of a puzzle that
-have already been verified is wasteful, and can be skipped over in
-this setting.  From a practical point of view, running this heuristic
-is free for small constant $s'$, as the exact verification algorithms
-have a matching or higher polynomial running time.  Furthermore, since
-the algorithm can return early, its expected running time on random
-non-strong USPs is low.  There appeared to be diminishing returns with
-increasing $s'$ as it substantially increases precompute time and
-storage while each stored value contributes relatively less benefit to
-verification as there are now many more values stored and are
-individually less likely to be examined.
+Informally, the algorithm takes an $(s,k)$-puzzle $P$ and an $s' \le
+s$, and checks that all subsets $P' \subseteq P$ with size $|P'| = s$
+are strong USP.  For completeness this algorithm is described in
+\autoref{app:down}.  This algorithm runs in time $O(\binom{s}{s'}\cdot
+T(s', k))$ where $T(s',k)$ is the runtime for
+verifying an $(s',k)$-puzzle.  In practice we did not apply this
+heuristic for $s'$ larger than $3$, so the effective running time was
+$O(s^3 \cdot T(3,k))$, which is polynomial in $s$ and $k$ using the
+verification algorithms from the previous subsections that eliminate
+dependence on $k$ for polynomial cost.  This heuristic can be made
+even more practical by caching the results for puzzles of size $s'$,
+reducing the verification time per iteration to constant in exchange
+for $O(\binom{3^k}{s'}\cdot T(s',k))$ time and $O(\binom{3^k}{s'})$ space to precompute the values for all
+puzzles of size $s'$.
+%There is also space overhead because the
+%precomputed results are being cached.
+%% We also note that for a puzzle
+%% $P$ that is a strong USP, the heuristic takes $\Theta(s^3 T(3,k))$
+%% time without cache or $\Theta(s^3)$ with caching.
+%% Note that since our search algorithms typically start from a known
+%% strong USP and tries to add rows, looking a subsets of a puzzle that
+%% have already been verified is wasteful, and can be skipped over in
+%% this setting.
+From a practical point of view, running this heuristic
+is free for small constant $s' \le 3$, as even the reductions in the exact verification algorithms
+have a matching or higher polynomial running time.
+%% Furthermore, since
+%% the algorithm can return early, its expected running time on random
+%% non-strong USPs is low.
+%% There appeared to be diminishing returns with
+%% increasing $s'$ as it substantially increases precompute time and
+%% storage while each stored value contributes relatively less benefit to
+%% verification as there are now many more values stored and are
+%% individually less likely to be examined.
 
 %% \subsubsection{Random}
 
@@ -842,20 +831,20 @@ individually less likely to be examined.
 
 \subsubsection{Greedy}
 
-This heuristic attempts to solve the 3D matching instance associated
-with verifying a puzzle $P$ (discussed in \autoref{sec:3DM}).  The
-heuristic proceeds iteratively, determining the vertex (of the first
-part) of the 3DM instance with the least edges and randomly selecting
-a hyperedge of that vertex to put into the 3DM.  If the heuristic
-successfully contructs a 3DM it returns NO indicating that the input
-puzzle $P$ is not a strong USP.  If the heuristic reaches point were
-prior commits have made the matching infeasible, the heuristic starts
-again from scratch.  This process is repeated some number of times
-before it gives up and returns MAYBE.  In our practical implementation
-we use $s^3$ iterations because the time balances well with the other
-heuristics and empricially reduced the number of instances requiring a
-full verification.  For space we defer the details of this heuristic
-to \autoref{app:greedy}.
+This heuristic attempts to greedily solve the 3D matching instance
+$H_P$.  The heuristic proceeds iteratively, determining the vertex of
+the first part of the 3DM instance with the least edges and randomly
+selecting a hyperedge of that vertex to put into the 3DM.  If the
+heuristic successfully contructs a 3DM it returns NO indicating that
+the input puzzle $P$ is not a strong USP.  If the heuristic reaches
+point were prior commitments have made the matching infeasible, the
+heuristic starts again from scratch.  This process is repeated some
+number of times before it gives up and returns MAYBE.  In our
+implementation we use $s^3$ attempts because it empricially reduced
+the number of instances requiring full verification in the domain of
+puzzles with $k = 6, 7, 8$ while not increasing the running time by
+too much.  For space we defer the details of this heuristic to
+\autoref{app:greedy}.
 
 
 
@@ -875,19 +864,20 @@ to \autoref{app:greedy}.
 \subsection{Hybrid Algorithm}
 
 Our final verification algorithm (\autoref{alg:hybrid}) is a hybrid of
-several verification algorithms and heuristics.  The size thresholds
+several exact algorithms and heuristics.  The size thresholds
 for which algorithm and heuristic to apply were determined
 experimentally for small $k$ and were focused on the values were our
 strong USP search algorithms were tractable $k \le 6$ (or nearly
 tractable $k \le 8$).  We decided to run both the reduction to SAT and
 IP in parallel because it was not clear which algorithm performed
-better.  Since verification halts when either algorithm completes the
+better.  Since verification halts when either algorithm completes, the
 wasted effort is within a factor of two of what the better algorithm
 could have done alone.  We also chose to do this because we
 experimentally observed that there were many instances that one of the
-algorithms struggled with that the other did not.  We end up not using
-\textsc{Heuristic2DMatching} because it rarely produced definitive
-output.
+algorithms struggled with that the other did not.
+%% We end up not using
+%% \textsc{Heuristic2DMatching} because it rarely produced definitive
+%% output.
 
 \begin{algorithm}[t]
   \caption{: Hybrid Verification Algorithm}
@@ -1402,6 +1392,25 @@ verification was possible.
   \Else
   \State{\Return{YES}.}
   \EndIf
+  \EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+\section{Downward Closed Heuristic}
+
+\label{app:down}
+
+\begin{algorithm}[t]
+  \caption{: Downward-closed Heuristic}
+  \label{alg:downward-closed}
+\begin{algorithmic}[1]
+  \Require{An $(s,k)$-puzzle $P$, and size $s' \le s$.}
+  \Ensure{NO, if $P$ has a set of $s'$ rows that do not form a strong USP, and MAYBE otherwise.}
+  \Function{HeuristicDownwardClosed}{$P, s'$}
+  \For{$P' \sse P, |P'| = s'$}
+      \If{$P'$ is not a strong USP} \Return{NO.} \EndIf
+  \EndFor{}
+  \State{\Return{MAYBE}.}
   \EndFunction
 \end{algorithmic}
 \end{algorithm}
