@@ -769,8 +769,9 @@ ineffective heuristic, a projection to 2D matching, to
 \autoref{app:2dmatching}; and we defer a few less effective heuristics to
 the full version of this article.
 
-\subsubsection{Downward Closed}
-
+\vspace{-2ex}
+%\subsubsection{Downward Closed}
+\paragraph{Downward Closed.}
 The simplest heuristics we consider is based on the fact that
 strong USP are downward closed, i.e., if $P$ is a strong USP, then
 so is every subpuzzle $P' \sse P$.  This leads to a polynomial-time heuristic
@@ -829,8 +830,9 @@ have a matching or higher polynomial running time.
 %% \end{algorithmic}
 %% \end{algorithm}
 
-\subsubsection{Greedy}
-
+\vspace{-2ex}
+%\subsubsection{Greedy}
+\paragraph{Greedy.}
 This heuristic attempts to greedily solve the 3D matching instance
 $H_P$.  The heuristic proceeds iteratively, determining the vertex of
 the first part of the 3DM instance with the least edges and randomly
@@ -978,17 +980,18 @@ queue.
 \section{Experimental Results}
 \label{sec:results}
 
-Our experimental results come in three flavors for small constant
-values of $k$: (i) constructive lower bounds on the maximum size of
-width-$k$ strong USP, (ii) exhaustive, non constructive, upper bounds
-on the maximum size of width-$k$ strong USP, and (iii) experimental
-run times comparing the various algorithms for verifying width-$k$
-strong USP.  Here constructive means that specific concrete strong
-USPs are produced by our implementation that witness the bound.
-\textsc{BFS} and \textsc{DFS} when able to run to search the entire
-space to completion provide results of form (i) and (ii) and are
-tight.  When unable to run to completion \textsc{DFS} provides only
-result of form (i), and, as such, are not guaranteed to be tight.
+Our experimental results come in three flavors for small-constant
+width $k$: (i) constructive lower bounds on the maximum size of
+width-$k$ strong USP witnessed by found puzzles, (ii) exhaustive upper
+bounds on the maximum size of width-$k$ strong USP, and (iii)
+experimental run times comparing the algorithms for verifying
+width-$k$ strong USP.
+%Here constructive means that specific concrete strong
+%USPs are produced by our implementation that witness the bound.
+\textsc{BFS} and \textsc{DFS} when run to completion search the entire
+space and provide bounds of form (i) and (ii) and are
+tight.  When unable to run to completion they provide only
+result of form (i), and are not guaranteed to be tight.
 
 \subsection{New Bounds on the Size of Strong USPs}
 \label{subsec:usps_found}
@@ -996,7 +999,7 @@ result of form (i), and, as such, are not guaranteed to be tight.
 
 
 \begin{figure}
-
+  \vspace{-5ex}
   \begin{multicols}{4}
   (1,1):\\[.5ex]
   \begin{tabular}{|c|}
@@ -1061,18 +1064,17 @@ result of form (i), and, as such, are not guaranteed to be tight.
     2&2&3&2&2&3 \\\hline
   \end{tabular}
   \end{multicols}
-  \caption{Respresentative examples of the largest strong uniquely
-    solvable $(s,k)$-puzzles found from width $k = 1$ to $6$.}
+  \vspace{-3ex}
+  \caption{Respresentative examples of maximum-size strong USP found from width $k = 1$ to $6$.}
   \label{fig:examples}
 \end{figure}
 
 We begin with a diagram, \autoref{fig:examples}, of representative
-examples of maximal strong USPs we found for $k \le 6$.  For space
-considerations, we omit larger examples found from this article,
-though they are included with the source code of this project.
-
+examples of maximal strong USP we found for $k \le 6$.  For space, we
+defer larger examples to the full version of this article.
+%though they are included with the source code of this project.
 \autoref{table:compare} summarizes our main results which are improved
-bounds on the maximum size of strong uniquely solvable puzzles for
+bounds on the maximum size of strong USP for
 small widths $k$, and compares them to bounds from \cite{cksu05}.  The
 lower bounds of \cite{cksu05} are from constructions in their
 Propositions 3.1 and 3.8, which give families for $k$ even or $k$
@@ -1080,11 +1082,11 @@ divisible by three.  Note that because the SUSP property is preserved
 when extending with an arbitrary column, the lines that are missing
 lower bounds could be continued with the lower bound from the next
 previous line.  The upper bounds of \cite{cksu05} follow from their
-Lemma 3.2 and the fact that the capacity of SUSP is bounded above by
+Lemma 3.2 and the fact that the capacity of strong USP is bounded above by
 the capacity of USP.  Observe that our experiment derives tight bounds
 for all $k \le 5$ and improves the known lower bounds for $4 \le k \le
 12$.
-\begin{table}
+\begin{table}[t]
 
   \begin{center}
   \begin{tabular}{|c|r|r|r|r|}
@@ -1115,18 +1117,22 @@ for all $k \le 5$ and improves the known lower bounds for $4 \le k \le
   \label{table:compare}
 \end{table}
 We conjecture that $s = 14$ is tight for $k = 6$, given the amount of
-CPU cycles and different algorithmic approaches we have applied to
-this case where it quickly, on order of an hour of CPU time, gets to
-$14$, and makes no further progress in the succeeding month.  We do
+compute time we have thrown at it over the years.
+%% and different algorithmic approaches we have applied to
+%% this case where it quickly, on order of an hour of CPU time, gets to
+%% $14$, and makes no further progress in the succeeding month.
+We do
 not have any strong beliefs about the lower bounds for larger values
 of $k$ except that they are likely not tight.  Furthermore, it is
-appearant that exhaustive search will not be practical for $k \ge 6$
+appearant that exhaustive search is not practical for $k \ge 6$
 unless the search space can be substantially reduced.
 
 The column labelled $\omega^*$ in \autoref{table:compare} denotes the
 upper bound on $\omega$ the strong USP imply when taking the direct
 product of the puzzle with itself finitely mainly times, and then
-applying \autoref{lem:omega}.  (XXX - explain why $\omega ^*$.)  The
+applying \autoref{lem:omega}.
+%(XXX - explain why $\omega ^*$.)
+The
 lines with omitted lower bounds for \cite{cksu05} also omit
 $\omega^*$, because it is strictly worst than the $\omega^*$ in
 preceding lines.  Notice that the minimum $\omega^*$ occurs in the $k
@@ -1135,15 +1141,14 @@ largest size puzzle for its width.  In the subsequent lines the
 $\omega^*$ is no smaller, because the SUSPs found are relatively
 smaller in comparison to their width.  Note that $\omega^*$ for $k =
 12$ matches that of $k = 6$.  This is because the $(196, 12)$-puzzle
-is the result of taking the Cartesian product of the $(14,6)$-SUSP
+is the result of taking the Cartesian product of the $(14,6)$-puzzle
 with itself, and hence is the same by definition of $\omega^*$.
 
-The most interesting line of \autoref{table:compare} is $k = 6$.  Here
-we have the greatest improvement in $\omega^*$ versus \cite{cksu05}.
-Ultimately, the construction of \cite[Proposition 3.8]{cksu05} gives
-an infinite family of strong USPs of size that achieve $\omega <
-2.48$. Our results suggests that there is considerable room for
-improvement beyond that.
+The $k = 6$ line of \autoref{table:compare} gives the greatest
+improvement versus \cite[Proposition 3.8]{cksu05}, which, ultimately,
+constructs an infinite family of strong USPs that achieve $\omega <
+2.48$. Our results suggests there is considerable room for
+improvement, perhaps beyond Coppersmith-Winograd.
 
 
 \subsection{Algorithm Performance}
