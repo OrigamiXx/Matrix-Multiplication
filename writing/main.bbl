@@ -92,6 +92,11 @@ Michael Kaminski.
   finite fields.
 \newblock {\em SIAM Journal on Computing}, 34(4):960--992, 2005.
 
+\bibitem[KV12]{kv12}
+Bernhard Korte and Jens Vygen.
+\newblock {\em Combinatorial Optimization}, volume~2.
+\newblock Springer, 2012.
+
 \bibitem[LG14]{le14}
 Fran{\c{c}}ois Le~Gall.
 \newblock Powers of tensors and fast matrix multiplication.

@@ -526,22 +526,22 @@ matching.
 
 \subsection{Bidirectional Search}
 
-The realization that verification of strong USP is a specialization of 3D
-matching quickly led to a linear-exponential time algorithm that was
-more practical.  The reduction allows us to replace the permutations
-from $\Sym{P}$ with subsets of $P$ and effectively reduce the cost of
-the outer loops of \autoref{alg:brute-force} from $s! =
-\Theta(2^{s\log s})$ to $2^s$.  This results in a bidirectional dynamic programming
-algorithm for strong USP verification that takes time $O(2^{2s} \poly(s) +
-\poly(s,k))$.  For space, we defer the details of the algorithm to
-\autoref{app:bi}.
+The realization that verification of strong USP is a specialization of
+3D matching quickly led to a linear-exponential time algorithm that
+was more practical.  The reduction allows us to replace the
+permutations from $\Sym{P}$ with subsets of $P$ and effectively reduce
+the cost of the outer loops of \autoref{alg:brute-force} from $s! =
+\Theta(2^{s\log s})$ to $2^s$.  This results in a bidirectional
+dynamic programming algorithm for strong USP verification that takes
+time $O(2^{2s} \poly(s) + \poly(s,k))$.  For space, we defer the
+details of the algorithm to \autoref{app:bi}.
 
-\subsection{3DM to 3SAT}
+\subsection{3DM to 3SAT} 
 \label{subsec:sat}
 
 By \autoref{lem:verify-to-3dm}, one can determine whether a puzzle $P$
-is a strong USP by contructing the graph $H_P$ and deciding
-whether it has a non-trivial 3D matching.
+is a strong USP by contructing the graph $H_P$ and deciding whether it
+has a non-trivial 3D matching.
 %It well-known that 3D
 %matching is \NP{}-complete, c.f., e.g., \cite{gj79}.
 Here we reduce
@@ -553,13 +553,13 @@ graph $H_P$
 into a CNF formula $\Psi_P$, a depth-2 formula that is the AND
 of ORs of Boolean literals.  
 We construct $\Psi_P$ so that \autoref{lem:verify-to-3dm} implies that
-$\Psi_P$ is satisfiable iff $H_P$ has a non-trivial \emph{3D
-  matching}.
+$\Psi_P$ is satisfiable iff $H_P$ has a non-trivial 3D
+  matching.
 %% We input the CNF formula $\Psi_P$ into a
 %% SAT solver to determine whether the formula is satisfiable.
 
 Let $H_P = \langle V = P \sqcup P \sqcup P, E \subseteq P^3 \rangle$ be the 3D matching instance
-associated with the puzzle $P$.  Our goal is to construct a
+associated with the puzzle $P$.  Our goal is to determine whether there is a
 non-trivial 3D matching $M \subseteq E$.
 %% We use $M_{u,v,w}$ to denote a variable with
 %% values in $\set{0,1}$ that indicates whether the edge $(u,v,w) \in
@@ -670,31 +670,37 @@ demonstratable success in practice \cite{lgpc16}.
 
 \subsection{3DM to IP}
 
-Another way to utilize the connection between verification of strong
-USP and 3D matching is to further reduce 3D matching to integer
-programming, another well-known \NP{}-complete optimization problem.
-Let $H_P = \langle V, E \rangle$ be the 3D matching instance
-associated with the puzzle $P$.  Our goal is to construct a
-non-trivial 3D matching $M$ that is a subset of the edges of $E$ and
-is vertex disjoint.  We use $M_{u,v,w}$ to denote a variable with
-values in $\set{0,1}$ that indicates whether the edge $(u,v,w) \in
-P^3$ is present in the matching.
+In parallel to the last section, we use the connection between verification of strong
+USP and 3D matching is to reduce to integer
+programming, another well-known \NP{}-complete problem, c.f., e.g., \cite{kv12}.
+Again, let $H_P = \langle V, E \rangle$ be the 3D matching instance
+associated with $P$.  We construct an integer program $Q_P$ over $\set{0,1}$ that is feasible iff $H_P$ has a non-trivial 3D matching
 
-To ensure that $M$ is a subset of $E$ we require the following edge constraints
-\begin{equation}
-  \forall u,v,w \in P,~~M_{u,v,w} \le \begin{cases} 0, (u,v,w) \not\in
-    E, and \\ 1, (u,v,w) \in E.\end{cases} \label{eqn:cons1}
-\end{equation} We also require that each vertex in
+%Our goal is determine whether there is a
+%non-trivial 3D matching $M$.
+%that is a subset of the edges of $E$ and
+%is vertex disjoint.
+
+We use $M_{u,v,w}$ to denote a variable with
+values in $\set{0,1}$ to indicates whether the edge $(u,v,w) \in
+P^3$ is present in the matching.
+To ensure that $M$ is a subset of $E$ we add the following edge constraints to $Q_P$:
+%\begin{equation}
+  $\forall u,v,w \in P, \forall (u, v, w) \not\in E, M_{u,v,w} = 0.$
+%  \label{eqn:cons1}
+%\end{equation}
+We also require that each vertex in
 each of the three parts of the graph is incident to exactly one edge
-in $M$.  This is captured by the following vertex constraints:
-\begin{equation}
-  \label{eqn:cons2}
-\begin{aligned}
-&\forall w \in P,~~\sum_{u,v \in P} M_{u,v,w} = 1,\\
-&\forall v \in P,~~\sum_{u,w \in P} M_{u,v,w} = 1,\text{and} \\
-&\forall u \in P,~~\sum_{v,w \in P} M_{u,v,w} = 1.
-\end{aligned}
-\end{equation}
+in $M$.  This is captured by the following vertex constraints in $Q_P$:
+%\begin{equation}
+%  \label{eqn:cons2}
+%\begin{aligned}
+%% \forall w \in P,~~\sum_{u,v \in P} M_{u,v,w} = 1 \text{ and }
+%% \forall v \in P,~~\sum_{u,w \in P} M_{u,v,w} = 1 \text{ and } 
+%% \forall u \in P,~~\sum_{v,w \in P} M_{u,v,w} = 1.
+$\forall w \in P, \sum_{u,v \in P} M_{u,v,w} = \sum_{u,v \in P} M_{u,w,v} = \sum_{u,v \in P} M_{w,u,v} = 1.$
+%\end{aligned}
+%\end{equation}
 Lastly, since we need that the 3D matching be non-trivial we
 add the constraint:
 %\begin{equation}
@@ -718,23 +724,22 @@ add the constraint:
 %% USP. Otherwise if the model is infeasible, $H_p$ does not have a
 %% non-trivial thus $P$ is a USP.
 
-To check whether $P$ is a strong USP we need to determine that the
-above integer program is not feasible,
+To check whether $P$ is a strong USP we determine whether $Q_P$ is not feasible,
 %The heavy lifting in \autoref{alg:mip} occurs in Line 5 where the
 %integer program is checked for feasibility,
-i.e., that there is no
-assignment to the variables $M$ that satisfy all the constraints.  In
-practice we hand off this computation to the third-party mixed-integer
-programming solver Gurobi \cite{gurobi}.  It should be noted that
-Gurobi is a commerical, closed-source solver, so we cannot necessarily
-verify its assertion that the integer program $Q$ is infeasible.  On
-the otherhand, when it determines that the integer program $Q$ is
-feasible, we can verify that the solution it produced is a witness of
-feasibility.  Further, Gurobi provides no asymptotic performance
-guarantees, must less polynomial ones.  We do note that reduction from
-3D matching to IP is polynomial time as $H_P$ can be efficiently
-constructed from $P$ and there are $s^3 + 3s^3 + 1 = O(s^3)$
-constraints and $s^3$ variables in the integer program $Q$.
+i.e., that no
+assignment to the variables $M$ satisfy all constraints.  In
+practice this computation is done using the commerical, closed-source, mixed-integer
+programming solver Gurobi \cite{gurobi}.
+%% Gurobi is a commerical, closed-source solver, so we cannot
+%% verify its assertion that the integer program is infeasible.  On
+%% the otherhand, when it determines that the integer program $Q$ is
+%% feasible, we can verify that the solution it produced is a witness of
+%% feasibility.
+As with the previous section, Gurobi provides no asymptotic performance
+guarantees.  We note that reduction from
+3D matching to IP is polynomial time and that there are $s^3 + 3s^3 + 1 = \Theta(s^3)$
+constraints and $s^3$ variables in $Q_P$, similar to size of $\Psi_P$ in the SAT reduction.
  
 \label{subsec:mip}
 
