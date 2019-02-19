@@ -250,7 +250,7 @@ solvable puzzles}.
 %% collision on a column between exactly two pieces, not two or more
 %% pieces like in the original definition.
 
-\begin{definition}[Strong Uniquely Solvable Puzzle]
+\begin{definition}[Strong USP]
   \label{def:strong-USP}
   An $(s,k)$-puzzle $P$ is \emph{strong uniquely solvable} if for all
   $\pi_0, \pi_1, \pi_2 \in \Sym{P}$: Either (i) $\pi_0 = \pi_1 = \pi_2$,
@@ -259,8 +259,7 @@ solvable puzzles}.
   $(\pi_2(r))_i = 2$.
 \end{definition}
 
-\noindent Observe that the properties of uniquely solvable and strong uniquely
-solvable are invariant to the ordering of the rows or columns of a
+\noindent Observe that strong uniquely solvability is invariant to the ordering of the rows or columns of a
 puzzle.  This fact is used implicitly.
 %Note that if a puzzle $P$ is a
 %SUSP then it is also a USP.
@@ -269,7 +268,7 @@ puzzle.  This fact is used implicitly.
 %% \Sym{\ordset{3}} on the puzzle cell elements.
 
 Cohn et al.~show the following connection between the existence of
-strong uniquely solvable puzzles and upper bounds on the exponent of
+strong USP and upper bounds on the exponent of
 matrix multiplication $\omega$.
 \begin{lemma}[{\cite[Corollary 3.6]{cksu05}}]
   \label{lem:omega}
@@ -887,7 +886,7 @@ algorithms struggled with that the other did not.
 \begin{algorithmic}[1]
   \Require{An $(s,k)$-puzzle $P$.}
   \Ensure{YES, if $P$ is found to be strong USP, and MAYBE otherwise.}
-  \Function{Verify}{$P$}
+  %\Function{Verify}{$P$}
   \If{$s \le 2$} \Return{\Call{VerifyBruteForce}{$P$}.} \EndIf
   \If{$s \le 7$} \Return{\Call{VerifyBidirectional}{$P$}.} \EndIf
   \If{$s \le 10$}
@@ -898,7 +897,7 @@ algorithms struggled with that the other did not.
   %\State{Return result if \Call{HeuristicRandom}{$P$} is not MAYBE.}
   \State{Return result if \Call{HeuristicGreedy}{$P$} is not MAYBE.}
   \State{Run \Call{VerifySAT}{$P$} and \Call{VerifyIP}{$P$} in parallel and return the first result.}
-  \EndFunction
+  %\EndFunction
 \end{algorithmic}
 \end{algorithm}
 
@@ -1087,7 +1086,6 @@ the capacity of USP.  Observe that our experiment derives tight bounds
 for all $k \le 5$ and improves the known lower bounds for $4 \le k \le
 12$.
 \begin{table}[t]
-
   \begin{center}
   \begin{tabular}{|c|r|r|r|r|}
     \hline
@@ -1110,6 +1108,7 @@ for all $k \le 5$ and improves the known lower bounds for $4 \le k \le
     \hline
   \end{tabular}
   \end{center}
+  \vspace{-2ex}
   \caption{Comparison of bounds on maximum size of strong uniquely
     solvable $(s,k)$-puzzles with \cite{cksu05}.  $\omega^*$ is the
     $\omega$ in the limit of composing puzzles of these dimensions via
@@ -1154,13 +1153,17 @@ improvement, perhaps beyond Coppersmith-Winograd.
 \subsection{Algorithm Performance}
 \label{subsec:performance}
 
-We ran out algorithms and heuristics on a 2010 MacPro running Ubuntu
+We implemented our algorithms in C++ (source code to be made
+  available on github) and ran them on a 2010 MacPro running Ubuntu
 16 with dual Xeon E5620 2.40 Ghz processors and 16 GB of
 RAM. \autoref{fig:perform} contains log plots that describe the
 performance of our algorithms: brute force, dynamic programming, SAT
-reduction, integer programming reduction, and the final hybrid
-algorithm on sets of 10000 random puzzles on a sweep through parameter
-space: width $k = 5 \ldots 10$ and height $s = 1 \ldots 30$.
+reduction, IP reduction, and the final hybrid algorithm on sets of
+10000 random puzzles on a sweep through parameter space: width $k = 5
+\ldots 10$ and height $s = 1 \ldots 30$.  We chose this domain because
+it coincides with the frontier of our search space, and we tuned the
+parameters of the heuristics and algorithm choice in the hybrid
+algorithm to perform well in this domain.
 
 A few obvservations about these plots, the brute force and dynamic
 programming algorithms perform universally poorly except for very
@@ -1170,28 +1173,23 @@ algorithms (SAT and IP) behave similarly to each other.  They are
 slower than brute force and dynamic programming for small values of
 $s$, and their behavior for large $s$ is quite a bit faster.  We
 speculate the former is due to the reductions having larger overhead
-both in constructing the reduced instance and starting the third party
-tool.  We further observate that the SAT reduction handily beats the
-IP reduction for large height for $k = 5$, but as $k$ increases, the
-IP reduction becomes better.  The hybrid algorithm generally performs
-best or close to best.  Notice that it match the dynamic programming
-algorithm closely for small values of $s$ and then diverges when
-reduction algorithms are switched and the heuristics activated around
-$s = 10$.  Observe that the hybrid algorithm flatlines and is
-effectively constant time for large $s$---this also happens for $k =
-10$, though this domain is not included in the plot.  This is likely a
-consequence of how the density of strong USPs decays as height
-increases.  Random puzzles are likely to far from strong USPs, making
-it more likely that the heuristics filter them.
+in constructing the reduced instance and running the third party tool.
+Further observe that the SAT reduction handily beats the IP reduction
+on large height for $k = 5$, but as $k$ increases, the IP reduction
+becomes faster.  The hybrid algorithm generally performs best or close
+to best.  Notice that it match the dynamic programming algorithm
+closely for small values of $s$ and then diverges when reduction
+algorithms and heuristics are activated around $s = 10$.  Observe that
+the hybrid algorithm flatlines and is effectively constant time for
+large $s$---this also happens for $k = 10$, though this domain is not
+included in the plot.  This is likely a consequence of how the density
+of strong USPs decays as height increases, and as random puzzles are
+likely to far from strong USPs, it is more likely that the fast
+heuristics filter them.
 
-The short of it is that our hybrid algorithm performs reasonably well
-in practice, despite reductions through \NP{}-complete problems.  It
-is important to note that we tuned the parameters of the heuristics
-and algorithm choice in the hybrid algorithm to perform well for the
-size of puzzles where we were actively searching for larger strong
-USPs in particular: $k = 6, 7, 8$ and $s \ge 15$.  Different
-parameters may be appropriate for $k \ge 10$ and result in better
-performance curves.
+Overall, our hybrid algorithm performs reasonably well in practice,
+despite reductions through \NP{}-complete problems.
+
 
 %XXX - Tables / plots of data on search performance? Nope, no time.
 \input{perf_plots}
@@ -1224,10 +1222,10 @@ search width-6 strong USP.
 %% other search strategies that would be more effective on this search
 %% space?  
 
-\section{Acknowledgments}
-
-The second and third authors would like to Union College for 
-Summer Research Fellowships for funding their work.
+%\section*{Acknowledgments}
+\paragraph{Acknowledgments.}
+The second and third authors thank Union College for 
+Summer Research Fellowships funding their work.
 
 \bibliographystyle{customurlbst/alphaurlpp} \bibliography{references}
 
@@ -1343,6 +1341,8 @@ verification was possible.
 
 \label{app:sat}
 
+\autoref{alg:sat} formalizes the reduction from strong USP verification to SAT.
+
 \begin{algorithm}[h]
   \caption{: Reduction to satisfiability}
   \label{alg:sat}
@@ -1366,18 +1366,19 @@ verification was possible.
 
 \label{app:IP}
 
+\autoref{alg:ip} formalizes the reduction from strong USP verification to IP.
 
 \begin{algorithm}[h]
-  \caption{: Reduction to mixed integer programming}
-  \label{alg:mip}
+  \caption{: Reduction to integer programming}
+  \label{alg:ip}
 \begin{algorithmic}[1]
   \Require{An $(s,k)$-puzzle $P$.}
   \Ensure{YES, if $P$ is a strong USP and NO otherwise.}
   \Function{VerifyIP}{$P$}
   \State{Construct 3DM instance $H_P$.}
-  \State{Create empty integer program $Q$ with Boolean variables $\condset{M_{u,v,w}}{u,v,w \in P}$.}
-  \State{Add constraints of \autoref{eqn:cons1}, \autoref{eqn:cons2}, and \autoref{eqn:cons3} to $Q$.}
-  \If{\textsc{IsFeasible}$(Q)$}
+  \State{Create empty integer program $Q_P$ with Boolean variables $\condset{M_{u,v,w}}{u,v,w \in P}$.}
+  \State{Add constraints of Section 3.5 to $Q_P$.}
+  \If{\textsc{IsFeasible}$(Q_P)$}
   \State{\Return{NO}.}
   \Else
   \State{\Return{YES}.}
@@ -1386,11 +1387,13 @@ verification was possible.
 \end{algorithmic}
 \end{algorithm}
 
-\section{Downward Closed Heuristic}
+\section{Downward-Closure Heuristic}
 
-\label{app:down}
+\label{app:downward-closed}
 
-\begin{algorithm}[t]
+\autoref{alg:downward-closed} formalizes the downward-closure heuristic.
+
+\begin{algorithm}[h]
   \caption{: Downward-closed Heuristic}
   \label{alg:downward-closed}
 \begin{algorithmic}[1]
@@ -1408,6 +1411,8 @@ verification was possible.
 \section{Greedy Heuristic}
 
 \label{app:greedy}
+
+The greedy heuristic is formalized in \autoref{alg:random-greedy}.
 
 \begin{algorithm}[h]
   \caption{: (Random) Greedy Heuristic}
@@ -1483,7 +1488,7 @@ the three parts of vertices of $H_P$ is projected away the resulting
 bipartite graph has a perfect matching.  Thus we can witness that
 there is no 3D matching by determining that one of three projected
 bipartite graphs $H_P|_1, H_P|_2, H_P|_3$ does not have a perfect
-matching.
+matching.  \autoref{alg:2dm} formalizes this approach.
 
 \begin{algorithm}[h]
   \caption{: 2D Matching Heuristic}
@@ -1527,7 +1532,8 @@ A width-$k$ puzzle has potentially $3^k$ distinct rows.  For $j \in
 [3^k]$ we use $r_j$ to denote the $j^{th}$ row in lexicographic order.
 For a puzzle $P$ and integer $i \in [|P|]$ we use $P_i$ to denote the
 $i^{th}$ row of $P$ where the rows are sequenced in lexicographic
-order.
+order.  The algorithms for DFS and BFS are formalized in
+\autoref{alg:dfs} and \autoref{alg:bfs} respectively.
 
 \begin{algorithm}[h]
   \caption{: Depth-First Search}
