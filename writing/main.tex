@@ -903,83 +903,68 @@ algorithms struggled with that the other did not.
 \section{Searching for Strong USPs}
 \label{sec:search}
 
-In certain respects, the problem of constructing a large strong USP is
-much like the problem of constructing a large set of linearly
-independent vectors in a vector space.  Indeed, the object to be
-constructed is a set and the order that elements are added does not
-matter, further the underlying elements are represented as a vector.
-There are polynomial-time algorithms for determining whether a set of
-vectors are independent, and we have a practical algorithm for
-deciding whether a puzzle is a strong USP.
+The problem of constructing a large strong USP is similar to the
+problem of constructing a large set of linearly independent vectors.
+In both cases, the object to be constructed is a set, the order that elements
+are added does not matter, and the underlying elements are sequences
+of numbers.  There are polynomial-time algorithms for determining
+whether a set of vectors are independent (ironically, Gaussian
+elimination), and we have a practical implementation for deciding whether a
+puzzle is a strong USP.
 
-There is a straightforward algorithm for constructing maxmimum size
-sets of independent vectors: Start with an empty set $S$, and
-repeatedly add vectors to $S$ which are linearly independent of the
-vectors currently in $S$.  After this process completes $S$ is a
-largest set of linearly independent vectors.  This problem admits such
-a greedy algorithm because the family of sets of linearly independent
-vectors form a matroid.  The vector to be added each step can be
-computed efficiently by solving a linear system of equations for
-vectors in the null space of $S$.  Altogether this gives an efficient
-algorithm to compute a maximum set of independent vectors or, more
-generally, to complete a maximum set with some given subset $S'$.
+There is a straightforward greedy algorithm for constructing
+maxmimum-size sets of independent vectors: Start with an empty set
+$S$, and repeatedly add vectors to $S$ that are linearly independent
+of $S$.  After this process completes $S$ is a largest set of linearly
+independent vectors.  This problem admits such a greedy algorithm
+because the family of sets of linearly independent vectors form a
+matroid.  The vector to be added each step can be computed efficiently
+by solving a linear system of equations for vectors in the null space
+of $S$.
 
-Unfortunately this same approach does not work for generating maximum
-size strong USPs.  The set of strong USP do not form a matroid, rather
-they only form an independence system \cite{oxl06}.  In particular,
-the empty puzzle is a strong USP and the set of strong USPs are
-downward closed, so that if $P_2$ is a strong USP and $P_1 \subseteq
-P_2$, then $P_1$ is a strong USP.  The third and final property
-required to be a matroid, the augmentation property, requires that for
-every pair of strong USPs $P_1, P_2$ with $|P_1| \le |P_2|$ there is a
-row of $r \in P_2 \backslash P_1$ such that $P_1 \cup \set{r}$ is also
-a strong USP.  A simple counterexample with the strong USPs $P_1 =
-\set{32}$ and $P_2 = \set{12, 23}$ concludes that neither $P_1 \cup
-\set{12} = \set{12, 32}$ nor $P_1 \cup \set{23} = \set{23, 32}$ are
-strong USP, and hence the augmentation property does not hold.
+%% Altogether this gives an efficient algorithm to compute a
+%% maximum set of independent vectors or, more generally, to complete a
+%% maximum set with some given subset $S'$.
 
+Unfortunately this same approach does not work for generating
+maximum-size strong USPs.  The set of strong USP do not form a
+matroid, rather they only form an independence system, c.f., e.g.,
+\cite{oxl06}.  In particular, (i) the empty puzzle is a strong USP and (ii) the
+set of strong USPs are downward closed.
+%, so that if $P_2$ is a strong
+%USP and $P_1 \subseteq P_2$, then $P_1$ is a strong USP.
+The third
+and final property required to be a matroid, the augmentation
+property, requires that for every pair of strong USPs $P_1, P_2$ with
+$|P_1| \le |P_2|$ there is a row of $r \in P_2 \backslash P_1$ such
+that $P_1 \cup \set{r}$ is also a strong USP.  A simple counterexample
+with the strong USPs $P_1 = \set{32}$ and $P_2 = \set{12, 23}$
+concludes that neither $P_1 \cup \set{12} = \set{12, 32}$ nor $P_1
+\cup \set{23} = \set{23, 32}$ are strong USP, and hence the
+augmentation property fails.
 One consequence is that na\"{i}ve greedy algorithms will not be
 effective for finding maximum size strong USPs.  Furthermore, we do
-not currently have a practical or efficient algorithm that can take a
-strong USP $P$ and determine a single row, or set of rows, that can
-extend $P$ while maintaining that it is a strong USP. That said, we
-have had some success applying general purpose search techniques
-together with our practical verification algorithm to construct
-maximum size strong USPs for small $k$.  In particular, we implemented
-variants of depth-first search (DFS) and breadth-first search (BFS) in
-both desktop and HPC settings.
+not currently have a practical algorithm that can take a strong USP
+$P$ and determine a row $r$ such that $P \cup \set{r}$ is a strong
+USP (note number of possible next rows is $\le 3^k$.)
 
-A width-$k$ puzzle has potentially $3^k$ distinct rows.  For $j \in
-[3^k]$ we use $r_j$ to denote the $j^{th}$ row in lexicographic order.
-For a puzzle $P$ and integer $i \in [|P|]$ we use $P_i$ to denote the
-$i^{th}$ row of $P$ where the rows are sequenced in lexicographic
-order. We include pseudocode of both searches in \autoref{app:search} for completeness.
+That said, we have had some success applying general purpose search
+techniques together with our practical verification algorithm to
+construct maximum-size strong USPs for small $k$.  In particular, we
+implemented variants of depth-first search (DFS) and breadth-first
+search (BFS).  We include pseudocode for both searches in
+\autoref{app:search} for completeness.
 
-
-Arguing the correctness of these algorithms is routine.  It should be
-noted that since we treat the puzzles as though they have rows sorted
-in lexicographic order, we only need to consider adding rows that
-occur later in the order than the highest row already in the puzzle,
-which is $r_j$.  This explains the initial row $r_{j+1}$ being used in
-the for loop in both algorithms.  Observe that \Call{BFS}{$k$} $=$
-\Call{DFS}{$k, \emptyset$} is the maximum size of a strong USP of
-width $k$.  The worst case running time of these algorithms is
-similarly routine, they both run in time $O(3^k \cdot \#USP(k) \cdot
-T_{\textsc{Verify}}($\Call{BFS}{$k}$, $k))$ where $\#USP(k)$ is the
-number of strong USPs of width $k$ and
-$T_{\textsc{Verify}}(BFS(k)+1,k)$ is the time to verify the maximum
-size puzzle examined by the algorithm (assuming $T_{\textsc{Verify}}$
-is monotone in its parameters).
-
-The actual running times of both these algorithms are prohibitive even
-for $k = 5$, and the greater memory usage of \textsc{BFS} to store
-the entire search frontier in $Q$ is in the terabytes for $k = 6$.  There
-are some silver linings, \textsc{DFS} can report intermediate results
-that are the maximal strong USPs that it has discovered so far.  Both
-algorithms admit the possibility of eliminating puzzles from the
-search that are equivalent to puzzles that have already been searched,
-though it is easier to fit into the structure \textsc{BFS} as the
-puzzles are already being stored in a queue.
+The actual running times of both of these algorithms are prohibitive
+even for $k > 5$, and the greater memory usage of \textsc{BFS} to
+store the entire search frontier in $Q$ is in the tens of terabytes
+even for $k = 6$.  There are some silver linings, \textsc{DFS} can
+report intermediate results that are the maximal strong USPs that it
+has discovered so far.  Both algorithms admit the possibility of
+eliminating puzzles from the search that are equivalent to puzzles
+that have already been searched, though it is easier to fit into the
+structure \textsc{BFS} as the puzzles are already being stored in a
+queue.
 
 \begin{comment}
   Not planning to discuss:
@@ -1236,8 +1221,8 @@ search width-6 strong USP.
 
 \section{Acknowledgments}
 
-The second and third authors would like to the Union College
-Summer Research Fellowship for supporting their work.
+The second and third authors would like to Union College for 
+Summer Research Fellowships for funding their work.
 
 \bibliographystyle{customurlbst/alphaurlpp} \bibliography{references}
 
@@ -1533,6 +1518,12 @@ whether $H_P$ has a 3D matching.
 
 \label{app:search}
 
+A width-$k$ puzzle has potentially $3^k$ distinct rows.  For $j \in
+[3^k]$ we use $r_j$ to denote the $j^{th}$ row in lexicographic order.
+For a puzzle $P$ and integer $i \in [|P|]$ we use $P_i$ to denote the
+$i^{th}$ row of $P$ where the rows are sequenced in lexicographic
+order.
+
 \begin{algorithm}[h]
   \caption{: Depth-First Search}
   \label{alg:dfs}
@@ -1587,6 +1578,21 @@ whether $H_P$ has a 3D matching.
   \EndFunction
 \end{algorithmic}
 \end{algorithm}
+
+Arguing the correctness of these algorithms is routine.  It should be
+noted that since we treat the puzzles as though they have rows sorted
+in lexicographic order, we only need to consider adding rows that
+occur later in the order than the highest row already in the puzzle,
+which is $r_j$.  This explains the initial row $r_{j+1}$ being used in
+the for loop in both algorithms.  Observe that \Call{BFS}{$k$} $=$
+\Call{DFS}{$k, \emptyset$} is the maximum size of a strong USP of
+width $k$.  The worst case running time of these algorithms is
+similarly routine, they both run in time $O(3^k \cdot \#USP(k) \cdot
+T_{\textsc{Verify}}($\Call{BFS}{$k}$, $k))$ where $\#USP(k)$ is the
+number of strong USPs of width $k$ and
+$T_{\textsc{Verify}}(BFS(k)+1,k)$ is the time to verify the maximum
+size puzzle examined by the algorithm (assuming $T_{\textsc{Verify}}$
+is monotone in its parameters).
 
 
 
