@@ -23,6 +23,7 @@
 \usetikzlibrary{decorations.pathreplacing,backgrounds}
 \usetikzlibrary{plotmarks}
 
+
 \usepackage[font=footnotesize]{caption}
 
 \input{thmmacros}
@@ -451,7 +452,7 @@ the vertex set is the disjoint union of three copies of $P$.  The latter of thes
 Let $H = \langle P \sqcup P \sqcup P, E \sse P^3\rangle$ be a
 tripartite 3-hypergraph.  We say $H$ has a \emph{3D matching} iff
 there exists a subset $M \sse E$ with $|M| = |P|$ and for all distinct
-hyperedges $e_1, e_2 \in M$, $e_1$ and $e_2$ are \emph{vertex
+edges $e_1, e_2 \in M$, $e_1$ and $e_2$ are \emph{vertex
   disjoint}, i.e., $(e_1)_i \neq (e_2)_i$ for all $i \in [3]$.  A 3D matching is \emph{non-trivial} if it is not the set
 $\condset{(r,r,r)}{r \in P}$.  The existence of 3D matchings in $H_P$
 is directly tied to whether $P$ is a strong USP.
@@ -503,7 +504,7 @@ verification of strong USP is \coNP-complete because $H_P$ is not an
 arbitrary hypergraph.  (That verification is in \coNP{} is immediate
 from \autoref{def:strong-USP}.)
 %Indeed, it seems difficult to define
-%a puzzle $P$ that allows hyperedges in $H_P$ to be included
+%a puzzle $P$ that allows edges in $H_P$ to be included
 %independently.
 It remains open whether verification is
 \coNP-complete.
@@ -568,7 +569,7 @@ non-trivial 3D matching $M \subseteq E$.
 %% Note that, alternatively, we could just eliminate these variables by
 %% replacing them by constant false in the subsequent formula. Second, we
 %% add clauses that require that every vertex in $H_P$ is matched with
-%% some hyperedge:
+%% some edge:
 %% \begin{equation}
 %%   \Phi_P^{\ge 1} = 
 %%   \left(\bigwedge_{u \in P}\vee_{v,w \in P} ~M_{u,v,w}\right)
@@ -577,8 +578,8 @@ non-trivial 3D matching $M \subseteq E$.
 %% \end{equation}
 %% Note that three types of clauses above account for the three disjoint
 %% copies of $P$ in the vertices of $H_P$.  Third, we require that each
-%% vertex can only be matched one a single hyperedge and so have clauses
-%% that exclude matching hyperedges that overlap non-trivially (on one or
+%% vertex can only be matched one a single edge and so have clauses
+%% that exclude matching edges that overlap non-trivially (on one or
 %% two coordinates):
 %% \begin{equation}
 %%   \Phi_P^{\le 1} = \bigwedge_{(u,v,w), (u',v',w') \in P^3} (u = u'
@@ -586,7 +587,7 @@ non-trivial 3D matching $M \subseteq E$.
 %%   \neg M_{u,v,w} \vee \neg M_{u',v',w'}.
 %% \end{equation}
 %% Fourth, we exclude the trivial 3D matching by requiring that at least
-%% one of diagonal hyperedges not be used:
+%% one of diagonal edges not be used:
 %% \begin{equation}
 %%   \Phi_P^{\text{non-trivial}} = \bigvee_{u \in P} \neg M_{u,u,u}.
 %% \end{equation}
@@ -598,11 +599,11 @@ non-trivial 3D matching $M \subseteq E$.
 %% The size of the CNF formula $\Phi_P$ dominated by the size of
 %% $\Phi_P^{\le 1}$ which is $\Theta(s^5)$ size.  This is relatively
 %% large compared to the $\Theta(s^3)$ size required to represent the
-%% hyperedges of the 3DM instance.
+%% edges of the 3DM instance.
 %% To avoid the polynomial growth in instance size we decided to use a
 %% more concise matching representation.
 A na\"{i}ve reduction would be to have variables $M_{u,v,w}$ indicating inclusion of each
-hyperedge $(u,v,w) \in P^3$ in the matching. This results in a formula $\Psi_P$ with
+edge $(u,v,w) \in P^3$ in the matching. This results in a formula $\Psi_P$ with
 $s^3$ variables and size $\Theta(s^5)$.
 To decrease the size of $\Psi_P$ we instead use sets
 of variables to indicate which vertices in the second and third part of $V$
@@ -618,7 +619,7 @@ being in the matching:
   (\neg M_{u,v}^1 \vee \neg M_{u,w}^2).$
 %\end{equation}
 Second, we add clauses require that every vertex in $H_P$ is matched with some
-hyperedge:
+edge:
 \begin{equation}
   \Psi_P^{\ge 1} =
   \left(\bigwedge_{u \in P} (\vee_{v\in P} ~M_{u,v}^1) \wedge (\vee_{w \in P} ~M_{u,w}^2)\right)
@@ -628,7 +629,7 @@ hyperedge:
 %% Note that these clauses are no longer symmetric because the first part
 %% of $H_P$ is considered in both sets of variables.
 
-Third, we require that each vertex be matched with at most one hyperedge and so have clauses that exclude matching hyperedges that
+Third, we require that each vertex be matched with at most one edge and so have clauses that exclude matching edges that
 overlap on one or two coordinates.
 \begin{equation}
   \Psi_P^{\le 1} = \bigwedge_{i \in \set{1,2}} \bigwedge_{(u,v),
@@ -638,7 +639,7 @@ overlap on one or two coordinates.
 %% Observe that $\Psi_P^{\le 1}$ has size $\Theta(s^3)$ compared to the
 %% size of the original $\Phi_P^{\le 1}$ that had size $\Theta(s^5)$.
 Fourth, we exclude the trivial 3D matching by requiring that at least
-one of the diagonal hyperedges not be used:
+one of the diagonal edges not be used:
 %\begin{equation}
   $\Psi_P^{\text{non-trivial}} = \bigvee_{u \in P} \neg M_{u,u}^1 \vee
   \neg M_{u,u}^2.$
@@ -709,7 +710,7 @@ add the constraint:
 
 %% By this theory, \autoref{alg:mip} would first transfers input puzzle
 %% $P$ into a tripartite hypergraph $H_p$ and creates an empty mixed
-%% integer programming model. For every hyperedge $e= \notin H_p$, a
+%% integer programming model. For every edge $e= \notin H_p$, a
 %% constrain $f(e) = 0$ is added into the model as it can not be selected
 %% into subset $M$. Afterward the algorithm would also add the
 %% restrictions listed in the paragraph above (I am not sure if I should
@@ -831,7 +832,7 @@ have a similar or higher running time.
 This heuristic attempts to greedily solve the 3D matching instance
 $H_P$.  The heuristic proceeds iteratively, determining the vertex of
 the first part of the 3D matching instance with the least edges and randomly
-selecting a hyperedge of that vertex to put into the 3D matching.  If the
+selecting a edge of that vertex to put into the 3D matching.  If the
 heuristic successfully constructs a 3D matching it returns NO indicating that
 the input puzzle $P$ is not a strong USP.  If the heuristic reaches a
 point were prior commitments have made the matching infeasible, the
@@ -1424,7 +1425,7 @@ The greedy heuristic is formalized in \autoref{alg:random-greedy}.
       \State{$cts[u] = \sum_{v,w \in P} H_P(u,v,w)$.} \Comment{Number of edges incident vertex $u$.}
     \EndFor
     \State{Let $U,V,W = \emptyset.$}
-    \State{Let $m = 0.$} \Comment{Number of hyperedges in matching.}
+    \State{Let $m = 0.$} \Comment{Number of edges in matching.}
     \While{$m < s$} 
       \State{Select $u \in \condset{u \in \bar{U}}{cts[u] = \max_{v \in \bar{U}} cts[v]}$ uniformly at random.}
       \If{$cts[u] = 0$} break. \EndIf
