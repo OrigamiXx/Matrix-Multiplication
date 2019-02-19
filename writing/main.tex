@@ -199,23 +199,23 @@ but incomplete, heuristics for verifying strong USP.
 
 We use $\ordset{n}$ to denote the set $\set{0,1,2,\ldots, n-1}$.  For
 a set $Q$, $\Sym{Q}$ denotes the symmetric group on the elements of
-$Q$.  We use $1$ to denote the identity permutation in
-$\Sym{Q}$. \cite{cksu05} introduced the idea of a \emph{puzzle}.
-
+$Q$.
+%We use $1$ to denote the identity permutation in
+%$\Sym{Q}$.
+Cohn et al.~introduced the idea of a \emph{puzzle}.
 \begin{definition}[Puzzle]
   For $s, k \in \Natural$, an $(s,k)$-\emph{puzzle} is a
   subset $P \sse \ordset{3}^k$ with $|P| = s$.
 \end{definition}
-
-We say that an $(s,k)$-puzzle has $s$ rows and $k$ columns.  The
+\noindent We say that an $(s,k)$-puzzle has $s$ rows and $k$ columns.  The
 columns are inherent ordered and indexed by $\ordset{k}$.  The rows
 are not inherently ordered, however, it is often convienent to assume
 that the rows are arbitrarily ordered and indexed by $\ordset{s}$.
 
 \cite{cksu05} also establish a particular combinatorial property of
-such puzzles that can derive groups that matrix multiplication can be
-embedded into.  Such puzzles are called \emph{strong} uniquely
-solvable puzzles.
+such puzzles that can derive group algebras that matrix multiplication can be
+embedded into.  Such puzzles are called \emph{strong uniquely
+solvable puzzles}.
 
 %% However, to give some intuition we first explain a
 %% simpler version of the property called \emph{uniquely solvable
@@ -259,12 +259,14 @@ solvable puzzles.
   $(\pi_2(r))_i = 2$.
 \end{definition}
 
-Observe that the properties of uniquely solvable and strong uniquely
+\noindent Observe that the properties of uniquely solvable and strong uniquely
 solvable are invariant to the ordering of the rows or columns of a
-puzzle.  This fact is used implicitly.  Note that if a puzzle $P$ is a
-SUSP then it is also a USP.  Further note that these properties are
-invariant to maps between puzzles induced by permutations from
-\Sym{\ordset{3}} on the puzzle cell elements.
+puzzle.  This fact is used implicitly.
+%Note that if a puzzle $P$ is a
+%SUSP then it is also a USP.
+%% Further note that these properties are
+%% invariant to maps between puzzles induced by permutations from
+%% \Sym{\ordset{3}} on the puzzle cell elements.
 
 Cohn et al.~show the following connection between the existence of
 strong uniquely solvable puzzles and upper bounds on the exponent of
