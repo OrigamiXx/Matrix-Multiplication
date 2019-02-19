@@ -253,8 +253,8 @@ solvable puzzles}.
 \begin{definition}[Strong Uniquely Solvable Puzzle]
   \label{def:strong-USP}
   An $(s,k)$-puzzle $P$ is \emph{strong uniquely solvable} if for all
-  $\pi_0, \pi_1, \pi_2 \in \Sym{P}$: Either $\pi_0 = \pi_1 = \pi_2$,
-  or there exists $r \in P$ and $i \in \ordset{k}$ such that exactly
+  $\pi_0, \pi_1, \pi_2 \in \Sym{P}$: Either (i) $\pi_0 = \pi_1 = \pi_2$,
+  or (ii) there exists $r \in P$ and $i \in \ordset{k}$ such that exactly
   two of the following hold: $(\pi_0(r))_i = 0$, $(\pi_1(r))_i = 1$,
   $(\pi_2(r))_i = 2$.
 \end{definition}
@@ -413,7 +413,7 @@ structure of a seemingly trivial optimization leads to substantially
 more effective algorithms. Consider the following function on triples
 of rows $a, b, c$: $f(a,b,c) = \vee_{i \in [k]} (\delta_{a_i,0} +
 \delta_{b_i,1} + \delta_{c_i,2} = 2).$ We can replace the innermost
-loop in Lines 6 \& 7 of \autoref{alg:brute-force} with the statement
+loop in Lines 7 \& 8 of \autoref{alg:brute-force} with the statement
 $found = found \vee f(r, \pi_1(r), \pi_2(r))$.  Observe that $f$
 neither depends on $P$, $r$, nor the permutations, and that
 \autoref{alg:brute-force} no longer depends on directly on $k$.  To
@@ -445,21 +445,20 @@ puzzle $P$, and call it $f_P$.
 For verification it turns out to be more useful to work with $f_P$
 than with $P$.  It is convienent to think of $f_P$ from several
 perspectives: (i) as a function $f_P : P \times P \times P \rightarrow
-\set{0, 1}$, (ii) as an order-three tensor $f_p \in \set{0,1}^{P
-  \times P \times P}$, and (iii) as the complement of the
-characteristic function of hyperedge relations of a tripartite
+\set{0, 1}$,
+%(ii) as an order-three tensor $f_p \in \set{0,1}^{P \times P \times P}$,
+and (ii) as the complement of the
+characteristic function of relations of a tripartite
 hypergraph $H_P = \langle P \sqcup P \sqcup P, \bar{f_p}\rangle$ where
-the vertex set is the disjoint union of three copies of $P$.  The last
-of these, $H_P$, is the most useful.
+the vertex set is the disjoint union of three copies of $P$.  The latter of these, $H_P$, is the most useful.
 
 Let $G = \langle P \sqcup P \sqcup P, E \sse P^3\rangle$ be a
-tripartite 3-hypergraph.  We say that $G$ has a \emph{3D matching} iff
+tripartite 3-hypergraph.  We say $G$ has a \emph{3D matching} iff
 there exists a subset $M \sse E$ with $|M| = |P|$ and for all distinct
 hyperedges $e_1, e_2 \in M$, $e_1$ and $e_2$ are \emph{vertex
-  disjoint}, that is, $(e_1)_i \neq (e_2)_i$ for all $i \in [3]$.  We
-say a 3D matching is \emph{non-trivial} if it is not the matching
+  disjoint}, i.e., $(e_1)_i \neq (e_2)_i$ for all $i \in [3]$.  A 3D matching is \emph{non-trivial} if it is not the matching
 $\condset{(r,r,r)}{r \in P}$.  The existence of 3D matchings in $H_P$
-is directly tied to whether $P$ is a SUSP.
+is directly tied to whether $P$ is a strong USP.
 
 \begin{lemma}
   \label{lem:verify-to-3dm}
@@ -468,14 +467,14 @@ is directly tied to whether $P$ is a SUSP.
 \end{lemma}
 
 \begin{proof}
-  We first argue the reverse direction.  Suppose that $H_p$ has a
+  We first argue the reverse.  Suppose that $H_p$ has a
   non-trivial 3D matching $M$.  We show that $P$ is not a strong USP by
   using $M$ to construct $\pi_0, \pi_1, \pi_2 \in \Sym{P}$ that
   witness this.  Let $\pi_0$ be the identity permutation.  For each $r
-  \in P$, define $\pi_1(r) = q$ where $(r,q,\_) \in M$.  Note that $q$
+  \in P$, define $\pi_1(r) = q$ where $(r,q,*) \in M$.  Note that $q$
   is well defined and unique because $M$ is 3D matching and so has
   vertex disjoint edges.  Similarly define $\pi_2(r) = q$ where
-  $(r,\_,q) \in M$.  Observe that by construction $M =
+  $(r,*,q) \in M$.  Observe that by construction $M =
   \condset{(\pi_0(r),\pi_1(r),\pi_2(r))}{r \in P}$.  Since $M$ is a
   matching of $H_P$, $M \sse \bar{f_P}$.  Because $M$ is a non-trival
   matching at least one edge in $(a,b,c) \in M$ is has either $a \neq
@@ -484,41 +483,44 @@ is directly tied to whether $P$ is a SUSP.
   \pi_2$.  In each case we have determined that $\pi_0$, $\pi_1$, and
   $\pi_2$ are not all identical.  Thus we determined permutations such
   that for all $r \in P$, $f(\pi_0(r), \pi_1(r), \pi_2(r)) = 0$.  This
-  violates Condition 2 of \autoref{def:strong-USP}, hence $P$ is not a
+  violates Condition (ii) of \autoref{def:strong-USP}, hence $P$ is not a
   strong USP.
 
-  The forward direction of the lemma is argued symmetrically.  Suppose
+  The forward direction is symmetric.  Suppose
   that $P$ is not a strong USP. We show that $H_P$ has a 3D matching.
   For $P$ not to be a strong USP there must exist $\pi_0, \pi_1, \pi_2
-  \in \Sym{P}$ not all identical such that Condition 2 of
+  \in \Sym{P}$ not all identical such that Condition (ii) of
   \autoref{def:strong-USP} fails.  Define $e(r) =
   (\pi_0(r),\pi_1(r),\pi_2(r))$ and $M = \condset{e(r)}{r \in P}$.
-  Since Condition 2 fails, we have that $f_P(e(r)) = false$ for all $r
+  Since Condition (ii) fails, we have that $f_P(e(r)) = false$ for all $r
   \in P$.  This means that for all $r \in P$, $e(r) \in \bar{f_P}$ and
-  hence $M \sse \bar{f_P}$.  Since $\pi_0$ is a permutation $|M| =
-  |P|$.  Finally, observe that $M$ is non-trivial because not all of
+  hence $M \sse \bar{f_P}$.  Since $\pi_0$ is a permutation, $|M| =
+  |P|$.  Observe that $M$ is non-trivial because not all 
   the permutations are identical and there must be some $r \in P$ with
-  $e(r)$ having non identical coordinates.  Thus $M$ is a non-trivial
-  3D matching of $H_p$.
+  $e(r)$ having non-identical coordinates.  Thus $M$ is a non-trivial
+  3D matching.
 \end{proof}
 
-Although 3D matching is an \NP-complete problem \cite{gj79},
+Note that although 3D matching is an \NP-complete problem \cite{gj79},
 \autoref{lem:verify-to-3dm} does not immediately imply that
 verification of strong USP is \coNP-complete because $H_P$ is not an
 arbitrary hypergraph.  (That verification is in \coNP{} is immediate
-from \autoref{def:strong-USP}.)  Indeed, it seems difficult to define
-a puzzle $P$ that allows hyperedges in $H_P$ to be included
-independently.  It remains open whether verification is
-\coNP-complete, but our implementation and experimental data suggests
-that it is likely not to be the case.
-
+from \autoref{def:strong-USP}.)
+%Indeed, it seems difficult to define
+%a puzzle $P$ that allows hyperedges in $H_P$ to be included
+%independently.
+It remains open whether verification is
+\coNP-complete.
+%, but our experimental data suggests
+%that it may not to be the case.
 \autoref{lem:verify-to-3dm} implies that to verify $P$ is a strong USP
 it suffices to determine whether $H_P$ has a 3D matching.  In the
 subsequent sections we examine algorithms for the later problem.  We
-can also view \autoref{alg:brute-force} as algorithm for solving 3D
-matching.  Since we believe that verification is not \coNP-complete we
-use properties of strong USP and puzzles to provide additional
-structure that algorithms can take advantage of.
+can, in retrospect, view \autoref{alg:brute-force} as algorithm for solving 3D
+matching.
+%% Since we believe that verification is not \coNP-complete we
+%% use properties of strong USP and puzzles to provide additional
+%% structure that algorithms can take advantage of.
 
 %XXX - Discuss simplifyTDM.  Nope...
 
@@ -750,7 +752,7 @@ speed the algorithm up we considered a number of verification
 heuristics that were fast to evaluate, but did not alway produce a
 definitive answer.  The heuristics output YES, NO, or MAYBE to whether
 a given puzzle $P$ was a strong USP.  We consider only Las Vegas
-algorithms here, that is, algorithms whose output of YES or NO is
+algorithms here, i.e., algorithms whose output of YES or NO is
 always correct.  Further, all the heuristics we consider are one-sided
 in that they for all input they either return YES or MAYBE, or NO or
 MAYBE.  To verify a puzzle $P$ we run a battery of fast heuristics and
@@ -770,7 +772,7 @@ and greedy, and defer a third unsuccessful heuristic, a projection to
 \subsubsection{Downward Closed}
 
 The simplest heuristics we considered were based on the fact that
-strong USP are downward closed, that is, if $P$ is a strong USP, then
+strong USP are downward closed, i.e., if $P$ is a strong USP, then
 so is every subpuzzle $P' \sse P$.  This leads to a practical heuristic
 that can determine that a puzzle is not a strong USP.
 
