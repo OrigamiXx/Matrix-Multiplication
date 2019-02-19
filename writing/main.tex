@@ -319,40 +319,43 @@ matrix multiplication $\omega$.
 \section{Verifying Strong USPs}
 \label{sec:verify}
 
-The core focus of this article is the verification of strong
-uniquely solvable puzzles.  In particular, we are interested in the
-decision problem: Given an $(s,k)$-puzzle $P$, output YES iff $P$ is a
-strong uniquely solvable puzzle.  In this section we discuss the
-design of efficient and practical algorithms to solve this problem as
-a function of the parameters $s$ and $k$.  As the goal of this work is
-to use computers to locate large strong USPs, we also discuss aspects
-of our implementation that informed or constrained our designs.  All
-of the exact algorithms we develop in this section have exponential
-running time in the parameters $s$ and $k$.  However, although we
-discuss the asymptotic worst-case running time of our algorithms, this
-is not the metric we are truly interested in.  Rather we are
-interested in the practical performance of our algorithms and their
-capability for locating new large strong USPs.
+The core focus of this article is the verification of strong USP:
+Given an $(s,k)$-puzzle $P$, output YES iff $P$ is a strong USP.  In
+this section we discuss the design of algorithms to solve this problem
+as a function of the natural parameters $s$ and $k$.
+%% As the goal of this work is to actually 
+%% to use computers to locate large strong USPs,
+Along the way we also discuss some aspects of our practical
+implementation that informed or constrained our designs.  All the
+exact algorithms we develop in this section have exponential running
+time.  However, asymptotic worst-case running time is not the metric
+we are truly interested in.  Rather we are interested in the practical
+performance of our algorithms and their capability for locating new
+large strong USP.  The algorithm that we ultimately develop is a
+hybrid of a number of simpler algorithms and heuristics.
 
-The algorithm that we ultimately develop and implement in this section
-is a hybrid of a number of simpler algorithms and heuristics.  The
-primary reason for this is that the algorithms with better asymptotic
-and practical performance at larger input lengths have large overhead
-at small input lengths.  Although we have two parameters $s$ and $k$
-they are not fully independent.  First, $s \le 3^k$ because the
-maximum number of rows in a puzzle of width $k$ is $|[3]^k| = 3^k$.
-Second, we can eliminate the dependence on $k$ entirely by
-transforming an $(s,k)$-puzzle into a 3D matching instance on the
-vertex set $[s]^3$.  However, this transformation is not free because
-the instance size is now a function of the cube of $s$ rather than
-linear in $s$.
+%% The reason
+%% for this is that the algorithms with better asymptotic and practical
+%% performance at larger input lengths have large overhead at small input
+%% lengths.
+
+%% XXX - commented out below, but should this be somewhere else? It doesn't
+%% feel like it should be here.
+%%
+%% The parameters $s$ and $k$ they are not fully independent.  First,
+%% $s \le 3^k$ because the maximum number of rows in a puzzle of width
+%% $k$ is $|[3]^k| = 3^k$.  Second, we can eliminate the dependence on
+%% $k$ entirely by transforming an $(s,k)$-puzzle into a 3D matching
+%% instance on the vertex set $[s]^3$.  However, this transformation is
+%% not free because the instance size is now a function of the cube of
+%% $s$ rather than linear in $s$.
 
 \subsection{Brute Force}
 
 The obvious algorithm for verification comes directly from the
-definition of strong uniquely solvable puzzles.  Informally, we
-consider all ways of permuting the ones and twos pieces relative to
-the zeroes pieces and check whether the non-overlapping condition of
+definition of strong USP.  Informally, we consider all ways of
+permuting the ones and twos pieces relative to the zeroes pieces and
+check whether the non-overlapping condition of
 \autoref{def:strong-USP} is met.  A formal description of the
 algorithm is found \autoref{alg:brute-force}.
 
@@ -373,7 +376,7 @@ algorithm is found \autoref{alg:brute-force}.
             \If{$\delta_{r_i, 0} + \delta_{(\pi_1(r))_i, 1} + \delta_{(\pi_2(r))_i, 2} = 2$} $found = true$. \EndIf
           \EndFor
         \EndFor
-        \If{not $found$} \Return{NO.} \EndIf
+        \If{\textbf{not} $found$} \Return{NO.} \EndIf
       \EndIf
     \EndFor
   \EndFor
@@ -382,54 +385,58 @@ algorithm is found \autoref{alg:brute-force}.
 \end{algorithmic}
 \end{algorithm}
 
-Note that the $1$ in Line 4 of \autoref{alg:brute-force} denotes the
-identity permutation in $\Sym{P}$, and $\delta_{a,b}$ is the Kronecker
-delta function which is $1$ if $a = b$ and $0$ otherwise.  Observe
-that \autoref{alg:brute-force} does not refer to $\pi_0$ of
+The $1$ in Line 4 of \autoref{alg:brute-force} denotes the
+identity in $\Sym{P}$, and $\delta_{a,b}$ is the Kronecker delta
+function which is $1$ if $a = b$ and $0$ otherwise.  Observe that
+\autoref{alg:brute-force} does not refer to $\pi_0$ of
 \autoref{def:strong-USP}.  This is because the strong USP property is
 invariant to permutations of the rows and so $\pi_0$ can be thought of
-as an arbitrary phase.  Hence we fix $\pi_0 = 1$ to simplify the
-algorithm.  Seeing that $|\Sym{P}| = s!$, the four nested loops make
-the running time of this algorithm easy to analyze.  The algorithm
+as an arbitrary phase.  Hence, fix $\pi_0 = 1$ to simplify the
+algorithm.  Seeing that $|\Sym{P}| = s!$, we conclude that the algorithm
 runs in time $O((s!)^2 \cdot s \cdot k \cdot \poly(s))$ where the last
 factor accounts for the time to perform operations on permutations of
 $s$ elements.  The dominant term in the running time is the
-contribution from iterating over pairs of permutations, though this
-term was made a factor $s!$ smaller by not iterating over $\pi_0$.
+contribution from iterating over pairs of permutations.
+%, though this
+%term was made a factor $s!$ smaller by not iterating over $\pi_0$.
 Finally, notice that if $P$ is a strong USP, then the algorithm runs
 in time $\Theta((s!)^2 \cdot k \cdot \poly(s))$, and that if $P$ is
-not a strong USP the algorithm may terminate early.  This algorithm's
-poor theoretical and practical performance made it unusable in our
+not a strong USP the algorithm terminates early.  The algorithm's
+poor performance made it unusable in our
 implementation, however, it's simplicity and direct connection to the
 definition made its implementation a valuable sanity check against
-later more elaborate algorithms (and served as effective onboarding to
+later more elaborate algorithms (and it served as effective onboarding to
 the undergraduate students collaborating on this project).
 
 Although \autoref{alg:brute-force} performs poorly, examining the
 structure of a seemingly trivial optimization leads to substantially
 more effective algorithms. Consider the following function on triples
-of rows $a, b, c$: $$f(a,b,c) = \vee_{i \in [k]} (\delta_{a_i,0} +
-\delta_{b_i,1} + \delta_{c_i,2} = 2).$$ We can replace the innermost
+of rows $a, b, c$: $f(a,b,c) = \vee_{i \in [k]} (\delta_{a_i,0} +
+\delta_{b_i,1} + \delta_{c_i,2} = 2).$ We can replace the innermost
 loop in Lines 6 \& 7 of \autoref{alg:brute-force} with the statement
 $found = found \vee f(r, \pi_1(r), \pi_2(r))$.  Observe that $f$
 neither depends on $P$, $r$, nor the permutations, and that
-\autoref{alg:brute-force} no longer depends on $k$.  To slightly speed
-up \autoref{alg:brute-force} we can precompute and cache $f$ before
-the algorithm starts and then look up values as the algorithm runs.
-There are two obvious options to consider we can either precompute $f$
-specialized to the rows in the puzzle $P$, or we can precompute $f$
-for all possible rows.  In former case the time to precompute $f$ is
-$\Theta(s^3 \cdot k)$ and in the later case $\Theta(3^{3k} \cdot k)$.
-The storage requirements are $\Theta(s^3)$ and $\Theta(3^{3k})$ bits
-respectively.  The former is problematic for large $s$ and later
-problematic even for small $k$.  Moreover the combined running time
-for the two options with a single call to verify a puzzle is
-$\Theta(s^3 \cdot k + (s!)^2 \cdot \poly(s))$ and $\Theta(3^{3k} \cdot
-k + (s!)^2 \cdot \poly(s))$.  In the former case there is an
-asymptotic improvement, but in the later case, the saving of a factor
-of $k$ is easily offset by the additional $3^{3k}$ term.  For this
-reason we rule out the later option and chose to represent the
-function $f$ specialized to $f_P$ for a given puzzle $P$.
+\autoref{alg:brute-force} no longer depends on directly on $k$.  To
+slightly speed up \autoref{alg:brute-force} we can precompute and
+cache $f$ before the algorithm starts and then look up values as the
+algorithm runs.  We precompute $f$ specialized to the rows in the
+puzzle $P$, and call it $f_P$.
+
+%% There are two obvious options to consider we can
+%% either precompute $f$ specialized to the rows in the puzzle $P$, or we
+%% can precompute $f$ for all possible rows.
+%% In former case the time to
+%% precompute $f$ is $\Theta(s^3 \cdot k)$ and in the later case
+%% $\Theta(3^{3k} \cdot k)$.  The storage requirements are $\Theta(s^3)$
+%% and $\Theta(3^{3k})$ bits respectively.  The former is problematic for
+%% large $s$ and later problematic even for small $k$.  Moreover the
+%% combined running time for the two options with a single call to verify
+%% a puzzle is $\Theta(s^3 \cdot k + (s!)^2 \cdot \poly(s))$ and
+%% $\Theta(3^{3k} \cdot k + (s!)^2 \cdot \poly(s))$.  In the former case
+%% there is an asymptotic improvement, but in the later case, the saving
+%% of a factor of $k$ is easily offset by the additional $3^{3k}$ term.
+%% For this reason we rule out the later option and chose to represent
+%% the function $f$ specialized to $f_P$ for a given puzzle $P$.
 
 
 \subsection{Verification to 3D Matching}
