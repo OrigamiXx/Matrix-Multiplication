@@ -526,12 +526,12 @@ matching.
 
 \subsection{Bidirectional Search}
 
-The realization that verification of strong USP is a variant of 3D
-matching quickly led to a linear exponential time algorithm that was
+The realization that verification of strong USP is a specialization of 3D
+matching quickly led to a linear-exponential time algorithm that was
 more practical.  The reduction allows us to replace the permutations
 from $\Sym{P}$ with subsets of $P$ and effectively reduce the cost of
 the outer loops of \autoref{alg:brute-force} from $s! =
-\Theta(2^{s\log s})$ to $2^s$.  This results in a dynamic programming
+\Theta(2^{s\log s})$ to $2^s$.  This results in a bidirectional dynamic programming
 algorithm for strong USP verification that takes time $O(2^{2s} \poly(s) +
 \poly(s,k))$.  For space, we defer the details of the algorithm to
 \autoref{app:bi}.
@@ -540,25 +540,27 @@ algorithm for strong USP verification that takes time $O(2^{2s} \poly(s) +
 \label{subsec:sat}
 
 By \autoref{lem:verify-to-3dm}, one can determine whether a puzzle $P$
-is a strong USP by contructing a graph $H_P$ from $P$ and deciding
-whether it has a non-trivial 3D matching.  It well-known that 3D
-matching is \NP{}-complete, c.f., e.g., \cite{gj79}, and that it can be
-efficiently reduced to other \NP{}-complete problems. Here we reduce
-our 3D matching problem to the CNF satisfability (SAT) problem and
+is a strong USP by contructing the graph $H_P$ and deciding
+whether it has a non-trivial 3D matching.
+%It well-known that 3D
+%matching is \NP{}-complete, c.f., e.g., \cite{gj79}.
+Here we reduce
+our 3D matching problem to the satisfability (SAT) problem on conjunctive normal form (CNF) formula and
 then use a state-of-the-art SAT solver (MapleCOMPSPS \cite{lgpc16}) to
-answer the reduced problem. To perform the reduction, we convert the
-graph $H_P$ that is obtained from the puzzle $P$ into a conjunctive
-normal form (CNF) formula, $\Psi_P$, a depth-2 formula that is the AND
-of ORs of Boolean literals.  We input the CNF formula $\Psi_P$ into a
-SAT solver to determine whether the formula is satisfiable.  We
-construct $\Psi_P$ so that \autoref{lem:verify-to-3dm} implies that
+resolve the reduced problem. To perform the reduction, we convert the
+graph $H_P$
+%that is obtained from the puzzle $P$
+into a CNF formula $\Psi_P$, a depth-2 formula that is the AND
+of ORs of Boolean literals.  
+We construct $\Psi_P$ so that \autoref{lem:verify-to-3dm} implies that
 $\Psi_P$ is satisfiable iff $H_P$ has a non-trivial \emph{3D
   matching}.
+%% We input the CNF formula $\Psi_P$ into a
+%% SAT solver to determine whether the formula is satisfiable.
 
-Let $H_P = \langle V, E \rangle$ be the 3D matching instance
+Let $H_P = \langle V = P \sqcup P \sqcup P, E \subseteq P^3 \rangle$ be the 3D matching instance
 associated with the puzzle $P$.  Our goal is to construct a
-non-trivial 3D matching $M$ that is a subset of the edges of $E$ and
-is vertex disjoint.
+non-trivial 3D matching $M \subseteq E$.
 %% We use $M_{u,v,w}$ to denote a variable with
 %% values in $\set{0,1}$ that indicates whether the edge $(u,v,w) \in
 %% P^3$ is present in the matching.
@@ -604,25 +606,23 @@ is vertex disjoint.
 %% hyperedges of the 3DM instance.
 %% To avoid the polynomial growth in instance size we decided to use a
 %% more concise matching representation.
-
 A na\"{i}ve reduction would be to have variables $M_{u,v,w}$ indicating inclusion of each
-hyperedge $(u,v,w) \in P^3$ in the matching. This results in a formula with
+hyperedge $(u,v,w) \in P^3$ in the matching. This results in a formula $\Psi_P$ with
 $s^3$ variables and size $\Theta(s^5)$.
-For greater concision we uses sets
-of variables to indicate which vertices in the second and third part
+To decrease the size of $\Psi_P$ we instead use sets
+of variables to indicate which vertices in the second and third part of $V$
 are matched with each vertex in the first part.  In particular we have
 Boolean variables $M_{u,v}^1$ and $M_{u,w}^2$ for all $u, v, w \in P$,
 and these variable map to assignments in the original scheme in the
 following way: $M_{u,v}^1 \wedge M_{u,w}^2 \Leftrightarrow M_{u,v,w}$.
 
-We can rewrite our CNF formula for 3D matching using these
-variables.  First, we have clauses that prevents non-edges from
+We now write our CNF formula for 3D matching.  First, we have clauses that prevents non-edges from
 being in the matching:
 %\begin{equation}
   $\Psi_P^{\text{non-edge}} = \bigwedge_{(u,v,w) \in \overline{E}}
   (\neg M_{u,v}^1 \vee \neg M_{u,w}^2).$
 %\end{equation}
-Next, we add clauses require that every vertex in $H_P$ is matched with some
+Second, we add clauses require that every vertex in $H_P$ is matched with some
 hyperedge:
 \begin{equation}
   \Psi_P^{\ge 1} =
@@ -630,26 +630,25 @@ hyperedge:
   \wedge \left(\bigwedge_{v \in P} (\vee_{u \in P} ~M_{u,v}^1)\right)
   \wedge \left(\bigwedge_{w \in P} (\vee_{u \in P} ~M_{u,w}^2)\right).
 \end{equation}
-Note that these clauses are no longer symmetric because the first part
-of $H_P$ is considered in both sets of variables.
+%% Note that these clauses are no longer symmetric because the first part
+%% of $H_P$ is considered in both sets of variables.
 
-Third, we require that each vertex can only be matched one a single
-hyperedge and so have clauses that exclude matching hyperedges that
-overlap non-trivially (on one or two coordinates).
+Third, we require that each vertex can only be matched with at most one hyperedge and so have clauses that exclude matching hyperedges that
+overlap on one or two coordinates.
 \begin{equation}
   \Psi_P^{\le 1} = \bigwedge_{i \in \set{1,2}} \bigwedge_{(u,v),
     (u',v') \in P^2} (u = u' \vee v = v') \wedge (u,v \neq u',v')
   \Rightarrow \neg M_{u,v}^i \vee \neg M_{u',v'}^i.
 \end{equation}
-Observe that $\Psi_P^{\le 1}$ has size $\Theta(s^3)$ compared to the
-size of the original $\Phi_P^{\le 1}$ that had size $\Theta(s^5)$.
+%% Observe that $\Psi_P^{\le 1}$ has size $\Theta(s^3)$ compared to the
+%% size of the original $\Phi_P^{\le 1}$ that had size $\Theta(s^5)$.
 Fourth, we exclude the trivial 3D matching by requiring that at least
 one of diagonal hyperedges not be used:
 %\begin{equation}
   $\Psi_P^{\text{non-trivial}} = \bigvee_{u \in P} \neg M_{u,u}^1 \vee
   \neg M_{u,u}^2.$
 %\end{equation}
-Finally, we AND these into the overall formula:
+Finally, we AND these into the overall CNF formula:
 %\begin{equation}
   $\Psi_P = \Psi_P^{\text{non-edge}} \wedge \Psi_P^{\le 1} \wedge
   \Psi_P^{\ge 1} \wedge \Psi_P^{\text{non-trivial}}.$
@@ -661,14 +660,13 @@ instance $H_P$ into the CNF formula $\Psi_P$.  At this point the
 reduction is straightforward, but is included for completeness in
 \autoref{app:sat}.
 
-As mentioned before, to solve the satisfiability problem %to implement Line 4 of \autoref{alg:sat}
-in
-practice we used the solver MapleCOMPSPS, from the 2016
-international SAT competition \cite{bhj17,lgpc16}.  This solver is
+To solve the satisfiability problem %to implement Line 4 of \autoref{alg:sat}
+we used the open-source solver MapleCOMPSPS from the 2016
+International SAT Competition \cite{bhj17}.  This solver is
 conflict driven and uses a learning rate branching heuristic to decide
-which variables are likely to lead to a conflict.  The solver provides
-no polynomial-time worse run time guarantees, but has had
-demonstratable success in practice.
+which variables are likely to lead to conflict.  The solver provides
+no polynomial time guarantees, but has had
+demonstratable success in practice \cite{lgpc16}.
 
 \subsection{3DM to IP}
 
