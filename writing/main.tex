@@ -70,14 +70,14 @@ Cohn and Umans proposed a framework for developing fast matrix
 multiplication algorithms based on the embedding computation in
 certain groups \cite{cu03}.  Subsequent work with Kleinberg and
 Szegedy connected this to the search for combinatorial objects called
-strong uniquely solvable puzzles (SUSP) \cite{cksu05}.  We begin a
+strong uniquely solvable puzzles (strong USP) \cite{cksu05}.  We begin a
 systematic computer-aided search for these objects.  We develop and
-implement algorithms and heuristics to verify that puzzles are SUSP
+implement algorithms and heuristics to verify that puzzles are strong USP
 and to search for large ones.  We produce tight bounds on the maximum
 size of puzzles for width $k < 6$, and construct puzzles of small
 width that are larger than previous work.  Although our work only
 deals with puzzles of small-constant width and does not produce a new
-faster algorithm, it gives evidence that there exist families of SUSP
+faster algorithm, it gives evidence that there exist families of strong USP
 that imply matrix multiplication algorithms that are more efficient
 than those currently known.
 \end{abstract}
@@ -116,7 +116,7 @@ property called the \emph{triple-product property} that allows matrix
 multiplication to embed in the group algebra.  Subsequent work
 \cite{cksu05} elaborated on this idea and developed the notion of
 combinatorial objects called \emph{strong uniquely solvable puzzles}
-(SUSP) whose existence would also imply faster matrix multiplication
+(strong USP) whose existence would also imply faster matrix multiplication
 algorithms.
 
 A \emph{width}-$k$ puzzle $P$ is a subset of $\set{0,1,2}^k$,
@@ -130,18 +130,18 @@ uniquely solvable puzzle is \emph{strong} if a tighter condition for
 non-overlapping is applied. For a fixed
 width $k$, the larger the size of a strong USP $P$, the faster matrix
 multiplication algorithm it implies \cite{cksu05}.  In fact Cohn et
-al.~show that there exist an infinite family of SUSP that achieves
+al.~show that there exist an infinite family of strong USP that achieves
 $\omega < 2.48$.
 
 % Approach
 
 We follow Cohn et al.'s program by: (i) developing \textbf{verification}
-algorithms to determine whether a puzzle is a SUSP, (ii) developing
-\textbf{search} algorithms to find large SUSP, and (iii) creating and
+algorithms to determine whether a puzzle is a strong USP, (ii) developing
+\textbf{search} algorithms to find large strong USP, and (iii) creating and
 runnning practical \textbf{implementations} of these algorithms.  The
 algorithms we develop are not efficient as they run in exponential
 time in the natural parameters.  However, the goal is to find a
-sufficiently large SUSP that imply a faster matrix
+sufficiently large strong USP that imply a faster matrix
 multiplication algorithm, and the resulting algorithm's running time
 is independent of the running time of our algorithms.  The
 inefficiency of our algorithms limit the search space that
@@ -150,14 +150,14 @@ we can practically examine.
 % Results
 
 In addition to creating algorithms, we have experimental results that
-bound the size of the largest SUSP for small-width puzzles.  For
+bound the size of the largest strong USP for small-width puzzles.  For
 small-constant width, $k \le 12$, we beat the largest sizes of
 \cite[Proposition 3.8]{cksu05}.  Our lower bounds on max size are
-witnessed by SUSP we found via search.  For $k \le 5$ we give tight
+witnessed by strong USP we found via search.  For $k \le 5$ we give tight
 upper bounds determined by exhaustively searching all puzzles.
 Although our current experimental results do not beat \cite{cksu05}
 for unbounded $k$, they may give evidence that there exist families of
-SUSP that imply matrix multiplication algorithms that are more
+strong USP that imply matrix multiplication algorithms that are more
 efficient than those currently known.
 
 There are a number of negative results in known.  Na\"{i}vely, the
@@ -315,7 +315,7 @@ matrix multiplication $\omega$.
 
 
 
-\section{Verifying Strong USPs}
+\section{Verifying Strong USP}
 \label{sec:verify}
 
 The core focus of this article is the verification of strong USP:
@@ -323,7 +323,7 @@ Given an $(s,k)$-puzzle $P$, output YES iff $P$ is a strong USP.  In
 this section we discuss the design of algorithms to solve this problem
 as a function of the natural parameters $s$ and $k$.
 %% As the goal of this work is to actually 
-%% to use computers to locate large strong USPs,
+%% to use computers to locate large strong USP,
 Along the way we also discuss some aspects of our practical
 implementation that informed or constrained our designs.  All the
 exact algorithms we develop in this section have exponential running
@@ -804,7 +804,7 @@ is free for small constant $s' \le 3$, as even the reductions in the exact verif
 have a matching or higher polynomial running time.
 %% Furthermore, since
 %% the algorithm can return early, its expected running time on random
-%% non-strong USPs is low.
+%% non-strong USP is low.
 %% There appeared to be diminishing returns with
 %% increasing $s'$ as it substantially increases precompute time and
 %% storage while each stored value contributes relatively less benefit to
@@ -901,7 +901,7 @@ algorithms struggled with that the other did not.
 \end{algorithmic}
 \end{algorithm}
 
-\section{Searching for Strong USPs}
+\section{Searching for Strong USP}
 \label{sec:search}
 
 The problem of constructing a large strong USP is similar to the
@@ -928,30 +928,30 @@ of $S$.
 %% maximum set with some given subset $S'$.
 
 Unfortunately this same approach does not work for generating
-maximum-size strong USPs.  The set of strong USP do not form a
+maximum-size strong USP.  The set of strong USP do not form a
 matroid, rather they only form an independence system, c.f., e.g.,
 \cite{oxl06}.  In particular, (i) the empty puzzle is a strong USP and (ii) the
-set of strong USPs are downward closed.
+set of strong USP are downward closed.
 %, so that if $P_2$ is a strong
 %USP and $P_1 \subseteq P_2$, then $P_1$ is a strong USP.
 The third
 and final property required to be a matroid, the augmentation
-property, requires that for every pair of strong USPs $P_1, P_2$ with
+property, requires that for every pair of strong USP $P_1, P_2$ with
 $|P_1| \le |P_2|$ there is a row of $r \in P_2 \backslash P_1$ such
 that $P_1 \cup \set{r}$ is also a strong USP.  A simple counterexample
-with the strong USPs $P_1 = \set{32}$ and $P_2 = \set{12, 23}$
+with the strong USP $P_1 = \set{32}$ and $P_2 = \set{12, 23}$
 concludes that neither $P_1 \cup \set{12} = \set{12, 32}$ nor $P_1
 \cup \set{23} = \set{23, 32}$ are strong USP, and hence the
 augmentation property fails.
 One consequence is that na\"{i}ve greedy algorithms will not be
-effective for finding maximum size strong USPs.  Furthermore, we do
+effective for finding maximum size strong USP.  Furthermore, we do
 not currently have a practical algorithm that can take a strong USP
 $P$ and determine a row $r$ such that $P \cup \set{r}$ is a strong
 USP (note number of possible next rows is $\le 3^k$.)
 
 That said, we have had some success applying general purpose search
 techniques together with our practical verification algorithm to
-construct maximum-size strong USPs for small $k$.  In particular, we
+construct maximum-size strong USP for small $k$.  In particular, we
 implemented variants of depth-first search (DFS) and breadth-first
 search (BFS).  We include pseudocode for both searches in
 \autoref{app:search} for completeness.
@@ -960,7 +960,7 @@ The actual running times of both of these algorithms are prohibitive
 even for $k > 5$, and the greater memory usage of \textsc{BFS} to
 store the entire search frontier in $Q$ is in the tens of terabytes
 even for $k = 6$.  There are some silver linings, \textsc{DFS} can
-report intermediate results that are the maximal strong USPs that it
+report intermediate results that are the maximal strong USP that it
 has discovered so far.  Both algorithms admit the possibility of
 eliminating puzzles from the search that are equivalent to puzzles
 that have already been searched, though it is easier to fit into the
@@ -986,13 +986,13 @@ bounds on the maximum size of width-$k$ strong USP, and (iii)
 experimental run times comparing the algorithms for verifying
 width-$k$ strong USP.
 %Here constructive means that specific concrete strong
-%USPs are produced by our implementation that witness the bound.
+%USP are produced by our implementation that witness the bound.
 \textsc{BFS} and \textsc{DFS} when run to completion search the entire
 space and provide bounds of form (i) and (ii) and are
 tight.  When unable to run to completion they provide only
 result of form (i), and are not guaranteed to be tight.
 
-\subsection{New Bounds on the Size of Strong USPs}
+\subsection{New Bounds on the Size of Strong USP}
 \label{subsec:usps_found}
 
 
@@ -1077,7 +1077,7 @@ bounds on the maximum size of strong USP for
 small widths $k$, and compares them to bounds from \cite{cksu05}.  The
 lower bounds of \cite{cksu05} are from constructions in their
 Propositions 3.1 and 3.8, which give families for $k$ even or $k$
-divisible by three.  Note that because the SUSP property is preserved
+divisible by three.  Note that because the strong USP property is preserved
 when extending with an arbitrary column, the lines that are missing
 lower bounds could be continued with the lower bound from the next
 previous line.  The upper bounds of \cite{cksu05} follow from their
@@ -1137,7 +1137,7 @@ $\omega^*$, because it is strictly worst than the $\omega^*$ in
 preceding lines.  Notice that the minimum $\omega^*$ occurs in the $k
 = 6$ line of our work, this is where we have generated the relatively
 largest size puzzle for its width.  In the subsequent lines the
-$\omega^*$ is no smaller, because the SUSPs found are relatively
+$\omega^*$ is no smaller, because the strong USP found are relatively
 smaller in comparison to their width.  Note that $\omega^*$ for $k =
 12$ matches that of $k = 6$.  This is because the $(196, 12)$-puzzle
 is the result of taking the Cartesian product of the $(14,6)$-puzzle
@@ -1145,7 +1145,7 @@ with itself, and hence is the same by definition of $\omega^*$.
 
 The $k = 6$ line of \autoref{table:compare} gives the greatest
 improvement versus \cite[Proposition 3.8]{cksu05}, which, ultimately,
-constructs an infinite family of strong USPs that achieve $\omega <
+constructs an infinite family of strong USP that achieve $\omega <
 2.48$. Our results suggests there is considerable room for
 improvement, perhaps beyond Coppersmith-Winograd.
 
@@ -1183,8 +1183,8 @@ algorithms and heuristics are activated around $s = 10$.  Observe that
 the hybrid algorithm flatlines and is effectively constant time for
 large $s$---this also happens for $k = 10$, though this domain is not
 included in the plot.  This is likely a consequence of how the density
-of strong USPs decays as height increases, and as random puzzles are
-likely to far from strong USPs, it is more likely that the fast
+of strong USP decays as height increases, and as random puzzles are
+likely to far from strong USP, it is more likely that the fast
 heuristics filter them.
 
 Overall, our hybrid algorithm performs reasonably well in practice,
@@ -1600,7 +1600,7 @@ the for loop in both algorithms.  Observe that \Call{BFS}{$k$} $=$
 width $k$.  The worst case running time of these algorithms is
 similarly routine, they both run in time $O(3^k \cdot \#USP(k) \cdot
 T_{\textsc{Verify}}($\Call{BFS}{$k}$, $k))$ where $\#USP(k)$ is the
-number of strong USPs of width $k$ and
+number of strong USP of width $k$ and
 $T_{\textsc{Verify}}(BFS(k)+1,k)$ is the time to verify the maximum
 size puzzle examined by the algorithm (assuming $T_{\textsc{Verify}}$
 is monotone in its parameters).
