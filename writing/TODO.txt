@@ -4,14 +4,15 @@ Todo for full version:
 + New Data:
   - Larger size puzzles
   - Variances
-+ More narrative.
 + Put repo on github:
   - Refactor code to be consistent with paper, and remove material that could be published in future work.
 + Try to prove tensor product construction.
-+ More explanation about omega*.
++ More narrative.
 + More discussion:
   + Future work
   + Results
   + Motivation of approach
   + HPC effort.
+  + omega*
+  + Connections with tensor results.
 
