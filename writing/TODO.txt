@@ -1,19 +1,17 @@
-Matt:
-Introduction
-Preliminaries
-Heuristics
-Searching
-Conclusion
+Todo for full version:
 
-Jerry:
-Naive Approach (Previous Summer)
-3DM to 3SAT
++ Restructure appendix back into body.
++ New Data:
+  - Larger size puzzles
+  - Variances
++ More narrative.
++ Put repo on github:
+  - Refactor code to be consistent with paper, and remove material that could be published in future work.
++ Try to prove tensor product construction.
++ More explanation about omega*.
++ More discussion:
+  + Future work
+  + Results
+  + Motivation of approach
+  + HPC effort.
 
-Introduction
-intuition
-formal explanation
-
-Data
-*Searhing
-
-3DM to MIP (Anthony)
