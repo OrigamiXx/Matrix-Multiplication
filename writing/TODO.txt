@@ -2,7 +2,7 @@ Todo for full version:
 
 + Restructure appendix back into body.
 + New Data:
-  - Larger size puzzles
+  - Much larger size puzzles
   - Variances
 + Put repo on github:
   - Refactor code to be consistent with paper, and remove material that could be published in future work.
