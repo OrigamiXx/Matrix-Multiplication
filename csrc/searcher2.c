@@ -31,8 +31,10 @@ using namespace std;
 
 priority_queue<heuristic_result> * degree_h(puzzle * p, ExtensionGraph * eg);
 priority_queue<heuristic_result> * greedy_clique_h(puzzle * p, ExtensionGraph * eg);
+#ifdef __GUROBI_INSTALLED__
 priority_queue<heuristic_result> * mip_clique_h(puzzle * p, ExtensionGraph * eg);
 priority_queue<heuristic_result> * mip_search_h(puzzle * p, ExtensionGraph * eg);
+#endif
 
 // Data structures holding the heuristics that can be run during A*
 // search.
@@ -46,9 +48,12 @@ const char * heuristic_names[number_of_heuristics] = {
 
 const search_heuristic_t heuristic_functions[] = {
   degree_h,
-  greedy_clique_h,
+  greedy_clique_h
+  #ifdef __GUROBI_INSTALLED__
+  ,
   mip_clique_h,
   mip_search_h
+  #endif
 };
 
 search_heuristic_t get_heuristic(heuristic_t ht){
@@ -509,7 +514,7 @@ priority_queue<heuristic_result> * greedy_clique_h(puzzle * p, ExtensionGraph * 
   
 }
 
-
+#ifdef __GUROBI_INSTALLED__
 priority_queue<heuristic_result> * mip_clique_h(puzzle * p, ExtensionGraph * eg){
 
   // Priority queue of the heuristic results.
@@ -589,3 +594,4 @@ priority_queue<heuristic_result> * mip_search_h(puzzle * p, ExtensionGraph * eg)
 }
 
 
+#endif

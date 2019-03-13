@@ -1,0 +1,20 @@
+######################################################
+# HTCondor Submit Description File. COMMON TEMPLATE
+# Next commands should be added to all your submit files
+######################################################
+name = util_check_benchmark
+out_dir = condor_output
+id = $(name).$(Cluster).$(Process)
+output  = $(out_dir)/out.$(id)
+error   = $(out_dir)/err.$(id)
+log     = $(out_dir)/log.$(id)
+N 			= 1
+
+arguments = A 1 1 1 1 100 $(id)
+executable= ./bin/util_check_benchmark
+universe  = vanilla
+transfer_output_files = out-$(id).csv, err-$(id).txt
+should_transfer_files   = YES
+when_to_transfer_output = ON_EXIT
+
+queue $(N)

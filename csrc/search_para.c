@@ -23,6 +23,7 @@
 #include "3DM_to_SAT.h"
 #include "canonization.h"
 #include "clique_to_mip.h"
+#include "ExtensionGraph.hpp"
 
 using namespace MAPREDUCE_NS;
 
