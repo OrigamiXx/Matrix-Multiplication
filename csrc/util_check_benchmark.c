@@ -645,7 +645,7 @@ int main(int argc, char * argv[]) {
   
   if (success) {
     fprintf(stderr, "All tests successful!  Performance output in %s.\n", log_name);
-    remove(log_err_name);
+    //remove(log_err_name);
   } else {
     fprintf(stderr, "ERROR: Some tests failed.  Check %s for more details.\n", log_err_name);
   }
