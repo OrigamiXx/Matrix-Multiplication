@@ -242,7 +242,7 @@ int search_random_greedy(int k){
   
   puzzle_row w[n];
 
-  int best_found = 0;
+  unsigned int best_found = 0;
   int total = 0;
   
   for (int i = 0; i < iters; i++){
