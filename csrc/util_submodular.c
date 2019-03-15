@@ -8,7 +8,7 @@
 
 // Returns the number of rows of the largest subpuzzle of p containing
 // rows indexed > max_i that is a strong USP.
-int sub_rank(puzzle * p, int max_i, int best){
+int sub_rank(puzzle * p, int max_i, unsigned int best){
 
   if (IS_USP == check(p)){
     // Should return at least s >= 1.
@@ -22,10 +22,10 @@ int sub_rank(puzzle * p, int max_i, int best){
 
   int a = sub_rank(q, max_i - 1, best);
   destroy_puzzle(q);
-  if (a == p -> s - 1)
-    return p -> s - 1;
+  if (a == (int)(p -> s - 1))
+    return (int)(p -> s - 1);
 
-  int b = sub_rank(p, max_i - 1, MAX(best, a));
+  int b = sub_rank(p, max_i - 1, MAX((int)best, a));
   return MAX(a, b);
 
 }
@@ -47,7 +47,7 @@ int derivative(puzzle * p, puzzle_row row) {
     
 }
 
-int dependent_all_puzzles(puzzle * p, puzzle_row u, puzzle_row v,  int i){
+int dependent_all_puzzles(puzzle * p, puzzle_row u, puzzle_row v,  unsigned int i){
 
   int res = 0;
   
@@ -210,7 +210,7 @@ int search_continuous_greedy(int k){
 	if (IS_USP == check(q)){
 	  destroy_puzzle(p);
 	  p = q;
-	  best_found = MAX(p -> s, best_found);
+	  best_found = MAX((int)(p -> s), best_found);
 	} else {
 	  destroy_puzzle(q);
 	}
