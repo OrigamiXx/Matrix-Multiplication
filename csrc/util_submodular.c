@@ -222,7 +222,7 @@ int search_continuous_greedy(int k){
     destroy_puzzle(p);
     
     // Update y
-    for (int j = 0; j < p -> s; j++){
+    for (unsigned int j = 0; j < p -> s; j++){
       y[p -> puzzle[j]] += delta; 
     }
     
