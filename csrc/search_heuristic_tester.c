@@ -159,10 +159,10 @@ int main(int argc, char ** argv) {
                 fprintf(time_log, "Time log started at time %d-%d-%d %d:%d:%d\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
                 fprintf(time_log, "heuristic_type,k,time_taken,s_result\n");
                 fclose(time_log);
-  
+
 
                 for (int n = 0; n < number_of_trials; n++) {
-                    
+
                     int log_buffer_size = 75;
                     char log_name[log_buffer_size];
                     snprintf(log_name, log_buffer_size, "search_logs/t#%d--search_run--max_s=%d-k=%d", n, s, k);
@@ -215,9 +215,9 @@ int main(int argc, char ** argv) {
                 // fflush(stdout);
 
                 printf("\n");
-                
 
-                // STILL NEED SOME SHIT FROM THE TIME 
+
+                // STILL NEED SOME SHIT FROM THE TIME
 
                 // printf(" ## RESULTS ## \n");
                 // // print out results here

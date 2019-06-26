@@ -34,5 +34,3 @@ search_heuristic_t heuristics[5] = {
   mip_clique_h
 }
 */
-
-

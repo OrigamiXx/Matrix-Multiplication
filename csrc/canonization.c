@@ -41,20 +41,20 @@ void canonize_puzzle(puzzle * p, int s, int k, int n, int * lab, graph * canon_g
   int ptn[n], orbits[n];
   static DEFAULTOPTIONS_GRAPH(options);
   statsblk stats;
-  
+
   /* Default options are set by the DEFAULTOPTIONS_GRAPH macro above.
      Here we change those options that we want to be different from
      the defaults.  writeautoms=TRUE causes automorphisms to be
      written.  */
-  
+
   options.writeautoms = FALSE;
   options.defaultptn = FALSE;
   options.getcanon = TRUE;
-  
+
   /* The following optional call verifies that we are linking
-     to compatible versions of the nauty routines.            */  
+     to compatible versions of the nauty routines.            */
   nauty_check(WORDSIZE,m,n,NAUTYVERSIONID);
-  
+
   EMPTYGRAPH(g,m,n);
 
   // Set k-clique in rows.
@@ -111,11 +111,15 @@ void canonize_puzzle(puzzle * p, int s, int k, int n, int * lab, graph * canon_g
   */
 
   densenauty(g,lab,ptn,orbits,&options,&stats,m,n,canon_g);
-  
+
 }
 
 map<string, int>seen_isomorphs;
 int num_seen = 0;
+
+map<string, int>stored_isomorphs;
+int stored_seen = 0;
+bool keep_unchanged = false;
 
 // Returns true iff no isomorphs of p have been previously seen.
 bool have_seen_isomorph(puzzle * p, bool remember, int * index){
@@ -129,25 +133,31 @@ bool have_seen_isomorph(puzzle * p, bool remember, int * index){
   size_t graph_size = sizeof(graph) * m * n;
   graph canon_g[m * n];
   bzero(canon_g, graph_size);
-  
+
   canonize_puzzle(p, s, k, n, lab, canon_g);
-  
+
   string key((char *)canon_g, graph_size);
-  
+
   map<string, int>::const_iterator iter = seen_isomorphs.find(key);
   if (iter != seen_isomorphs.end()){
     if (index != NULL)
       *index = iter->second;
     return true;
   }
-  
+
   if (remember && (MAX_ISOMORPHS == -1 || seen_isomorphs.size() < MAX_ISOMORPHS)){
     num_seen++;
     if (index != NULL)
       *index = num_seen;
     seen_isomorphs.insert(pair<string, int>(key, num_seen));
+
+    if(!keep_unchanged)
+    {
+      stored_isomorphs.insert(pair<string, int>(key, num_seen));
+      stored_seen++;
+    }
   }
-  
+
   return false;
 }
 
@@ -155,8 +165,24 @@ bool have_seen_isomorph(puzzle * p, bool remember, int * index){
 void reset_isomorphs(){
   seen_isomorphs.erase(seen_isomorphs.begin(), seen_isomorphs.end());
   assert(seen_isomorphs.size() == 0);
+
+  if(!keep_unchanged)
+  {
+    stored_isomorphs.erase(seen_isomorphs.begin(), seen_isomorphs.end());
+  }
 }
 
+void store_state()
+{
+    keep_unchanged = true;
+}
+
+void revert_stored_state()
+{
+  seen_isomorphs = stored_isomorphs;    //This seems naive,maybe it works?
+  num_seen = stored_seen;
+  keep_unchanged = false;
+}
 
 // Replace p with its canonical isomorph.
 void canonize_puzzle(puzzle * p){
@@ -168,12 +194,12 @@ void canonize_puzzle(puzzle * p){
   int lab[n];
   int m = SETWORDSNEEDED(n);
   graph canon_g[m * n];
-  
+
   canonize_puzzle(p, s, k, n, lab, canon_g);
 
   // Create label pendants.
   int pendex[3] = {VERT(s,0), VERT(s,0) + 5, VERT(s,0) + 10};
-  
+
   // Compute permutation of rows / columns and {1,2,3} to canonical graph.
   int row_count = 0;
   int col_count = 0;
@@ -181,7 +207,7 @@ void canonize_puzzle(puzzle * p){
   int col_perm[k];
   int pend_count = 0;
   int pend_perm[3];
-  
+
   for (int i = 0; i < n; i++){
 
     if (lab[i] < s){
@@ -200,7 +226,7 @@ void canonize_puzzle(puzzle * p){
       pend_perm[2] = pend_count;
       pend_count++;
     }
-    
+
   }
 
   puzzle * p_copy = create_puzzle_copy(p);
@@ -220,7 +246,7 @@ bool are_isomorphs(puzzle * p1, puzzle * p2){
 
   assert(p1 -> k == p2 -> k);
   assert(p1 -> s == p2 -> s);
-  
+
   int s = p1 -> s;
   int k = p1 -> k;
   int n = s * k + 3 * (1 + 4) + (s + k);
@@ -229,7 +255,7 @@ bool are_isomorphs(puzzle * p1, puzzle * p2){
   int m = SETWORDSNEEDED(n);
   graph canon_g1[m * n];
   graph canon_g2[m * n];
-  
+
   canonize_puzzle(p1, s, k, n, lab, canon_g1);
   canonize_puzzle(p2, s, k, n, lab, canon_g2);
 
