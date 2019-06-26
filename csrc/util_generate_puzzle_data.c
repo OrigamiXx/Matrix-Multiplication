@@ -36,7 +36,15 @@ int main(int argc, char * argv[]){
   int i, j;
 
   char filename[256];
-  sprintf(filename, "../data/R-%d_C-%d.csv", givenR, givenC);
+
+  if(cano)
+  {
+    sprintf(filename, "../data/cano_r%d_c%d.csv", givenR, givenC);
+  }
+  else
+  {
+    sprintf(filename, "../data/r%d_c%d.csv", givenR, givenC);  
+  }
   FILE * data_file = fopen(filename, "w+");
   assert(data_file != NULL);
 
