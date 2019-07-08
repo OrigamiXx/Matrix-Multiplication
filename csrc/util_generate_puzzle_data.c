@@ -15,7 +15,20 @@
 #define DEFAULT_COL 3
 #define NUM_INTERVALS 50 //Creates number of intervals in progress meter
 
-void print_progress(size_t count, double eta)
+void convert_seconds_to_time(int seconds)
+{
+    int hour = seconds / 3600;
+
+    seconds %= 3600;
+    int minutes = seconds / 60 ;
+
+    seconds %= 60;
+    int second = seconds;
+
+    printf("%d Hours, %d Minutes, %d Seconds", hour, minutes, second);
+}
+
+void print_progress(size_t count, double eta, float percent_adder, int percent_per_bar)
 {
 	const char prefix[] = "Progress: [";
 	const char suffix[] = "]";
@@ -30,21 +43,24 @@ void print_progress(size_t count, double eta)
 		buffer[prefix_length + i] = i < count ? '#' : ' ';
 	}
 	strcpy(&buffer[prefix_length + i], suffix);
-  float percent = 100*(count/(float)NUM_INTERVALS);
+  float percent = percent_adder + (percent_per_bar *(count/(float)NUM_INTERVALS));
 
-	printf("\b%c[2K\r%s  %.0f%%  ETA: %.2f seconds", 27, buffer, percent, eta);
+	printf("\b%c[2K\r%s  %.0f%%  ETA: ", 27, buffer, percent, eta);
+  convert_seconds_to_time(eta);
 	fflush(stdout);
 	free(buffer);
 }
 
-int increase_progress(int current_progress, double eta)
+int increase_progress(int current_progress, double eta, float percent_adder, int percent_per_bar)
 {
   if(current_progress < NUM_INTERVALS)
   {
-    print_progress(current_progress+1, eta);
+    print_progress(current_progress+1, eta, percent_adder, percent_per_bar);
   }
 	return current_progress+1;
 }
+
+
 
 int main(int argc, char * argv[]){
 
@@ -98,18 +114,34 @@ int main(int argc, char * argv[]){
   fprintf(data_file, "%s", "isSUSP\n");
 
   int current_prog = -1;
-  current_prog = increase_progress(current_prog, 0); //Initilizes progress meter
-  int interval = pow(3, givenR * givenC)/ NUM_INTERVALS;
+  double percent_per_bar = 100;
+  current_prog = increase_progress(current_prog, 0, 0, percent_per_bar); //Initilizes progress meter
+  int interval = ceil(pow(3, givenR * givenC)/ (NUM_INTERVALS*(100/percent_per_bar)));
+
+  while(interval > 4000) //Sets up how many progress bars to run, based on length of program
+  {
+    percent_per_bar  = percent_per_bar/2;
+    interval = ceil(pow(3, givenR * givenC)/ (NUM_INTERVALS*(100/percent_per_bar)));
+  }
+
   int next_interval = interval;
+  int total_prog = 0;
+  float percent_adder = 0;
 
   for(; index < pow(3, givenR * givenC); index+=1){
 
     if(index == next_interval)
     {
       clock_t temp = clock();
+      total_prog += 1;
       double time_elapsed = ((double) (temp - start)) / CLOCKS_PER_SEC;
-      float eta = (NUM_INTERVALS*(time_elapsed/(current_prog+1))) - time_elapsed;
-      current_prog = increase_progress(current_prog, eta);
+      float eta = ((NUM_INTERVALS*(100/percent_per_bar))*(time_elapsed/(total_prog))) - time_elapsed;
+      if(current_prog == NUM_INTERVALS-1)
+      {
+        current_prog = -1;
+        percent_adder += percent_per_bar;
+      }
+      current_prog = increase_progress(current_prog, eta, percent_adder, percent_per_bar);
       next_interval += interval;
     }
 
@@ -194,6 +226,8 @@ int main(int argc, char * argv[]){
 
   end = clock();
 	total_time = ((double) (end - start)) / CLOCKS_PER_SEC;
-  increase_progress(NUM_INTERVALS-1, 0); //Ensures progress bar is full once program ends
-	printf("\nProgram Runtime: %.2f seconds\n", total_time);
+  increase_progress(NUM_INTERVALS-1, 0, 100-percent_per_bar, percent_per_bar); //Ensures progress bar is full once program ends
+	printf("\nProgram Runtime: ");
+  convert_seconds_to_time(total_time);
+  printf("\n");
 }
