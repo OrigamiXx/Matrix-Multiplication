@@ -9,50 +9,50 @@
 #include <unistd.h>
 #include "searcher2.h"
 #include "canonization.h"
+#include <time.h>
 
 #define DEFAULT_ROW 3
 #define DEFAULT_COL 3
-#define NUM_INTERVALS 50
+#define NUM_INTERVALS 50 //Creates number of intervals in progress meter
 
-void
-print_progress(size_t count, size_t max)
+void print_progress(size_t count, double eta)
 {
 	const char prefix[] = "Progress: [";
 	const char suffix[] = "]";
 	const size_t prefix_length = sizeof(prefix) - 1;
 	const size_t suffix_length = sizeof(suffix) - 1;
-	char *buffer = (char*)calloc(max + prefix_length + suffix_length + 1, 1);
-	size_t i = 0;
+	char *buffer = (char*)calloc(NUM_INTERVALS + prefix_length + suffix_length + 1, 1);
 
 	strcpy(buffer, prefix);
-	for (; i < max; ++i)
+  size_t i = 0;
+	for (; i < NUM_INTERVALS; ++i)
 	{
 		buffer[prefix_length + i] = i < count ? '#' : ' ';
 	}
-
 	strcpy(&buffer[prefix_length + i], suffix);
-  float percent = 100*(count/(float)max);
+  float percent = 100*(count/(float)NUM_INTERVALS);
 
-	printf("\b%c[2K\r%s  %.0f%%", 27, buffer, percent);
+	printf("\b%c[2K\r%s  %.0f%%  ETA: %.2f seconds", 27, buffer, percent, eta);
 	fflush(stdout);
 	free(buffer);
 }
 
-int increase_progress(int current_progress)
+int increase_progress(int current_progress, double eta)
 {
   if(current_progress < NUM_INTERVALS)
   {
-    print_progress(current_progress+1, NUM_INTERVALS);
+    print_progress(current_progress+1, eta);
   }
 	return current_progress+1;
 }
 
-
-
 int main(int argc, char * argv[]){
 
-  long index = 0;
+  double total_time;
+	clock_t start, end;
+  start = clock(); //Begins tracking program runtime
 
+  long index = 0;
   int givenR = 3;
   int givenC = 3;
   bool cano = false;
@@ -85,7 +85,7 @@ int main(int argc, char * argv[]){
   FILE * data_file = fopen(filename, "w+");
   assert(data_file != NULL);
 
-  for(i = 1; i <= givenR; i++)
+  for(i = 1; i <= givenR; i++)    //Sets up Feature names in dataset
   {
     fprintf(data_file, "%s%d%s","Row",i,",");
   }
@@ -97,13 +97,8 @@ int main(int argc, char * argv[]){
   }
   fprintf(data_file, "%s", "isSUSP\n");
 
-  if(cano)
-  {
-    reset_isomorphs();
-  }
-
   int current_prog = -1;
-  current_prog = increase_progress(current_prog);
+  current_prog = increase_progress(current_prog, 0); //Initilizes progress meter
   int interval = pow(3, givenR * givenC)/ NUM_INTERVALS;
   int next_interval = interval;
 
@@ -111,7 +106,10 @@ int main(int argc, char * argv[]){
 
     if(index == next_interval)
     {
-      current_prog = increase_progress(current_prog);
+      clock_t temp = clock();
+      double time_elapsed = ((double) (temp - start)) / CLOCKS_PER_SEC;
+      float eta = (NUM_INTERVALS*(time_elapsed/(current_prog+1))) - time_elapsed;
+      current_prog = increase_progress(current_prog, eta);
       next_interval += interval;
     }
 
@@ -157,7 +155,6 @@ int main(int argc, char * argv[]){
       fprintf(data_file, "%d%s", count2s, ",");
       fprintf(data_file, "%d%s", count3s, ",");
 
-      //printf("TEST%d\n", get_num_isomorphs());
       if(cano)
       {
         store_state();
@@ -193,7 +190,10 @@ int main(int argc, char * argv[]){
     }
       destroy_puzzle(p);
   }
-  printf("\n");
   fclose(data_file);
 
+  end = clock();
+	total_time = ((double) (end - start)) / CLOCKS_PER_SEC;
+  increase_progress(NUM_INTERVALS-1, 0); //Ensures progress bar is full once program ends
+	printf("\nProgram Runtime: %.2f seconds\n", total_time);
 }
