@@ -117,7 +117,7 @@ void canonize_puzzle(puzzle * p, int s, int k, int n, int * lab, graph * canon_g
 map<string, int>seen_isomorphs;
 int num_seen = 0;
 
-map<string, int>stored_isomorphs;
+map<string, int>stored_isomorphs;  //Fix this use pointers
 int stored_seen = 0;
 bool keep_unchanged = false;
 
@@ -165,10 +165,11 @@ bool have_seen_isomorph(puzzle * p, bool remember, int * index){
 void reset_isomorphs(){
   seen_isomorphs.erase(seen_isomorphs.begin(), seen_isomorphs.end());
   assert(seen_isomorphs.size() == 0);
-
+  num_seen = 0;
   if(!keep_unchanged)
   {
     stored_isomorphs.erase(seen_isomorphs.begin(), seen_isomorphs.end());
+    stored_seen = 0;
   }
 }
 
