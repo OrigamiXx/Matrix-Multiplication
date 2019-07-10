@@ -100,7 +100,8 @@ void add_puzzle_to_datafile(puzzle * p, FILE * data_file, bool canon, bool heuri
     {
       if(canon)
       {
-        store_state();
+        swap_stored_state();
+        reset_isomorphs();
       }
       for(int k = 0; k < number_of_heuristics; k++)
       {
@@ -126,7 +127,7 @@ void add_puzzle_to_datafile(puzzle * p, FILE * data_file, bool canon, bool heuri
       }
       if(canon)
       {
-      revert_stored_state();
+        swap_stored_state();
       }
     }
 
@@ -208,7 +209,7 @@ int main(int argc, char * argv[]){
   int current_prog = -1;
   double percent_per_bar = 100;
   current_prog = increase_progress(current_prog, 0, 0, percent_per_bar); //Initilizes progress meter
-  int interval = 0;
+  long interval = 0;
   if(random)
   {
     interval = random_amount/(NUM_INTERVALS*(100/percent_per_bar));
@@ -230,11 +231,11 @@ int main(int argc, char * argv[]){
     }
   }
 
-  int next_interval = interval;
+  long next_interval = interval;
   int total_prog = 0;
   float percent_adder = 0;
 
-  int total_puzzles_to_add = 0;
+  long total_puzzles_to_add = 0;
   if(random)
   {
     total_puzzles_to_add = random_amount;
