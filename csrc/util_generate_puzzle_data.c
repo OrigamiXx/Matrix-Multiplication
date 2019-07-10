@@ -206,6 +206,20 @@ void add_puzzle_to_datafile(puzzle * p, FILE * data_file, bool canon, bool heuri
       }
     }
 
+    for(int i = 0; i < p -> s; i++){
+      for(int j = 0; j < p -> k; j++){
+        switch (get_entry(p, i, j))
+        {
+          case 1: fprintf(data_file, "0,0,1,");
+            break;
+          case 2: fprintf(data_file, "0,1,0,");
+            break;
+          case 3: fprintf(data_file, "1,0,0,");
+            break;
+        }
+      }
+    }
+
     fprintf(data_file, "%s%s", isUSB, ",");
     fprintf(data_file, "\n");
   }
@@ -287,6 +301,17 @@ int main(int argc, char * argv[]){
       fprintf(data_file, "%s,", heuristic_names[k]);
     }
   }
+  for(int i = 1; i <= givenR; i++)    //Sets up Feature names in dataset
+  {
+    for(int j = 1; j <= givenC; j++)    //Sets up Feature names in dataset
+    {
+      fprintf(data_file, "%s%d-%d:1%s","OneHot",i,j,",");
+      fprintf(data_file, "%s%d-%d:2%s","OneHot",i,j,",");
+      fprintf(data_file, "%s%d-%d:3%s","OneHot",i,j,",");
+    }
+  }
+
+
   fprintf(data_file, "%s", "isSUSP\n");
 
   int current_prog = -1;
