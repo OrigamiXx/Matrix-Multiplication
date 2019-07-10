@@ -60,9 +60,6 @@ void add_puzzle_to_datafile(puzzle * p, FILE * data_file, bool canon, bool heuri
 {
   if((canon && !have_seen_isomorph(p)) || !canon)
   {
-    int count1s = 0;
-    int count2s = 0;
-    int count3s = 0;
 
     if(canon)
     {
@@ -78,10 +75,25 @@ void add_puzzle_to_datafile(puzzle * p, FILE * data_file, bool canon, bool heuri
     else{
         strncpy(isUSB, "False", sizeof(isUSB));
     }
+
     for(int i = 0; i < p -> s; i++){
       for(int j = 0; j < p -> k; j++){
-          fprintf(data_file, "%d", get_entry(p, i, j));
-          switch (get_entry(p, i, j))
+          int entry = get_entry(p, i, j);
+          fprintf(data_file, "%d", entry);
+      }
+      fprintf(data_file, ",");
+    }
+    int count1s = 0;
+    int count2s = 0;
+    int count3s = 0;
+
+    for(int i = 0; i < p -> s; i++){
+      char row_str[(p-> k) +1];
+      int x = get_entry(p, i, 0);
+      int y = -1;
+      for(int j = 0; j < p -> k; j++){
+          int entry = get_entry(p, i, j);
+          switch (entry)
           {
             case 1: count1s++;
               break;
@@ -90,12 +102,75 @@ void add_puzzle_to_datafile(puzzle * p, FILE * data_file, bool canon, bool heuri
             case 3: count3s++;
               break;
           }
+          if(entry == x)
+          {
+            row_str[j] = 'X';
+          }
+          else if(y == -1 || entry == y)
+          {
+            y = entry;
+            row_str[j] = 'Y';
+          }
+          else
+          {
+            row_str[j] = 'Z';
+          }
       }
+      row_str[p->k] = '\0';
+      fputs(row_str,data_file);
       fprintf(data_file, ",");
     }
-    fprintf(data_file, "%d%s", count1s, ",");
-    fprintf(data_file, "%d%s", count2s, ",");
-    fprintf(data_file, "%d%s", count3s, ",");
+
+    for(int i = 0; i < p -> k; i++){
+      char column_str[(p-> s) +1];
+      int x = get_entry(p, 0, i);
+      int y = -1;
+      for(int j = 0; j < p -> s; j++){
+          int entry = get_entry(p, j, i);
+          if(entry == x)
+          {
+            column_str[j] = 'X';
+          }
+          else if(y == -1 || entry == y)
+          {
+            y = entry;
+            column_str[j] = 'Y';
+          }
+          else
+          {
+            column_str[j] = 'Z';
+          }
+      }
+      column_str[p->s] = '\0';
+      fputs(column_str,data_file);
+      fprintf(data_file, ",");
+    }
+
+    double amount_of_numbers = count1s + count2s + count3s;
+
+    double first = count1s;
+    double second = count2s;
+    double third = count3s;
+    if(count2s > count1s)
+    {
+      first = count2s;
+      second = count3s;
+    }
+    if(count3s > first)
+    {
+      third = second;
+      second = first;
+      first = third;
+    }
+    else if(count3s > second)
+    {
+      third = second;
+      second = count3s;
+    }
+
+    fprintf(data_file, "%.2f%s", first/amount_of_numbers, ",");
+    fprintf(data_file, "%.2f%s", second/amount_of_numbers, ",");
+    fprintf(data_file, "%.2f%s", third/amount_of_numbers, ",");
     if(heuristics)
     {
       if(canon)
@@ -196,7 +271,15 @@ int main(int argc, char * argv[]){
   {
     fprintf(data_file, "%s%d%s","Row",i,",");
   }
-  fprintf(data_file, "%s", "#of1s,#of2s,#of3s,");
+  for(int i = 1; i <= givenR; i++)    //Sets up Feature names in dataset
+  {
+    fprintf(data_file, "%s%d%s","XYZRow",i,",");
+  }
+  for(int i = 1; i <= givenC; i++)    //Sets up Feature names in dataset
+  {
+    fprintf(data_file, "%s%d%s","XYZColumn",i,",");
+  }
+  fprintf(data_file, "%s", "%ofMostFrequentNum,%of2ndMostFrequentNum,%ofLeastFrequentNum,");
   if(heuristics)
   {
     for(int k = 0; k < number_of_heuristics; k++)
