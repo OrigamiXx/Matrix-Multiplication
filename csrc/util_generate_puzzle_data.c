@@ -58,9 +58,6 @@ int increase_progress(size_t current_progress, double eta, float percent_adder, 
 //Given Index and Puzzle Size, creates puzzle and features and adds them to the data file.
 void add_puzzle_to_datafile(puzzle * p, FILE * data_file, bool canon, bool heuristics)
 {
-  if((canon && !have_seen_isomorph(p)) || !canon)
-  {
-
     if(canon)
     {
       canonize_puzzle(p);
@@ -220,9 +217,8 @@ void add_puzzle_to_datafile(puzzle * p, FILE * data_file, bool canon, bool heuri
       }
     }
 
-    fprintf(data_file, "%s%s", isUSB, ",");
+    fprintf(data_file, "%s", isUSB);
     fprintf(data_file, "\n");
-  }
 }
 
 //To use extra arguments must provide puzzle size "R" "C" Ex: 3 4
@@ -380,7 +376,14 @@ int main(int argc, char * argv[]){
     {
       p = create_puzzle_from_index(givenR, givenC, index);
     }
-    add_puzzle_to_datafile(p, data_file, canon, heuristics);
+    if((canon && !have_seen_isomorph(p)) || !canon)
+    {
+      add_puzzle_to_datafile(p, data_file, canon, heuristics);
+    }
+    else if(random)
+    {
+      index-=1;
+    }
     destroy_puzzle(p);
   }
 
