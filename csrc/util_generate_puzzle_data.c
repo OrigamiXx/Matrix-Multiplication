@@ -67,10 +67,10 @@ void add_puzzle_to_datafile(puzzle * p, FILE * data_file, bool canon, bool heuri
     char isUSB[10];
 
     if(result){ //&& resultR){
-        strncpy(isUSB, "True", sizeof(isUSB));
+        strncpy(isUSB, "1", sizeof(isUSB));
     }
     else{
-        strncpy(isUSB, "False", sizeof(isUSB));
+        strncpy(isUSB, "0", sizeof(isUSB));
     }
 
     for(int i = 0; i < p -> s; i++){
@@ -151,13 +151,13 @@ void add_puzzle_to_datafile(puzzle * p, FILE * data_file, bool canon, bool heuri
     if(count2s > count1s)
     {
       first = count2s;
-      second = count3s;
+      second = count1s;
     }
     if(count3s > first)
     {
       third = second;
       second = first;
-      first = third;
+      first = count3s;
     }
     else if(count3s > second)
     {
@@ -238,27 +238,33 @@ int main(int argc, char * argv[]){
   bool canon = false;
   bool random = false;
   bool heuristics = true;
+  bool only_SUSP = false;
   int random_amount = 0;
   if(argc >= 3) //Name plus row and col     Is there a better way to handle all these potential arguments
   {
     givenR = strtol(argv[1], NULL, 10);
     givenC = strtol(argv[2], NULL, 10);
   }
-  while((opt = getopt(argc, argv, "cr:h")) != -1)
+  while((opt = getopt(argc, argv, "cr:ho")) != -1)
   {
     switch(opt)
     {
       case 'c': canon = true;
           break;
       case 'r': random = true;
-                random_amount = strtol(optarg, NULL, 10) -1;
+                random_amount = strtol(optarg, NULL, 10);
           break;
       case 'h': heuristics = false;
           break;
+      case 'o':  only_SUSP = true;
     }
   }
   char filename[256];
-  if(canon && random)
+  if(canon && random && only_SUSP)
+  {
+    sprintf(filename, "../data/random_canon_SUSPs_r%d_c%d.csv", givenR, givenC);
+  }
+  else if(canon && random)
   {
     sprintf(filename, "../data/random_canon_r%d_c%d.csv", givenR, givenC);
   }
@@ -378,7 +384,22 @@ int main(int argc, char * argv[]){
     }
     if((canon && !have_seen_isomorph(p)) || !canon)
     {
-      add_puzzle_to_datafile(p, data_file, canon, heuristics);
+      if(only_SUSP)
+      {
+        int result = check(p);
+        if(result)
+        {
+          add_puzzle_to_datafile(p, data_file, canon, heuristics);
+        }
+        else
+        {
+          index-=1;
+        }
+      }
+      else
+      {
+        add_puzzle_to_datafile(p, data_file, canon, heuristics);
+      }
     }
     else if(random)
     {
