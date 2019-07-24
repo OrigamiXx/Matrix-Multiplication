@@ -114,16 +114,28 @@ void canonize_puzzle(puzzle * p, int s, int k, int n, int * lab, graph * canon_g
 
 }
 
-map<string, int>seen_isomorphs;
+bool initilized = false;
+map<string, int> *seen_isomorphs;
 int num_seen = 0;
 
-map<string, int>stored_isomorphs;
+map<string, int> *stored_isomorphs;  //Fix this use pointers
 int stored_seen = 0;
-bool keep_unchanged = false;
+
+void ensure_initilize()
+{
+  if(!initilized)
+  {
+    seen_isomorphs = new map<string, int>();
+    stored_isomorphs = new map<string, int>();
+    initilized = true;
+  }
+}
+
 
 // Returns true iff no isomorphs of p have been previously seen.
 bool have_seen_isomorph(puzzle * p, bool remember, int * index){
 
+  ensure_initilize();
   int s = p -> s;
   int k = p -> k;
   int n = s * k + 3 * (1 + 4) + (s + k);
@@ -138,24 +150,18 @@ bool have_seen_isomorph(puzzle * p, bool remember, int * index){
 
   string key((char *)canon_g, graph_size);
 
-  map<string, int>::const_iterator iter = seen_isomorphs.find(key);
-  if (iter != seen_isomorphs.end()){
+  map<string, int>::const_iterator iter = seen_isomorphs -> find(key);
+  if (iter != seen_isomorphs -> end()){
     if (index != NULL)
       *index = iter->second;
     return true;
   }
 
-  if (remember && (MAX_ISOMORPHS == -1 || seen_isomorphs.size() < MAX_ISOMORPHS)){
+  if (remember && (MAX_ISOMORPHS == -1 || seen_isomorphs -> size() < MAX_ISOMORPHS)){
     num_seen++;
     if (index != NULL)
       *index = num_seen;
-    seen_isomorphs.insert(pair<string, int>(key, num_seen));
-
-    if(!keep_unchanged)
-    {
-      stored_isomorphs.insert(pair<string, int>(key, num_seen));
-      stored_seen++;
-    }
+    seen_isomorphs -> insert(pair<string, int>(key, num_seen));
   }
 
   return false;
@@ -163,25 +169,23 @@ bool have_seen_isomorph(puzzle * p, bool remember, int * index){
 
 // Reset the set of previously seen isomorphs.
 void reset_isomorphs(){
-  seen_isomorphs.erase(seen_isomorphs.begin(), seen_isomorphs.end());
-  assert(seen_isomorphs.size() == 0);
 
-  if(!keep_unchanged)
-  {
-    stored_isomorphs.erase(seen_isomorphs.begin(), seen_isomorphs.end());
-  }
+  ensure_initilize();
+  seen_isomorphs -> erase(seen_isomorphs -> begin(), seen_isomorphs ->end());
+  assert(seen_isomorphs->size() == 0);
+  num_seen = 0;
 }
 
-void store_state()
+void swap_stored_state()
 {
-    keep_unchanged = true;
-}
+  ensure_initilize();
+  map<string, int>* temp = seen_isomorphs;
+  seen_isomorphs = stored_isomorphs;
+  stored_isomorphs = temp;
 
-void revert_stored_state()
-{
-  seen_isomorphs = stored_isomorphs;    //This seems naive,maybe it works?
+  int temp_seen = num_seen;
   num_seen = stored_seen;
-  keep_unchanged = false;
+  stored_seen = temp_seen;
 }
 
 // Replace p with its canonical isomorph.
@@ -268,5 +272,6 @@ bool are_isomorphs(puzzle * p1, puzzle * p2){
 }
 
 size_t get_num_isomorphs(){
-  return seen_isomorphs.size();
+  ensure_initilize();
+  return seen_isomorphs -> size();
 }
