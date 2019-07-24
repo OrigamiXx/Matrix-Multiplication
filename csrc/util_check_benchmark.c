@@ -511,7 +511,6 @@ int main(int argc, char * argv[]) {
     checkers.push_back(c_uni);
     Checker c_bi(&check_usp_bi, "BI", 11, 0);  // Too slow after s = 11.
     checkers.push_back(c_bi);
-    
     Checker c_SAT(&check_SAT, "SAT", 35, 0);   // Too slow after s = 35.
     checkers.push_back(c_SAT);
     #ifdef __GUROBI_INSTALLED__
@@ -520,7 +519,7 @@ int main(int argc, char * argv[]) {
     Checker c_SAT_MIP(&check_SAT_MIP, "SAT_MIP");
     checkers.push_back(c_SAT_MIP);
     #endif
-    
+
   }
 
   // Heuristics
