@@ -114,8 +114,8 @@ void add_puzzle_to_datafile(puzzle * p, FILE * data_file, bool canon, bool heuri
           }
       }
       row_str[p->k] = '\0';
-      fputs(row_str,data_file);
-      fprintf(data_file, ",");
+    //  fputs(row_str,data_file);
+    //  fprintf(data_file, ",");
     }
 
     for(int i = 0; i < p -> k; i++){
@@ -139,8 +139,8 @@ void add_puzzle_to_datafile(puzzle * p, FILE * data_file, bool canon, bool heuri
           }
       }
       column_str[p->s] = '\0';
-      fputs(column_str,data_file);
-      fprintf(data_file, ",");
+  //    fputs(column_str,data_file);
+  //    fprintf(data_file, ",");
     }
 
     double amount_of_numbers = count1s + count2s + count3s;
@@ -225,7 +225,9 @@ void add_puzzle_to_datafile(puzzle * p, FILE * data_file, bool canon, bool heuri
 // Possible additional arguments:
 // -c produces canonized puzzles,
 // -r 'integer x' produces x number of random puzzles Ex: -r 500
-// -h turns off heuristics
+// -h turns off heuristic generation
+// -s adds only SUSPs to the dataset
+// -n excludes SUSPs from the dataset
 int main(int argc, char * argv[]){
 
   double total_time;
@@ -239,13 +241,14 @@ int main(int argc, char * argv[]){
   bool random = false;
   bool heuristics = true;
   bool only_SUSP = false;
+  bool only_not_SUSP = false;
   int random_amount = 0;
   if(argc >= 3) //Name plus row and col     Is there a better way to handle all these potential arguments
   {
     givenR = strtol(argv[1], NULL, 10);
     givenC = strtol(argv[2], NULL, 10);
   }
-  while((opt = getopt(argc, argv, "cr:ho")) != -1)
+  while((opt = getopt(argc, argv, "cr:hon")) != -1)
   {
     switch(opt)
     {
@@ -256,7 +259,9 @@ int main(int argc, char * argv[]){
           break;
       case 'h': heuristics = false;
           break;
-      case 'o':  only_SUSP = true;
+      case 's':  only_SUSP = true;
+          break;
+      case 'n': only_not_SUSP = true;
     }
   }
   char filename[256];
@@ -264,9 +269,21 @@ int main(int argc, char * argv[]){
   {
     sprintf(filename, "../data/random_canon_SUSPs_r%d_c%d.csv", givenR, givenC);
   }
+  else if(canon && random && only_not_SUSP)
+  {
+    sprintf(filename, "../data/random_canon_NOTSUSPs_r%d_c%d.csv", givenR, givenC);
+  }
   else if(canon && random)
   {
     sprintf(filename, "../data/random_canon_r%d_c%d.csv", givenR, givenC);
+  }
+  else if (random && only_SUSP)
+  {
+    sprintf(filename, "../data/random_SUSPs_r%d_c%d.csv", givenR, givenC);
+  }
+  else if (random && only_not_SUSP)
+  {
+    sprintf(filename, "../data/random_NOTSUSPs_r%d_c%d.csv", givenR, givenC);
   }
   else if(canon)
   {
@@ -282,7 +299,7 @@ int main(int argc, char * argv[]){
   }
   FILE * data_file = fopen(filename, "w+");
   assert(data_file != NULL);
-
+/*
   for(int i = 1; i <= givenR; i++)    //Sets up Feature names in dataset
   {
     fprintf(data_file, "%s%d%s","Row",i,",");
@@ -312,10 +329,8 @@ int main(int argc, char * argv[]){
       fprintf(data_file, "%s%d-%d:3%s","OneHot",i,j,",");
     }
   }
-
-
   fprintf(data_file, "%s", "isSUSP\n");
-
+*/
   int current_prog = -1;
   double percent_per_bar = 100;
   current_prog = increase_progress(current_prog, 0, 0, percent_per_bar); //Initilizes progress meter
@@ -384,10 +399,14 @@ int main(int argc, char * argv[]){
     }
     if((canon && !have_seen_isomorph(p)) || !canon)
     {
-      if(only_SUSP)
+      if(only_SUSP || only_not_SUSP)
       {
         int result = check(p);
-        if(result)
+        if(result && only_SUSP)
+        {
+          add_puzzle_to_datafile(p, data_file, canon, heuristics);
+        }
+        else if(!result && only_not_SUSP)
         {
           add_puzzle_to_datafile(p, data_file, canon, heuristics);
         }
