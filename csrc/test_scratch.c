@@ -89,12 +89,16 @@ int main(int argc, char* argv[]){
   puzzle * p = create_puzzle_product(p1,p2);
 
   print_puzzle(p);
-  
+
+  #ifdef __GUROBI_INSTALLED__
   if (check_MIP(p) == IS_USP) {
     printf("Product is a USP!\n");
   } else {
     printf("Product is not a USP.\n");
   }
+  #else
+  assert("Gurobi not installed\n" == 0);
+  #endif
   
   return 0;
 }

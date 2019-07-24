@@ -31,29 +31,43 @@ using namespace std;
 
 priority_queue<heuristic_result> * degree_h(puzzle * p, ExtensionGraph * eg);
 priority_queue<heuristic_result> * greedy_clique_h(puzzle * p, ExtensionGraph * eg);
+#ifdef __GUROBI_INSTALLED__
 priority_queue<heuristic_result> * mip_clique_h(puzzle * p, ExtensionGraph * eg);
 priority_queue<heuristic_result> * mip_search_h(puzzle * p, ExtensionGraph * eg);
+#endif
 
 // Data structures holding the heuristics that can be run during A*
 // search.
-const int number_of_heuristics = 4;
-const char * heuristic_names[number_of_heuristics] = {
+
+#ifdef __GUROBI_INSTALLED__
+extern const int number_of_heuristics = 4;
+#else
+extern const int number_of_heuristics = 2;
+#endif
+
+extern const char * heuristic_names[number_of_heuristics] = {
   "degree",
-  "greedy clique",
+  "greedy clique"
+  #ifdef __GUROBI_INSTALLED__
+  ,
   "mip clique",
   "mip search"
+  #endif
 };
 
-const search_heuristic_t heuristic_functions[] = {
+extern const search_heuristic_t heuristic_functions[] = {
   degree_h,
-  greedy_clique_h,
+  greedy_clique_h
+  #ifdef __GUROBI_INSTALLED__
+  ,
   mip_clique_h,
   mip_search_h
+  #endif
 };
 
 search_heuristic_t get_heuristic(heuristic_t ht){
   assert(ht < sizeof(heuristic_functions));
-  return heuristic_functions[ht]; 
+  return heuristic_functions[ht];
 }
 
 //======================================================================
@@ -66,7 +80,7 @@ typedef struct __heur_stat{
 
   unsigned long num;
   unsigned long num_search;
-  
+
   unsigned long num_heur;
   unsigned long max_heur;
   unsigned long min_heur;
@@ -97,7 +111,7 @@ bool reset_stats(){
     stats[i].tot_heur = 0;
     stats[i].ave_heur = 0.0;
     stats[i].var_heur = 0.0;
-    
+
     stats[i].tot_time = 0.0;
     stats[i].max_time = 0.0;
     stats[i].min_time = 1e300;
@@ -123,17 +137,17 @@ void record_stats(priority_queue<heuristic_result> * hrq, struct timespec start,
     clock_gettime(CLOCK_MONOTONIC, &last_log);
     first_log = true;
   }
-  
+
   heur_stat * stat = &(stats[s]);
 
   priority_queue<heuristic_result> new_hrq(*hrq);
-  
+
   stat -> num++;
   stat -> num_search += size;
   while(!new_hrq.empty()){
     heuristic_result res = new_hrq.top();
     new_hrq.pop();
-    
+
     stat -> num_heur++;
     stat -> max_heur = MAX(stat -> max_heur, res.ideal);
     stat -> min_heur = MIN(stat -> min_heur, res.ideal);
@@ -156,7 +170,7 @@ void record_stats(priority_queue<heuristic_result> * hrq, struct timespec start,
     + (time_per_heur - stat -> ave_time) * (time_per_heur - stat -> ave_time)
     * size / (double)(stat -> num_heur);
 
-    
+
   struct timespec curr_time = {0,0};
   clock_gettime(CLOCK_MONOTONIC, &curr_time);
 
@@ -197,7 +211,7 @@ void fprint_search_stats(FILE * f){
 #define PROFILE(hrq, exp, p, size)						\
   {struct timespec __start = {0,0}, __end = {0,0}; clock_gettime(CLOCK_MONOTONIC, &__start); (q) = (exp); clock_gettime(CLOCK_MONOTONIC, &__end); record_stats((q), __start, __end, (p) -> s, (size));}
 
-  
+
 
 
 //======================================================================
@@ -218,7 +232,7 @@ unsigned int generic_search(puzzle * p, ExtensionGraph * eg, heuristic_policy_t 
   if (best < p -> s)
     printf("New best = %d\n", p -> s);
   best = MAX(best, p -> s);
-  
+
   if (eg -> size() == 0)
     return best;
 
@@ -231,25 +245,25 @@ unsigned int generic_search(puzzle * p, ExtensionGraph * eg, heuristic_policy_t 
   // Iterate over all elements of the frontier in the priority queue
   // in decreasing order of heuristic value.
   puzzle * p2 = extend_puzzle(p, 1);
-  
+
   while(!q -> empty()){
 
     // Remove strongest candidate.
     heuristic_result hr = q -> top();
     q -> pop();
-    
+
     // Max expected from heuristic is (new puzzle size + heuristic
     // result).  If our best is already better, there is no point in
     // continue to search this frontier.
     if (best >= hr.ideal)
       break;
-    
+
     // Recursively search and record new better value.
     best = MAX(best, generic_search(hr.p, hr.eg, hp, best));
 
     destroy_puzzle(hr.p);
     delete(hr.eg);
-    
+
   }
 
   // Clean up.
@@ -270,7 +284,7 @@ int generic_search(int k, heuristic_policy_t hp){
 
   // Clear the isomorph cache.
   reset_isomorphs();
-  
+
   // Create the initial puzzle and graph to search on.
   puzzle * p = create_puzzle(0, k);
   ExtensionGraph eg(p);
@@ -283,7 +297,7 @@ int generic_search(int k, heuristic_policy_t hp){
 
   // Clear the isomorph cache.
   reset_isomorphs();
-  
+
   return best;
 }
 
@@ -308,17 +322,17 @@ void print_frontier_dist(std::priority_queue<heuristic_result> * frontier){
 
   if (diff_time(last_log, curr_time) < 0.0001)
     return;
-  
+
   last_log = curr_time;
 
   std::priority_queue<heuristic_result> tmp;
 
   unsigned long diff = 10;
-  
+
   unsigned long max_ideal = frontier -> top().ideal;
   unsigned long counts[max_ideal + 1];
   bzero(counts, (max_ideal + 1) * sizeof(unsigned long));
-  
+
   while(!frontier -> empty()){
     heuristic_result hr = frontier -> top();
     frontier -> pop();
@@ -334,13 +348,13 @@ void print_frontier_dist(std::priority_queue<heuristic_result> * frontier){
     tmp.pop();
     frontier -> push(hr);
   }
-  
+
 
   for(unsigned long i = 0; i < diff; i++)
     printf("%lu: %lu, ", max_ideal - i, counts[max_ideal - i]);
   printf("\n");
 
-      
+
 }
 
 // Takes a puzzle width k and an admissible heuristic policy hp and
@@ -359,7 +373,7 @@ unsigned int global_search(int k, heuristic_policy_t hp){
 
   puzzle * p = create_puzzle(0, k);
   ExtensionGraph * eg = new ExtensionGraph(p);
-  
+
   // Add initial empty puzzle.
   search_heuristic_t h = get_heuristic(hp(p, eg));
   std::priority_queue<heuristic_result> * hrq = (*h)(p, eg);
@@ -370,16 +384,16 @@ unsigned int global_search(int k, heuristic_policy_t hp){
     frontier.push(hr);
   }
   delete hrq;
-  
+
   // Loop until frontier examined.
   while(!frontier.empty()){
 
     print_frontier_dist(&frontier);
-    
+
     // Remove strongest candidate.
     heuristic_result hr = frontier.top();
     frontier.pop();
-    
+
     // Update best.
     if (best < hr.p -> s)
       printf("\nNew best = %d\n", hr.p -> s);
@@ -392,7 +406,7 @@ unsigned int global_search(int k, heuristic_policy_t hp){
     // Compute children heuristics and add to frontier.
     h = get_heuristic(hp(hr.p, hr.eg));
     hrq = (*h)(hr.p, hr.eg);
-    
+
     while(!hrq -> empty()){
       heuristic_result hr2 = hrq -> top();
       hrq -> pop();
@@ -404,17 +418,17 @@ unsigned int global_search(int k, heuristic_policy_t hp){
 	delete hr.eg;
       }
     }
-    
+
     delete hrq;
 
     destroy_puzzle(hr.p);
     delete hr.eg;
-    
+
   }
 
   // Clear the isomorph cache.
   reset_isomorphs();
-  
+
   return best;
 }
 
@@ -433,8 +447,8 @@ priority_queue<heuristic_result> * degree_h(puzzle * p, ExtensionGraph * eg){
   // Priority queue of the heuristic results.
   priority_queue<heuristic_result> * hrq = new priority_queue<heuristic_result>();
 
-  puzzle * p2 = extend_puzzle(p, 1);  
-  
+  puzzle * p2 = extend_puzzle(p, 1);
+
   // Helper function that sets heuristic result for every vertex in eg
   // to its degree.  No vertices are deleted.
   auto reduce_helper = [eg, p2, hrq](unsigned long index_u, unsigned long label_u, unsigned long degree_u) -> bool{
@@ -455,7 +469,7 @@ priority_queue<heuristic_result> * degree_h(puzzle * p, ExtensionGraph * eg){
   eg->reduceVertices(reduce_helper, false);
 
   destroy_puzzle(p2);
-  
+
   return hrq;
 }
 
@@ -465,14 +479,14 @@ priority_queue<heuristic_result> * greedy_clique_h(puzzle * p, ExtensionGraph * 
   priority_queue<heuristic_result> * hrq = new priority_queue<heuristic_result>();
 
   ExtensionGraph new_eg(*eg);
-  
+
   unsigned long next_min = new_eg.getMinDegree();
   unsigned long curr_min = next_min;
   unsigned long max_degree = new_eg.getMaxDegree();
   unsigned long prev_label = 0;
 
-  puzzle * p2 = extend_puzzle(p, 1);  
-  
+  puzzle * p2 = extend_puzzle(p, 1);
+
   // Helper function that sets heuristic result for every vertex in eg
   // to its degree.  No vertices are deleted.
   auto reduce_helper =
@@ -483,7 +497,7 @@ priority_queue<heuristic_result> * greedy_clique_h(puzzle * p, ExtensionGraph * 
 	next_min = max_degree;
       }
       prev_label = label_u;
-      
+
       if (degree_u <= curr_min){
 	p2 -> puzzle[p2 -> s - 1] = label_u;
 	if (!have_seen_isomorph(p2, true)){
@@ -506,17 +520,17 @@ priority_queue<heuristic_result> * greedy_clique_h(puzzle * p, ExtensionGraph * 
   new_eg.reduceVertices(reduce_helper, true);
 
   return hrq;
-  
+
 }
 
-
+#ifdef __GUROBI_INSTALLED__
 priority_queue<heuristic_result> * mip_clique_h(puzzle * p, ExtensionGraph * eg){
 
   // Priority queue of the heuristic results.
   priority_queue<heuristic_result> * hrq = new priority_queue<heuristic_result>();
 
-  puzzle * p2 = extend_puzzle(p, 1);  
-  
+  puzzle * p2 = extend_puzzle(p, 1);
+
   // Helper function that sets heuristic result for every vertex in eg
   // to its degree.  No vertices are deleted.
   auto reduce_helper = [p2,hrq,eg](unsigned long index_u, unsigned long label_u, unsigned long degree_u) -> bool{
@@ -530,7 +544,7 @@ priority_queue<heuristic_result> * mip_clique_h(puzzle * p, ExtensionGraph * eg)
 	result = new_eg->size();
       else
 	result = clique_mip_h(new_eg);
-      
+
       assert(result <= new_eg->size());
 
       puzzle * new_p = create_puzzle_copy(p2);
@@ -542,9 +556,9 @@ priority_queue<heuristic_result> * mip_clique_h(puzzle * p, ExtensionGraph * eg)
 
   // Computes the heuristic for each vertex.
   eg->reduceVertices(reduce_helper, false);
-  
+
   destroy_puzzle(p2);
-  
+
   return hrq;
 }
 
@@ -555,8 +569,8 @@ priority_queue<heuristic_result> * mip_search_h(puzzle * p, ExtensionGraph * eg)
   // Priority queue of the heuristic results.
   priority_queue<heuristic_result> * hrq = new priority_queue<heuristic_result>();
 
-  puzzle * p2 = extend_puzzle(p, 1);  
-  
+  puzzle * p2 = extend_puzzle(p, 1);
+
   // Helper function that sets heuristic result for every vertex in eg
   // to its degree.  No vertices are deleted.
   auto reduce_helper = [p2,hrq,eg](unsigned long index_u, unsigned long label_u, unsigned long degree_u) -> bool{
@@ -570,7 +584,7 @@ priority_queue<heuristic_result> * mip_search_h(puzzle * p, ExtensionGraph * eg)
 	result = new_eg->size();
       else
 	result = mip_h(p2,new_eg);
-      
+
       assert(result <= new_eg->size());
 
       puzzle * new_p = create_puzzle_copy(p2);
@@ -582,10 +596,11 @@ priority_queue<heuristic_result> * mip_search_h(puzzle * p, ExtensionGraph * eg)
 
   // Computes the heuristic for each vertex.
   eg->reduceVertices(reduce_helper, false);
-  
+
   destroy_puzzle(p2);
-  
+
   return hrq;
 }
 
 
+#endif

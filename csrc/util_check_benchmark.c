@@ -487,8 +487,8 @@ void str_subs(char * str, char a, char b){
 
 int main(int argc, char * argv[]) {
 
-  if (!(argc == 2 || argc == 7)){
-    fprintf(stderr, "usage: tester <OnlyCheck|Checkers|Heuristics|All> [<start_s> <end_s> <start_k> <end_k> <iter>]\n");
+  if (!(argc == 2 || argc == 7 || argc == 8)){
+    fprintf(stderr, "usage: tester <OnlyCheck|Checkers|Heuristics|All> [<start_s> <end_s> <start_k> <end_k> <iter>] [log-prefix]\n");
     return -1;
   }
 
@@ -507,9 +507,9 @@ int main(int argc, char * argv[]) {
   }
 
   if (all || mode == 'C' || mode == 'c'){
-    Checker c_uni(&check_usp_uni, "UNI", 8, 0);  // Too slow after s = 8.
+    Checker c_uni(&check_usp_uni, "UNI",  6, 0);  // Too slow after s = 6.
     checkers.push_back(c_uni);
-    Checker c_bi(&check_usp_bi, "BI", 12, 0);  // Too slow after s = 12.
+    Checker c_bi(&check_usp_bi, "BI", 11, 0);  // Too slow after s = 11.
     checkers.push_back(c_bi);
     Checker c_SAT(&check_SAT, "SAT", 35, 0);   // Too slow after s = 35.
     checkers.push_back(c_SAT);
@@ -519,6 +519,7 @@ int main(int argc, char * argv[]) {
     Checker c_SAT_MIP(&check_SAT_MIP, "SAT_MIP");
     checkers.push_back(c_SAT_MIP);
     #endif
+
   }
 
   // Heuristics
@@ -542,17 +543,23 @@ int main(int argc, char * argv[]) {
   char log_name[300];
   char log_err_name[300];
 
-  time_t t;
-  time(&t);
-  
-  sprintf(log_name, "logs/log-%scsv", ctime(&t));
-  sprintf(log_err_name, "logs/error-%stxt", ctime(&t));
+  if (argc == 8){
+    sprintf(log_name, "out-%s.csv", argv[7]);
+    sprintf(log_err_name, "err-%s.txt", argv[7]);
+  } else {
+    time_t t;
+    time(&t);
+    
+    sprintf(log_name, "logs/out-%scsv", ctime(&t));
+    sprintf(log_err_name, "logs/err-%stxt",  ctime(&t));
 
-  str_subs(log_name, ' ', '-');
-  str_subs(log_name, '\n', '.');
+    str_subs(log_name, ' ', '-');
+    str_subs(log_name, '\n', '.');
+    
+    str_subs(log_err_name, ' ', '-');
+    str_subs(log_err_name, '\n', '.');
+  }
 
-  str_subs(log_err_name, ' ', '-');
-  str_subs(log_err_name, '\n', '.');
   
   FILE * log = fopen(log_name, "w");
   FILE * log_err = fopen(log_err_name, "w");
@@ -601,7 +608,7 @@ int main(int argc, char * argv[]) {
     success = F3.run_test(&checkers, verbose, log, log_err) && success;
     
     cerr << "--------------------------- Tests complete ----------------------------\n";
-  } else if (argc == 7) {  // Mode Two: Random Sweeps.
+  } else {  // Mode Two: Random Sweeps.
 
     int start_s = atoi(argv[2]);
     int end_s = atoi(argv[3]);
@@ -627,13 +634,17 @@ int main(int argc, char * argv[]) {
     
 
   }
+
+  fprintf(stderr, "Completed.  Performance output in %s.\n", log_name);
   
   fclose(log);
   fclose(log_err);
+
+
   
   if (success) {
     fprintf(stderr, "All tests successful!  Performance output in %s.\n", log_name);
-    remove(log_err_name);
+    //remove(log_err_name);
   } else {
     fprintf(stderr, "ERROR: Some tests failed.  Check %s for more details.\n", log_err_name);
   }

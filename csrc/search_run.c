@@ -37,7 +37,7 @@ int main(int argc, char ** argv) {
   bool init_skip[start_p->max_row];
   bzero(init_skip, sizeof(init_skip));
   puzzle_row max_index = ipow2(3,start_p->k);
-  
+
   bool ** init_graph = make_graph_from_puzzle(start_p, init_skip, 0, max_index, -1, -1);
 
   int result;

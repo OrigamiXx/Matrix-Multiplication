@@ -1,3 +1,5 @@
+#ifdef __GUROBI_INSTALLED__
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <semaphore.h>
@@ -279,4 +281,5 @@ int mip_h(puzzle * p, ExtensionGraph * eg){
   
 }
 
+#endif
 

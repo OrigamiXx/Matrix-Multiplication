@@ -11,8 +11,6 @@ typedef enum heuristic_val {
   MIP_SEARCH
 } heuristic_t;
 
-
-
 typedef struct heuristic_result {
   unsigned long ideal;
   puzzle * p;
@@ -41,5 +39,20 @@ int generic_search(int k, heuristic_policy_t hp);
 // isomorph cache.
 unsigned int global_search(int k, heuristic_policy_t hp);
 
-
 void fprint_search_stats(FILE * f);
+
+void record_stats(priority_queue<heuristic_result> * hrq, struct timespec start, struct timespec end, int s, unsigned long size);
+
+priority_queue<heuristic_result> * degree_h(puzzle * p, ExtensionGraph * eg);
+priority_queue<heuristic_result> * greedy_clique_h(puzzle * p, ExtensionGraph * eg);
+#ifdef __GUROBI_INSTALLED__
+priority_queue<heuristic_result> * mip_clique_h(puzzle * p, ExtensionGraph * eg);
+priority_queue<heuristic_result> * mip_search_h(puzzle * p, ExtensionGraph * eg);
+#endif
+
+
+// Data structures holding the heuristics that can be run during A*
+// search.
+extern const int number_of_heuristics;
+extern const char * heuristic_names[];
+extern const search_heuristic_t heuristic_functions[];

@@ -1,3 +1,5 @@
+#ifdef __GUROBI_INSTALLED__
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <semaphore.h>
@@ -160,3 +162,5 @@ int clique_mip_h(ExtensionGraph *eg) {
 
   return max_clique;
 }
+
+#endif

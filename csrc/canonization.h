@@ -24,3 +24,5 @@ void canonize_puzzle(puzzle * p);
 // Returns true iff p1 and p2 are isomorphs.
 bool are_isomorphs(puzzle * p1, puzzle * p2);
 
+//Swaps the set of seen isomorphs and the set of stored isomorphs
+void swap_stored_state();

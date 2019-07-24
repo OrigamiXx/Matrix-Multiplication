@@ -32,11 +32,11 @@ typedef struct puzzle {
  * Datatypes for expressing the return values of puzzle checkers and
  * heuristics.
  *
- * + IS_USP indicates that the puzzle is a strong USP.  
+ * + IS_USP indicates that the puzzle is a strong USP.
  * + NOT_USP indicates that the puzzle is not a strong USP.
  *
  * + UNDET_USP indicates that it was not determined whether or not the
- *     puzzle is a strong USP.  
+ *     puzzle is a strong USP.
  *
  *     Checkers should not return this value unless there is an
  *     intentional interruption of the function or an unrecoverable
@@ -73,7 +73,7 @@ const puzzle_row MAX_ROWS[MAX_K+1] =
    ((puzzle_row)3)*3*3*3*3*3*3*3*3*3*3*3*3*3*3*3*3*3*3,
    ((puzzle_row)3)*3*3*3*3*3*3*3*3*3*3*3*3*3*3*3*3*3*3*3, // 20
    ((puzzle_row)3)*3*3*3*3*3*3*3*3*3*3*3*3*3*3*3*3*3*3*3*3,
-   ((puzzle_row)3)*3*3*3*3*3*3*3*3*3*3*3*3*3*3*3*3*3*3*3*3*3, 
+   ((puzzle_row)3)*3*3*3*3*3*3*3*3*3*3*3*3*3*3*3*3*3*3*3*3*3,
    ((puzzle_row)3)*3*3*3*3*3*3*3*3*3*3*3*3*3*3*3*3*3*3*3*3*3*3,
    ((puzzle_row)3)*3*3*3*3*3*3*3*3*3*3*3*3*3*3*3*3*3*3*3*3*3*3*3,
    ((puzzle_row)3)*3*3*3*3*3*3*3*3*3*3*3*3*3*3*3*3*3*3*3*3*3*3*3*3, // 25
@@ -109,7 +109,7 @@ puzzle * extend_puzzle(puzzle * p, int num_rows_to_add);
 //Creates a copy of puzzle p without the ith row.
 puzzle * create_row_minor_puzzle(puzzle * p, int i);
 
-//Creat an empty puzzle with given row and cols length
+//Create an empty puzzle with given row and cols length
 puzzle * create_puzzle(int s, int k);
 
 puzzle * create_puzzle_from_string(char * str);
@@ -145,7 +145,7 @@ inline int set_entry_in_row(puzzle_row row, int c, int val) {
  * Returns the result of setting the entry at c of row_index to val.
  */
 inline int get_entry(puzzle * p, int r, int c){
-  return get_column_from_row(p -> puzzle[r], c); 
+  return get_column_from_row(p -> puzzle[r], c);
 }
 
 inline void set_entry(puzzle * p, int r, int c, int val){

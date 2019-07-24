@@ -1,6 +1,7 @@
 #ifndef __CLIQUE_TO_MIP_H__
 #define __CLIQUE_TO_MIP_H__
 
+#ifdef __GUROBI_INSTALLED__
 #include <stdio.h>
 #include <stdlib.h>
 #include "puzzle.h"
@@ -10,5 +11,6 @@
 
 int clique_mip_h(ExtensionGraph * eg);
 int clique_mip_h(puzzle * p);
+#endif
 
 #endif

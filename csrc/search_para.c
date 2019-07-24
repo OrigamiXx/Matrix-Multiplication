@@ -9,7 +9,7 @@
 #include <cstdlib>
 
 // MapReduce finding usps to do matrix-multiplication
-// Syntax: mpirun -np 4 ./usp_cluster column(column number)
+// Syntax: mpirun -np 4 search_para col
 #include "permutation.h"
 #include "constants.h"
 #include "checker.h"
@@ -23,6 +23,7 @@
 #include "3DM_to_SAT.h"
 #include "canonization.h"
 #include "clique_to_mip.h"
+#include "ExtensionGraph.hpp"
 
 using namespace MAPREDUCE_NS;
 
@@ -96,7 +97,7 @@ void row_one_keys(int itask, KeyValue *kv, void *ptr){
   
   for(unsigned long i = 0; i < p -> max_row; i++){
     p -> puzzle[0] = i;
-    if (!have_seen_isomorph(p))
+    if (!check_isomorphs || !have_seen_isomorph(p))
       kv->add((char*)&i, sizeof(puzzle_row), NULL, 0);
   }
    
@@ -156,7 +157,7 @@ void extend_puzzle(uint64_t itask, char * key, int keybytes, char *value, int va
     
   for(puzzle_row r = 0; r < p -> max_row; r++){
     puzzle * p2 = create_puzzle_from_puzzle(p, r);
-    if (check(p2) == IS_USP){
+    if ((!check_isomorphs || !have_seen_isomorph(p2)) && check(p2) == IS_USP){
       if (check_isomorphs)
 	canonize_puzzle(p2);
       kv->add((char*)(p2 -> puzzle), p2 -> s * sizeof(puzzle_row), NULL, 0);
@@ -181,7 +182,7 @@ int main(int narg, char **args)
   // parse command-line args
   //int column;
   if (narg != 2 && narg != 5){//&& narg != 10) {
-    if (me == 0) fprintf(stderr, "Syntax: usp_para <column> [target_rows] [random_rows] [random_tries]\n");
+    if (me == 0) fprintf(stderr, "Syntax: search_para <column> [target_rows] [random_rows] [random_tries]\n");
     MPI_Abort(MPI_COMM_WORLD,1);
     return 0;
   }
@@ -235,11 +236,11 @@ int main(int narg, char **args)
       printf("%d <= %d (%.2fx) <= %d usps for row %d\n", count, col_count, ave_branching, map_count, row);
     }
     
-    if (check_isomorphs && (double)(map_count - col_count) / map_count < check_isomorphs_threshold){
-      if (me == 0)
-	printf("===>>> Checking isomorphs disabled <<<===\n");
-      check_isomorphs = false;
-    }
+    /* if (check_isomorphs && (double)(map_count - col_count) / map_count < check_isomorphs_threshold){ */
+    /*   if (me == 0) */
+    /* 	printf("===>>> Checking isomorphs disabled <<<===\n"); */
+    /*   check_isomorphs = false; */
+    /* } */
 
     if (me == 0)
       printf("\n");
