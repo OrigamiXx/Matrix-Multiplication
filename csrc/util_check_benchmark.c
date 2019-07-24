@@ -507,12 +507,11 @@ int main(int argc, char * argv[]) {
   }
 
   if (all || mode == 'C' || mode == 'c'){
-    //Checker c_uni(&check_usp_uni, "UNI", 10, 0);  // Too slow after s = 6.
-    //checkers.push_back(c_uni);
-    Checker c_bi(&check_usp_bi, "BI", 20, 0);  // Too slow after s = 11.
+    Checker c_uni(&check_usp_uni, "UNI", 8, 0);  // Too slow after s = 8.
+    checkers.push_back(c_uni);
+    Checker c_bi(&check_usp_bi, "BI", 12, 0);  // Too slow after s = 12.
     checkers.push_back(c_bi);
-    /*
-    Checker c_SAT(&check_SAT, "SAT", 100, 0);   // Too slow after s = 35.
+    Checker c_SAT(&check_SAT, "SAT", 35, 0);   // Too slow after s = 35.
     checkers.push_back(c_SAT);
     #ifdef __GUROBI_INSTALLED__
     Checker c_MIP(&check_MIP, "MIP");
@@ -520,7 +519,6 @@ int main(int argc, char * argv[]) {
     Checker c_SAT_MIP(&check_SAT_MIP, "SAT_MIP");
     checkers.push_back(c_SAT_MIP);
     #endif
-    */
   }
 
   // Heuristics
