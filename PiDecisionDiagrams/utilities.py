@@ -1,5 +1,13 @@
 import copy
 
+def swap_ind(list, ind1, ind2):
+    list1 = copy.deepcopy(list)
+    el1 = list1[ind1]
+    el2 = list1[ind2]
+    list1[ind1] = el2
+    list1[ind2] = el1
+    return list1
+
 def swap(list, el1, el2):
     list1 = copy.deepcopy(list)
     ind1 = list1.index(el1)

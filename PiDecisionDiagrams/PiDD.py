@@ -10,13 +10,21 @@ import copy, utilities
 # key : (root_node_transposition, childnode0_key, childnode1_key)
 
 class piDD:
-    def __init__(self):
+    def __init__(self, dict = {}):
         """
         Creates an empty set of permutations
         """
-        self.piDD = {"[0]": None}
-        self.dim = 0
-        self.top_node = "[0]"
+        if dict == {}:
+            self.zero_val()
+        else:
+            self.piDD = dict
+            self.top_node = utilities.max_length_in_list(self.return_keys())
+            self.dim = self.piDD[self.top_node][0][0]
+
+    def copy(self):
+        dict = copy.deepcopy(self.piDD)
+        pi1 = piDD(dict)
+        return pi1
 
 
     def single_perm(self, perm):
@@ -45,6 +53,33 @@ class piDD:
             self.piDD = dict
             self.top_node = utilities.max_length_in_list(self.return_keys())
             self.dim = self.piDD[self.top_node][0][0]
+
+    def multiple_perm(self, list_of_perms):
+        p1 = self.construct_complex_piDD_helper(list_of_perms)
+        self.union(pi)
+
+    def construct_complex_piDD_helper(self, list):
+
+        if len(list) == 1:
+            pi1 = piDD()
+            pi1.single_perm(list[0])
+            return pi1
+        elif len(list) == 2:
+            pi1 = piDD()
+            pi1.single_perm(list[0])
+            pi2 = piDD()
+            pi2.single_perm(list[1])
+            pi1.union(pi2)
+            return pi1
+        else:
+            if len(list) % 2 == 0:
+                x = int(len(list)) // 2
+            else:
+                x = (int(len(list)) + 1) // 2
+            pi3 = self.construct_complex_piDD_helper(list[0:x])
+            pi4 = self.construct_complex_piDD_helper(list[x:int(len(list))])
+            pi3.union(pi4)
+            return pi3
 
 
 
@@ -77,20 +112,24 @@ class piDD:
         Returns a single zero node.
         :return:
         """
-        return {"[0]": 'None'}
+        self.piDD = {"[0]": 'None'}
+        self.top_node = "[0]"
+        self.dim = 0
 
     def identity(self):
         """
         Creates a piDD for the identity permutation.
         :return: piDD
         """
-        return {"[1]": 'None'}
+        self.piDD = {"[1]": 'None'}
+        self.top_node = "[1]"
+        self.dim = 0
 
-    def copy(self):
-        """
-        Creates a deep copy of the piDD.
-        :return: piDD
-        """
+    def return_identity_permutation(self):
+        list = []
+        for i in range(1, self.dim + 1):
+            list.append(i)
+        return list
 
     def is_empty(self):
         """
@@ -102,7 +141,26 @@ class piDD:
         if dict == {"[0]": None}:
             return True
         else:
-            return False
+            return False\
+
+    def equality_testing(self, piDD):
+        """
+        Returns 1 if the two piDDs have the same structure, 0 otherwise
+        :param piDD: the pi Decision diagram to be checked against
+        :return: 1 or 0
+        """
+        p = False
+        if len(self.return_values())== len(piDD.return_values()):
+            if len(self.return_keys()) == len(piDD.return_keys()):
+                p = True
+        for i in self.return_keys():
+            if i in piDD.return_keys():
+                p = True
+        if p == True:
+            for i in self.return_values():
+                if i in piDD.return_values():
+                    return 1
+        return 0
 
     def enlist(self):
         """
@@ -128,12 +186,6 @@ class piDD:
             return [list]
         else:
             return self.enlist_helper(self.find_children_nodes(root_node)[0]) + utilities.apply_swap_to_whole_list(self.enlist_helper(self.find_children_nodes(root_node)[1]), self.piDD[root_node][0])
-
-    def return_identity_permutation(self):
-        list = []
-        for i in range(1, self.dim + 1):
-            list.append(i)
-        return list
 
     def count(self):
         """
@@ -164,7 +216,6 @@ class piDD:
         self.top_node = self.transpose_helper(top_node, transposition)
         int(self.top_node.split('|')[0][1::].strip('()').split(', ')[0])
         self.run_clean_up()
-
 
     def transpose_helper(self, top_node, transposition):
         #return top_node
@@ -212,8 +263,8 @@ class piDD:
         if node == '[0]' or node == '[1]':
             return [node]
         else:
-            return [node] + self.clean_up_helper(self.find_children_nodes(node)[0]) \
-                   + self.clean_up_helper(self.find_children_nodes(node)[1])
+            return [node] + self.clean_up_helper(self.piDD[node][1]) \
+                   + self.clean_up_helper(self.piDD[node][2])
 
     def union(self, piDD2):
         """
@@ -228,7 +279,6 @@ class piDD:
         self.top_node = self.union_helper(self_top_node, top_node)
         self.dim = self.piDD[self.top_node][0][0]
         self.run_clean_up()
-
 
     def union_helper(self,  self_top_node, top_node):
         #bass case
@@ -286,10 +336,6 @@ class piDD:
             key = "[" + str(self.piDD[top_node][0]) + "|" + left_child + '|' + right_child + "]"
             self.piDD[key] = (self.piDD[top_node][0], left_child, right_child)
             return key
-
-
-
-
 
     def intersection(self, piDD2):
         """
