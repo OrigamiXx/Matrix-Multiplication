@@ -2,35 +2,92 @@
 # Author: Akriti Dhasmana
 # Honor Code Statement: I affirm that I have carried out all of my academic endeavors with full academic honesty.
 
-import random, test_suite, PiDD, Permutations
+import random, test_suite, PiDD, Permutations, copy, itertools
 
 def create_random_permutation(dim):
     list = []
     for i in range(1, dim+1):
         list.append(i)
     random.shuffle(list)
-    return list
+    perm = Permutations.Permutation(list)
+    return perm
 
 def construct_complex_piDD(number_of_permutations, dim):
     list = []
     for i in range(number_of_permutations):
         list.append(create_random_permutation(dim))
-    construct_complex_piDD_helper(list)
+    return construct_complex_piDD_helper(list)
+
 
 def construct_complex_piDD_helper(list):
+
     if len(list) == 1:
-        pi1 = PiDD.PiDD()
+        pi1 = PiDD.piDD()
         pi1.single_perm(list[0])
         return pi1
     elif len(list) == 2:
-        pi1 = PiDD.PiDD()
+        pi1 = PiDD.piDD()
         pi1.single_perm(list[0])
-        pi2 = PiDD.PiDD()
-        pi2.single_perm(list[0])
+        pi2 = PiDD.piDD()
+        pi2.single_perm(list[1])
         pi1.union(pi2)
         return pi1
     else:
+        if len(list)%2 == 0:
+            x = int(len(list))//2
+        else:
+            x = (int(len(list)) +1)// 2
+        pi3 = construct_complex_piDD_helper(list[0:x])
+        pi4 = construct_complex_piDD_helper(list[x:int(len(list))])
+        pi3.union(pi4)
+        return pi3
 
+
+def run_identity_tests():
+    suite = test_suite.create()
+    #Test1: S1 U S2 = S2 U S1 U S2
+    S1 = construct_complex_piDD(5, 6)
+    S2 = construct_complex_piDD(5, 6)
+    S1.union(S2)
+    S2.union(S1)
+
+    print(S2.enlist() == S1.enlist())
+    test_suite.assert_equals(suite,
+                             "Equality testing should return 1 as the structure should be the same,",
+                             1,
+                             S1.equality_testing(S2))
+
+    #Test2: S1 (int) S2 = S2 (int) S1 (int) S2
+    S1 = construct_complex_piDD(5, 6)
+    S2 = construct_complex_piDD(5, 6)
+    S1.intersection(S2)
+    S2.intersection(S1)
+    test_suite.assert_equals(suite,
+                             "Equality testing should return 1 as the structure should be the same,",
+                             1,
+                             S1.equality_testing(S2))
+
+    # Test3: (S1US2) (int) S3 = (S1 (int) S2) U  (S3 (int) S2)
+    S1 = construct_complex_piDD(5, 6)
+    S1_copy = S1.copy()
+    S2 = construct_complex_piDD(5, 6)
+    S2_copy = S2.copy()
+    S3 = construct_complex_piDD(5, 6)
+    S3_copy = S3.copy()
+
+    S1.union(S2)
+    S1.intersection(S3)
+
+    S1_copy.intersection(S2_copy)
+    S2_copy.intersection(S3_copy)
+    S1_copy.union(S2_copy)
+
+    test_suite.assert_equals(suite,
+                             "Equality testing should return 1 as the structure should be the same,",
+                             1,
+                             S1.equality_testing(S1_copy))
+
+    test_suite.print_summary(suite)
 
 
 
@@ -165,7 +222,8 @@ def test_intersection(dim, attempts):
 
 
 if __name__ == "__main__":
+    #run_identity_tests()
 
-    test_intersection(5, 100)
+    print(list(itertools.permutations(range(1, 2))))
 
 

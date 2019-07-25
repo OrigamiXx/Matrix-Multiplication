@@ -3,7 +3,7 @@
 #Date: 27-June-2019
 #Author: Akriti Dhasmana
 
-import Transpositions, utilities as util, copy
+import  utilities as util, copy
 
 
 class Permutation:
@@ -11,7 +11,7 @@ class Permutation:
     def __init__(self, list = []):
         """
         Creates an object for a single permutation.
-        :param tup: tuple with each item denoting the new position of its index.
+        :param list: listwith each item denoting the new position of its index.
         """
         self.perm = list
 
@@ -57,4 +57,5 @@ class Permutation:
             to_return = util.swap(to_return, list[i][0], list[i][1])
         self.perm = to_return
 
-
+    def print(self):
+        return self.perm
