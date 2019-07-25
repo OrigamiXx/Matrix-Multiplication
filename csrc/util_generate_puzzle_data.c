@@ -248,7 +248,7 @@ int main(int argc, char * argv[]){
     givenR = strtol(argv[1], NULL, 10);
     givenC = strtol(argv[2], NULL, 10);
   }
-  while((opt = getopt(argc, argv, "cr:hon")) != -1)
+  while((opt = getopt(argc, argv, "cr:hsn")) != -1)
   {
     switch(opt)
     {
