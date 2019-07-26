@@ -15,39 +15,56 @@ def print_puzzle(puzzle):
 
 def apply_permutation_to_column(perm, col):
     for i in perm.perm:
-        col = utilities.swap_ind(col, i, perm.perm[i])
+        col = utilities.swap_ind(col, i-1, perm.perm.index(i))
     return col
 
 def comine_p2_p3(p2, p3):
-    len = len(p2.perm)
+    length = len(p2.perm)
     list = copy.deepcopy(p2.perm)
     for i in p3.perm:
-        list.append(i+len)
+        list.append(i+length)
     perm = Permutations.Permutation(list)
     return perm
 
-def is_SUSP(original_puzzle, op_perm):
+def create_identity_perm(original_puzzle):
+    list = []
+    for i in range(1, len(original_puzzle) + 1):
+        list.append(i)
+
+    perm = Permutations.Permutation(list)
+    return perm
+
+def create_set_perms(ident_perm):
+    to_return = []
+    for i in itertools.permutations(ident_perm.perm):
+        perm = Permutations.Permutation(list(i))
+        to_return.append(perm)
+    return to_return
+
+
+def is_SUSP(original_puzzle):
     '''
     Takes a puzzle and returns 0 if it's an SUSP, returns the number of possible permutations of the puzzle otherwise.
     :param original_puzzle:
     :return: integer
     '''
-    p1 = tuple(original_puzzle)# itertools produces tuples not lists.
+    p1 = create_identity_perm(original_puzzle)
+    S1 = create_set_perms(p1)
     num_of_unique_permutations = 0
     DD = PiDD.piDD()
     ident_p2 = True
     toreturn = True
-    for p2 in itertools.permutations(op_perm):  # Must use separate iterators
+    for p2 in S1:  # Must use separate iterators
         ident_p3 = True
-        for p3 in itertools.permutations(op_perm):
+        for p3 in S1:
             if not ident_p2 or not ident_p3:
                 result = False
-                for row_num in range(len(p1)):
+                for row_num in range(len(original_puzzle)):
                     for i in range(len(original_puzzle[row_num])):
                         #print(p3[row_num][i])
                         if (compare_element(original_puzzle[row_num][i], 1) +
-                            compare_element(apply_permutation_to_column(p2[row_num], original_puzzle[p1.index(p2[row_num])])[i], 2) +
-                            compare_element(apply_permutation_to_column(p3[row_num], original_puzzle[p1.index[p3[row_num]]])[i], 3) == 2):
+                            compare_element(apply_permutation_to_column(p2, original_puzzle)[row_num][i], 2) +
+                            compare_element(apply_permutation_to_column(p3, original_puzzle)[row_num][i], 3) == 2):
                             result = True
                 if not result:
                     pi1 = PiDD.piDD()
@@ -66,9 +83,36 @@ def is_SUSP(original_puzzle, op_perm):
 if __name__ == "__main__":
     puzzle1 = [[1, 3], [2, 1]]
     print_puzzle(puzzle1)
-    print(is_SUSP(puzzle1, [Permutations.Permutation([1, 2]), Permutations.Permutation([1, 2])])[1])
+    print(is_SUSP(puzzle1)[1])
 
     # puzzle1 = ["13" , "21"]
     # print_puzzle(puzzle1)
     # print(is_SUSP(puzzle1))
 
+    puzzle2 = [[1, 1, 1], [3, 2, 1], [3, 3, 2]]
+    print_puzzle(puzzle2)
+    print(is_SUSP(puzzle2)[1])
+
+    puzzle3 = [[3, 2, 3, 2], [1, 1, 3, 2], [1, 2, 1, 3], [3, 1, 1, 3], [1, 3, 2, 1]]
+    print_puzzle(puzzle3)
+    print(is_SUSP(puzzle3)[1])
+
+    puzzle3 = [[3, 1, 3, 2], [1, 2, 3, 2], [1, 1, 1, 3], [3, 2, 1, 3], [3, 3, 2, 3]]
+    print_puzzle(puzzle3)
+    print(is_SUSP(puzzle3)[1])
+
+    puzzle4 = [[3, 3, 3, 2], [1, 2, 3, 1], [1, 3, 1, 3], [3, 2, 2, 2], [1, 3, 2, 3]]
+    print_puzzle(puzzle4)
+    print(is_SUSP(puzzle4)[1])
+
+
+    # puzzle5 = [[1,2,3,1,2],
+    #            [2,3,2,1,2],
+    #            [1,2,2,3,2],
+    #            [2,3,3,3,1],
+    #            [1,3,3,2,1],
+    #            [2,2,1,2,1],
+    #            [3,2,3,2,2],
+    #            [1,3,1,3,1]]
+    # print_puzzle(puzzle5)
+    # print(is_SUSP(puzzle5))
