@@ -14,6 +14,8 @@
 #define DEFAULT_ROW 3
 #define DEFAULT_COL 3
 #define NUM_INTERVALS 50 //Sets number of symbols in progress meter
+#define MAX_ROWS 8
+#define MAX_COL 6
 
 //Converts seconds into Hours, Minutes, Seconds notation and prints it.
 void convert_seconds_to_time(int seconds)
@@ -56,7 +58,7 @@ int increase_progress(size_t current_progress, double eta, float percent_adder, 
 }
 
 //Given Index and Puzzle Size, creates puzzle and features and adds them to the data file.
-void add_puzzle_to_datafile(puzzle * p, FILE * data_file, bool canon, bool heuristics)
+void add_puzzle_to_datafile(puzzle * p, FILE * data_file, bool canon, bool heuristics, bool different_sizes)
 {
     if(canon)
     {
@@ -215,6 +217,23 @@ void add_puzzle_to_datafile(puzzle * p, FILE * data_file, bool canon, bool heuri
             break;
         }
       }
+      if(different_sizes)
+      {
+        for(int k = 0; k < MAX_COL - (p -> k); k++)
+        {
+          fprintf(data_file, "0,0,0,");
+        }
+      }
+    }
+    if(different_sizes)
+    {
+      for(int i = 0; i < MAX_ROWS - (p -> s); i++)
+      {
+        for(int j = 0; j < MAX_COL; j++)
+        {
+            fprintf(data_file, "0,0,0,");
+        }
+      }
     }
 
     fprintf(data_file, "%s", isUSB);
@@ -228,6 +247,7 @@ void add_puzzle_to_datafile(puzzle * p, FILE * data_file, bool canon, bool heuri
 // -h turns off heuristic generation
 // -s adds only SUSPs to the dataset
 // -n excludes SUSPs from the dataset
+// -d creates same sized datasets for all puzzles up to MAX size
 int main(int argc, char * argv[]){
 
   double total_time;
@@ -242,13 +262,14 @@ int main(int argc, char * argv[]){
   bool heuristics = true;
   bool only_SUSP = false;
   bool only_not_SUSP = false;
+  bool different_sizes = false;
   int random_amount = 0;
   if(argc >= 3) //Name plus row and col     Is there a better way to handle all these potential arguments
   {
     givenR = strtol(argv[1], NULL, 10);
     givenC = strtol(argv[2], NULL, 10);
   }
-  while((opt = getopt(argc, argv, "cr:hsn")) != -1)
+  while((opt = getopt(argc, argv, "cr:hsnd")) != -1)
   {
     switch(opt)
     {
@@ -262,6 +283,8 @@ int main(int argc, char * argv[]){
       case 's':  only_SUSP = true;
           break;
       case 'n': only_not_SUSP = true;
+          break;
+      case 'd': different_sizes = true;
     }
   }
   char filename[256];
@@ -404,11 +427,11 @@ int main(int argc, char * argv[]){
         int result = check(p);
         if(result && only_SUSP)
         {
-          add_puzzle_to_datafile(p, data_file, canon, heuristics);
+          add_puzzle_to_datafile(p, data_file, canon, heuristics, different_sizes);
         }
         else if(!result && only_not_SUSP)
         {
-          add_puzzle_to_datafile(p, data_file, canon, heuristics);
+          add_puzzle_to_datafile(p, data_file, canon, heuristics, different_sizes);
         }
         else
         {
@@ -417,7 +440,7 @@ int main(int argc, char * argv[]){
       }
       else
       {
-        add_puzzle_to_datafile(p, data_file, canon, heuristics);
+        add_puzzle_to_datafile(p, data_file, canon, heuristics, different_sizes);
       }
     }
     else if(random)
