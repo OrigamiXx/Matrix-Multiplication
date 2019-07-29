@@ -27,6 +27,8 @@
 
 using namespace MAPREDUCE_NS;
 
+FILE * usp_file = fopen("usps.puz", "w");
+
 bool check_isomorphs = true;
 double check_isomorphs_threshold = 0.01;
 int target = -1; // Target number of puzzles to pass between phases, -1 for all.
@@ -97,11 +99,16 @@ void row_one_keys(int itask, KeyValue *kv, void *ptr){
   
   for(unsigned long i = 0; i < p -> max_row; i++){
     p -> puzzle[0] = i;
-    if (!check_isomorphs || !have_seen_isomorph(p))
+    if (!check_isomorphs || !have_seen_isomorph(p)){
+      if (check_isomorphs)
+      	canonize_puzzle(p);
       kv->add((char*)&i, sizeof(puzzle_row), NULL, 0);
+    }
+
   }
    
 }
+
 
 
 void extend_puzzle_basic(uint64_t itask, char * key, int keybytes, char *value, int valuebytes, KeyValue *kv, void *ptr){
@@ -157,14 +164,16 @@ void extend_puzzle(uint64_t itask, char * key, int keybytes, char *value, int va
     
   for(puzzle_row r = 0; r < p -> max_row; r++){
     puzzle * p2 = create_puzzle_from_puzzle(p, r);
-    if ((!check_isomorphs || !have_seen_isomorph(p2)) && check(p2) == IS_USP){
+    if (check(p2) == IS_USP){
       if (check_isomorphs)
 	canonize_puzzle(p2);
       kv->add((char*)(p2 -> puzzle), p2 -> s * sizeof(puzzle_row), NULL, 0);
     }
     destroy_puzzle(p2);
   }
-  
+
+  fprint_puzzle(usp_file, p);
+  fprintf(usp_file, "\n");
   destroy_puzzle(p);
 }
 
@@ -261,7 +270,8 @@ int main(int narg, char **args)
     printf("time: %g secs\n", tstop-tstart);
 
   // clean up
-
+  fclose(usp_file);
+  
   delete mr;
   //delete [] rmat.outfile;
   MPI_Finalize();
