@@ -42,42 +42,36 @@ def create_set_perms(ident_perm):
     return to_return
 
 
-def is_SUSP(original_puzzle):
+def is_SUSP(puz):
     '''
     Takes a puzzle and returns 0 if it's an SUSP, returns the number of possible permutations of the puzzle otherwise.
     :param original_puzzle:
     :return: integer
     '''
-    p1 = create_identity_perm(original_puzzle)
+    p1 = create_identity_perm(puz)
     S1 = create_set_perms(p1)
     num_of_unique_permutations = 0
     DD = PiDD.piDD()
     ident_p2 = True
-    toreturn = True
-    for p2 in S1:  # Must use separate iterators
+    for p2 in S1:  
         ident_p3 = True
         for p3 in S1:
             if not ident_p2 or not ident_p3:
                 result = False
-                for row_num in range(len(original_puzzle)):
-                    for i in range(len(original_puzzle[row_num])):
-                        #print(p3[row_num][i])
-                        if (compare_element(original_puzzle[row_num][i], 1) +
-                            compare_element(apply_permutation_to_column(p2, original_puzzle)[row_num][i], 2) +
-                            compare_element(apply_permutation_to_column(p3, original_puzzle)[row_num][i], 3) == 2):
+                for r in range(len(puz)):
+                    for c in range(len(puz[r])):
+                        if ((puz[r][c] == 1) + (puz[p2.perm[r] - 1][c] == 2) + (puz[p3.perm[r] - 1][c] == 3)) == 2:
                             result = True
                 if not result:
                     pi1 = PiDD.piDD()
                     pi1.single_perm(comine_p2_p3(p2, p3))
                     num_of_unique_permutations += 1
                     DD.union(pi1)
-                    toreturn = False
             ident_p3 = False
         ident_p2 = False
-    if toreturn:
-        return (DD, 0)
-    else:
-        return (DD, num_of_unique_permutations)
+        
+    return (DD, num_of_unique_permutations)
+
 
 
 if __name__ == "__main__":
@@ -85,7 +79,9 @@ if __name__ == "__main__":
     print_puzzle(puzzle1)
     print(is_SUSP(puzzle1)[1])
 
-    # puzzle1 = ["13" , "21"]
+    # puzzle1 =
+
+    ["13" , "21"]
     # print_puzzle(puzzle1)
     # print(is_SUSP(puzzle1))
 

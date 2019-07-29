@@ -59,3 +59,6 @@ class Permutation:
 
     def print(self):
         return self.perm
+
+    def __str__(self):
+        return str(self.perm)
