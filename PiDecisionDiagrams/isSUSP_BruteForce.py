@@ -45,7 +45,7 @@ def create_set_perms(ident_perm):
 def is_SUSP(puz):
     '''
     Takes a puzzle and returns 0 if it's an SUSP, returns the number of possible permutations of the puzzle otherwise.
-    :param original_puzzle:
+    :param puz:
     :return: integer
     '''
     p1 = create_identity_perm(puz)
@@ -73,8 +73,86 @@ def is_SUSP(puz):
     return (DD, num_of_unique_permutations)
 
 
+def is_SUSP_rec(column):
+    '''Takes a column of a puzzle and returns a PiDD describing the set of
+    pairs of permutations which make it not a SUSP. '''
+
+    ## Compute counts for each entry.
+    c = [0,0,0]
+    for entry in column:
+        c[entry - 1] += 1
+
+    ## Form tuple to track remaining
+    ## elements to distribute.
+    cs = (tuple(c), tuple(c), tuple(c))
+
+    abc = 0
+    rows = len(column)
+
+    DD = is_SUSP_rec_helper(abc, cs, rows, rows)
+
+    perm = Permutations.Permutation(list(range(1, rows + 1)))
+    ## XXX - aDD must be set of permtutation pairs for all automorphisms of column.
+    aDD = PiDD.piDD() 
+    DD.cartesian_product(aDD)
+    aDD.cartesian_product(DD)
+    return aDD
+    
+def is_SUSP_rec_helper(abc, cs, rows, rows_left):
+    '''Takes an index of a row type abc as an integer between in [0..26],
+    and the remaining counts to distribute.  Returns a PiDD describing
+    the set of pairs of permutations which make it not a SUSP.
+
+    '''
+
+    res = PiDD.piDD()
+    
+    if abc == 3**3:
+        if rows_left == 0:
+            return res   
+        else:
+            return None  # Failed to fill up puzzle.
+    else:
+
+        found_something = False
+        ## Compute row contents by converting from trinary.
+        c = abc % 3
+        b = ((abc - c) // 3) % 3 
+        a = abc // 9
+
+        ## Compute max number of times row abc can appear.
+        max_count = min(cs[a][0], cs[b][1], cs[c][2])
+
+        for m in range(0, max_count + 1):
+            ## Compute residual counts.
+            cs2 = (list(cs[0]), list(cs[1]), list(cs[2]))
+            cs2[a][0] -= m
+            cs2[b][1] -= m
+            cs2[c][2] -= m
+            cs2 = (tuple(cs2[0]), tuple(cs2[1]), tuple(cs2[2]))
+
+            DD = is_SUSP_rec_helper(abc + 1, cs2, rows, rows_left - m)
+
+            if DD != None:
+
+                ## XXX - Correct permutation.
+                perm = Permutations.Permutation(list(range(1,rows+1)))
+                DD2 = PiDD.piDD()
+                DD2.single_perm(perm)
+                DD2.cartesian_product(DD)
+                
+                found_something = True
+                res.union(DD)
+
+    if found_something:
+        return res
+    else:
+        return None
 
 if __name__ == "__main__":
+
+    print(is_SUSP_rec([1,2,3]).piDD)
+    
     puzzle1 = [[1, 3], [2, 1]]
     print_puzzle(puzzle1)
     print(is_SUSP(puzzle1)[1])
@@ -102,6 +180,7 @@ if __name__ == "__main__":
     print(is_SUSP(puzzle4)[1])
 
 
+    
     # puzzle5 = [[1,2,3,1,2],
     #            [2,3,2,1,2],
     #            [1,2,2,3,2],

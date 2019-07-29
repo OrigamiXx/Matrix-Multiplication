@@ -19,7 +19,11 @@ class piDD:
         else:
             self.piDD = dict
             self.top_node = utilities.max_length_in_list(self.return_keys())
-            self.dim = self.piDD[self.top_node][0][0]
+            if self.piDD[self.top_node] == None:
+                self.dim = 0
+            else:
+                self.dim = self.piDD[self.top_node][0][0]
+        
 
     def copy(self):
         dict = copy.deepcopy(self.piDD)
@@ -112,7 +116,7 @@ class piDD:
         Returns a single zero node.
         :return:
         """
-        self.piDD = {"[0]": 'None'}
+        self.piDD = {"[0]": None}
         self.top_node = "[0]"
         self.dim = 0
 
@@ -121,7 +125,7 @@ class piDD:
         Creates a piDD for the identity permutation.
         :return: piDD
         """
-        self.piDD = {"[1]": 'None'}
+        self.piDD = {"[1]": None}
         self.top_node = "[1]"
         self.dim = 0
 
@@ -141,7 +145,7 @@ class piDD:
         if dict == {"[0]": None}:
             return True
         else:
-            return False\
+            return False
 
     def equality_testing(self, piDD):
         """
@@ -277,7 +281,10 @@ class piDD:
         self_top_node = self.top_node
         self.piDD.update(piDD2.piDD)
         self.top_node = self.union_helper(self_top_node, top_node)
-        self.dim = self.piDD[self.top_node][0][0]
+        if self.piDD[self.top_node] == None:
+            self.dim = 0
+        else:
+            self.dim = self.piDD[self.top_node][0][0]
         self.run_clean_up()
 
     def union_helper(self,  self_top_node, top_node):
@@ -347,7 +354,10 @@ class piDD:
         self_top_node = self.top_node
         self.piDD.update(piDD2.piDD)
         self.top_node = self.intersection_helper(self_top_node, top_node)
-        self.dim = self.piDD[self.top_node][0][0]
+        if self.piDD[self.top_node] == None:
+            self.dim = 0
+        else:
+            self.dim = self.piDD[self.top_node][0][0]
         self.run_clean_up()
 
     def intersection_helper(self, self_top_node, top_node):
@@ -419,7 +429,10 @@ class piDD:
         self_top_node = self.top_node
         self.piDD.update(piDD2.piDD)
         self.top_node = self.difference_helper(self_top_node, top_node)
-        self.dim = self.piDD[self.top_node][0][0]
+        if self.piDD[self.top_node] == None:
+            self.dim = 0
+        else:
+            self.dim = self.piDD[self.top_node][0][0]
         self.run_clean_up()
 
     def difference_helper(self, self_top_node, top_node):
@@ -474,3 +487,16 @@ class piDD:
                 key = "[" + str(self.piDD[self_top_node][0]) + "|" + left_child + '|' + right_child + "]"
                 self.piDD[key] = (self.piDD[self_top_node][0], left_child, right_child)
                 return key
+
+            
+    def cartesian_product(self, pi2):
+        pass
+
+    def column_automorphisms(self, c1, c2, c3):
+        '''Assuming that c1, c2, and c3 are counts of 1s, 2s, and 3s of a
+        column puzzle that is sorted in increasing order from top to
+        bottom.  This function returns a PiDD that corresponds to all
+        pairs of permutations that do not changes the column.
+        The total numbers of pairs is (c1! * c2! * c3!)**2.'''
+        pass
+    
