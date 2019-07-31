@@ -65,13 +65,13 @@ using version 8.0.1. Download and unzip the file.
 
 If you are using bash file, go to your .bashrc file and add the following lines:
 
-export           GUROBI_HOME="/opt/gurobi801/linux64"
+export           GUROBI_HOME="/opt/gurobi81/linux64"
 export           PATH="${PATH}:${GUROBI_HOME}/bin"
 export           LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${GUROBI_HOME}/lib"
 
 Or add the following lines to your .cshrc file if you are using csh shell:
 
-setenv           GUROBI_HOME           /opt/gurobi801/linux64
+setenv           GUROBI_HOME           /opt/gurobi81/linux64
 setenv           PATH           ${PATH}:${GUROBI_HOME}/bin
 setenv           LD_LIBRARY_PATH           ${LD_LIBRARY_PATH}:${GUROBI_HOME}/lib
 

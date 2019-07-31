@@ -26,7 +26,7 @@ EXE-SOURCES=$(TESTER-SOURCES) $(UTIL-SOURCES) $(SEARCH-SOURCES)
 ifdef GUROBI_HOME
 OBJ-SOURCES+= 3DM_to_MIP.c
 EXE-SOURCES+= test_3DM_to_MIP.c
-LDFLAGS+= -L $(GUROBI_HOME)/lib -lgurobi_c++ -lgurobi80
+LDFLAGS+= -L $(GUROBI_HOME)/lib -lgurobi_c++ -lgurobi81
 CFLAGS+=-D__GUROBI_INSTALLED__  -I $(GUROBI_HOME)/include
 endif
 
