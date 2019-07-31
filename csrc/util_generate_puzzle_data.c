@@ -62,9 +62,10 @@ puzzle * puzzle_from_file(FILE * f) {
   //printf("started next\n");
   int lines_read = 0;
   puzzle * p = create_next_puzzle_from_file(f, &lines_read);
-  assert(p != NULL);
   return p;
 }
+
+
 
 //Given Index and Puzzle Size, creates puzzle and features and adds them to the data file.
 void add_puzzle_to_datafile(puzzle * p, FILE * data_file, bool canon, bool heuristics, bool different_sizes, bool read_from_file)
@@ -84,8 +85,8 @@ void add_puzzle_to_datafile(puzzle * p, FILE * data_file, bool canon, bool heuri
         strncpy(isUSB, "0", sizeof(isUSB));
     }
 
-    if(!read_from_file)
-    {
+    //if(!read_from_file)
+    //{
       for(int i = 0; i < p -> s; i++){
         for(int j = 0; j < p -> k; j++){
             int entry = get_entry(p, i, j);
@@ -93,7 +94,7 @@ void add_puzzle_to_datafile(puzzle * p, FILE * data_file, bool canon, bool heuri
         }
         fprintf(data_file, ",");
       }
-    }
+  //  }
     int count1s = 0;
     int count2s = 0;
     int count3s = 0;
@@ -311,7 +312,11 @@ int main(int argc, char * argv[]){
     }
   }
   char filename[256];
-  if(only_maybes && canon && only_SUSP && random)
+  if(read_from_file)
+  {
+    sprintf(filename, "../data/from_file.csv");
+  }
+  else if(only_maybes && canon && only_SUSP && random)
   {
     sprintf(filename, "../data/maybes_random_canon_SUSPs_r%d_c%d.csv", givenR, givenC);
   }
@@ -423,6 +428,10 @@ int main(int argc, char * argv[]){
   {
     total_puzzles_to_add = random_amount;
   }
+  else if(puzzle_from_file)
+  {
+      total_puzzles_to_add = 1;
+  }
   else
   {
     total_puzzles_to_add = pow(3, givenR * givenC);
@@ -453,7 +462,21 @@ int main(int argc, char * argv[]){
     }
     else if(read_from_file)
     {
-      p = puzzle_from_file(f);
+      bool file_full = true;
+      int test = 0;
+      while(file_full && test < 50)
+      {
+        p = puzzle_from_file(f);
+        if(p == NULL)
+        {
+          file_full = false;
+        }
+        else
+        {
+          add_puzzle_to_datafile(p, data_file, canon, heuristics, different_sizes, read_from_file);
+        }
+        test += 1;
+      }
     }
     else
     {
