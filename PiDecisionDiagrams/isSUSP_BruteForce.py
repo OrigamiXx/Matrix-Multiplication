@@ -42,7 +42,7 @@ def create_set_perms(ident_perm):
     return to_return
 
 
-def is_SUSP(puz):
+def piDD_of_all_possible_perms(puz):
     '''
     Takes a puzzle and returns 0 if it's an SUSP, returns the number of possible permutations of the puzzle otherwise.
     :param puz:
@@ -70,7 +70,7 @@ def is_SUSP(puz):
             ident_p3 = False
         ident_p2 = False
         
-    return (DD, num_of_unique_permutations)
+    return DD
 
 
 def is_SUSP_rec(column):
@@ -151,33 +151,36 @@ def is_SUSP_rec_helper(abc, cs, rows, rows_left):
 
 if __name__ == "__main__":
 
-    print(is_SUSP_rec([1,2,3]).piDD)
+    #print(is_SUSP_rec([1,2,3]).piDD)
     
     puzzle1 = [[1, 3], [2, 1]]
     print_puzzle(puzzle1)
-    print(is_SUSP(puzzle1)[1])
+    print(piDD_of_all_possible_perms(puzzle1))
+    print(piDD_of_all_possible_perms(puzzle1)[0].count())
 
-    # puzzle1 =
 
-    ["13" , "21"]
-    # print_puzzle(puzzle1)
-    # print(is_SUSP(puzzle1))
 
     puzzle2 = [[1, 1, 1], [3, 2, 1], [3, 3, 2]]
     print_puzzle(puzzle2)
-    print(is_SUSP(puzzle2)[1])
+    print(piDD_of_all_possible_perms(puzzle2))
+    print(piDD_of_all_possible_perms(puzzle2).count())
+
+
 
     puzzle3 = [[3, 2, 3, 2], [1, 1, 3, 2], [1, 2, 1, 3], [3, 1, 1, 3], [1, 3, 2, 1]]
     print_puzzle(puzzle3)
-    print(is_SUSP(puzzle3)[1])
+    print(piDD_of_all_possible_perms(puzzle3))
+    print(piDD_of_all_possible_perms(puzzle3).count())
 
-    puzzle3 = [[3, 1, 3, 2], [1, 2, 3, 2], [1, 1, 1, 3], [3, 2, 1, 3], [3, 3, 2, 3]]
-    print_puzzle(puzzle3)
-    print(is_SUSP(puzzle3)[1])
-
-    puzzle4 = [[3, 3, 3, 2], [1, 2, 3, 1], [1, 3, 1, 3], [3, 2, 2, 2], [1, 3, 2, 3]]
+    puzzle4 = [[3, 1, 3, 2], [1, 2, 3, 2], [1, 1, 1, 3], [3, 2, 1, 3], [3, 3, 2, 3]]
     print_puzzle(puzzle4)
-    print(is_SUSP(puzzle4)[1])
+    print(piDD_of_all_possible_perms(puzzle4))
+    print(piDD_of_all_possible_perms(puzzle4).count())
+
+    puzzle5 = [[3, 3, 3, 2], [1, 2, 3, 1], [1, 3, 1, 3], [3, 2, 2, 2], [1, 3, 2, 3]]
+    print_puzzle(puzzle5)
+    print(piDD_of_all_possible_perms(puzzle5))
+    print(piDD_of_all_possible_perms(puzzle5).count())
 
 
     
@@ -190,4 +193,4 @@ if __name__ == "__main__":
     #            [3,2,3,2,2],
     #            [1,3,1,3,1]]
     # print_puzzle(puzzle5)
-    # print(is_SUSP(puzzle5))
+    # print(piDD_of_all_possible_perms(puzzle5))

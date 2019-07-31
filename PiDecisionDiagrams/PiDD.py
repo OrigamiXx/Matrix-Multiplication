@@ -298,12 +298,12 @@ class piDD:
             key = '[0]'
             return key
         elif top_node == '[1]':
-            key = "[" + str(self.piDD[self_top_node][0]) + "|" + "[1]" + "|" + self.find_children_nodes(self_top_node)[1] + "]"
-            self.piDD[key] = (self.piDD[self_top_node][0], "[1]", self.find_children_nodes(self_top_node)[1] )
+            key = "[" + str(self.piDD[self_top_node][0]) + "|" + self.union_helper(self.piDD[self_top_node][1], "[1]") + "|" + self.piDD[self_top_node][2] + "]"
+            self.piDD[key] = (self.piDD[self_top_node][0], self.union_helper(self.piDD[self_top_node][1], "[1]"), self.piDD[self_top_node][2])
             return key
         elif self_top_node == '[1]':
-            key = "[" + str(self.piDD[top_node][0]) + "|" + "[1]" + "|" + self.find_children_nodes(top_node)[1] + "]"
-            self.piDD[key] = (self.piDD[top_node][0], "[1]", self.find_children_nodes(top_node)[1])
+            key = "[" + str(self.piDD[top_node][0]) + "|" + self.union_helper(self.piDD[top_node][1], "[1]") + "|" + self.piDD[top_node][2] + "]"
+            self.piDD[key] = (self.piDD[top_node][0], self.union_helper(self.piDD[top_node][1],'[1]'),  self.piDD[top_node][2])
             return key
         elif top_node == "[0]":
             return self_top_node
@@ -373,12 +373,14 @@ class piDD:
                 if self.piDD[self_top_node][1] == "[1]":
                     return "[1]"
                 else:
-                    return "[0]"
+                    key = self.union_helper(self.piDD[self_top_node][1], "[1]")
+                    return key
             elif self_top_node == '[1]':
                 if self.piDD[top_node][1] == "[1]":
                     return "[1]"
                 else:
-                    return "[0]"
+                    key = self.union_helper(self.piDD[top_node][1], "[1]")
+                    return key
 
             elif self.piDD[top_node][0][0] == self.piDD[self_top_node][0][0]:
                 if self.piDD[top_node][0][1] == self.piDD[self_top_node][0][1]:

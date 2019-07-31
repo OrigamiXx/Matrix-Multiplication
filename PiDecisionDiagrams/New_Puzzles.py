@@ -1,22 +1,5 @@
 import random, copy, isSUSP_BruteForce as bf
 
-
-
-
-def make_new_col(row_num):
-    '''
-    Creates a nested list of list with each list within list representing a row
-    :param row_num: desired number of rows in the puzzle.
-    :return: nested list of list
-    '''
-    col = []
-    for i in range(row_num):
-        col.append(random.randint(1, 3))
-    return col
-
-
-
-
 def add_col_to_puzzle(col, puzzle):
     """
     Adds the column to the puzzle with each element of the nested list added to respective row,
@@ -26,10 +9,22 @@ def add_col_to_puzzle(col, puzzle):
     """
     new_puzzle = copy.deepcopy(puzzle)
     for i in range(len(col)):
-        new_puzzle[i].append(col[i])
+        new_puzzle[i] = new_puzzle[i] + col[i]
     return new_puzzle
 
 def all_cols(s):
+    to_return = []
+    list_of_cols = all_cols_helper(s)
+    for col in list_of_cols:
+        to_append = create_empty_puzzle(s)
+        for j in range(s):
+            to_append[j].append(col[j])
+        to_return.append(to_append)
+    return to_return
+
+
+
+def all_cols_helper(s):
     '''
     Generates all possible columns of size s.
     :param s: integer
@@ -41,28 +36,31 @@ def all_cols(s):
     #Recursive Case:
     else:
         to_return = []
-        for col in all_cols(s-1):
-            for j in range(1,4):
-                col_copy = col.copy()
-                col_copy.append(j)
+        for col in all_cols_helper(s-1):
+            for j in range(1, 4):
+                col_copy = copy.deepcopy(col)
+
+                col_copy = col_copy + [j]
                 to_return.append(col_copy)
         return to_return
 
 
-def find_the_best_column(s, puzzle):
+def find_the_best_column(list_of_cols, puz):
     '''
     Iterates through all the possible columns to find the best possible column.
     :param s: number of rows
-    :param puzzle: the puzzle
+    :param puz: the puzzle
     :return: Best possible column
     '''
-    list_of_cols = all_cols(s)
     best_col_so_far = list_of_cols[0]
     for i in list_of_cols[1:]:
-        best_puzzle = add_col_to_puzzle(best_col_so_far, puzzle)
-        best_score_so_far = bf.is_SUSP(best_puzzle)
-        current_puzzle = add_col_to_puzzle(i, puzzle)
-        if bf.is_SUSP(current_puzzle) < best_score_so_far:
+        best_piDD = bf.piDD_of_all_possible_perms(best_col_so_far).copy()
+        best_piDD.intersection(bf.piDD_of_all_possible_perms(puz))
+        best_count = best_piDD.count()
+        current_piDD = bf.piDD_of_all_possible_perms(i).copy()
+        current_piDD.intersection(bf.piDD_of_all_possible_perms(puz))
+        current_count = current_piDD.count()
+        if current_count < best_count:
             best_col_so_far = i
     return best_col_so_far
 
@@ -79,6 +77,13 @@ def create_empty_puzzle(num_of_rows):
         puzzle.append(row)
     return puzzle
 
+def choose_first_col(list_of_cols):
+    best_col = list_of_cols[0]
+    for i in list_of_cols[1::]:
+        if bf.piDD_of_all_possible_perms(i).count()< bf.piDD_of_all_possible_perms(best_col).count():
+            best_col = i
+    return best_col
+
 
 def make_puzzle(num_of_rows):
     '''
@@ -86,16 +91,26 @@ def make_puzzle(num_of_rows):
     :param num_of_rows: size of the
     :return: puzzle
     '''
-    puzzle = create_empty_puzzle(num_of_rows)
-    col = make_new_col(num_of_rows)
-    puzzle = add_col_to_puzzle(col, puzzle)
-    while bf.is_SUSP(puzzle) != 0:
-        best_col = find_the_best_column(num_of_rows, puzzle)
-        #print(best_col)
+    list_of_cols = all_cols(num_of_rows)
+    puzzle = choose_first_col(list_of_cols)
+    while bf.piDD_of_all_possible_perms(puzzle).count() != 0:
+        best_col = find_the_best_column(list_of_cols, puzzle)
         puzzle = add_col_to_puzzle(best_col, puzzle)
-        #bf.print_puzzle(puzzle)
-        #print()
+        # bf.print_puzzle(puzzle)
+        # print()
     return puzzle
 
 if __name__ == "__main__":
+    #print(all_cols(3))
+    bf.print_puzzle(make_puzzle(2))
+    print()
+    bf.print_puzzle(make_puzzle(3))
+    print()
+    bf.print_puzzle(make_puzzle(4))
+    print()
     bf.print_puzzle(make_puzzle(5))
+    print()
+
+
+
+
