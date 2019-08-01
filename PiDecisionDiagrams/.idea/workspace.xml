@@ -1,7 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="69854d49-e68d-4a04-a8e9-43248653cc61" name="Default Changelist" comment="" />
+    <list default="true" id="69854d49-e68d-4a04-a8e9-43248653cc61" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/Summer_Research.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Summer_Research.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/New_Puzzles.py" beforeDir="false" afterPath="$PROJECT_DIR$/New_Puzzles.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PiDD.py" beforeDir="false" afterPath="$PROJECT_DIR$/PiDD.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/isSUSP_BruteForce.py" beforeDir="false" afterPath="$PROJECT_DIR$/isSUSP_BruteForce.py" afterDir="false" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -11,28 +19,19 @@
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/errors.txt">
+        <entry file="file://$PROJECT_DIR$/isSUSP_BruteForce.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1581">
-              <caret line="93" column="2" selection-start-line="93" selection-start-column="2" selection-end-line="93" selection-end-column="2" />
+            <state relative-caret-position="-635">
+              <caret line="58" column="44" selection-start-line="58" selection-start-column="44" selection-end-line="58" selection-end-column="44" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/isSUSP_BruteForce.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="369">
-              <caret line="107" lean-forward="true" selection-start-line="107" selection-end-line="107" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/PiDD.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="624">
-              <caret line="68" column="36" selection-start-line="68" selection-start-column="36" selection-end-line="68" selection-end-column="36" />
+            <state relative-caret-position="-2054">
+              <caret line="170" selection-start-line="170" selection-end-line="170" />
               <folding>
                 <element signature="n#!!doc" />
               </folding>
@@ -52,8 +51,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/testing.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="68">
-              <caret line="4" column="13" selection-start-line="4" selection-start-column="13" selection-end-line="4" selection-end-column="13" />
+            <state relative-caret-position="3757">
+              <caret line="221" selection-start-line="221" selection-end-line="221" />
             </state>
           </provider>
         </entry>
@@ -70,8 +69,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/New_Puzzles.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-926">
-              <caret line="16" selection-start-line="16" selection-end-line="16" />
+            <state relative-caret-position="59">
+              <caret line="23" selection-start-line="23" selection-end-line="30" selection-end-column="41" />
             </state>
           </provider>
         </entry>
@@ -91,6 +90,9 @@
       <find>FAIL</find>
     </findStrings>
   </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
@@ -106,19 +108,23 @@
         <option value="$PROJECT_DIR$/PiDD/Permutations.py" />
         <option value="$PROJECT_DIR$/Permutations.py" />
         <option value="$PROJECT_DIR$/utilities.py" />
-        <option value="$PROJECT_DIR$/New_Puzzles.py" />
-        <option value="$PROJECT_DIR$/PiDD.py" />
         <option value="$PROJECT_DIR$/../Spring_Term_19/isSUSP_BruteForce.py" />
         <option value="$PROJECT_DIR$/testing.py" />
         <option value="$PROJECT_DIR$/isSUSP_BruteForce.py" />
+        <option value="$PROJECT_DIR$/PiDD.py" />
+        <option value="$PROJECT_DIR$/../../Winter_Term_19/Research_Practicum/Brute_Force_Implementation.py" />
+        <option value="$PROJECT_DIR$/../../Winter_Term_19/Research_Practicum/Make_New_Puzzles_Greedy/Brute_Force_Greedy.py" />
+        <option value="$PROJECT_DIR$/New_Puzzles.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="-93" />
-    <option name="width" value="1205" />
-    <option name="height" value="980" />
+    <option name="x" value="860" />
+    <option name="y" value="5" />
+    <option name="width" value="1045" />
+    <option name="height" value="1040" />
   </component>
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
     <navigator proportions="" version="1">
       <foldersAlwaysOnTop value="true" />
@@ -126,7 +132,7 @@
     <panes />
   </component>
   <component name="PropertiesComponent">
-    <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -140,8 +146,8 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.isSUSP_BruteForce">
-    <configuration name="Test" type="PythonConfigurationType" factoryName="Python" temporary="true">
+  <component name="RunManager" selected="Python.New_Puzzles">
+    <configuration name="Brute_Force_Greedy" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="Summer_Research" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -149,11 +155,11 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/.idea" />
-      <option name="IS_MODULE_SDK" value="true" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/../../Winter_Term_19/Research_Practicum/Make_New_Puzzles_Greedy" />
+      <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/.idea/Test" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/../../Winter_Term_19/Research_Practicum/Make_New_Puzzles_Greedy/Brute_Force_Greedy.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -162,7 +168,28 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="Test_scraps" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="Brute_Force_Implementation" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="Summer_Research" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/../../Winter_Term_19/Research_Practicum" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/../../Winter_Term_19/Research_Practicum/Brute_Force_Implementation.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="New_Puzzles" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="Summer_Research" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -174,7 +201,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Test_scraps.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/New_Puzzles.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -196,27 +223,6 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/isSUSP_BruteForce.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="test" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="Summer_Research" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/test.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -248,11 +254,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.New_Puzzles" />
+        <item itemvalue="Python.Brute_Force_Greedy" />
+        <item itemvalue="Python.Brute_Force_Implementation" />
         <item itemvalue="Python.isSUSP_BruteForce" />
         <item itemvalue="Python.testing" />
-        <item itemvalue="Python.Test_scraps" />
-        <item itemvalue="Python.test" />
-        <item itemvalue="Python.Test" />
       </list>
     </recent_temporary>
   </component>
@@ -277,14 +283,14 @@
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.3286119" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.8654391" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.8640227" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.42634562" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Version Control" order="7" />
       <window_info anchor="bottom" id="Terminal" order="8" weight="0.3286119" />
-      <window_info anchor="bottom" id="Event Log" order="9" side_tool="true" weight="0.3295302" />
+      <window_info anchor="bottom" id="Event Log" order="9" side_tool="true" weight="0.3286119" />
       <window_info anchor="bottom" id="Python Console" order="10" weight="0.3286119" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
@@ -311,13 +317,7 @@
     </layout-to-restore>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/../Winter_Term_19/CSC_120/Project 3/card.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="136">
-          <caret line="8" column="40" lean-forward="true" selection-start-line="8" selection-start-column="40" selection-end-line="8" selection-end-column="40" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/../Winter_Term_19/CSC_120/Project 3/card.py" />
     <entry file="file://$APPLICATION_HOME_DIR$/helpers/pydev/pydevd.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="257">
@@ -339,13 +339,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../Winter_Term_19/CSC_120/Project 2/test_suite.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="34">
-          <caret line="2" lean-forward="true" selection-start-line="2" selection-end-line="2" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/../Winter_Term_19/CSC_120/Project 2/test_suite.py" />
     <entry file="file://$PROJECT_DIR$/Transpositions.py" />
     <entry file="file://$PROJECT_DIR$/Extra_code.py" />
     <entry file="file://$USER_HOME$/.PyCharmCE2018.3/system/python_stubs/194356985/builtins.py">
@@ -364,37 +358,23 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../Spring_Term_19/New_Puzzles.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="187">
-          <caret line="11" column="40" lean-forward="true" selection-start-line="11" selection-start-column="40" selection-end-line="11" selection-end-column="40" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/../Spring_Term_19/New_Puzzles.py" />
     <entry file="file://$PROJECT_DIR$/PiDD/isSUSP_BruteForce.py" />
     <entry file="file://$PROJECT_DIR$/PiDD/New_Puzzles.py" />
     <entry file="file://$PROJECT_DIR$/PiDD/Permutations.py" />
-    <entry file="file://$PROJECT_DIR$/errors.txt">
+    <entry file="file://$PROJECT_DIR$/errors.txt" />
+    <entry file="file://$PROJECT_DIR$/../Spring_Term_19/isSUSP_BruteForce.py" />
+    <entry file="file://$PROJECT_DIR$/../../Winter_Term_19/Research_Practicum/Brute_Force_Implementation.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1581">
-          <caret line="93" column="2" selection-start-line="93" selection-start-column="2" selection-end-line="93" selection-end-column="2" />
+        <state relative-caret-position="420">
+          <caret line="69" selection-start-line="69" selection-end-line="76" selection-end-column="20" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Permutations.py">
+    <entry file="file://$PROJECT_DIR$/../../Winter_Term_19/Research_Practicum/Make_New_Puzzles_Greedy/Brute_Force_Greedy.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="204">
-          <caret line="12" column="51" selection-start-line="12" selection-start-column="51" selection-end-line="12" selection-end-column="51" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/PiDD.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="624">
-          <caret line="68" column="36" selection-start-line="68" selection-start-column="36" selection-end-line="68" selection-end-column="36" />
-          <folding>
-            <element signature="n#!!doc" />
-          </folding>
+        <state relative-caret-position="16">
+          <caret line="80" column="24" selection-start-line="80" selection-start-column="24" selection-end-line="80" selection-end-column="24" />
         </state>
       </provider>
     </entry>
@@ -407,29 +387,39 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/testing.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="68">
-          <caret line="4" column="13" selection-start-line="4" selection-start-column="13" selection-end-line="4" selection-end-column="13" />
+        <state relative-caret-position="3757">
+          <caret line="221" selection-start-line="221" selection-end-line="221" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/New_Puzzles.py">
+    <entry file="file://$PROJECT_DIR$/Permutations.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-926">
-          <caret line="16" selection-start-line="16" selection-end-line="16" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../Spring_Term_19/isSUSP_BruteForce.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="617">
-          <caret line="83" column="29" lean-forward="true" selection-start-line="50" selection-start-column="4" selection-end-line="83" selection-end-column="29" />
+        <state relative-caret-position="204">
+          <caret line="12" column="51" selection-start-line="12" selection-start-column="51" selection-end-line="12" selection-end-column="51" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/isSUSP_BruteForce.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="369">
-          <caret line="107" lean-forward="true" selection-start-line="107" selection-end-line="107" />
+        <state relative-caret-position="-635">
+          <caret line="58" column="44" selection-start-line="58" selection-start-column="44" selection-end-line="58" selection-end-column="44" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/New_Puzzles.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="59">
+          <caret line="23" selection-start-line="23" selection-end-line="30" selection-end-column="41" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/PiDD.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-2054">
+          <caret line="170" selection-start-line="170" selection-end-line="170" />
+          <folding>
+            <element signature="n#!!doc" />
+          </folding>
         </state>
       </provider>
     </entry>

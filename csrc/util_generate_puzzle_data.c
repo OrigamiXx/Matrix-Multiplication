@@ -10,6 +10,7 @@
 #include "searcher2.h"
 #include "canonization.h"
 #include <time.h>
+#include "heuristic.h"
 
 #define DEFAULT_ROW 3
 #define DEFAULT_COL 3
@@ -57,8 +58,17 @@ int increase_progress(size_t current_progress, double eta, float percent_adder, 
   return current_progress;
 }
 
+puzzle * puzzle_from_file(FILE * f) {
+  //printf("started next\n");
+  int lines_read = 0;
+  puzzle * p = create_next_puzzle_from_file(f, &lines_read);
+  return p;
+}
+
+
+
 //Given Index and Puzzle Size, creates puzzle and features and adds them to the data file.
-void add_puzzle_to_datafile(puzzle * p, FILE * data_file, bool canon, bool heuristics, bool different_sizes)
+void add_puzzle_to_datafile(puzzle * p, FILE * data_file, bool canon, bool heuristics, bool different_sizes, bool read_from_file)
 {
     if(canon)
     {
@@ -75,13 +85,16 @@ void add_puzzle_to_datafile(puzzle * p, FILE * data_file, bool canon, bool heuri
         strncpy(isUSB, "0", sizeof(isUSB));
     }
 
-    for(int i = 0; i < p -> s; i++){
-      for(int j = 0; j < p -> k; j++){
-          int entry = get_entry(p, i, j);
-          fprintf(data_file, "%d", entry);
+    //if(!read_from_file)
+    //{
+      for(int i = 0; i < p -> s; i++){
+        for(int j = 0; j < p -> k; j++){
+            int entry = get_entry(p, i, j);
+            fprintf(data_file, "%d", entry);
+        }
+        fprintf(data_file, ",");
       }
-      fprintf(data_file, ",");
-    }
+  //  }
     int count1s = 0;
     int count2s = 0;
     int count3s = 0;
@@ -248,6 +261,8 @@ void add_puzzle_to_datafile(puzzle * p, FILE * data_file, bool canon, bool heuri
 // -s adds only SUSPs to the dataset
 // -n excludes SUSPs from the dataset
 // -d creates same sized datasets for all puzzles up to MAX size
+// -f + filename, used to read puzzles from file to create datasets
+// -m only include MAYBE (From Heuristics) in the dataset
 int main(int argc, char * argv[]){
 
   double total_time;
@@ -263,13 +278,16 @@ int main(int argc, char * argv[]){
   bool only_SUSP = false;
   bool only_not_SUSP = false;
   bool different_sizes = false;
+  bool only_maybes = false;
+  bool read_from_file = false;
   int random_amount = 0;
+  FILE * f;
   if(argc >= 3) //Name plus row and col     Is there a better way to handle all these potential arguments
   {
     givenR = strtol(argv[1], NULL, 10);
     givenC = strtol(argv[2], NULL, 10);
   }
-  while((opt = getopt(argc, argv, "cr:hsnd")) != -1)
+  while((opt = getopt(argc, argv, "cr:hsndmf:")) != -1)
   {
     switch(opt)
     {
@@ -285,10 +303,32 @@ int main(int argc, char * argv[]){
       case 'n': only_not_SUSP = true;
           break;
       case 'd': different_sizes = true;
+          break;
+      case 'm': only_maybes = true;
+          break;
+      case 'f': read_from_file = true;
+                f = fopen(optarg, "r");
+          break;
     }
   }
   char filename[256];
-  if(canon && random && only_SUSP)
+  if(read_from_file)
+  {
+    sprintf(filename, "../data/from_file.csv");
+  }
+  else if(only_maybes && canon && only_SUSP && random)
+  {
+    sprintf(filename, "../data/maybes_random_canon_SUSPs_r%d_c%d.csv", givenR, givenC);
+  }
+  else if(only_maybes && canon && only_not_SUSP && random)
+  {
+    sprintf(filename, "../data/maybes_random_canon_NOTSUSPs_r%d_c%d.csv", givenR, givenC);
+  }
+  else if(only_maybes && canon && random)
+  {
+    sprintf(filename, "../data/maybes_random_canon_r%d_c%d.csv", givenR, givenC);
+  }
+  else if(canon && random && only_SUSP)
   {
     sprintf(filename, "../data/random_canon_SUSPs_r%d_c%d.csv", givenR, givenC);
   }
@@ -388,6 +428,10 @@ int main(int argc, char * argv[]){
   {
     total_puzzles_to_add = random_amount;
   }
+  else if(puzzle_from_file)
+  {
+      total_puzzles_to_add = 1;
+  }
   else
   {
     total_puzzles_to_add = pow(3, givenR * givenC);
@@ -416,6 +460,24 @@ int main(int argc, char * argv[]){
       p = create_puzzle(givenR, givenC);
       randomize_puzzle(p);
     }
+    else if(read_from_file)
+    {
+      bool file_full = true;
+      int test = 0;
+      while(file_full && test < 50)
+      {
+        p = puzzle_from_file(f);
+        if(p == NULL)
+        {
+          file_full = false;
+        }
+        else
+        {
+          add_puzzle_to_datafile(p, data_file, canon, heuristics, different_sizes, read_from_file);
+        }
+        test += 1;
+      }
+    }
     else
     {
       p = create_puzzle_from_index(givenR, givenC, index);
@@ -427,20 +489,33 @@ int main(int argc, char * argv[]){
         int result = check(p);
         if(result && only_SUSP)
         {
-          add_puzzle_to_datafile(p, data_file, canon, heuristics, different_sizes);
+          add_puzzle_to_datafile(p, data_file, canon, heuristics, different_sizes, read_from_file);
         }
         else if(!result && only_not_SUSP)
         {
-          add_puzzle_to_datafile(p, data_file, canon, heuristics, different_sizes);
+          add_puzzle_to_datafile(p, data_file, canon, heuristics, different_sizes, read_from_file);
         }
-        else
+        else if(random)
         {
-          index-=1;
+            index-=1;
+        }
+      }
+      else if(only_maybes)
+      {
+        if(heuristic_row_pairs(p) == UNDET_USP && heuristic_row_triples(p) == UNDET_USP
+        && heuristic_random(p) == UNDET_USP && heuristic_greedy(p) == UNDET_USP
+        && heuristic_graph_automorphism(p) == UNDET_USP)
+        {
+          add_puzzle_to_datafile(p, data_file, canon, heuristics, different_sizes, read_from_file);
+        }
+        else if(random)
+        {
+          index -= 1;
         }
       }
       else
       {
-        add_puzzle_to_datafile(p, data_file, canon, heuristics, different_sizes);
+        add_puzzle_to_datafile(p, data_file, canon, heuristics, different_sizes, read_from_file);
       }
     }
     else if(random)
