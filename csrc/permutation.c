@@ -306,6 +306,10 @@ void print_perm_cycle(perm * pi){
 	
     }
 
+  if (n == 0){
+    printf("()");
+  }
+  
   printf("\n");
 
 }

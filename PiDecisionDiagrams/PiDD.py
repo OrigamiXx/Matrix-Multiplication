@@ -235,7 +235,7 @@ class piDD:
             v = transposition[1]
             if u > x:
                 key = "[" + str(transposition) + "|" + "[0]" + "|" + top_node + "]"
-                self.piDD[key] = (transposition, '[0]', self.piDD[top_node][2])
+                self.piDD[key] = (transposition, '[0]', self.piDD[top_node][2])  # XXX - Shouldn't the last value be top_node?
 
             elif x > u:
                 left_child = self.transpose_helper(self.piDD[top_node][1], (u, v))
@@ -248,7 +248,7 @@ class piDD:
                     self.piDD[key] = ((x, u), left_child, right_child)
             elif x == u:
                 if y == v:
-                    return "[1]"
+                    return "[1]" # XXX - not sure where this came from.
                 else:
                     left_child = self.transpose_helper(self.piDD[top_node][1], (u, v))
                     right_child = self.transpose_helper(self.piDD[top_node][2], (y, v))
@@ -497,6 +497,6 @@ class piDD:
         column puzzle that is sorted in increasing order from top to
         bottom.  This function returns a PiDD that corresponds to all
         pairs of permutations that do not changes the column.
-        The total numbers of pairs is (c1! * c2! * c3!)**2.'''
+        The total numbers of pairs is (c1! * c2! * c3!)**2'''
         pass
     
