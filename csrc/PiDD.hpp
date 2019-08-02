@@ -225,7 +225,8 @@ private:
 
   static string product_op_key(PiDD_Node * node1, PiDD_Node *node2){
     ostringstream ss;
-    ss << "P" << node1 << "|" << node2;
+    //ss << "P" << node1 << "|" << node2;
+    ss << "P" << ((long int)node1 ^ (long int)node2);
     return ss.str();
   } 
 

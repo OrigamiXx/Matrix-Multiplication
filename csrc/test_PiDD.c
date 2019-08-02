@@ -11,7 +11,7 @@ int main(int argc, char * argv[]){
    
           
   int n = 10;               
-  printf("PiDD Tester\n");          
+  printf("PiDD Tester\n");           
    
   printf("Empty\n");     
   PiDD dd = PiDD_Factory::make_empty();        
