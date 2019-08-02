@@ -231,18 +231,18 @@ private:
 
   // XXX - Op cache is not active, because it is slow / broken.
   static void op_cache_remove(map<string, PiDD_Node *> &memo, string key){
-    // memo.erase(key);
+    memo.erase(key);
   }
 
   static void op_cache_insert(map<string, PiDD_Node *> &memo, string key, PiDD_Node * value){
-    // memo.insert(pair<string, PiDD_Node *>(key, value));
+    memo.insert(pair<string, PiDD_Node *>(key, value));
   }
 
   static PiDD_Node * op_cache_lookup(map<string, PiDD_Node *> &memo, string key){
-    // auto it = memo.find(key);
-    // if (it != memo.end())
-    //   return it -> second;
-    // else
+    auto it = memo.find(key);
+    if (it != memo.end())
+      return it -> second;
+    else
       return NULL;
   }
   
@@ -452,11 +452,11 @@ public:
     PiDD_Node * res = NULL;
 
     //printf("Start union\n");
-    // string key = union_op_key(root1, root2);
+    string key = union_op_key(root1, root2);
 
-    // PiDD_Node * done = op_cache_lookup(memo, key);
-    // if (done != NULL)
-    //   return done;    
+    PiDD_Node * done = op_cache_lookup(memo, key);
+    if (done != NULL)
+      return done;    
     
     if (root1 == zero && root2 == zero) {
       res = zero;
@@ -480,7 +480,7 @@ public:
       res = create_node(root1 -> t, set_union(root1 -> left, root2, memo), root1 -> right);	
     }
 
-    // op_cache_insert(memo, key, res);
+    op_cache_insert(memo, key, res);
     //assert(validate(res));
     //printf("End union\n");
     return res;

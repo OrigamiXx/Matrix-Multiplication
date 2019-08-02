@@ -16,7 +16,7 @@ int main(int argc, char * argv[]){
   printf("Empty\n");   
   PiDD dd = PiDD_Factory::make_empty();      
   dd.print_perms();
- 
+  
   printf("Identity\n");
   perm * pi = create_perm_identity(n);
   PiDD dd2 = PiDD_Factory::make_singleton(pi);
