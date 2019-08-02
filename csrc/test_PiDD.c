@@ -1,6 +1,6 @@
 #include "PiDD.hpp"
 
-
+ 
 using namespace std;
 
 #include <cstdio> 
@@ -8,13 +8,13 @@ using namespace std;
 #include <cstdlib>
 
 int main(int argc, char * argv[]){ 
-  
-         
-  int n = 6;          
-  printf("PiDD Tester\n");       
    
-  printf("Empty\n");   
-  PiDD dd = PiDD_Factory::make_empty();      
+          
+  int n = 10;               
+  printf("PiDD Tester\n");          
+   
+  printf("Empty\n");     
+  PiDD dd = PiDD_Factory::make_empty();        
   dd.print_perms();
   
   printf("Identity\n");
@@ -79,9 +79,10 @@ int main(int argc, char * argv[]){
   /* printf("PiDD count = %d\n", PiDD_count);     */    
   
   dd = PiDD_Factory::make_identity(); 
-  printf("Cache size = %u\n", PiDD_Factory::size());    
+  printf("Cache size = %lu\n", PiDD_Factory::size());    
   printf("PiDD count = %d\n", PiDD_count);  
- 
+
+  /*
   for (int a = 1; a < (uint8_t)n; a++){    
     for (int b = a - 1; b >=0; b--){
       printf("a, b = %d, %d\n", a, b);
@@ -94,14 +95,31 @@ int main(int argc, char * argv[]){
       //dd.print_perms();   
     } 
   }
- 
-  printf("max product, size(dd) = %u\n", dd.size());  
-  printf("Cache size = %u\n", PiDD_Factory::size());
-  printf("PiDD count = %d\n", PiDD_count);        
-   
-  dd = PiDD_Factory::make_empty();  
-  printf("Cache size = %u\n", PiDD_Factory::size()); 
-  printf("PiDD count = %d\n", PiDD_count);
   
+  printf("max product, size(dd) = %lu\n", dd.size());   
+  printf("Cache size = %lu\n", PiDD_Factory::size());
+  printf("PiDD count = %d\n", PiDD_count);        
+  */
+  
+  // Permutation Networks Example from [Minato11].
+  PiDD id = PiDD_Factory::make_identity();
+  PiDD P = id;
+  PiDD T = id;
+  for (int a = 1; a < n; a++){
+    int b = a - 1;
+    T = T | (id * (transpose){(uint8_t) a, (uint8_t) b});
+  }
+
+  T.print_perms();
+  
+  for (int i = 0; i <= n * (n - 1) / 2; i++){
+    P = P * T;
+    printf("i = %d, cache size = %lu\n", i, PiDD_Factory::size()); 
+  }
+
+  printf("Permutation Network, size(dd) = %lu\n", P.size());   
+  printf("Cache size = %lu\n", PiDD_Factory::size()); 
+  printf("PiDD count = %d\n", PiDD_count);
+   
   return 0;
 }

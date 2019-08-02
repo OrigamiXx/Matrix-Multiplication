@@ -33,7 +33,7 @@ typedef struct _PiDD_Node {
   transpose t;
 
   // Number of permutations in DD rooted here.
-  uint32_t size;
+  uint64_t size;
   
   // Tracks number of parents.  Deallocate when 0.
   uint16_t ref_count;
@@ -76,7 +76,7 @@ public:
   // Cartesian Product.
   PiDD operator*(const PiDD& other) const;
   
-  uint32_t size() const;
+  uint64_t size() const;
 
   bool is_empty() const;
 
@@ -206,7 +206,7 @@ private:
   
   static string transpose_op_key(PiDD_Node * node, const transpose &t){
     ostringstream ss;
-    ss << "T" << node -> t.a << "|" << node -> t.b << "|" << node;
+    ss << "T" << t.a << "|" << t.b << "|" << node;
     return ss.str();
   }
 
@@ -252,7 +252,7 @@ private:
 
 public:
 
-  static uint32_t size(){
+  static uint64_t size(){
     return node_cache.size() + 2;
   }
 
@@ -339,13 +339,12 @@ public:
   
   static PiDD_Node * set_transpose(PiDD_Node * root, const transpose& t, map<string, PiDD_Node *> &memo){
 
-    // string key = transpose_op_key(root, t);
-
     // //printf("Start transpose\n");
     
-    // PiDD_Node * done = op_cache_lookup(memo, key);
-    // if (done != NULL)
-    //   return done;
+    string key = transpose_op_key(root, t);    
+    PiDD_Node * done = op_cache_lookup(memo, key);
+    if (done != NULL)
+      return done;
 
     PiDD_Node * res = NULL;
 
@@ -420,8 +419,8 @@ public:
       //res = set_union(new_left, set_transpose(new_right, t0, memo), memo);
     }
 
-    // op_cache_insert(memo, key, res);
-    assert(validate(res));
+    op_cache_insert(memo, key, res);
+    //assert(validate(res));
     //printf("End transpose\n");
     return res;
     
@@ -548,11 +547,11 @@ public:
     
     PiDD_Node * res = NULL;
 
-    // string key = product_op_key(root1, root2);
+    string key = product_op_key(root1, root2);
     
-    // PiDD_Node * done = op_cache_lookup(memo, key);
-    // if (done != NULL)
-    //   return done;
+    PiDD_Node * done = op_cache_lookup(memo, key);
+    if (done != NULL)
+      return done;
 
     if (root2 == zero)
       res = zero;
@@ -572,7 +571,7 @@ public:
 		      memo);
     }
 
-    // op_cache_insert(memo, key, res);
+    op_cache_insert(memo, key, res);
     //assert(validate(res));
     //printf("End product\n");
     return res;
@@ -620,7 +619,7 @@ public:
 	printf("Leaf node with non-NULL children\n");
 	return false;
       } else if (root -> size != root -> t.a) {
-	printf("Leaf node with inconsistent size: %d != %d\n", root -> size, root -> t.a);
+	printf("Leaf node with inconsistent size: %lu != %d\n", root -> size, root -> t.a);
 	return false;
       } else if (root -> ref_count != 0) {
 	printf("Leaf node with non-zero ref_count: %d\n", root -> ref_count);
@@ -648,14 +647,14 @@ public:
 	       root -> right -> t.a, root -> right -> t.b);
 	return false;
       } else if (root -> size != root -> left -> size + root -> right -> size) {
-	printf("Internal node with size inconsistent with children: %d != %d + %d\n",
+	printf("Internal node with size inconsistent with children: %lu != %lu + %lu\n",
 	       root -> size, root -> left -> size, root -> right -> size);
 	return false;
       // } else if (root -> ref_count < 1) {
       // 	printf("Internal node with nonpositive ref_count: %d\n", root -> ref_count);
       // 	return false;
       } else if (root -> ref_count > PiDD_count + PiDD_Factory::size() - 1) {
-	printf("Ref_count higher than number of things that could ref it! %d vs. %d\n",
+	printf("Ref_count higher than number of things that could ref it! %d vs. %lu\n",
 	       root -> ref_count,  PiDD_count + PiDD_Factory::size() - 1);
 	return false;
       }
@@ -672,7 +671,7 @@ PiDD::PiDD()
 {
   PiDD_count++;
   PiDD_Factory::increment_node(root);
-  assert(validate());
+  //assert(validate());
 }
 
 PiDD::PiDD(PiDD_Node * root)
@@ -681,7 +680,7 @@ PiDD::PiDD(PiDD_Node * root)
   //printf("Creating PiDD %p\n", root);
   PiDD_count++;
   PiDD_Factory::increment_node(root);
-  assert(validate());
+  //assert(validate());
 }
   
 PiDD& PiDD::operator=(const PiDD& other){
@@ -730,7 +729,7 @@ PiDD PiDD::operator*(const PiDD& other) const {
   return PiDD_Factory::set_product(*this, other);
 }
   
-uint32_t PiDD::size() const {
+uint64_t PiDD::size() const {
   return root -> size;
 }
 
@@ -751,7 +750,7 @@ void PiDD::print_perms() const{
   vector<perm *> pis = enlist(dim);
   
   assert(size() == pis.size());
-  printf("size = %d, node_cache = %u, dim = %d\n", size(), PiDD_Factory::size(), dim);
+  printf("size = %lu, node_cache = %lu, dim = %d\n", size(), PiDD_Factory::size(), dim);
   printf("[\n");
   for (auto pi : pis){
     print_perm_cycle(pi);
@@ -762,6 +761,6 @@ void PiDD::print_perms() const{
 }
 
 bool PiDD::validate() const {
-  //return true; // XXX - validate is slow!
-  return PiDD_Factory::validate(root);
+  return true; // XXX - validate is slow!
+  //return PiDD_Factory::validate(root);
 }

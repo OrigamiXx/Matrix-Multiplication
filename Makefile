@@ -9,7 +9,7 @@ CC=g++
 NAUTY=nauty.o nautil.o nausparse.o naugraph.o schreier.o naurng.o
 NAUTYDIR=nauty26r7
 
-COMMONFLAGS= -Wall -O3 -pg -ggdb -g -std=c++17
+COMMONFLAGS= -Wall -O3 -ggdb -std=c++17 -g -pg
 CCFLAGS=-c $(COMMONFLAGS)
 CFLAGS=-I $(NAUTYDIR)/
 LDFLAGS=-lm -pthread $(COMMONFLAGS)
