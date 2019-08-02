@@ -101,6 +101,7 @@ PiDD_Node * zero = &zero_node;
 PiDD_Node one_node = (PiDD_Node){NULL, NULL, (transpose){1,1}, 1, 0};
 PiDD_Node * one = &one_node;
 map<string, PiDD_Node *> node_cache;  // Could be replaced with node parent LLs to reduce memory overhead.
+vector<PiDD_Node *> node_cache_recent;
 
 class PiDD_Factory {
 
@@ -136,6 +137,22 @@ private:
     return res;
   }
 
+  static void clean_up_node_cache(){
+
+    // Must be done in forward order because it may deallocate
+    // children which will be ahead of parents in the recent
+    // allocations.
+    for (auto n : node_cache_recent){
+      if (n -> ref_count == 0){
+	n -> ref_count++;
+	decrement_node(n);
+      }
+    }
+
+    // Empty the list.
+    node_cache_recent.clear();
+  }
+  
   static void increment_node(PiDD_Node * node){
     if (node != NULL && node -> t.a != node -> t.b){
       assert(node -> ref_count < UINT16_MAX);
@@ -173,6 +190,7 @@ private:
     string key = node_to_key(node);
     assert(cache_lookup(node) == NULL);
     node_cache.insert(pair<string, PiDD_Node *>(key, node));
+    node_cache_recent.push_back(node); // So we can deallocate if it isn't permanent.
   }
 
   static PiDD_Node * cache_lookup(PiDD_Node * node){
@@ -293,18 +311,41 @@ public:
 
   static PiDD set_transpose(const PiDD& dd, const transpose& t){
     map<string, PiDD_Node *> memo;
-    return PiDD(set_transpose(dd.root, t, memo));
+    PiDD res = PiDD(set_transpose(dd.root, t, memo));
+    clean_up_node_cache();
+    return res;
   }
 
+  static PiDD_Node * push_down(const transpose &t, PiDD_Node * new_left, PiDD_Node * new_right, map<string, PiDD_Node*> &memo){
+    // XXX - Note, this seems to be implementing a special case of union
+    // when unioning new_right with (t, [0], new_right).
+    
+    PiDD_Node * res = NULL;
+    if (new_left == zero && new_left == one) {
+      res = create_node(t, new_left, new_right);
+    } else if (compare_transposes(new_left -> t, t) == 0) {
+      //printf("new_left matches new_root\n");
+      res = create_node(t, new_left -> left, set_union(new_left -> right, new_right, memo));
+    } else if (compare_transposes(new_left -> t, t) == 1) {
+      //printf("new_left is above new_root: %d %d, %d %d\n", new_left->t.a, new_left->t.b, t0.a, t0.b);
+      res = create_node(new_left -> t, push_down(t, new_left -> left, new_right, memo), new_left -> right);
+    } else {
+      //printf("new_left is below new_root\n");
+      res = create_node(t, new_left, new_right);
+    }
+
+    return res;
+  }
+  
   static PiDD_Node * set_transpose(PiDD_Node * root, const transpose& t, map<string, PiDD_Node *> &memo){
 
-    string key = transpose_op_key(root, t);
+    // string key = transpose_op_key(root, t);
 
-    //printf("Start transpose\n");
+    // //printf("Start transpose\n");
     
-    PiDD_Node * done = op_cache_lookup(memo, key);
-    if (done != NULL)
-      return done;
+    // PiDD_Node * done = op_cache_lookup(memo, key);
+    // if (done != NULL)
+    //   return done;
 
     PiDD_Node * res = NULL;
 
@@ -348,8 +389,7 @@ public:
 	yp = y;
       }
 
-      // printf("top = (%d, %d), t = (%d, %d) ->  new_top = (%d, %d), left = (%d, %d), right = (%d, %d)\n",
-      // 	     x, y, u, v, x, yp, u, v, up, v);
+
       transpose t0 = (x > yp ? (transpose){x, yp} : (transpose){yp, x});
       transpose t1 = (up > v ? (transpose){up,v} : (transpose){v,up});
       assert(x != yp);
@@ -363,11 +403,25 @@ public:
       // is much slower and harder to exclude memory leaks.
       
       //res = create_node(t0, set_transpose(root -> left, t, memo), set_transpose(root -> right, t1, memo));
-      res = set_union(set_transpose(root -> left, t, memo), set_transpose(set_transpose(root -> right, t1, memo), t0, memo), memo);
+
+      PiDD_Node * new_left = set_transpose(root -> left, t, memo);
+      PiDD_Node * new_right = set_transpose(root -> right, t1, memo);
+
+      // printf("top = (%d, %d), t = (%d, %d) ->  new_top = (%d, %d), left = (%d, %d), right = (%d, %d)\n",
+      //  	     x, y, u, v, x, yp, u, v, up, v);
+
+      // Push new_root down until it's left child's transpose is below t0.
+      // XXX - not sure why it's necesssary to push more than one level, but it seems to be.
+      // Appears to be giving correct invariants, and is much faster than literal implemenetation below.
+      // Still has insufficient deallocation.
+      res = push_down(t0, new_left, new_right, memo);
+
+      // XXX - Literal implementation of construction.
+      //res = set_union(new_left, set_transpose(new_right, t0, memo), memo);
     }
 
-    op_cache_insert(memo, key, res);
-    //assert(validate(res));
+    // op_cache_insert(memo, key, res);
+    assert(validate(res));
     //printf("End transpose\n");
     return res;
     
@@ -387,7 +441,10 @@ public:
   
   static PiDD set_union(const PiDD& dd1, const PiDD& dd2){
     map<string, PiDD_Node *> memo;
-    return PiDD(set_union(dd1.root, dd2.root, memo));
+    PiDD res = PiDD(set_union(dd1.root, dd2.root, memo));
+    clean_up_node_cache();
+    return res;
+
   }
 
   static PiDD_Node * set_union(PiDD_Node * root1, PiDD_Node * root2, map<string, PiDD_Node *> &memo){
@@ -395,11 +452,11 @@ public:
     PiDD_Node * res = NULL;
 
     //printf("Start union\n");
-    string key = union_op_key(root1, root2);
+    // string key = union_op_key(root1, root2);
 
-    PiDD_Node * done = op_cache_lookup(memo, key);
-    if (done != NULL)
-      return done;    
+    // PiDD_Node * done = op_cache_lookup(memo, key);
+    // if (done != NULL)
+    //   return done;    
     
     if (root1 == zero && root2 == zero) {
       res = zero;
@@ -423,7 +480,7 @@ public:
       res = create_node(root1 -> t, set_union(root1 -> left, root2, memo), root1 -> right);	
     }
 
-    op_cache_insert(memo, key, res);
+    // op_cache_insert(memo, key, res);
     //assert(validate(res));
     //printf("End union\n");
     return res;
@@ -431,7 +488,10 @@ public:
   
   static PiDD set_intersection(const PiDD& dd1, const PiDD& dd2){
     map<string, PiDD_Node *> memo;
-    return PiDD(set_intersection(dd1.root, dd2.root, memo));
+    PiDD res = PiDD(set_intersection(dd1.root, dd2.root, memo));
+    clean_up_node_cache();
+    return res;
+    
   }
 
   static PiDD_Node * set_intersection(PiDD_Node * root1, PiDD_Node * root2, map<string, PiDD_Node *> &memo){
@@ -476,7 +536,10 @@ public:
 
   static PiDD set_product(const PiDD& dd1, const PiDD& dd2){
     map<string, PiDD_Node *> memo;
-    return PiDD(set_product(dd1.root, dd2.root, memo));
+    PiDD res = PiDD(set_product(dd1.root, dd2.root, memo));
+    clean_up_node_cache();
+    return res;
+    
   }
 
   static PiDD_Node * set_product(PiDD_Node * root1, PiDD_Node * root2, map<string, PiDD_Node *> &memo){
@@ -485,11 +548,11 @@ public:
     
     PiDD_Node * res = NULL;
 
-    string key = product_op_key(root1, root2);
+    // string key = product_op_key(root1, root2);
     
-    PiDD_Node * done = op_cache_lookup(memo, key);
-    if (done != NULL)
-      return done;
+    // PiDD_Node * done = op_cache_lookup(memo, key);
+    // if (done != NULL)
+    //   return done;
 
     if (root2 == zero)
       res = zero;
@@ -509,7 +572,7 @@ public:
 		      memo);
     }
 
-    op_cache_insert(memo, key, res);
+    // op_cache_insert(memo, key, res);
     //assert(validate(res));
     //printf("End product\n");
     return res;

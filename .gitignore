@@ -42,3 +42,4 @@ nauty*/watercluster2
 *#*
 objs/*
 nauty*/*.o
+*__pycache__*

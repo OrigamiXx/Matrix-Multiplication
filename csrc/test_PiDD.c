@@ -7,14 +7,14 @@ using namespace std;
 #include <string>
 #include <cstdlib>
 
-int main(int argc, char * argv[]){
- 
-       
-  int n = 8;       
-  printf("PiDD Tester\n");     
+int main(int argc, char * argv[]){ 
   
-  printf("Empty\n"); 
-  PiDD dd = PiDD_Factory::make_empty();   
+         
+  int n = 6;          
+  printf("PiDD Tester\n");       
+   
+  printf("Empty\n");   
+  PiDD dd = PiDD_Factory::make_empty();      
   dd.print_perms();
  
   printf("Identity\n");
@@ -82,16 +82,16 @@ int main(int argc, char * argv[]){
   printf("Cache size = %u\n", PiDD_Factory::size());    
   printf("PiDD count = %d\n", PiDD_count);  
  
-  for (int a = 1; a < (uint8_t)n; a++){ 
+  for (int a = 1; a < (uint8_t)n; a++){    
     for (int b = a - 1; b >=0; b--){
       printf("a, b = %d, %d\n", a, b);
-      PiDD dd9 = PiDD_Factory::make_identity();
+      PiDD dd9 = PiDD_Factory::make_identity();  
       dd9 = dd9 | (dd9 * (transpose){(uint8_t)a, (uint8_t)b});  
-      printf("Product term\n"); 
+      printf("Product term\n");    
       dd9.print_perms(); 
-      dd = dd9 * dd; 
-      printf("Cumulative\n");
-      //dd.print_perms();  
+      dd = dd9 * dd;   
+      printf("Cumulative\n"); 
+      //dd.print_perms();   
     } 
   }
  
