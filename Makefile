@@ -12,7 +12,7 @@ NAUTYDIR=nauty26r7
 COMMONFLAGS= -Wall -O3 -ggdb -std=c++17 -g -pg
 CCFLAGS=-c $(COMMONFLAGS)
 CFLAGS=-I $(NAUTYDIR)/
-LDFLAGS=-lm -pthread $(COMMONFLAGS)
+LDFLAGS=-lm -pthread $(COMMONFLAGS) 
 RMFLAGS=-f
 
 # Put additional object sources in list below.

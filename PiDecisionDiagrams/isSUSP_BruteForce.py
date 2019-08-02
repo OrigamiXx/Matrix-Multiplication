@@ -141,6 +141,7 @@ def is_SUSP_rec_helper(abc, cs, rows, rows_left, memo):
         return memo[key_str]
 
     res = PiDD.piDD()
+    res.single_perm(Permutations.Permutation(list(range(1, 2*rows + 1))))
     
     if abc == 3**3:
         if rows_left != 0:

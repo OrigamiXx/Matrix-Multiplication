@@ -8,7 +8,7 @@
 #include <iostream>
 #include <algorithm>
 #include <cstdint>
-#include <map>
+#include <unordered_map>
 #include "permutation.h"
 #include <vector>
 #include <cassert>
@@ -100,7 +100,7 @@ PiDD_Node zero_node = (PiDD_Node){NULL, NULL, (transpose){0,0}, 0, 0};
 PiDD_Node * zero = &zero_node;
 PiDD_Node one_node = (PiDD_Node){NULL, NULL, (transpose){1,1}, 1, 0};
 PiDD_Node * one = &one_node;
-map<string, PiDD_Node *> node_cache;  // Could be replaced with node parent LLs to reduce memory overhead.
+unordered_map<string, PiDD_Node *> node_cache;  // Could be replaced with node parent LLs to reduce memory overhead.
 vector<PiDD_Node *> node_cache_recent;
 
 class PiDD_Factory {
@@ -225,21 +225,19 @@ private:
 
   static string product_op_key(PiDD_Node * node1, PiDD_Node *node2){
     ostringstream ss;
-    //ss << "P" << node1 << "|" << node2;
-    ss << "P" << ((long int)node1 ^ (long int)node2);
+    ss << "P" << node1 << "|" << node2;
     return ss.str();
   } 
 
-  // XXX - Op cache is not active, because it is slow / broken.
-  static void op_cache_remove(map<string, PiDD_Node *> &memo, string key){
+  static void op_cache_remove(unordered_map<string, PiDD_Node *> &memo, string key){
     memo.erase(key);
   }
 
-  static void op_cache_insert(map<string, PiDD_Node *> &memo, string key, PiDD_Node * value){
+  static void op_cache_insert(unordered_map<string, PiDD_Node *> &memo, string key, PiDD_Node * value){
     memo.insert(pair<string, PiDD_Node *>(key, value));
   }
 
-  static PiDD_Node * op_cache_lookup(map<string, PiDD_Node *> &memo, string key){
+  static PiDD_Node * op_cache_lookup(unordered_map<string, PiDD_Node *> &memo, string key){
     auto it = memo.find(key);
     if (it != memo.end())
       return it -> second;
@@ -311,13 +309,13 @@ public:
   }
 
   static PiDD set_transpose(const PiDD& dd, const transpose& t){
-    map<string, PiDD_Node *> memo;
+    unordered_map<string, PiDD_Node *> memo;
     PiDD res = PiDD(set_transpose(dd.root, t, memo));
     clean_up_node_cache();
     return res;
   }
 
-  static PiDD_Node * push_down(const transpose &t, PiDD_Node * new_left, PiDD_Node * new_right, map<string, PiDD_Node*> &memo){
+  static PiDD_Node * push_down(const transpose &t, PiDD_Node * new_left, PiDD_Node * new_right, unordered_map<string, PiDD_Node*> &memo){
     // XXX - Note, this seems to be implementing a special case of union
     // when unioning new_right with (t, [0], new_right).
     
@@ -338,7 +336,7 @@ public:
     return res;
   }
   
-  static PiDD_Node * set_transpose(PiDD_Node * root, const transpose& t, map<string, PiDD_Node *> &memo){
+  static PiDD_Node * set_transpose(PiDD_Node * root, const transpose& t, unordered_map<string, PiDD_Node *> &memo){
 
     // //printf("Start transpose\n");
     
@@ -440,14 +438,14 @@ public:
   }
   
   static PiDD set_union(const PiDD& dd1, const PiDD& dd2){
-    map<string, PiDD_Node *> memo;
+    unordered_map<string, PiDD_Node *> memo;
     PiDD res = PiDD(set_union(dd1.root, dd2.root, memo));
     clean_up_node_cache();
     return res;
 
   }
 
-  static PiDD_Node * set_union(PiDD_Node * root1, PiDD_Node * root2, map<string, PiDD_Node *> &memo){
+  static PiDD_Node * set_union(PiDD_Node * root1, PiDD_Node * root2, unordered_map<string, PiDD_Node *> &memo){
 
     PiDD_Node * res = NULL;
 
@@ -487,14 +485,14 @@ public:
   }
   
   static PiDD set_intersection(const PiDD& dd1, const PiDD& dd2){
-    map<string, PiDD_Node *> memo;
+    unordered_map<string, PiDD_Node *> memo;
     PiDD res = PiDD(set_intersection(dd1.root, dd2.root, memo));
     clean_up_node_cache();
     return res;
     
   }
 
-  static PiDD_Node * set_intersection(PiDD_Node * root1, PiDD_Node * root2, map<string, PiDD_Node *> &memo){
+  static PiDD_Node * set_intersection(PiDD_Node * root1, PiDD_Node * root2, unordered_map<string, PiDD_Node *> &memo){
     
     PiDD_Node * res = NULL;
 
@@ -506,8 +504,6 @@ public:
     
     if (root1 == zero || root2 == zero){
       res = zero;
-    } else if (root1 == one && root2 == one){
-      res = one;
     } else if (root1 == one || root2 == one){
       PiDD_Node * curr = root1;
       if (root1 == one)
@@ -516,8 +512,8 @@ public:
 	curr = curr -> left;
       res = curr;
     } else if (compare_transposes(root1 -> t, root2 -> t) == 0) {
-      PiDD_Node * new_left = set_intersection(root2 -> left, root2 -> left, memo);
-      PiDD_Node * new_right = set_intersection(root2 -> right, root2 -> right, memo);
+      PiDD_Node * new_left = set_intersection(root1 -> left, root2 -> left, memo);
+      PiDD_Node * new_right = set_intersection(root1 -> right, root2 -> right, memo);
       if (new_right != zero) {
 	res = create_node(root1 -> t, new_left, new_right);
       } else {
@@ -535,14 +531,14 @@ public:
   }
 
   static PiDD set_product(const PiDD& dd1, const PiDD& dd2){
-    map<string, PiDD_Node *> memo;
+    unordered_map<string, PiDD_Node *> memo;
     PiDD res = PiDD(set_product(dd1.root, dd2.root, memo));
     clean_up_node_cache();
     return res;
     
   }
 
-  static PiDD_Node * set_product(PiDD_Node * root1, PiDD_Node * root2, map<string, PiDD_Node *> &memo){
+  static PiDD_Node * set_product(PiDD_Node * root1, PiDD_Node * root2, unordered_map<string, PiDD_Node *> &memo){
 
     //printf("Start product\n");
     
