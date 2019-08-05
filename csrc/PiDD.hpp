@@ -55,10 +55,12 @@ class PiDD {
 
   PiDD();
   PiDD(PiDD_Node * root);
+
   
 public:
 
-  // Copy constructor
+  PiDD(const PiDD &other) : PiDD(other.root) {}
+  
   PiDD& operator=(const PiDD& other);
 
   ~PiDD();
@@ -95,7 +97,6 @@ public:
 */
 
 unsigned int PiDD_count = 0;
-bool initialized = false;
 PiDD_Node zero_node = (PiDD_Node){NULL, NULL, (transpose){0,0}, 0, 0};
 PiDD_Node * zero = &zero_node;
 PiDD_Node one_node = (PiDD_Node){NULL, NULL, (transpose){1,1}, 1, 0};
@@ -663,23 +664,18 @@ public:
 
 
 
-PiDD::PiDD()
-  : root(zero)
-{
-  PiDD_count++;
-  PiDD_Factory::increment_node(root);
-  //assert(validate());
-}
+PiDD::PiDD() : PiDD(zero) {}
 
 PiDD::PiDD(PiDD_Node * root)
   : root(root)
 {
-  //printf("Creating PiDD %p\n", root);
   PiDD_count++;
+  //printf("Creating PiDD %p %d\n", root, PiDD_count);
   PiDD_Factory::increment_node(root);
   //assert(validate());
 }
-  
+
+
 PiDD& PiDD::operator=(const PiDD& other){
 
   if (root != other.root) {

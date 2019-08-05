@@ -5,10 +5,15 @@ using namespace std;
 #include <cstdio> 
 #include <string>
 #include <cstdlib>
+#include <sstream>
+#include <iostream>
+#include <algorithm>
+#include <unordered_map>
 #include "puzzle.h"
 #include "checker.h"
 
 #define MIN(a,b)  ((a) < (b) ? (a) : (b))
+#define ACCESS(e, c) (3*(e) + (c))
 
 // Returns PiDD of all perms over indexes start to end.
 PiDD all_perms(int start, int end){
@@ -30,9 +35,27 @@ PiDD all_perms(int start, int end){
 
 }
 
+PiDD all_perms_coupled(int start, int end, int n){
+  
+  PiDD id = PiDD_Factory::make_identity();  
 
-PiDD all_automorphisms(int c1, int c2, int c3){
+  PiDD res = id;
+  
+  for (int a = start + 1; a <= end; a++){    
+    for (int b = a - 1; b >= start; b--){
+      PiDD curr = id | (id * (transpose){(uint8_t)a, (uint8_t)b} * (transpose){(uint8_t)(a + n), (uint8_t)(b+n)});
+      res = res * curr;   
+    }  
+  }
+  
+  return res;
 
+}
+
+
+PiDD all_automorphisms(int c1, int c2, int c3, bool coupled){
+
+  
   int s1 = 0;
   int e1 = s1 + c1 - 1;
   int s2 = e1 + 1;
@@ -42,16 +65,26 @@ PiDD all_automorphisms(int c1, int c2, int c3){
   //printf("(%d %d) (%d %d) (%d %d)\n", s1, e1, s2, e2, s3, e3);
 
   int n = c1 + c2 + c3;
+
+  if (!coupled){
+    PiDD dd1 = all_perms(s1, e1);
+    PiDD dd2 = all_perms(s2, e2);
+    PiDD dd3 = all_perms(s3, e3);
+    
+    PiDD dd4 = all_perms(s1+n, e1+n);
+    PiDD dd5 = all_perms(s2+n, e2+n);
+    PiDD dd6 = all_perms(s3+n, e3+n);
   
-  PiDD dd1 = all_perms(s1, e1);
-  PiDD dd2 = all_perms(s2, e2);
-  PiDD dd3 = all_perms(s3, e3);
+    return (dd1 * dd2 * dd3) * (dd4 * dd5 * dd6);
+  } else {
+    
+    PiDD dd1 = all_perms_coupled(s1, e1, n);
+    PiDD dd2 = all_perms_coupled(s2, e2, n);
+    PiDD dd3 = all_perms_coupled(s3, e3, n);
+			 
+    return dd1 * dd2 * dd3;
+  }
   
-  PiDD dd4 = all_perms(s1+n, e1+n);
-  PiDD dd5 = all_perms(s2+n, e2+n);
-  PiDD dd6 = all_perms(s3+n, e3+n);
-  
-  return (dd1 * dd2 * dd3) * (dd4 * dd5 * dd6);
 }
 
 perm * create_perm(int * l, int n){
@@ -74,7 +107,7 @@ int abcs[21] =
    6,   // 131  
    7,   // 132
    //8,   // 133 X
-   9,   // 211
+   9,   // 211  // Index 5
    10,  // 212
    11,  // 213
    12,  // 221
@@ -83,7 +116,7 @@ int abcs[21] =
    15,  // 231
    16,  // 232
    17,  // 233
-   18,  // 311
+   18,  // 311 // Index 13
    19,  // 312
    20,  // 313
    21,  // 321
@@ -95,20 +128,42 @@ int abcs[21] =
   };
    
 
-PiDD bad_perm_helper(int abc_ix, int cs[9], int s, int s_left, bool &valid){
-
-  //printf("Start bad_perm_helper %d\n", s_left);
+PiDD bad_perm_helper(int abc_ix, int cs[9], int s, int s_left,
+		     bool &valid, unordered_map<string, pair<PiDD,bool> > &memo){
   
+  ostringstream ss;
+  ss << abc_ix;
+  //printf("Creating key\n");
+  for (int i = 0; i < 9; i++)
+    ss << "|" << cs[i];
+  string key = ss.str();
+  //cout << key << endl;
+  auto it = memo.find(key);
+  if (it != memo.end()) {
+    //printf("Found!\n");    
+    if (it -> second.second){
+      //printf("Valid\n");
+      valid = true;
+      return (it -> second.first);
+    } else {
+      //printf("Invalid\n");
+      valid = false;
+      return PiDD_Factory::make_identity();
+    } 
+  }
+  //printf("Not found\n"); 
+  
+   
   PiDD res = PiDD_Factory::make_identity();
   valid = true;
 
-  
-  if (abc_ix >= 21){
-    if (s_left != 0)
-      valid = false;
+  if (s_left == 0){
+    valid = true;
+  } else if (abc_ix >= 21 && s_left != 0) {
+    valid = false;
   } else {
     int abc = abcs[abc_ix];
-    if ((abc >= 3 * 3 && cs[0] != 0) || (abc >= 3 * 3 * 2 && (cs[0] != 0 || cs[3] != 0))) {
+    if ((abc_ix >= 5 && cs[ACCESS(0,0)] != 0) || (abc_ix >= 13 && (cs[ACCESS(0,0)] != 0 || cs[ACCESS(1,0)] != 0))) {
       valid = false;
     } else {
       
@@ -120,7 +175,7 @@ PiDD bad_perm_helper(int abc_ix, int cs[9], int s, int s_left, bool &valid){
       
       //printf("a, b, c = %d, %d, %d\n", a, b, c);
       //printf("cs = {%d %d %d | %d %d %d | %d %d %d}\n",cs[0], cs[1],cs[2], cs[3],cs[4],cs[5],cs[6],cs[7],cs[8]);
-      int max_count = MIN(MIN(cs[a*3 + 0], cs[b*3 + 1]), cs[c*3 + 2]);
+      int max_count = MIN(MIN(cs[ACCESS(a,0)], cs[ACCESS(b,1)]), cs[ACCESS(c, 2)]);
       
       //printf("max_count = %d\n", max_count);
       
@@ -129,35 +184,39 @@ PiDD bad_perm_helper(int abc_ix, int cs[9], int s, int s_left, bool &valid){
 	
 	int cs2[9];
 	memcpy(cs2, cs, sizeof(int) * 9);
-	cs2[a*3 + 0] -= m;
-	cs2[b*3 + 1] -= m;
-	cs2[c*3 + 2] -= m;
+	cs2[ACCESS(a,0)] -= m;
+	cs2[ACCESS(b,1)] -= m;
+	cs2[ACCESS(c,2)] -= m;
 	bool valid2 = true;
 	
-	PiDD dd = bad_perm_helper(abc_ix + 1, cs2, s, s_left - m, valid2);
+	PiDD dd = bad_perm_helper(abc_ix + 1, cs2, s, s_left - m, valid2, memo);
 
 	if (valid2){
-	  
-	  int l[2] = {b, c};
+
+	  int L[3] = {a, b, c};
 	  int perm_list[2*s];
 	  
 	  for (int i = 0; i < 2 * s; i++){
 	    perm_list[i] = i;
 	  }
 	  
-	  for (int e = 2; e <=3; e++){
-	    int j = e - 2;
-	    if (l[j] + 1 == 2  || l[j] + 1 == 3){
-	      int start = s - s_left;
-	      int end = start + cs[0 + (j+1)] + (l[j] + 1 == 2 ? 0 : cs[1*3 + (j+1)]);
-	      int shift = j * s;
-	      
-	      for (int i = start; i < end; i++)
-		perm_list[i + shift] = i + m + shift;
-	      
-	      for (int i = end; i < end + m; i++)
-		perm_list[i + shift] = start + (i - end) + shift;
+	  for (int j = 1; j <= 2; j++){
+	    int start = s - s_left;
+	    int shift = (j - 1) * s;
+	    int end = start;
+
+	    if (L[j] + 1 == 2) {
+	      end = start + cs[ACCESS(0,j)];
+	    } else if (L[j] + 1 == 3){
+	      end = start + cs[ACCESS(0,j)] + cs[ACCESS(1,j)];
 	    }
+	    
+	    for (int i = start; i < end; i++)
+	      perm_list[i + shift] = i + m + shift;
+	    
+	    for (int i = end; i < end + m; i++)
+	      perm_list[i + shift] = start + (i - end) + shift;
+
 	  }
 	  
 	  /* for (int i = 0; i < 2 * s; i++){ */
@@ -169,7 +228,7 @@ PiDD bad_perm_helper(int abc_ix, int cs[9], int s, int s_left, bool &valid){
 	  //dd.print_perms();
 	  PiDD dd2 = PiDD_Factory::make_singleton(pi);
 	  //dd2.print_perms();
-	  dd2 = dd2 * dd;
+	  dd2 = dd * dd2;
 	  //dd.print_perms();
 	  destroy_perm(pi);
 	  
@@ -182,17 +241,24 @@ PiDD bad_perm_helper(int abc_ix, int cs[9], int s, int s_left, bool &valid){
       if (!found_something){
 	valid = false;
       }
-    }
+    } 
+  } 
+
+  //printf("Start Insert: %u\n", PiDD_count);
+  if (valid){
+    memo.insert(make_pair(key, make_pair(res, true)));
+  } else {
+    memo.insert(make_pair(key, make_pair(PiDD_Factory::make_identity(), false)));
   }
-  
-  //printf("End bad_perm_helper\n");
+  //printf("End Insert\n");
   
   return res;
 }
 
 PiDD bad_perms(puzzle * p){
-
-  assert(p -> k == 1); // XXX - only works for columns.
+  // Only works for columns.
+  
+  assert(p -> k == 1); 
 
   int s = p -> s;
 
@@ -235,159 +301,71 @@ PiDD bad_perms(puzzle * p){
   //sort_inv_dd.print_perms();
 
   printf("Construct automorphisms\n");
-  PiDD automorphisms = all_automorphisms(c[0], c[1], c[2]);
-  //automorphisms.print_perms();
+  PiDD input_auto = all_automorphisms(c[0], c[1], c[2], false);
+  PiDD output_auto = all_automorphisms(c[0], c[1], c[2], true);
+  //input_auto.print_perms();
+  //output_auto.print_perms();
   
   int cs[9] = {c[0], c[0], c[0], c[1], c[1], c[1], c[2], c[2], c[2]};
   int abc_ix = 0;
 
-  // XXX - do memo.
   bool valid = true;
+  unordered_map<string, pair<PiDD,bool> > memo;
 
   printf("Compute all bad perms\n");
-  PiDD res = bad_perm_helper(abc_ix, cs, s, s, valid);
+  PiDD res = bad_perm_helper(abc_ix, cs, s, s, valid, memo);
   assert(valid);
 
-  printf("Combine results\n");
-  return (sort_inv_dd) * res * (automorphisms * sort_dd);
+  /* for (auto element : memo) { */
+  /*   if (element.second != NULL) */
+  /*     delete element.second; */
+  /* } */
+
+  printf("Combine results\n"); 
+  //res.print_perms();
+  return (sort_inv_dd * output_auto) * res * (input_auto * sort_dd);
   
 }
 
 int main(int argc, char * argv[]){ 
    
-           
-  /* int n = 13;                */
-  /* printf("PiDD Tester\n");             */
-   
-  /* printf("Empty\n");       */
-  /* PiDD dd = PiDD_Factory::make_empty();         */
-  /* dd.print_perms(); */
-  
-  /* printf("Identity\n"); */
-  /* perm * pi = create_perm_identity(n); */
-  /* PiDD dd2 = PiDD_Factory::make_singleton(pi); */
-  /* dd2.print_perms(); */
-  
-  /* printf("Empty | Identity\n"); */
-  /* PiDD dd3 = dd | dd2; */
-  /* dd3.print_perms(); */
-
-  /* printf("Empty & Identity\n"); */
-  /* PiDD dd4 = dd & dd2; */ 
-  /* dd4.print_perms(); */
- 
-  /* next_perm(pi);  */
- 
-  /* printf("First transpose\n"); */
-  /* PiDD dd5 = PiDD_Factory::make_singleton(pi); */
-  /* dd5.print_perms();   */
-
-  /* printf("Identity | First Transpose\n"); */
-  /* PiDD dd6 = dd2 | dd5; */
-  /* dd6.print_perms();  */
-
-  /* printf("Identity & First Transpose\n");  */
-  /* PiDD dd7 = dd2 & dd5; */
-  /* dd7.print_perms();  */
- 
-  /* printf("Apply transpose to identity\n"); */
-  /* PiDD dd9 = dd2 * (transpose){1,2};  */
-  /* dd9.print_perms(); */
-  /* printf("Apply transpose again\n"); */
-  /* PiDD dd10= dd9 * (transpose){1,2}; */
-  /* dd10.print_perms(); */
-  
-  /* printf("PiDD count = %d\n", PiDD_count);   */
-  
-  /* pi = create_perm_identity(n);  */
-  /* int count = 0; */
-  /* while (true){ */
-  /*   //print_perm_cycle(pi);  */
-  /*   count++; */
-  /*   PiDD dd8 = PiDD_Factory::make_singleton(pi); */
-  /*   dd = dd | dd8; */
-  /*   //printf("count = %d\n", count); */
-  /*   //printf("size(dd) = %u\n", dd.size()); */
-  /*   /\* printf("Cache size = %u\n", PiDD_Factory::size()); *\/ */
-  /*   /\* printf("PiDD count = %d\n", PiDD_count); *\/ */
-  /*   if (is_last_perm(pi))  */
-  /*     break; */
-  /*   next_perm(pi); */
-  /*   if (count % 1000 == 0) { */
-  /*     printf("\rcount = %d, cache = %u", count, PiDD_Factory::size()); */
-  /*     fflush(stdout);  */
-  /*   } */
-  /* }      */
-  
-  /* dd = dd & dd; */
-  /* printf("self intersect, size(dd) = %u\n", dd.size());  */
-  /* printf("Cache sizes = %u\n", PiDD_Factory::size()); */
-  /* printf("PiDD count = %d\n", PiDD_count);     */    
-
-  //dd = all_perms(0, n-1);
-  /* dd = all_automorphisms(15, 3, 2); */
-
-  /* printf("all perms, size(dd) = %lu\n", dd.size());     */
-  /* printf("Cache size = %lu\n", PiDD_Factory::size()); */
-  /* printf("PiDD count = %d\n", PiDD_count);      */     
-
-  /*
-  // Permutation Networks Example from [Minato11].
-  PiDD id = PiDD_Factory::make_identity();
-  PiDD P = id;
-  PiDD T = id;
-  for (int a = 1; a < n; a++){
-    int b = a - 1;
-    T = T | (id * (transpose){(uint8_t) a, (uint8_t) b});
-  }
-
-  T.print_perms();
-  
-  for (int i = 0; i <= n * (n - 1) / 2; i++){
-    P = P * T;
-    printf("i = %d, cache size = %lu\n", i, PiDD_Factory::size()); 
-  }
-
-  printf("Permutation Network, size(dd) = %lu\n", P.size());   
-  printf("Cache size = %lu\n", PiDD_Factory::size()); 
-  printf("PiDD count = %d\n", PiDD_count);
-  */
-
-  // XXX - This puzzle is not a SUSP, but the intersection is identity...
-  // Trace a simple example to check bad_perms.
-
   if (argc != 2){
     fprintf(stderr,"usage: usp_test_file <filename>\n");
     return -1;
   }
 
-  puzzle * p = create_puzzle_from_file(argv[1]);
+  puzzle * p = create_puzzle_from_file(argv[1]); 
   if (p == NULL) {
     fprintf(stderr,"Error: File does not exist or is not properly formated.\n");
     return -1;
-  }
+  } 
   
   print_puzzle(p);
-
-  PiDD P = all_automorphisms(p -> s, 0, 0);
+ 
+  printf("Initializing all automorphisms.\n");
+  PiDD P = all_automorphisms(p -> s, 0, 0, false); 
   //P.print_perms();
   
-  for (int c = 0; c < p -> k; c++){
+  printf("Reading puzzle\n");  
+  for (unsigned int c = 0; c < p -> k; c++){
     puzzle * p2 = create_puzzle(p -> s, 1);
 
-    for (int r = 0; r < p -> s; r++){
+    for (unsigned int r = 0; r < p -> s; r++){
       set_entry(p2, r, 0, get_entry(p, r, c));
     }
-
+    printf("\n---------------New column:\n");
+    print_puzzle(p2);
     PiDD P2 = bad_perms(p2);
-    P2.print_perms();
+    //P2.print_perms();
     P = P & P2;
-    
+    printf("size = %lu, node_cache = %lu\n", P.size(), PiDD_Factory::size());
     destroy_puzzle(p2);
   }
 
-  P.print_perms();
+  //P.print_perms();
 
+  printf("size = %lu, node_cache = %lu\n", P.size(), PiDD_Factory::size());
+  
   bool usp = (check(p) == IS_USP);
   bool small_intersect = P.size() == 1;
 
