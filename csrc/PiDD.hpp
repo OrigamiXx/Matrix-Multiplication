@@ -267,7 +267,7 @@ public:
 
     vector<transpose> ts;
 
-    pi = copy_perm(pi);
+    pi = invert_perm(copy_perm(pi));
     
     int i = pi -> n - 1;
     while (i >= 0){

@@ -6,6 +6,7 @@ using namespace std;
 #include <string>
 #include <cstdlib>
 #include "puzzle.h"
+#include "checker.h"
 
 #define MIN(a,b)  ((a) < (b) ? (a) : (b))
 
@@ -38,7 +39,7 @@ PiDD all_automorphisms(int c1, int c2, int c3){
   int e2 = s2 + c2 - 1;
   int s3 = e2 + 1;
   int e3 = s3 + c3 - 1;
-  printf("(%d %d) (%d %d) (%d %d)\n", s1, e1, s2, e2, s3, e3);
+  //printf("(%d %d) (%d %d) (%d %d)\n", s1, e1, s2, e2, s3, e3);
 
   int n = c1 + c2 + c3;
   
@@ -70,7 +71,7 @@ int abcs[21] =
    //3,   // 121 X
    //4,   // 122 X
    5,   // 123
-   6,   // 131 
+   6,   // 131  
    7,   // 132
    //8,   // 133 X
    9,   // 211
@@ -214,8 +215,14 @@ PiDD bad_perms(puzzle * p){
     c_sort[entry] += 1;
   }
 
+  /* for (int r = 0; r < s; r++){ */
+  /*   printf("%d ", sort_perm_list[r]); */
+  /* } */
+  /* printf("\n"); */
+
   printf("Construct PiDDs for sorting\n");
   perm * sort_perm = create_perm(sort_perm_list, 2*s);
+  //print_perm_cycle(sort_perm);
   //print_perm_cycle(sort_perm);
   PiDD sort_dd = PiDD_Factory::make_singleton(sort_perm);
   destroy_perm(sort_perm);
@@ -242,7 +249,7 @@ PiDD bad_perms(puzzle * p){
   assert(valid);
 
   printf("Combine results\n");
-  return (sort_inv_dd * res) * (automorphisms * sort_dd);
+  return (sort_inv_dd) * res * (automorphisms * sort_dd);
   
 }
 
@@ -348,26 +355,58 @@ int main(int argc, char * argv[]){
 
   // XXX - This puzzle is not a SUSP, but the intersection is identity...
   // Trace a simple example to check bad_perms.
-  puzzle * p0 = create_puzzle_from_string((char *)"1\n3\n3\n");
-  puzzle * p1 = create_puzzle_from_string((char *)"1\n2\n3\n");
-  puzzle * p2 = create_puzzle_from_string((char *)"1\n1\n3\n");
-  PiDD P0 = bad_perms(p0);
-  PiDD P1 = bad_perms(p1);
-  PiDD P2 = bad_perms(p2);
 
-  P0.print_perms();
-  P1.print_perms();
-  P2.print_perms();
+  if (argc != 2){
+    fprintf(stderr,"usage: usp_test_file <filename>\n");
+    return -1;
+  }
 
-  PiDD P3 = P0 & P1 & P2;
-
-  P3.print_perms();
+  puzzle * p = create_puzzle_from_file(argv[1]);
+  if (p == NULL) {
+    fprintf(stderr,"Error: File does not exist or is not properly formated.\n");
+    return -1;
+  }
   
-  destroy_puzzle(p0);
-  destroy_puzzle(p1);
-  destroy_puzzle(p2);
+  print_puzzle(p);
 
+  PiDD P = all_automorphisms(p -> s, 0, 0);
+  //P.print_perms();
   
+  for (int c = 0; c < p -> k; c++){
+    puzzle * p2 = create_puzzle(p -> s, 1);
+
+    for (int r = 0; r < p -> s; r++){
+      set_entry(p2, r, 0, get_entry(p, r, c));
+    }
+
+    PiDD P2 = bad_perms(p2);
+    P2.print_perms();
+    P = P & P2;
+    
+    destroy_puzzle(p2);
+  }
+
+  P.print_perms();
+
+  bool usp = (check(p) == IS_USP);
+  bool small_intersect = P.size() == 1;
+
+  if (usp)
+    printf("Is SUSP.\n");
+  else
+    printf("Not SUSP.\n");
+  
+  if (usp != small_intersect){
+    printf("Warning! Disagrees with check(). ");
+    if (usp)
+      printf("Says a SUSP isn't one.\n");
+    else
+      printf("Says non-SUSP is one.\n");
+  } else {
+    printf("Consistent with check().\n");
+  }
+
+  destroy_puzzle(p);
   
   return 0;
 }
