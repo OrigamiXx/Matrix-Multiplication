@@ -50,24 +50,26 @@ class PiDD_Factory;
 class PiDD {
     
   private:
-
+ 
   friend class PiDD_Factory;
   
   PiDD_Node * root;
 
-  PiDD();
+
   PiDD(PiDD_Node * root);
 
   
 public:
 
+  PiDD();
   PiDD(const PiDD &other) : PiDD(other.root) {}
   
   PiDD& operator=(const PiDD& other);
 
   ~PiDD();
   
-  bool operator==(const PiDD& dd) const; 
+  bool operator==(const PiDD& dd) const;
+  bool operator!=(const PiDD& dd) const; 
 
   // Union operator.
   PiDD operator|(const PiDD& other) const;
@@ -82,10 +84,11 @@ public:
   
   uint64_t size() const;
   uint64_t node_size() const;
-
+  int dim() const;
+  
   bool is_empty() const;
 
-  vector<perm *> enlist(int dim) const;
+  vector<perm *> enlist() const;
   void print_stats() const;
   void print_perms() const;
   
@@ -719,6 +722,10 @@ bool PiDD::operator==(const PiDD& dd) const{
   return this -> root == dd.root;
 }
 
+bool PiDD::operator!=(const PiDD& dd) const{
+  return this -> root != dd.root;
+}
+
 // Union operator.
 PiDD PiDD::operator|(const PiDD& other) const {
   return PiDD_Factory::set_union(*this, other);
@@ -750,31 +757,32 @@ uint64_t PiDD::node_size() const {
   return PiDD_Factory::node_size(root, ++magic_counter);
 }
 
+int PiDD::dim() const{
+
+  int dim = 0;
+  if (root != zero && root != one)
+    dim = root -> t.a + 1;
+  return dim;
+  
+}
+
 bool PiDD::is_empty() const {
   return this -> root == zero;
 }
 
-vector<perm *> PiDD::enlist(int dim) const{
-  return PiDD_Factory::enlist(root, dim);
+vector<perm *> PiDD::enlist() const{
+  return PiDD_Factory::enlist(root, dim());
 }
 
 void PiDD::print_stats() const{
-
-  int dim = 0;
-  if (root != zero && root != one)
-    dim = root -> t.a + 1;
   
   printf("size = %lu, node_size = %lu, node_cache = %lu, dim = %d\n",
-	 size(), node_size(), PiDD_Factory::size(), dim);
+	 size(), node_size(), PiDD_Factory::size(), dim());
 }
 
 void PiDD::print_perms() const{
-
-  int dim = 0;
-  if (root != zero && root != one)
-    dim = root -> t.a + 1;
   
-  vector<perm *> pis = enlist(dim);
+  vector<perm *> pis = enlist();
   
   assert(size() == pis.size());
   print_stats();

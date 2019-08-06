@@ -7,12 +7,15 @@ using namespace std;
 #include <cstdlib>
 #include <sstream>
 #include <iostream>
+#include <functional>
+#include <queue>
 #include <algorithm>
 #include <unordered_map>
 #include "puzzle.h"
 #include "checker.h"
 
 #define MIN(a,b)  ((a) < (b) ? (a) : (b))
+#define MAX(a,b)  ((a) > (b) ? (a) : (b))
 #define ACCESS(e, c) (3*(e) + (c))
 
 // Returns PiDD of all perms over indexes start to end.
@@ -284,7 +287,7 @@ PiDD bad_perms(puzzle * p){
   PiDD sort_inv_dd = PiDD_Factory::make_singleton(sort_perm_inv);
   destroy_perm(sort_perm_inv);
 
-  printf("Construct automorphisms\n");
+  //printf("Construct automorphisms\n");
   PiDD input_auto = all_automorphisms(c[0], c[1], c[2], false);
   PiDD output_auto = all_automorphisms(c[0], c[1], c[2], true);
   //input_auto.print_perms();
@@ -296,11 +299,11 @@ PiDD bad_perms(puzzle * p){
   bool valid = true;
   unordered_map<string, pair<PiDD,bool> > memo;
 
-  printf("Compute all bad perms\n");
+  //printf("Compute all bad perms\n");
   PiDD res = bad_perm_helper(abc_ix, cs, s, s, valid, memo);
   assert(valid);
 
-  printf("Combine results\n"); 
+  //printf("Combine results\n"); 
   //res.print_perms();
   return (sort_inv_dd * (output_auto * (res * (input_auto * sort_dd))));  // This association seems fastest...
   
@@ -331,10 +334,147 @@ check_t check_PiDD(puzzle * p){
     return NOT_USP;
 }
 
-int main(int argc, char * argv[]){ 
-   
+PiDD minimize_intersection(PiDD S1, PiDD S2, int s){
+  // Greedy intersection minimization by apply incremental transposes
+  // to S2.  Returns resulting minimum PiDD.
+
+  PiDD S = S1 & S2;
+  return S; // XXX
+  PiDD min_S = S;
+  PiDD min_S2 = S2;
+
+  S.print_stats();
+  
+  bool progress = true;
+  while (progress){
+    progress = false;
+    
+    for (uint8_t a = 1; a < s; a++){
+      for (uint8_t b = 0; b < a; b++){
+	PiDD T1 = (PiDD_Factory::make_identity() * (transpose){a, b} * (transpose){a+s, b+s});
+	PiDD S3 = T1 * S2 * T1;
+	PiDD S4 = S1 & S3;
+	if (min_S.size() > S4.size()) {
+	  min_S2 = S3;
+	  min_S = S4;
+	}
+      }
+    }
+
+    if (S != min_S) {
+      printf("Progress!\n");
+      progress = true;
+      S2 = min_S2;
+      S = min_S;
+    }
+    S.print_stats();
+  }
+
+  return min_S;
+
+}
+
+puzzle * search_PiDD(int s){
+  // Greedy generate puzzle with s rows and fewest columns.
+
+  // Construct PiDDs for all columns with s rows up to permutation of
+  // rows.
+
+  PiDD cols[(s+1)][(s+1)];
+  puzzle * col = create_puzzle(s, 1);
+
+  float ave_size = 0;
+  float ave_nodes = 0;
+  int count = 0;
+  for (int c1 = 0; c1 <= s; c1++){
+    for (int c2 = 0; c2 <= s - c1; c2++){
+      // c1 + c2 + c3 = s
+      for (int r = 0; r < s; r++){
+	int e = 0;
+	if (r < c1)
+	  e = 1;
+	else if (r < c1 + c2)
+	  e = 2;
+	else
+	  e = 3;
+	set_entry(col, r, 0, e);
+      }
+      
+      cols[c1][c2] = bad_perms(col);
+      print_puzzle(col);
+      cols[c1][c2].print_stats();
+      ave_size += cols[c1][c2].size();
+      ave_nodes += cols[c1][c2].node_size();
+      count++;
+    }
+  }
+
+  auto cmp = [](PiDD left, PiDD right) { return left.size() > right.size(); }; // STL uses highest priority.
+  priority_queue<PiDD, std::vector<PiDD>, decltype(cmp)> * queue
+    = new priority_queue<PiDD, std::vector<PiDD>, decltype(cmp)>(cmp); 
+  
+  printf("ave_size = %.1f, ave_nodes = %.1f\n", ave_size / count, ave_nodes / count);  
+  PiDD min_S = cols[s][0];
+  for (int c1 = 0; c1 <= s; c1++){
+    for (int c2 = 0; c2 <= s - c1; c2++){
+      for (int d1 = 0; d1 <= s; d1++){
+	for (int d2 = 0; d2 <= s - d1; d2++){
+	  PiDD S = minimize_intersection(cols[c1][c2], cols[d1][d2], s);
+	  queue -> push(S);
+	}
+      }
+    }
+  }
+
+  priority_queue<PiDD, std::vector<PiDD>, decltype(cmp)> * next_queue
+    = new priority_queue<PiDD, std::vector<PiDD>, decltype(cmp)>(cmp); 
+  
+  int k = 2;
+  while(queue -> top().size() != 1){
+    printf("--------------------------------------------------------------\n");
+    printf("min_size = %lu\n", queue->top().size());
+    
+    for (int i = 0; i < 100 && !queue -> empty(); i++){
+      
+      PiDD D = queue -> top();
+      queue -> pop();
+      for (int c1 = 0; c1 <= s; c1++){
+	for (int c2 = 0; c2 <= s - c1; c2++){
+	  
+	  PiDD S = minimize_intersection(D, cols[c1][c2], s);
+	  next_queue -> push(S);
+	}
+      }
+    
+    }
+    
+    delete queue;
+    queue = next_queue;
+    next_queue = new priority_queue<PiDD, std::vector<PiDD>, decltype(cmp)>(cmp); 
+    
+    k++;
+  }
+
+  printf("Found (%d, %d)-SUSP!\n", s, k);
+  
+  return NULL;
+}
+
+int main(int argc, char * argv[]){
+
   if (argc != 2){
-    fprintf(stderr,"usage: usp_test_file <filename>\n");
+    fprintf(stderr,"usage: test_PiDD <s>\n");
+    return -1;
+  }
+  
+  int s = atoi(argv[1]);
+  search_PiDD(s);
+  
+  
+  /* 
+  // Tester code for check_PiDD().
+  if (argc != 2){
+    fprintf(stderr,"usage: test_PiDD <filename>\n");
     return -1;
   }
 
@@ -342,7 +482,7 @@ int main(int argc, char * argv[]){
   if (p == NULL) {
     fprintf(stderr,"Error: File does not exist or is not properly formated.\n");
     return -1;
-  } 
+  }
   
   print_puzzle(p);
    
@@ -365,6 +505,9 @@ int main(int argc, char * argv[]){
   }
 
   destroy_puzzle(p);
+  */
+
   
+
   return 0;
 }
