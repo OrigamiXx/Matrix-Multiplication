@@ -36,25 +36,25 @@ PiDD all_perms(int start, int end){
 
 }
 
-PiDD all_perms_coupled(int start, int end, int n){
+PiDD all_perms_coupled(int start, int end, int n, PiDD init){
   
   PiDD id = PiDD_Factory::make_identity();  
 
-  PiDD res = id;
+  //PiDD res = id;
   
   for (int a = start + 1; a <= end; a++){    
     for (int b = a - 1; b >= start; b--){
       PiDD curr = id | (id * (transpose){(uint8_t)a, (uint8_t)b} * (transpose){(uint8_t)(a + n), (uint8_t)(b+n)});
-      res = res * curr;   
+      init = curr * init;// res * curr;   
     }  
   }
   
-  return res;
+  return init;
 
 }
 
 
-PiDD all_automorphisms(int c1, int c2, int c3, bool coupled){
+PiDD all_automorphisms(int c1, int c2, int c3, bool coupled, PiDD init){
  
   int s1 = 0;
   int e1 = s1 + c1 - 1;
@@ -75,14 +75,14 @@ PiDD all_automorphisms(int c1, int c2, int c3, bool coupled){
     PiDD dd5 = all_perms(s2+n, e2+n);
     PiDD dd6 = all_perms(s3+n, e3+n);
   
-    return (dd1 * dd2 * dd3) * (dd4 * dd5 * dd6);
+    return (dd1 * dd2 * dd3) * (dd4 * dd5 * dd6) * init;
   } else {
     
-    PiDD dd1 = all_perms_coupled(s1, e1, n);
-    PiDD dd2 = all_perms_coupled(s2, e2, n);
-    PiDD dd3 = all_perms_coupled(s3, e3, n);
-			 
-    return dd1 * dd2 * dd3;
+    init = all_perms_coupled(s1, e1, n, init);
+    init = all_perms_coupled(s2, e2, n, init);
+    init = all_perms_coupled(s3, e3, n, init);
+
+    return init;
   }
   
 }
@@ -287,9 +287,11 @@ PiDD bad_perms(puzzle * p){
   PiDD sort_inv_dd = PiDD_Factory::make_singleton(sort_perm_inv);
   destroy_perm(sort_perm_inv);
 
-  //printf("Construct automorphisms\n");
-  PiDD input_auto = all_automorphisms(c[0], c[1], c[2], false);
-  PiDD output_auto = all_automorphisms(c[0], c[1], c[2], true);
+  printf("Construct automorphisms\n");
+  PiDD input_auto = all_automorphisms(c[0], c[1], c[2], false, PiDD_Factory::make_identity());
+  printf("Input done\n");
+  //PiDD output_auto = all_automorphisms(c[0], c[1], c[2], true);
+  printf("Output deferred\n");
   //input_auto.print_perms();
   //output_auto.print_perms();
   
@@ -299,19 +301,23 @@ PiDD bad_perms(puzzle * p){
   bool valid = true;
   unordered_map<string, pair<PiDD,bool> > memo;
 
-  //printf("Compute all bad perms\n");
+  printf("Compute all bad perms\n");
   PiDD res = bad_perm_helper(abc_ix, cs, s, s, valid, memo);
   assert(valid);
 
-  //printf("Combine results\n"); 
-  //res.print_perms();
-  return (sort_inv_dd * (output_auto * (res * (input_auto * sort_dd))));  // This association seems fastest...
+  printf("Combine results\n");
+
+  res = res * (input_auto * sort_dd);
+  res = all_automorphisms(c[0], c[1], c[2], true, res);
+  res = sort_inv_dd * res;
+  
+  return res;
   
 }
 
 check_t check_PiDD(puzzle * p){
 
-  PiDD P = all_automorphisms(p -> s, 0, 0, false); 
+  PiDD P = all_automorphisms(p -> s, 0, 0, false, PiDD_Factory::make_identity()); 
   
   for (unsigned int c = 0; c < p -> k; c++){
     puzzle * p2 = create_puzzle(p -> s, 1);
@@ -381,7 +387,7 @@ puzzle * search_PiDD(int s){
   // rows.
 
   PiDD cols[(s+1)][(s+1)];
-  puzzle * col = create_puzzle(s, 1);
+  puzzle * col = create_puzzle(s, 1); 
 
   float ave_size = 0;
   float ave_nodes = 0;
@@ -391,12 +397,12 @@ puzzle * search_PiDD(int s){
       // c1 + c2 + c3 = s
       for (int r = 0; r < s; r++){
 	int e = 0;
-	if (r < c1)
+	if (r < c1) 
 	  e = 1;
 	else if (r < c1 + c2)
 	  e = 2;
 	else
-	  e = 3;
+	  e = 3; 
 	set_entry(col, r, 0, e);
       }
       

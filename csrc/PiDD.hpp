@@ -580,16 +580,16 @@ public:
       res = root1;
     else {
 
-      // XXX - Deallocation is broken by this nesting of operations,
-      // because it only deallocates things that are eventually
-      // connected to PiDD objects which are themselves deallocated.
-      // I'm not sure how to cleanly fix this.  Perhaps by maintaing a
-      // list of recently created nodes and then deallocating at the
-      // the end of the call (otherwise it also interferes with the op
-      // cache (which is currently broken and disabled)).
       res = set_union(set_product(root1, root2 -> left, memo),
-		      set_transpose(set_product(root1, root2 -> right, memo), root2 -> t, memo),
-		      memo);
+      		      set_transpose(set_product(root1, root2 -> right, memo), root2 -> t, memo),
+      		      memo);
+
+      // Reverse order of transpose and product.  XXX - seg faults
+      // probably because it gets stuck in infinite recursion as
+      // root2->right becomes a fixed point.
+      // res = set_union(set_product(root1, root2 -> left, memo),
+      // 		      set_product(root1, set_transpose(root2 -> right, root2 -> t, memo), memo),
+      // 		      memo);
     }
 
     op_cache_insert(memo, key, res);
