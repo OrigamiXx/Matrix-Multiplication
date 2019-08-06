@@ -259,7 +259,6 @@ PiDD bad_perms(puzzle * p){
 
   int s = p -> s;
 
-  printf("Compute counts\n");
   int c[3] = {0,0,0};
   for (int r = 0; r < s; r++)
     c[get_entry(p, r, 0) - 1] += 1;
@@ -268,7 +267,6 @@ PiDD bad_perms(puzzle * p){
   int sort_perm_inv_list[2*s];
   int c_sort[3] = {0, c[0], c[0] + c[1]};
 
-  printf("Compute sort perms\n");
   for (int r = 0; r < s; r++){
     int entry = get_entry(p, r, 0) - 1;
     sort_perm_list[r] = c_sort[entry];
@@ -278,33 +276,19 @@ PiDD bad_perms(puzzle * p){
     c_sort[entry] += 1;
   }
 
-  /* for (int r = 0; r < s; r++){ */
-  /*   printf("%d ", sort_perm_list[r]); */
-  /* } */
-  /* printf("\n"); */
-
-  printf("Construct PiDDs for sorting\n");
   perm * sort_perm = create_perm(sort_perm_list, 2*s);
-  //print_perm_cycle(sort_perm);
-  //print_perm_cycle(sort_perm);
   PiDD sort_dd = PiDD_Factory::make_singleton(sort_perm);
   destroy_perm(sort_perm);
-  //sort_dd.print_perms();
 
   perm * sort_perm_inv = create_perm(sort_perm_inv_list, 2*s);
-  //print_perm_cycle(sort_perm_inv);
   PiDD sort_inv_dd = PiDD_Factory::make_singleton(sort_perm_inv);
   destroy_perm(sort_perm_inv);
-  //sort_inv_dd.print_perms();
 
   printf("Construct automorphisms\n");
   PiDD input_auto = all_automorphisms(c[0], c[1], c[2], false);
-  uint64_t before = PiDD_Factory::size();
   PiDD output_auto = all_automorphisms(c[0], c[1], c[2], true);
-  uint64_t after = PiDD_Factory::size();
   //input_auto.print_perms();
   //output_auto.print_perms();
-  printf("size changed by output_auto: %ld\n", (int64_t)after - (int64_t)before);
   
   int cs[9] = {c[0], c[0], c[0], c[1], c[1], c[1], c[2], c[2], c[2]};
   int abc_ix = 0;
@@ -316,15 +300,35 @@ PiDD bad_perms(puzzle * p){
   PiDD res = bad_perm_helper(abc_ix, cs, s, s, valid, memo);
   assert(valid);
 
-  /* for (auto element : memo) { */
-  /*   if (element.second != NULL) */
-  /*     delete element.second; */
-  /* } */
-
   printf("Combine results\n"); 
   //res.print_perms();
   return (sort_inv_dd * (output_auto * (res * (input_auto * sort_dd))));  // This association seems fastest...
   
+}
+
+check_t check_PiDD(puzzle * p){
+
+  PiDD P = all_automorphisms(p -> s, 0, 0, false); 
+  
+  for (unsigned int c = 0; c < p -> k; c++){
+    puzzle * p2 = create_puzzle(p -> s, 1);
+
+    for (unsigned int r = 0; r < p -> s; r++){
+      set_entry(p2, r, 0, get_entry(p, r, c));
+    }
+    //printf("\n---------------New column:\n");
+    //print_puzzle(p2);
+    PiDD P2 = bad_perms(p2);
+    //P2.print_perms();
+    P = P & P2;
+    P.print_stats();
+    destroy_puzzle(p2);
+  }
+
+  if (P == PiDD_Factory::make_identity())
+    return IS_USP;
+  else
+    return NOT_USP;
 }
 
 int main(int argc, char * argv[]){ 
@@ -341,40 +345,16 @@ int main(int argc, char * argv[]){
   } 
   
   print_puzzle(p);
- 
-  printf("Initializing all automorphisms.\n");
-  PiDD P = all_automorphisms(p -> s, 0, 0, false); 
-  //P.print_perms();
-  
-  printf("Reading puzzle\n");  
-  for (unsigned int c = 0; c < p -> k; c++){
-    puzzle * p2 = create_puzzle(p -> s, 1);
-
-    for (unsigned int r = 0; r < p -> s; r++){
-      set_entry(p2, r, 0, get_entry(p, r, c));
-    }
-    printf("\n---------------New column:\n");
-    print_puzzle(p2);
-    PiDD P2 = bad_perms(p2);
-    //P2.print_perms();
-    P = P & P2;
-    P.print_stats();
-    destroy_puzzle(p2);
-  }
-
-  //P.print_perms();
-
-  P.print_stats();
-  
+   
   bool usp = (check(p) == IS_USP);
-  bool small_intersect = P.size() == 1;
+  bool usp_PiDD = (check_PiDD(p) == IS_USP);
 
   if (usp)
     printf("Is SUSP.\n");
   else
     printf("Not SUSP.\n");
   
-  if (usp != small_intersect){
+  if (usp != usp_PiDD){
     printf("Warning! Disagrees with check(). ");
     if (usp)
       printf("Says a SUSP isn't one.\n");
