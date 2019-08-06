@@ -38,6 +38,8 @@ typedef struct _PiDD_Node {
   // Tracks number of parents.  Deallocate when 0.
   uint16_t ref_count;
 
+  int magic;
+
  
 } PiDD_Node;
 
@@ -79,10 +81,12 @@ public:
   PiDD operator*(const PiDD& other) const;
   
   uint64_t size() const;
+  uint64_t node_size() const;
 
   bool is_empty() const;
 
   vector<perm *> enlist(int dim) const;
+  void print_stats() const;
   void print_perms() const;
   
   bool validate() const;
@@ -97,12 +101,13 @@ public:
 */
 
 unsigned int PiDD_count = 0;
-PiDD_Node zero_node = (PiDD_Node){NULL, NULL, (transpose){0,0}, 0, 0};
+PiDD_Node zero_node = (PiDD_Node){NULL, NULL, (transpose){0,0}, 0, 0, 0};
 PiDD_Node * zero = &zero_node;
-PiDD_Node one_node = (PiDD_Node){NULL, NULL, (transpose){1,1}, 1, 0};
+PiDD_Node one_node = (PiDD_Node){NULL, NULL, (transpose){1,1}, 1, 0, 0};
 PiDD_Node * one = &one_node;
 unordered_map<string, PiDD_Node *> node_cache;  // Could be replaced with node parent LLs to reduce memory overhead.
 vector<PiDD_Node *> node_cache_recent;
+int magic_counter = 0;
 
 class PiDD_Factory {
 
@@ -118,6 +123,7 @@ private:
     node.t = t;
     node.size = 0;
     node.ref_count = 0;
+    node.magic = 0;
 
     
     PiDD_Node * res = cache_lookup(&node);
@@ -254,6 +260,20 @@ public:
 
   static uint64_t size(){
     return node_cache.size() + 2;
+  }
+
+  static uint64_t node_size(PiDD_Node * root, int magic){
+
+    if (root -> magic == magic)
+      return 0;
+
+    root -> magic = magic;
+
+    if (root -> t.a == root -> t.b)
+      return 1;
+
+    return 1 + node_size(root -> left, magic) + node_size(root -> right, magic);
+
   }
 
   static PiDD make_empty(){
@@ -726,6 +746,10 @@ uint64_t PiDD::size() const {
   return root -> size;
 }
 
+uint64_t PiDD::node_size() const {
+  return PiDD_Factory::node_size(root, ++magic_counter);
+}
+
 bool PiDD::is_empty() const {
   return this -> root == zero;
 }
@@ -734,16 +758,26 @@ vector<perm *> PiDD::enlist(int dim) const{
   return PiDD_Factory::enlist(root, dim);
 }
 
+void PiDD::print_stats() const{
+
+  int dim = 0;
+  if (root != zero && root != one)
+    dim = root -> t.a + 1;
+  
+  printf("size = %lu, node_size = %lu, node_cache = %lu, dim = %d\n",
+	 size(), node_size(), PiDD_Factory::size(), dim);
+}
+
 void PiDD::print_perms() const{
 
   int dim = 0;
   if (root != zero && root != one)
     dim = root -> t.a + 1;
-
+  
   vector<perm *> pis = enlist(dim);
   
   assert(size() == pis.size());
-  printf("size = %lu, node_cache = %lu, dim = %d\n", size(), PiDD_Factory::size(), dim);
+  print_stats();
   printf("[\n");
   for (auto pi : pis){
     print_perm_cycle(pi);

@@ -17,8 +17,6 @@ using namespace std;
 
 // Returns PiDD of all perms over indexes start to end.
 PiDD all_perms(int start, int end){
-
-
   
   PiDD id = PiDD_Factory::make_identity();  
 
@@ -54,8 +52,7 @@ PiDD all_perms_coupled(int start, int end, int n){
 
 
 PiDD all_automorphisms(int c1, int c2, int c3, bool coupled){
-
-  
+ 
   int s1 = 0;
   int e1 = s1 + c1 - 1;
   int s2 = e1 + 1;
@@ -99,7 +96,7 @@ perm * create_perm(int * l, int n){
 // Row combinations to avoid for non SUSPs.
 int abcs[21] =
   {0,   // 111
-   1,   // 112
+   1,   // 112 
    //2,   // 113 X
    //3,   // 121 X
    //4,   // 122 X
@@ -302,9 +299,12 @@ PiDD bad_perms(puzzle * p){
 
   printf("Construct automorphisms\n");
   PiDD input_auto = all_automorphisms(c[0], c[1], c[2], false);
+  uint64_t before = PiDD_Factory::size();
   PiDD output_auto = all_automorphisms(c[0], c[1], c[2], true);
+  uint64_t after = PiDD_Factory::size();
   //input_auto.print_perms();
   //output_auto.print_perms();
+  printf("size changed by output_auto: %ld\n", (int64_t)after - (int64_t)before);
   
   int cs[9] = {c[0], c[0], c[0], c[1], c[1], c[1], c[2], c[2], c[2]};
   int abc_ix = 0;
@@ -323,7 +323,7 @@ PiDD bad_perms(puzzle * p){
 
   printf("Combine results\n"); 
   //res.print_perms();
-  return (sort_inv_dd * output_auto) * res * (input_auto * sort_dd);
+  return (sort_inv_dd * (output_auto * (res * (input_auto * sort_dd))));  // This association seems fastest...
   
 }
 
@@ -358,13 +358,13 @@ int main(int argc, char * argv[]){
     PiDD P2 = bad_perms(p2);
     //P2.print_perms();
     P = P & P2;
-    printf("size = %lu, node_cache = %lu\n", P.size(), PiDD_Factory::size());
+    P.print_stats();
     destroy_puzzle(p2);
   }
 
   //P.print_perms();
 
-  printf("size = %lu, node_cache = %lu\n", P.size(), PiDD_Factory::size());
+  P.print_stats();
   
   bool usp = (check(p) == IS_USP);
   bool small_intersect = P.size() == 1;
