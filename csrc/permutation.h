@@ -49,6 +49,12 @@ perm * create_perm_identity(int n);
 perm * create_last_perm(int n);
 
 /*
+  Allocates, creates, and returns a permutation according to the given
+  array a of length n.  Doesn't check a has correct format.
+*/
+perm * create_perm_array(int * a, int n);
+
+/*
   Allocates, creates, and returns a copy of the given permutation pi.
 */
 perm * copy_perm(perm * pi); 

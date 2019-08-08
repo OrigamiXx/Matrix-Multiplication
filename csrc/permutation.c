@@ -73,6 +73,16 @@ perm * create_last_perm(int n){
   return pi;
 }
 
+perm * create_perm_array(int * a, int n){
+
+  
+  perm * pi = create_perm_identity(n);
+  for (int i = 0; i < n; i++){
+    assert(a[i] >= 0 && a[i] < n); // XXX - doesn't check for duplicates.
+    pi -> arrow[i] = a[i];
+  }
+  return pi;
+}
 
 /*
   Allocates, creates, and returns a copy of the given permutation pi.
