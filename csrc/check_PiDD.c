@@ -1,6 +1,12 @@
+/*
+ * Implementation of SUSP checking and search based on PiDD.
+ *
+ * Summer 2019.
+ */
+
 #include "PiDD.hpp"
  
-using namespace std;
+using namespace std; 
 
 #include <cstdio> 
 #include <string>
