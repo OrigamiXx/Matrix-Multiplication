@@ -78,6 +78,10 @@ def is_SUSP_rec(column):
     pairs of permutations which make it not a SUSP. '''
 
     ## XXX - Doesn't work, cartesian_product and column_automorphisms are place holder.
+    
+    ## XXX - Also need to check against modifications in the C++
+    ## implementation, I noticed bugs in this algorithm, but haven't
+    ## translated the fixes back.
 
     rows = len(column)
     
@@ -118,12 +122,12 @@ def is_SUSP_rec(column):
     aDD = PiDD.piDD()
     aDD.column_automorphisms(c[0], c[1], c[2])
 
-    ## Compose using cross products 
+    ## Compose using cross products
     res = PiDD.piDD()
     res.cartesian_product(sort_perm_inv)
     res.cartesian_product(aDD)
     res.cartesian_product(DD)
-    #res.cartesian_product(aDD) # XXX - I don't think two applications are necessary.
+    res.cartesian_product(aDD)
     res.cartesian_product(sort_perm)
 
     return res
@@ -134,7 +138,7 @@ def is_SUSP_rec_helper(abc, cs, rows, rows_left, memo):
     the set of pairs of permutations which make it not a SUSP.
 
     '''
-
+    
     ## Check memo table.
     key_str = str([abc,cs])
     if key_str in memo.keys():
