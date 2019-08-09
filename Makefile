@@ -9,14 +9,14 @@ CC=g++
 NAUTY=nauty.o nautil.o nausparse.o naugraph.o schreier.o naurng.o
 NAUTYDIR=nauty26r7
 
-COMMONFLAGS= -Wall -O3 -pg -ggdb -g -std=c++17
+COMMONFLAGS= -Wall -O3 -ggdb -std=c++17 -g -pg
 CCFLAGS=-c $(COMMONFLAGS)
 CFLAGS=-I $(NAUTYDIR)/
-LDFLAGS=-lm -pthread $(COMMONFLAGS)
+LDFLAGS=-lm -pthread $(COMMONFLAGS) 
 RMFLAGS=-f
 
 # Put additional object sources in list below.
-OBJ-SOURCES=checker.c permutation.c puzzle.c set.c matching.c 3DM_to_SAT.c timing.c heuristic.c construct.c clique_to_mip.c canonization.c search_MIP.c searcher2.c search_timer.c
+OBJ-SOURCES=checker.c permutation.c puzzle.c set.c matching.c 3DM_to_SAT.c timing.c heuristic.c construct.c clique_to_mip.c canonization.c search_MIP.c searcher2.c search_timer.c check_PiDD.c
 # Put additional executable sources in list below.
 TESTER-SOURCES=test_3DM_to_SAT.c test_permutation.c test_puzzle.c test_set.c test_matching.c test_scratch.c test_canonization.c test_graph.c test_search_MIP.c test_PiDD.c
 UTIL-SOURCES=util_check_benchmark.c util_check_file.c util_timer.c util_generate_puzzle.c util_join.c util_construct.c util_submodular.c util_search_automorphism.c util_generate_puzzle_data.c
@@ -26,7 +26,7 @@ EXE-SOURCES=$(TESTER-SOURCES) $(UTIL-SOURCES) $(SEARCH-SOURCES)
 ifdef GUROBI_HOME
 OBJ-SOURCES+= 3DM_to_MIP.c
 EXE-SOURCES+= test_3DM_to_MIP.c
-LDFLAGS+= -L $(GUROBI_HOME)/lib -lgurobi_c++ -lgurobi80
+LDFLAGS+= -L $(GUROBI_HOME)/lib -lgurobi_c++ -lgurobi81
 CFLAGS+=-D__GUROBI_INSTALLED__  -I $(GUROBI_HOME)/include
 endif
 
