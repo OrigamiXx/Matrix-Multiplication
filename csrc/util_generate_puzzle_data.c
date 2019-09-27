@@ -67,7 +67,7 @@ puzzle * puzzle_from_file(FILE * f) {
 
 
 
-//Given Index and Puzzle Size, creates puzzle and features and adds them to the data file.
+// Adds Puzzle p to data file
 void add_puzzle_to_datafile(puzzle * p, FILE * data_file, bool canon, bool heuristics, bool different_sizes, bool read_from_file)
 {
     if(canon)
@@ -90,7 +90,7 @@ void add_puzzle_to_datafile(puzzle * p, FILE * data_file, bool canon, bool heuri
       for(int i = 0; i < p -> s; i++){
         for(int j = 0; j < p -> k; j++){
             int entry = get_entry(p, i, j);
-            fprintf(data_file, "%d", entry);
+            fprintf(data_file, "%d", entry); //Adds actual Puzzle number to file
         }
         fprintf(data_file, ",");
       }
@@ -107,7 +107,7 @@ void add_puzzle_to_datafile(puzzle * p, FILE * data_file, bool canon, bool heuri
           int entry = get_entry(p, i, j);
           switch (entry)
           {
-            case 1: count1s++;
+            case 1: count1s++;    //Counts amount of each number in create_puzzle
               break;
             case 2: count2s++;
               break;
@@ -252,8 +252,8 @@ void add_puzzle_to_datafile(puzzle * p, FILE * data_file, bool canon, bool heuri
     fprintf(data_file, "%s", isUSB);
     fprintf(data_file, "\n");
 }
-
-//To use extra arguments must provide puzzle size "R" "C" Ex: 3 4
+//Run from the bin folder
+//To use extra arguments must provide puzzle size first  "R" "C" Ex: 3 4
 // Possible additional arguments:
 // -c produces canonized puzzles,
 // -r 'integer x' produces x number of random puzzles Ex: -r 500
@@ -263,6 +263,7 @@ void add_puzzle_to_datafile(puzzle * p, FILE * data_file, bool canon, bool heuri
 // -d creates same sized datasets for all puzzles up to MAX size
 // -f + filename, used to read puzzles from file to create datasets
 // -m only include MAYBE (From Heuristics) in the dataset
+//Ex: util_generate_puzzle_data 5 5 -c -r 200 -s
 int main(int argc, char * argv[]){
 
   double total_time;
@@ -463,8 +464,7 @@ int main(int argc, char * argv[]){
     else if(read_from_file)
     {
       bool file_full = true;
-      int test = 0;
-      while(file_full && test < 50)
+      while(file_full)
       {
         p = puzzle_from_file(f);
         if(p == NULL)
@@ -475,7 +475,6 @@ int main(int argc, char * argv[]){
         {
           add_puzzle_to_datafile(p, data_file, canon, heuristics, different_sizes, read_from_file);
         }
-        test += 1;
       }
     }
     else
