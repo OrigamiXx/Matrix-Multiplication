@@ -39,14 +39,14 @@ int main(int argc, char * argv[]) {
 
 
   elt_H * h5 = apply_elt_H_new(h1,p);
-  print_compact_perm(p);
+  print_perm_cycle(p);
 
   print_compact_elt_H(h5);
 
-  p = inverse_perm(p);
+  p = invert_perm(p);
 
   elt_H * h6 = apply_elt_H_new(h5,p);
-  print_compact_perm(p);
+  print_perm_cycle(p);
  
   print_compact_elt_H(h6);
 
