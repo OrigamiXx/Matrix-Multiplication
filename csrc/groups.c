@@ -22,6 +22,7 @@
 // ================================================================================
 
 // Default constructor.  Allocates empty elt_H structure, function is identity.
+// Hello
 elt_H * create_elt_H_identity(int U, int k, int m){
 
   elt_H * h = (elt_H *) malloc(sizeof(elt_H));

@@ -44,4 +44,3 @@ objs/*
 nauty*/*.o
 *__pycache__*
 .idea/
-test_data/
