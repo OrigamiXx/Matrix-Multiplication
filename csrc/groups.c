@@ -295,7 +295,7 @@ void next_elt(elt_H * h);
 // Default constructor.  Allocates new elt_G structure, doesn't copy h or p.
 elt_G * create_elt_G(elt_H * h, perm *pi){
 
-  assert(h -> U == pi -> size);
+  assert(h -> U == pi -> n);
 
   elt_G * g = (elt_G *) malloc(sizeof(elt_G));
 
@@ -376,7 +376,7 @@ void inverse_elt_G(elt_G * g) {
 
   // Inverse of (h,pi) is ((h^-1)^(pi^-1), pi^-1).
   inverse_elt_H(g -> h);
-  g -> pi = inverse_perm(g -> pi);
+  g -> pi = invert_perm(g -> pi);
   apply_elt_H(g -> h,g -> pi);
 
 }
@@ -399,7 +399,7 @@ void print_elt_G(elt_G * g){
   printf("(h = \n");
   print_elt_H(g -> h);
   printf("---\n");
-  print_perm(g -> pi);
+  print_perm_tabular(g -> pi);
   printf(")\n");
     
 }
@@ -410,7 +410,7 @@ void print_compact_elt_G(elt_G * g){
   printf("(h = ");
   print_compact_elt_H(g -> h);
   printf(", pi = ");
-  print_compact_perm(g -> pi);
+    print_perm_cycle(g -> pi);
   printf(")");
     
 }
@@ -424,7 +424,7 @@ int is_valid_elt_G(elt_G * g, puzzle * p, int i) {
   int n,j;
 
 
-  inverse_perm(g -> pi);
+  invert_perm(g -> pi);
   //elt_H * h = g -> h; 
   elt_H * h = apply_elt_H_new(g -> h, g -> pi); // XXX - should this be inverse of pi?
 
@@ -433,13 +433,13 @@ int is_valid_elt_G(elt_G * g, puzzle * p, int i) {
       //printf("i = %d, n = %d, j = %d, p[n][j] = %d, h[n][j] = %d\n", i, n, j, p -> puzzle[n][j],h -> f[n][j]);
       if (p -> puzzle[n][j] == i) {
 	if (h -> f[n][j] == 0) {
-	  inverse_perm(g -> pi);
+	  invert_perm(g -> pi);
 	  destroy_elt_H(h);
 	  return false;
 	}
       } else {
 	if (h -> f[n][j] != 0) {
-	  inverse_perm(g -> pi);
+	  invert_perm(g -> pi);
 	  destroy_elt_H(h);
 	  return false;
 	}
@@ -448,7 +448,7 @@ int is_valid_elt_G(elt_G * g, puzzle * p, int i) {
     }
   }
 
-  inverse_perm(g -> pi);
+  invert_perm(g -> pi);
   destroy_elt_H(h);
   return true;
 
@@ -688,7 +688,7 @@ unsigned int hash_elt_G(hash_val k){
 
   long long p_hash = 0;
   int i,j;
-  for (i = 0; i < pi -> size; i++){
+  for (i = 0; i < pi -> n; i++){
     p_hash *= 3.0;
     p_hash += pi -> arrow[i];
   }
